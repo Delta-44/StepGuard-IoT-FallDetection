@@ -1,46 +1,48 @@
-## 📂 Project Structure
-[cite_start]The repository is organized into four main modules to ensure a clear separation of concerns [cite: 14-24]:
+# SafeStep: Sistema Inteligente de Detección de Caídas 🛡️👴
 
-* [cite_start]**`device/`**: ESP32 Firmware, sensor logic (MPU6050), and Wi-Fi communication[cite: 16, 17, 40, 42].
-* [cite_start]**`backend/`**: REST API, JWT authentication, and business logic[cite: 18, 19, 61, 65].
-* [cite_start]**`frontend/`**: Responsive Web Application for monitoring and management[cite: 20, 21, 78, 81].
-* [cite_start]**`docs/`**: Technical documentation, architecture diagrams, and user manuals [cite: 22, 23, 107-113].
+**SafeStep** es una solución de tecnología asistencial que monitoriza movimientos en tiempo real para detectar accidentes y alertar a cuidadores de forma inmediata.
 
-## 🛠️ Tech Stack
-* [cite_start]**IoT:** ESP32, MPU6050 (Accelerometer/Gyroscope), LED/Buzzer, and Emergency Button[cite: 40, 42, 45, 46].
-* [cite_start]**Backend:** Node.js + Express / Spring Boot with JWT Security[cite: 63, 65, 73].
-* [cite_start]**Frontend:** React / Angular with responsive design[cite: 80, 81].
-* [cite_start]**Database:** Relational Database (SQL)[cite: 76, 77].
-* [cite_start]**Communication:** HTTP REST or MQTT[cite: 50, 51].
+## 📂 Estructura del Proyecto
 
-## 👥 Team & Responsibilities
-[cite_start]The project is developed by a team of 7 members, divided into strategic work fractions[cite: 10, 11, 114]:
+El repositorio está organizado para facilitar el desarrollo en paralelo:
 
-| Dev | Role | Key Responsibility |
-| :--- | :--- | :--- |
-| **1** | **IoT Core** | [cite_start]Sensor data acquisition and fall detection logic [cite: 47-49]. |
-| **2** | **Backend Lead** | [cite_start]API architecture, security, and device authentication [cite: 64-66]. |
-| **3** | **Database Spec** | [cite_start]Relational schema design (ER) and data persistence[cite: 110]. |
-| **4** | **Frontend Logic** | [cite_start]API integration and global state management[cite: 82, 83]. |
-| **5** | **UI/UX & Viz** | [cite_start]Dashboard design, responsive layouts, and data visualization [cite: 84-88]. |
-| **6** | **QA & Docs** | [cite_start]Technical manuals, flowcharts, and system testing [cite: 109-113]. |
-| **7** | **System Extras** | [cite_start]Integration of notifications and advanced features [cite: 95-106]. |
+fall-detection-system/
+├── device/                # Trabajo del Dev 1: Firmware ESP32 y sensores
+│   ├── src/               # Código fuente (.ino / .cpp)
+│   └── lib/               # Librerías (MPU6050 y comunicación)
+├── backend/               # Trabajo de Dev 2 y 3: API REST y Base de Datos
+│   ├── src/
+│   │   ├── controllers/   # Lógica de endpoints y gestión de datos
+│   │   ├── models/        # Definición de tablas SQL (ER)
+│   │   └── middleware/    # Protección JWT/Roles
+│   └── tests/             # Pruebas de funcionamiento de la API
+├── frontend/              # Trabajo de Dev 4 y 5: Aplicación Web
+│   ├── src/
+│   │   ├── components/    # Elementos visuales (Botones, gráficas)
+│   │   ├── services/      # Conexión con el backend (API Fetch/Axios)
+│   │   └── views/         # Pantallas: Dashboard, Login, Alertas
+├── docs/                  # Trabajo de Dev 6 y 7: Documentación y Extras
+│   ├── diagrams/          # Arquitectura, ER y Flujo de caídas
+│   └── manuals/           # Guías de usuario y técnica
+└── README.md              # Guía principal del proyecto
 
-## 🔄 Workflow Guidelines
-[cite_start]To maintain code quality and collaborative efficiency, the following rules are mandatory [cite: 25-29]:
-* **Branching:** Use `main` for production and `develop` for integration.
-* **Feature Branches:** Develop each task in a separate `feature/` branch.
-* **Pull Requests:** All code must be reviewed via PR before merging into `develop`.
-* **Issues:** Every task must be tracked using GitHub Issues.
-* **Commits:** Use descriptive messages (e.g., `feat: add fall detection algorithm`).
+## 🔄 Normas de Git
+Para trabajar en este equipo de 7 personas, seguimos estas reglas:
+1. **Ramas Principales:** `main` (solo estable) y `develop` (desarrollo).
+2. **Ramas de Tarea:** Crear ramas tipo `feature/nombre-tarea` desde `develop`.
+3. **Pull Requests:** Obligatorio que otro compañero revise el código antes del Merge.
+4. **Commits:** Deben ser claros (ej: "feat: añadir endpoint de login").
 
-## 📋 Documentation Requirements
-[cite_start]The `/docs` folder must contain the following deliverables [cite: 107-114]:
-1. [cite_start]Architecture Diagram[cite: 109].
-2. [cite_start]Entity-Relationship (ER) Diagram[cite: 110].
-3. [cite_start]Fall Detection Flowchart[cite: 111].
-4. [cite_start]Technical & User Manuals[cite: 112, 113].
-5. [cite_start]Group Task Distribution[cite: 114].
+## 👥 Equipo
+* **Dev 1:** IoT & Sensores.
+* **Dev 2:** Backend & API.
+* **Dev 3:** Base de Datos.
+* **Dev 4:** Lógica de Frontend.
+* **Dev 5:** UI/UX & Visualización.
+* **Dev 6:** Documentación & Calidad.
+* **Dev 7:** Funcionalidades Extra.
 
----
-[cite_start]*This project is part of an educational initiative focused on social responsibility through technology[cite: 115, 122].*
+## 🚀 Instalación Rápida
+* **Hardware:** Carga el código de `/device` en tu ESP32 configurando el Wi-Fi.
+* **Servidor:** Instala dependencias en `/backend` e inicia con `npm start`.
+* **Web:** Ejecuta `npm install` en `/frontend` y lanza el entorno de desarrollo.
