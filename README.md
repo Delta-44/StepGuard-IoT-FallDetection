@@ -1,20 +1,20 @@
-# SafeStep: Sistema Inteligente de Detección de Caídas 🛡️👴
 
-**SafeStep** es una solución de tecnología asistencial que monitoriza movimientos en tiempo real para detectar accidentes y alertar a cuidadores de forma inmediata.
+---
 
 ## 📂 Estructura del Proyecto
 
-El repositorio está organizado para facilitar el desarrollo en paralelo:
+El repositorio está organizado de la siguiente manera para facilitar el desarrollo colaborativo:
 
+```text
 fall-detection-system/
 ├── device/                # Trabajo del Dev 1: Firmware ESP32 y sensores
 │   ├── src/               # Código fuente (.ino / .cpp)
-│   └── lib/               # Librerías (MPU6050 y comunicación)
+│   └── lib/               # Librerías del sensor MPU6050
 ├── backend/               # Trabajo de Dev 2 y 3: API REST y Base de Datos
 │   ├── src/
 │   │   ├── controllers/   # Lógica de endpoints y gestión de datos
 │   │   ├── models/        # Definición de tablas SQL (ER)
-│   │   └── middleware/    # Protección JWT/Roles
+│   │   └── middleware/    # Protección JWT y gestión de Roles
 │   └── tests/             # Pruebas de funcionamiento de la API
 ├── frontend/              # Trabajo de Dev 4 y 5: Aplicación Web
 │   ├── src/
@@ -25,6 +25,7 @@ fall-detection-system/
 │   ├── diagrams/          # Arquitectura, ER y Flujo de caídas
 │   └── manuals/           # Guías de usuario y técnica
 └── README.md              # Guía principal del proyecto
+```
 
 ## 🔄 Normas de Git
 Para trabajar en este equipo de 7 personas, seguimos estas reglas:
