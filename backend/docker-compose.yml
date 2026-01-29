@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  # ================================================
+  # PostgreSQL - Base de datos relacional
+  # ================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: stepguard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: stepguard
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persistir datos de PostgreSQL
+      - postgres_data:/var/lib/postgresql/data
+      # Montar el script de inicialización
+      - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stepguard-network
+
+  # ================================================
+  # Redis - Cache y datos en tiempo real de ESP32
+  # ================================================
+  redis:
+    image: redis:7-alpine
+    container_name: stepguard-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "6379:6379"
+    volumes:
+      # Persistir datos de Redis
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stepguard-network
+
+  # ================================================
+  # pgAdmin - Interfaz web para PostgreSQL (opcional)
+  # ================================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: stepguard-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@stepguard.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - stepguard-network
+
+  # ================================================
+  # Redis Commander - Interfaz web para Redis (opcional)
+  # ================================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: stepguard-redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:6379:0:${REDIS_PASSWORD:-redis_password}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    networks:
+      - stepguard-network
+
+# ================================================
+# Volúmenes para persistencia de datos
+# ================================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+# ================================================
+# Red para comunicación entre servicios
+# ================================================
+networks:
+  stepguard-network:
+    driver: bridge
