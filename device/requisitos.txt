@@ -1,0 +1,2 @@
+VScode con la extension PlatformIO
+Librerias: Adafruit MPU6050 o la de Electronic Cats.
