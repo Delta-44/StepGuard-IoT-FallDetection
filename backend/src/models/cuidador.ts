@@ -6,6 +6,7 @@ export interface Cuidador {
   email: string;
   password_hash: string;
   telefono?: string;
+  is_admin: boolean;
   fecha_creacion?: Date;
 }
 
@@ -13,10 +14,10 @@ export const CuidadorModel = {
   /**
    * Crear un nuevo cuidador
    */
-  create: async (nombre: string, email: string, password_hash: string, telefono?: string): Promise<Cuidador> => {
+  create: async (nombre: string, email: string, password_hash: string, telefono?: string, is_admin: boolean = false): Promise<Cuidador> => {
     const result = await query(
-      'INSERT INTO cuidadores (nombre, email, password_hash, telefono) VALUES ($1, $2, $3, $4) RETURNING *',
-      [nombre, email, password_hash, telefono]
+      'INSERT INTO cuidadores (nombre, email, password_hash, telefono, is_admin) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [nombre, email, password_hash, telefono, is_admin]
     );
     return result.rows[0];
   },
@@ -100,6 +101,38 @@ export const CuidadorModel = {
       [nombre, email, telefono, id]
     );
     return result.rows[0] || null;
+  },
+
+  /**
+   * Actualizar estado de admin de un cuidador
+   */
+  setAdmin: async (id: number, is_admin: boolean): Promise<Cuidador | null> => {
+    const result = await query(
+      'UPDATE cuidadores SET is_admin = $1 WHERE id = $2 RETURNING *',
+      [is_admin, id]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Listar todos los administradores
+   */
+  findAdmins: async (): Promise<Cuidador[]> => {
+    const result = await query(
+      'SELECT * FROM cuidadores WHERE is_admin = true ORDER BY fecha_creacion DESC'
+    );
+    return result.rows;
+  },
+
+  /**
+   * Verificar si un cuidador es admin
+   */
+  isAdmin: async (id: number): Promise<boolean> => {
+    const result = await query(
+      'SELECT is_admin FROM cuidadores WHERE id = $1',
+      [id]
+    );
+    return result.rows[0]?.is_admin || false;
   },
 
   /**

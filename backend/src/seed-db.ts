@@ -13,26 +13,26 @@ async function seedDatabase() {
   try {
     // ===== LIMPIAR DATOS EXISTENTES =====
     console.log('🧹 Limpiando datos existentes...');
-    await query('TRUNCATE TABLE usuario_cuidador, usuarios, cuidadores, dispositivos, admins RESTART IDENTITY CASCADE');
+    await query('TRUNCATE TABLE usuario_cuidador, usuarios, cuidadores, dispositivos RESTART IDENTITY CASCADE');
     console.log('✅ Datos limpiados\n');
 
-    // ===== CREAR ADMINS =====
+    // ===== CREAR ADMINISTRADORES (Cuidadores con is_admin=true) =====
     console.log('👤 Insertando administradores...');
     const adminPassword = await bcrypt.hash('admin123', 10);
     
     await query(
-      'INSERT INTO admins (nombre, email, password_hash) VALUES ($1, $2, $3)',
-      ['Admin Principal', 'admin@stepguard.com', adminPassword]
+      'INSERT INTO cuidadores (nombre, email, password_hash, telefono, is_admin) VALUES ($1, $2, $3, $4, $5)',
+      ['Admin Principal', 'admin@stepguard.com', adminPassword, '+34 600 000 000', true]
     );
     
     await query(
-      'INSERT INTO admins (nombre, email, password_hash) VALUES ($1, $2, $3)',
-      ['María González', 'maria.gonzalez@stepguard.com', adminPassword]
+      'INSERT INTO cuidadores (nombre, email, password_hash, telefono, is_admin) VALUES ($1, $2, $3, $4, $5)',
+      ['María González Admin', 'maria.gonzalez@stepguard.com', adminPassword, '+34 600 000 001', true]
     );
     
     console.log('   ✓ 2 administradores creados');
-    console.log('   📧 admin@stepguard.com - password: admin123');
-    console.log('   📧 maria.gonzalez@stepguard.com - password: admin123\n');
+    console.log('   📧 admin@stepguard.com - password: admin123 (Admin)');
+    console.log('   📧 maria.gonzalez@stepguard.com - password: admin123 (Admin)\n');
 
     // ===== CREAR CUIDADORES =====
     console.log('👨‍⚕️ Insertando cuidadores...');
@@ -46,8 +46,8 @@ async function seedDatabase() {
 
     for (const [nombre, email, telefono] of cuidadores) {
       await query(
-        'INSERT INTO cuidadores (nombre, email, password_hash, telefono) VALUES ($1, $2, $3, $4)',
-        [nombre, email, cuidadorPassword, telefono]
+        'INSERT INTO cuidadores (nombre, email, password_hash, telefono, is_admin) VALUES ($1, $2, $3, $4, $5)',
+        [nombre, email, cuidadorPassword, telefono, false]
       );
     }
     
@@ -124,8 +124,8 @@ async function seedDatabase() {
     console.log('📊 Resumen de datos insertados:');
     const stats = await query(`
       SELECT 
-        (SELECT COUNT(*) FROM admins) as admins,
-        (SELECT COUNT(*) FROM cuidadores) as cuidadores,
+        (SELECT COUNT(*) FROM cuidadores WHERE is_admin = true) as admins,
+        (SELECT COUNT(*) FROM cuidadores WHERE is_admin = false) as cuidadores,
         (SELECT COUNT(*) FROM usuarios) as usuarios,
         (SELECT COUNT(*) FROM dispositivos) as dispositivos,
         (SELECT COUNT(*) FROM usuario_cuidador) as relaciones
@@ -139,8 +139,8 @@ async function seedDatabase() {
 
     console.log('✨ ¡Datos de prueba insertados correctamente!\n');
     console.log('🔐 Credenciales de acceso:');
-    console.log('   Admin:    admin@stepguard.com / admin123');
-    console.log('   Cuidador: ana.martinez@stepguard.com / cuidador123');
+    console.log('   Admin:    admin@stepguard.com / admin123 (is_admin=true)');
+    console.log('   Cuidador: ana.martinez@stepguard.com / cuidador123 (is_admin=false)');
     console.log('   Usuario:  juan.perez@example.com / usuario123\n');
 
   } catch (error: any) {

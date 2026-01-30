@@ -8,26 +8,11 @@ DROP TABLE IF EXISTS usuario_cuidador CASCADE;
 DROP TABLE IF EXISTS usuarios CASCADE;
 DROP TABLE IF EXISTS cuidadores CASCADE;
 DROP TABLE IF EXISTS dispositivos CASCADE;
-DROP TABLE IF EXISTS admins CASCADE;
-
--- ================================================
--- TABLA: admins
--- Descripción: Administradores del sistema
--- ================================================
-CREATE TABLE admins (
-    id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Índice para búsquedas por email
-CREATE INDEX idx_admins_email ON admins(email);
 
 -- ================================================
 -- TABLA: cuidadores
 -- Descripción: Cuidadores que pueden monitorizar usuarios
+-- Los cuidadores con is_admin=true tienen permisos de administrador
 -- ================================================
 CREATE TABLE cuidadores (
     id SERIAL PRIMARY KEY,
@@ -35,6 +20,7 @@ CREATE TABLE cuidadores (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     telefono VARCHAR(20),
+    is_admin BOOLEAN DEFAULT false,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -117,12 +103,12 @@ CREATE INDEX idx_usuario_cuidador_cuidador ON usuario_cuidador(cuidador_id);
 -- ================================================
 
 -- Insertar admin de prueba (password: admin123)
--- INSERT INTO admins (nombre, email, password_hash) 
--- VALUES ('Admin Principal', 'admin@stepguard.com', '$2a$10$rOzJqKxQxjLVKj0AEPmjX.yF8fXLxg7dxVMqHGzNjYvQxIxVxMUyC');
+-- INSERT INTO cuidadores (nombre, email, password_hash, telefono, is_admin) 
+-- VALUES ('Admin Principal', 'admin@stepguard.com', '$2a$10$rOzJqKxQxjLVKj0AEPmjX.yF8fXLxg7dxVMqHGzNjYvQxIxVxMUyC', '+34 600 000 000', true);
 
 -- Insertar cuidador de prueba (password: cuidador123)
--- INSERT INTO cuidadores (nombre, email, password_hash, telefono) 
--- VALUES ('María García', 'maria@stepguard.com', '$2a$10$rOzJqKxQxjLVKj0AEPmjX.yF8fXLxg7dxVMqHGzNjYvQxIxVxMUyC', '+34 600 123 456');
+-- INSERT INTO cuidadores (nombre, email, password_hash, telefono, is_admin) 
+-- VALUES ('María García', 'maria@stepguard.com', '$2a$10$rOzJqKxQxjLVKj0AEPmjX.yF8fXLxg7dxVMqHGzNjYvQxIxVxMUyC', '+34 600 123 456', false);
 
 -- Insertar dispositivo de prueba
 -- INSERT INTO dispositivos (device_id, mac_address, nombre, ubicacion) 
@@ -140,8 +126,7 @@ CREATE INDEX idx_usuario_cuidador_cuidador ON usuario_cuidador(cuidador_id);
 -- COMENTARIOS Y METADATA
 -- ================================================
 
-COMMENT ON TABLE admins IS 'Administradores del sistema con permisos completos';
-COMMENT ON TABLE cuidadores IS 'Cuidadores que monitorizan el estado de los usuarios';
+COMMENT ON TABLE cuidadores IS 'Cuidadores que monitorizan el estado de los usuarios. Campo is_admin=true indica permisos de administrador';
 COMMENT ON TABLE usuarios IS 'Usuarios del sistema (personas mayores) asociados a dispositivos';
 COMMENT ON TABLE dispositivos IS 'Dispositivos ESP32 para detección de caídas';
 COMMENT ON TABLE usuario_cuidador IS 'Relación muchos-a-muchos entre usuarios y cuidadores';
