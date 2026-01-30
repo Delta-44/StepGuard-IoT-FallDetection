@@ -1,14 +1,122 @@
-<div style="background: #f4f4f4; padding: 20px; border: 2px dashed #ccc; font-family: monospace; color: #333;">
-  <h2 style="color: red;">🔧 VISTA DE DEBUG (LÓGICA)</h2>
-  <p>Si ves datos abajo, la conexión con el servicio funciona.</p>
+<div style="padding: 20px;">
   
-  <ul>
-    <li><strong>Estado Crítico:</strong> {{ isCriticalState }}</li>
-    <li><strong>Conexión:</strong> {{ connectionStatus }}</li>
-  </ul>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>📡 Sensores Conectados (Actualizado)</h2>
+    
+    <button (click)="loadDevices()" [disabled]="isLoading()" style="cursor: pointer; padding: 5px 10px;">
+      {{ isLoading() ? '⏳ Cargando...' : '🔄 Recargar' }}
+    </button>
+  </div>
 
-  <hr>
-  
-  <h3>Datos recibidos (JSON Crudo):</h3>
-  <pre style="background: #333; color: #0f0; padding: 10px;">{{ alerts | json }}</pre>
+  @if (!isLoading() && devices().length === 0) {
+    <div style="background: #f0f0f0; padding: 20px; text-align: center; border-radius: 8px;">
+      <p>No se han encontrado dispositivos configurados.</p>
+    </div>
+  }
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+    
+    @for (device of devices(); track device.id) {
+      <div style="border: 1px solid #ccc; border-radius: 10px; padding: 15px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+          <h3 style="margin: 0; font-size: 1.1em; color: #333;">{{ device.name }}</h3>
+          
+          <span [style.background]="device.status === 'online' ? '#28a745' : '#dc3545'" 
+                style="color: white; font-size: 0.7em; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;">
+            {{ device.status }}
+          </span>
+        </div>
+
+        <div style="font-size: 0.9em; color: #555; line-height: 1.8;">
+          <div>📍 <strong>Ubicación:</strong> {{ device.location }}</div>
+          <div>
+            🔋 <strong>Batería:</strong> 
+            <span [style.color]="device.battery < 20 ? 'red' : 'green'" style="font-weight: bold;">
+              {{ device.battery }}%
+            </span>
+          </div>
+          <div>🕒 <strong>Última vez:</strong> {{ device.lastSeen | date:'shortTime' }}</div>
+        </div>
+
+        @if (isAdmin()) {
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+          <button (click)="rebootDevice(device)" 
+                  style="width: 100%; background: #ff4444; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            ⚡ Reiniciar Dispositivo
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- PANEL TÉCNICO / DEBUG -->
+  <div style="margin-top: 40px;">
+    <button (click)="toggleTechnicalPanel()" 
+            style="width: 100%; padding: 12px; background: #333; color: white; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; margin-bottom: 10px;">
+      {{ showTechnicalPanel() ? '▼' : '▶' }} VISTA TÉCNICA (DEBUG)
+    </button>
+
+    @if (showTechnicalPanel()) {
+      <div style="background: #1e1e1e; color: #00ff00; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 13px;">
+        
+        <h3 style="color: #ff6b6b; margin-top: 0;">🛠️ PANEL DE DESARROLLO</h3>
+        
+        <div style="margin-bottom: 15px;">
+          <strong>Estado Crítico:</strong> 
+          <span [style.color]="criticalState() ? '#ff4444' : '#44ff44'">
+            {{ criticalState() ? 'true ⚠️' : 'false ✓' }}
+          </span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <strong>Conexión:</strong> 
+          <span [style.color]="connectionStatus() === 'Conectado' ? '#44ff44' : '#ff4444'">
+            {{ connectionStatus() }}
+          </span>
+        </div>
+
+        <hr style="border-color: #333; margin: 20px 0;">
+
+        <h4 style="color: #ffd700;">📡 Datos recibidos (JSON Crudo):</h4>
+        <pre style="background: #0a0a0a; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px; border: 1px solid #333;">{{ devices() | json }}</pre>
+
+        <hr style="border-color: #333; margin: 20px 0;">
+
+        <h4 style="color: #ffd700;">🔬 Datos del Sensor (Acelerómetro):</h4>
+        @for (device of devices(); track device.id) {
+          @if (device.sensorData) {
+            <div style="background: #0a0a0a; padding: 15px; margin-bottom: 10px; border-radius: 5px;" 
+                 [style.border-left]="'3px solid ' + (device.sensorData.fallDetected ? '#ff4444' : '#44ff44')">
+              <div><strong style="color: #00d4ff;">{{ device.id }}</strong> - {{ device.name }}</div>
+              <div style="margin-top: 8px; line-height: 1.8;">
+                <div>• AccX: <span style="color: #fff;">{{ device.sensorData.accX }}</span> m/s²</div>
+                <div>• AccY: <span style="color: #fff;">{{ device.sensorData.accY }}</span> m/s²</div>
+                <div>• AccZ: <span style="color: #fff;">{{ device.sensorData.accZ }}</span> m/s²</div>
+                <div>• Caída detectada: 
+                  <span [style.color]="device.sensorData.fallDetected ? '#ff4444' : '#44ff44'">
+                    {{ device.sensorData.fallDetected }}
+                  </span>
+                </div>
+                @if (device.sensorData.temperature) {
+                  <div>• Temperatura: <span style="color: #fff;">{{ device.sensorData.temperature }}°C</span></div>
+                }
+                @if (device.macAddress) {
+                  <div>• MAC: <span style="color: #aaa;">{{ device.macAddress }}</span></div>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        <div style="margin-top: 20px; padding: 10px; background: #0a0a0a; border-radius: 5px; border: 1px solid #555;">
+          <small style="color: #888;">
+            ℹ️ Este panel muestra datos técnicos para desarrollo y presentación del proyecto IoT.
+            <br>
+            Los datos son recibidos del ESP32 vía HTTP/MQTT y procesados por el backend.
+          </small>
+        </div>
+      </div>
+    }
+  </div>
 </div>
