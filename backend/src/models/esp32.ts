@@ -1,13 +1,13 @@
 export interface ESP32 {
+    //complete revision of the ESP32 model, do not toutch too much until the DB is ready
     id: string;
     macAddress: string;
     name: string;
-    location: string; // e.g., "Living Room"
+  //  location: string; // e.g., "Living Room"
     status: 'online' | 'offline' | 'maintenance';
-    batteryLevel: number; // 0-100
-    temperature?: number; // Internal temperature in Celsius
-    firmwareVersion: string;
-    lastSeen: Date;
+
+    // firmwareVersion: string;
+
     isFallDetected: boolean;
     config: ESP32Config;
 }
@@ -23,11 +23,11 @@ export const createDefaultESP32 = (id: string, mac: string): ESP32 => ({
     id,
     macAddress: mac,
     name: `ESP32-${id}`,
-    location: 'Unassigned',
+    // location: 'Unassigned',
     status: 'offline',
-    batteryLevel: 100,
-    firmwareVersion: '1.0.0',
-    lastSeen: new Date(),
+    //no tocar por ahora
+    // firmwareVersion: '1.0.0',
+   
     isFallDetected: false,
     config: {
         fallDetectionSensitivity: 'medium',
