@@ -3,12 +3,11 @@ import { ApiService } from '../../services/api.service';
 import { Alert } from '../../models/alert.model';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { SeverityLabelPipe } from '../../pipes/severity-label-pipe';
 
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [CommonModule, SeverityLabelPipe],
+  imports: [CommonModule],
   templateUrl: './devices.component.html',
   styleUrl: './devices.component.css'
 })

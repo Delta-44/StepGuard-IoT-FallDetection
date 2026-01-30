@@ -1,0 +1,37 @@
+<div style="padding: 20px; font-family: sans-serif;">
+  <h2>Iniciar Sesión (Modo Reactivo)</h2>
+  
+  @if (error()) {
+    <div style="background: #fee; color: red; padding: 10px; margin-bottom: 10px;">
+      {{ error() }}
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    
+    <div>
+      <label>Email:</label>
+      <input type="email" formControlName="email" placeholder="admin@test.com">
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <span style="color: red; font-size: 0.8em;"> Email inválido</span>
+      }
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Password:</label>
+      <input type="password" formControlName="password" placeholder="123456">
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <span style="color: red; font-size: 0.8em;"> Requerido</span>
+      }
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button type="submit" [disabled]="loading()">
+        @if (loading()) { ⏳ Entrando... } @else { Entrar }
+      </button>
+    </div>
+
+  </form>
+
+  <p>¿No tienes cuenta? <a routerLink="/register">Registrarse</a></p>
+</div>

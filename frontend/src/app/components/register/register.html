@@ -1,0 +1,53 @@
+<div style="padding: 20px; font-family: sans-serif;">
+  <h2>Crear Cuenta</h2>
+  
+  @if (success()) {
+    <div style="background: #d4edda; color: #155724; padding: 15px; margin-bottom: 10px; border-radius: 4px;">
+      ✓ Cuenta creada exitosamente. Redirigiendo al login...
+    </div>
+  }
+  
+  @if (error()) {
+    <div style="background: #fee; color: red; padding: 10px; margin-bottom: 10px;">
+      {{ error() }}
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    
+    <div>
+      <label>Nombre completo:</label>
+      <input type="text" formControlName="name" placeholder="Juan Pérez">
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <span style="color: red; font-size: 0.8em;"> Mínimo 2 caracteres</span>
+      }
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Email:</label>
+      <input type="email" formControlName="email" placeholder="tu@email.com">
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <span style="color: red; font-size: 0.8em;"> Email inválido</span>
+      }
+    </div>
+
+    <div style="margin-top: 10px;">
+      <label>Contraseña:</label>
+      <input type="password" formControlName="password" placeholder="Mínimo 6 caracteres">
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <span style="color: red; font-size: 0.8em;"> Mínimo 6 caracteres</span>
+      }
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button type="submit" [disabled]="loading()">
+        @if (loading()) { ⏳ Creando cuenta... } @else { Registrarse }
+      </button>
+    </div>
+
+  </form>
+
+  <p style="margin-top: 20px;">
+    ¿Ya tienes cuenta? <a href="/login" style="color: #007bff; text-decoration: none;">Iniciar sesión</a>
+  </p>
+</div>

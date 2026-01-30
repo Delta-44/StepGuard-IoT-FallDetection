@@ -1,14 +1,50 @@
-import { Routes } from '@angular/router';
+import { Routes, Router } from '@angular/router';
+import { inject } from '@angular/core';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DevicesComponent } from './components/devices/devices.component';
+import { LoginComponent } from './components/login/login';
+import { RegisterComponent } from './components/register/register';
+import { AuthService } from './services/auth.service';
+
+// --- LÓGICA DE GUARDIA (SECURITY GUARD) ---
+const authGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  // Solo permitir si el usuario está autenticado Y tiene token
+  const isAuthenticated = auth.currentUser() !== null && localStorage.getItem('auth_token');
+  
+  if (isAuthenticated) {
+    return true; // Permitir acceso
+  } else {
+    // Limpiar cualquier dato residual
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('mock_session');
+    router.navigate(['/login']); // Redirigir a login
+    return false;
+  }
+};
 
 export const routes: Routes = [
-  // 1. REGLA DE ORO: Si la ruta está vacía, redirige a 'dashboard'
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  // Rutas Públicas
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+
+  // Rutas Protegidas (Requieren Login)
+  { 
+    path: 'dashboard', 
+    component: DashboardComponent, 
+    canActivate: [authGuard]
+  },
+  { 
+    path: 'devices', 
+    component: DevicesComponent, 
+    canActivate: [authGuard] 
+  },
+
+  // Redirección por defecto (Si entra a la raíz, va al login)
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   
-  // 2. La ruta principal - Dashboard
-  { path: 'dashboard', component: DashboardComponent },
-  
-  // 3. La ruta de dispositivos - Vista de debug
-  { path: 'devices', component: DevicesComponent }
+  // (Opcional) Cualquier ruta desconocida redirige a login
+  { path: '**', redirectTo: 'login' }
 ];
