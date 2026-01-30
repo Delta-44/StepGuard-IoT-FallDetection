@@ -60,6 +60,13 @@ export class AuthService {
     this.currentUser.set(user);
   }
 
+  // --- URL PARA LOGIN CON GOOGLE ---
+  getGoogleLoginUrl(): string {
+    // En producción esto apuntaría a tu backend: http://localhost:3000/api/auth/google
+    // Por ahora retorna una URL de ejemplo
+    return 'http://localhost:3000/api/auth/google';
+  }
+
   // --- LÓGICA DE LOGIN SIMULADA (Privada) ---
   private mockLoginLogic(email: string, pass: string): { token: string; user: User } {
     // Validaciones "Hardcodeadas" para pruebas

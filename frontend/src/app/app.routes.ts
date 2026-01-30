@@ -2,8 +2,8 @@ import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DevicesComponent } from './components/devices/devices.component';
-import { LoginComponent } from './components/login/login';
-import { RegisterComponent } from './components/register/register';
+import { LoginPage } from './pages/login/login.page';
+import { RegisterPage } from './pages/register/register.page';
 import { AuthService } from './services/auth.service';
 
 // --- LÓGICA DE GUARDIA (SECURITY GUARD) ---
@@ -27,8 +27,8 @@ const authGuard = () => {
 
 export const routes: Routes = [
   // Rutas Públicas
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'login', component: LoginPage },
+  { path: 'register', component: RegisterPage },
 
   // Rutas Protegidas (Requieren Login)
   { 
