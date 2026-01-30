@@ -3,6 +3,7 @@ export interface Alert {
   deviceId: string;
   timestamp: Date;
   severity: 'low' | 'medium' | 'critical';
+  message: string;
   description: string;
   resolved: boolean;
 }

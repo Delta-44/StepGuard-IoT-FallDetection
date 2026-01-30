@@ -30,6 +30,7 @@ export class ApiService {
         deviceId: 'ESP32-001',
         timestamp: new Date(),
         severity: 'critical',
+        message: 'Caída detectada en Salón',
         description: 'Caída detectada en Salón',
         resolved: false
       },
@@ -38,6 +39,7 @@ export class ApiService {
         deviceId: 'ESP32-002',
         timestamp: new Date(Date.now() - 600000),
         severity: 'medium',
+        message: 'Inactividad prolongada',
         description: 'Inactividad prolongada',
         resolved: true
       }
