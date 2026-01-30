@@ -1,0 +1,16 @@
+<!--ESTO PA CHIO-->
+
+<div style="background: #f4f4f4; padding: 20px; border: 2px dashed #ccc; font-family: monospace; color: #333;">
+  <h2 style="color: red;">🔧 VISTA DE DEBUG (LÓGICA)</h2>
+  <p>Si ves datos abajo, la conexión con el servicio funciona.</p>
+  
+  <ul>
+    <li><strong>Estado Crítico:</strong> {{ isCriticalState }}</li>
+    <li><strong>Conexión:</strong> {{ connectionStatus }}</li>
+  </ul>
+
+  <hr>
+  
+  <h3>Datos recibidos (JSON Crudo):</h3>
+  <pre style="background: #333; color: #0f0; padding: 10px;">{{ alerts | json }}</pre>
+</div>
