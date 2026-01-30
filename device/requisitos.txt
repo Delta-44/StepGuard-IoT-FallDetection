@@ -1,2 +1,11 @@
 VScode con la extension PlatformIO
+Esta extension requiere platformio.ini para que algunas dependencias funcionen bien
+
 Librerias: Adafruit MPU6050 o la de Electronic Cats.
+
+El sensor de emocion es este: HC-SR501 Module
+
+Conexiones fisicas:
+VCC:    Rojo       :VIN
+OUT:    Marron     :D13
+GND:    Negro      :GND
