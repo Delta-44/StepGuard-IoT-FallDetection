@@ -42,9 +42,7 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
 
-  // Redirección por defecto (Si entra a la raíz, va al login)
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   
-  // (Opcional) Cualquier ruta desconocida redirige a login
   { path: '**', redirectTo: 'login' }
 ];
