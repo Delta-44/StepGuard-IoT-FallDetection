@@ -1,42 +1,53 @@
-<!-- Vista principal del Dashboard -->
 <div style="padding: 20px;">
-  <!-- Estado global -->
-  <div [style.background]="isCriticalState ? '#ff4444' : '#44ff44'" 
+
+  <div [style.background]="isCriticalState() ? '#ff4444' : '#44ff44'" 
        style="padding: 20px; color: white; font-weight: bold; margin-bottom: 20px; border-radius: 8px;">
     <h2 style="margin: 0;">
-      {{ isCriticalState ? '⚠️ ALERTA CRÍTICA ACTIVA' : '✓ Sistema en estado normal' }}
+      @if (isCriticalState()) {
+        ⚠️ ALERTA CRÍTICA ACTIVA
+      } @else {
+        ✓ Sistema en estado normal
+      }
     </h2>
-    <p style="margin: 10px 0 0 0;">Estado de conexión: {{ connectionStatus }}</p>
+    <p style="margin: 10px 0 0 0;">Estado: {{ connectionStatus() }}</p>
   </div>
 
-  <!-- Lista de alertas -->
   <h2>Alertas Recientes</h2>
   
-  <div *ngIf="alerts.length === 0" style="padding: 40px; text-align: center; background: #f5f5f5; border-radius: 8px;">
-    <p style="color: #666; font-size: 18px;">No hay alertas en este momento</p>
-  </div>
-
-  <div *ngFor="let alert of alerts" 
-       [style.background]="alert.resolved ? '#e8e8e8' : (alert.severity === 'critical' ? '#ffe6e6' : '#fff3cd')"
-       style="padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid;"
-       [style.border-left-color]="alert.severity === 'critical' ? '#dc3545' : '#ffc107'">
-    
-    <div style="display: flex; justify-content: space-between; align-items: start;">
-      <div style="flex: 1;">
-        <h3 style="margin: 0 0 10px 0; color: #333;">
-          {{ alert.severity | severityLabel }}
-          <span *ngIf="alert.resolved" style="color: #28a745; font-size: 14px;">(Atendida)</span>
-        </h3>
-        <p style="margin: 5px 0;"><strong>Dispositivo:</strong> {{ alert.deviceId }}</p>
-        <p style="margin: 5px 0;"><strong>Fecha:</strong> {{ alert.timestamp | date:'medium' }}</p>
-        <p style="margin: 10px 0 0 0; color: #666;">{{ alert.message }}</p>
-      </div>
-      
-      <button *ngIf="!alert.resolved"
-              (click)="attendAlert(alert.id)"
-              style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; white-space: nowrap;">
-        ✓ Atender
-      </button>
+  @if (alerts().length === 0) {
+    <div style="padding: 40px; text-align: center; background: #f5f5f5; border-radius: 8px;">
+      <p style="color: #666; font-size: 18px;">No hay alertas en este momento</p>
     </div>
-  </div>
+  }
+
+  @for (alert of alerts(); track alert.id) {
+    
+    <div [style.background]="alert.resolved ? '#e8e8e8' : (alert.severity === 'critical' ? '#ffe6e6' : '#fff3cd')"
+         style="padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid;"
+         [style.border-left-color]="alert.severity === 'critical' ? '#dc3545' : '#ffc107'">
+      
+      <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div style="flex: 1;">
+          <h3 style="margin: 0 0 10px 0; color: #333;">
+            {{ alert.severity | severityLabel }}
+            
+            @if (alert.resolved) {
+              <span style="color: #28a745; font-size: 14px;">(Atendida)</span>
+            }
+          </h3>
+          
+          <p style="margin: 5px 0;"><strong>Dispositivo:</strong> {{ alert.deviceId }}</p>
+          <p style="margin: 5px 0;"><strong>Fecha:</strong> {{ alert.timestamp | date:'medium' }}</p>
+          <p style="margin: 10px 0 0 0; color: #666;">{{ alert.message }}</p>
+        </div>
+        
+        @if (!alert.resolved) {
+          <button (click)="attendAlert(alert.id)"
+                  style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            ✓ Atender
+          </button>
+        }
+      </div>
+    </div>
+  }
 </div>
