@@ -51,14 +51,14 @@ async function initDatabase() {
     console.log('📊 Estadísticas:');
     const stats = await query(`
       SELECT 
-        (SELECT COUNT(*) FROM admins) as admins,
-        (SELECT COUNT(*) FROM cuidadores) as cuidadores,
+        (SELECT COUNT(*) FROM cuidadores WHERE is_admin = true) as admins,
+        (SELECT COUNT(*) FROM cuidadores WHERE is_admin = false) as cuidadores,
         (SELECT COUNT(*) FROM usuarios) as usuarios,
         (SELECT COUNT(*) FROM dispositivos) as dispositivos
     `);
     
-    console.log(`   • Admins: ${stats.rows[0].admins}`);
-    console.log(`   • Cuidadores: ${stats.rows[0].cuidadores}`);
+    console.log(`   • Admins (is_admin=true): ${stats.rows[0].admins}`);
+    console.log(`   • Cuidadores (is_admin=false): ${stats.rows[0].cuidadores}`);
     console.log(`   • Usuarios: ${stats.rows[0].usuarios}`);
     console.log(`   • Dispositivos: ${stats.rows[0].dispositivos}\n`);
 
