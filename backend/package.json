@@ -9,6 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:init": "ts-node src/init-db.ts",
     "db:test": "ts-node src/test-connection.ts",
+    "db:diagnose": "ts-node src/diagnose-connection.ts",
     "db:seed": "ts-node src/seed-db.ts",
     "redis:seed": "ts-node src/seed-redis.ts",
     "redis:view": "ts-node src/view-redis.ts"

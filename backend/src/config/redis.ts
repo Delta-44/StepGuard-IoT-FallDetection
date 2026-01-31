@@ -4,16 +4,25 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Configuración de Redis para datos de dispositivos ESP32
-const redis = new Redis({
+const redisConfig: any = {
   host: process.env.REDIS_HOST || 'localhost',
   port: parseInt(process.env.REDIS_PORT || '6379'),
   password: process.env.REDIS_PASSWORD || undefined,
-  retryStrategy: (times) => {
+  retryStrategy: (times: number) => {
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
   maxRetriesPerRequest: 3,
-});
+};
+
+// TLS automático solo para servicios que lo requieren (puerto 6380 o URLs específicas)
+// Redis Cloud con puertos estándar (no 6380) NO usa TLS
+if (process.env.REDIS_PORT === '6380' || 
+    (process.env.REDIS_HOST?.includes('upstash.io') && process.env.REDIS_PORT === '6380')) {
+  redisConfig.tls = { rejectUnauthorized: false };
+}
+
+const redis = new Redis(redisConfig);
 
 redis.on('connect', () => {
   console.log('✅ Conectado a Redis');
