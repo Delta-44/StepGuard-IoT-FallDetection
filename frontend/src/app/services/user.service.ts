@@ -46,4 +46,11 @@ export class UserService {
     console.log(`🗑️ Eliminando usuario con ID: ${id}`);
     return of(true).pipe(delay(500));
   }
+
+  // SIMULACIÓN: Crear usuario nuevo
+  createUser(user: User): Observable<User> {
+    console.log('📡 Enviando al backend:', user);
+    // Devolvemos el mismo usuario simulando que el servidor respondió OK
+    return of(user).pipe(delay(500)); 
+  }
 }
