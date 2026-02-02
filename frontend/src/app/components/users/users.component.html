@@ -1,0 +1,131 @@
+<div style="padding: 20px; font-family: 'Segoe UI', sans-serif;">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #ddd; padding-bottom: 15px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <h2 style="margin: 0;">👥 Gestión de Usuarios</h2>
+      <span style="background: #eee; color: #666; padding: 2px 8px; border-radius: 10px; font-size: 0.8em;">
+        {{ users().length }}
+      </span>
+    </div>
+
+    @if (isAdmin()) {
+      <button (click)="openCreateModal()" 
+              style="background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px;">
+        <span>+</span> Nuevo Usuario
+      </button>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <p>⏳ Cargando...</p>
+  } @else {
+    <div style="display: grid; gap: 15px;">
+      @for (user of users(); track user.id) {
+        <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+          
+          <div>
+            <h3 style="margin: 0;">{{ user.fullName }}</h3>
+            <span style="color: #666; font-size: 0.9em;">{{ user.email }}</span>
+            <br>
+            <span [style.background]="user.role === 'admin' ? '#333' : (user.role === 'caregiver' ? '#007bff' : '#6c757d')"
+                  style="color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; text-transform: uppercase;">
+              @if (user.role === 'admin') { ADMINISTRADOR }
+              @else if (user.role === 'caregiver') { CUIDADOR }
+              @else { USUARIO }
+            </span>
+          </div>
+
+          @if (isAdmin() && user.role !== 'admin') {
+            <button (click)="deleteUser(user)" 
+                    style="background: #fff0f0; color: #dc3545; border: 1px solid #dc3545; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+              🗑️ Eliminar
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  @if (showModal()) {
+    <div class="modal-overlay" (click)="closeCreateModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()" 
+           style="max-width: 500px; max-height: 90vh; overflow-y: auto;">
+        
+        <h2 style="margin-top: 0; color: #333;">✨ Crear Nuevo Usuario</h2>
+        <p style="color: #666; margin-bottom: 20px;">Completa el formulario con los datos del nuevo usuario.</p>
+
+        <form [formGroup]="userForm" (ngSubmit)="saveUser()">
+          
+          <div class="form-group">
+            <label class="form-label">Nombre Completo *</label>
+            <input formControlName="fullName" type="text" class="form-input" placeholder="Ej: Dr. Juan Pérez">
+            @if (userForm.get('fullName')?.invalid && userForm.get('fullName')?.touched) {
+              <small style="color: red;">El nombre debe tener al menos 3 caracteres.</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nombre de Usuario *</label>
+            <input formControlName="username" type="text" class="form-input" placeholder="Ej: jperez">
+            @if (userForm.get('username')?.invalid && userForm.get('username')?.touched) {
+              <small style="color: red;">El nombre de usuario debe tener al menos 3 caracteres.</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Correo Electrónico *</label>
+            <input formControlName="email" type="email" class="form-input" placeholder="ejemplo@hospital.com">
+            @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+              <small style="color: red;">Ingresa un correo electrónico válido.</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Contraseña *</label>
+            <input formControlName="password" type="password" class="form-input" placeholder="Mínimo 6 caracteres">
+            @if (userForm.get('password')?.invalid && userForm.get('password')?.touched) {
+              <small style="color: red;">La contraseña debe tener al menos 6 caracteres.</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Rol del Usuario *</label>
+            <select formControlName="role" class="form-input" style="background: white;">
+              <option value="user">Usuario / Paciente</option>
+              <option value="caregiver">Enfermero/Cuidador</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input formControlName="phone" type="tel" class="form-input" placeholder="+34 612 345 678">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Dirección</label>
+            <input formControlName="address" type="text" class="form-input" placeholder="Calle Principal 123">
+          </div>
+
+          <div class="btn-group">
+            <button type="button" (click)="closeCreateModal()" 
+                    style="background: transparent; border: 1px solid #ccc; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+              Cancelar
+            </button>
+            
+            <button type="submit"
+                    [disabled]="userForm.invalid"
+                    [style.background]="userForm.invalid ? '#ccc' : '#28a745'"
+                    [style.cursor]="userForm.invalid ? 'not-allowed' : 'pointer'"
+                    style="color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold;">
+              💾 Guardar Usuario
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  }
+
+</div>
