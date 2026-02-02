@@ -1,9 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common'; // Ya no es estrictamente necesario con @for, pero mal no hace
+import { CommonModule } from '@angular/common';
 import { Alert } from '../../models/alert.model';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service'; // <--- IMPORTANTE: Importar Auth
 import { SeverityLabelPipe } from '../../pipes/severity-label-pipe';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop'; // Para limpiar suscripciones auto
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,31 +15,25 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop'; // Para limpiar
 })
 export class DashboardComponent implements OnInit {
 
-  // INYECCIÓN DE DEPENDENCIAS (Más limpio que el constructor)
+  // INYECCIONES
   private apiService = inject(ApiService);
+  private authService = inject(AuthService); // <--- Inyectamos para saber quién eres
 
-  // --- ESTADO REACTIVO (SIGNALS) ---
-  
-  // 1. La lista de alertas es una Señal (empieza vacía)
+  // --- SIGNALS ---
   public alerts = signal<Alert[]>([]);
-
-  // 2. El estado de conexión es otra señal
   public connectionStatus = signal<string>('Conectando...');
 
-  // 3. ¡MAGIA! Esto se calcula AUTOMÁTICAMENTE. 
-  // Si 'alerts' cambia, 'isCriticalState' se actualiza solo.
+  // Calculamos si hay crisis
   public isCriticalState = computed(() => 
     this.alerts().some(a => a.severity === 'critical' && !a.resolved)
   );
 
   constructor() {
-    // Configuramos la carga de datos al iniciar
-    // takeUntilDestroyed() hace el trabajo sucio de ngOnDestroy por ti
     this.apiService.getAlertsStream()
       .pipe(takeUntilDestroyed()) 
       .subscribe({
         next: (data) => {
-          this.alerts.set(data); // Actualizamos la señal
+          this.alerts.set(data);
           this.connectionStatus.set('Conectado');
         },
         error: (err) => {
@@ -48,20 +43,33 @@ export class DashboardComponent implements OnInit {
       });
   }
 
-  ngOnInit(): void {
-    // Ya no necesitamos lógica aquí, está todo en el constructor reactivo
-  }
+  ngOnInit(): void {}
 
-  // ACCIONES
+  // --- ACCIÓN DE ATENDER ---
   public attendAlert(id: string): void {
-    this.apiService.markAsResolved(id).subscribe(() => {
-      // Actualizamos la señal localmente
+    // 1. Obtenemos el usuario actual
+    const currentUser = this.authService.currentUser();
+    
+    // Si por alguna razón no hay usuario, usamos un nombre genérico o paramos
+    const userName = currentUser ? currentUser.fullName : 'Admin Desconocido';
+
+    // 2. Llamamos a la API pasando el ID Y EL NOMBRE (Aquí estaba el error)
+    this.apiService.markAsResolved(id, userName).subscribe(() => {
+      
+      // Actualizamos la señal localmente para ver el cambio instantáneo
       this.alerts.update(currentAlerts => 
-        currentAlerts.map(alert => 
-          alert.id === id ? { ...alert, resolved: true } : alert
-        )
+        currentAlerts.map(alert => {
+          if (alert.id === id) {
+            return { 
+              ...alert, 
+              resolved: true, 
+              assignedTo: userName // Guardamos el nombre visualmente
+            };
+          }
+          return alert;
+        })
       );
-      // Nota: No hace falta llamar a checkCriticality(), ¡computed lo hace solo!
+
     });
   }
 }

@@ -1,52 +1,72 @@
-<div style="padding: 20px;">
+<div style="padding: 20px; font-family: 'Segoe UI', sans-serif;">
 
-  <div [style.background]="isCriticalState() ? '#ff4444' : '#44ff44'" 
-       style="padding: 20px; color: white; font-weight: bold; margin-bottom: 20px; border-radius: 8px;">
-    <h2 style="margin: 0;">
+  <div [style.background]="isCriticalState() ? '#ff4444' : '#28a745'" 
+       style="padding: 20px; color: white; font-weight: bold; margin-bottom: 20px; border-radius: 8px; transition: background 0.3s;">
+    <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
       @if (isCriticalState()) {
         ⚠️ ALERTA CRÍTICA ACTIVA
       } @else {
-        ✓ Sistema en estado normal
+        ✅ Sistema en estado normal
       }
     </h2>
-    <p style="margin: 10px 0 0 0;">Estado: {{ connectionStatus() }}</p>
+    <p style="margin: 5px 0 0 0; opacity: 0.9; font-weight: normal;">
+      Estado de red: {{ connectionStatus() }}
+    </p>
   </div>
 
   <h2>Alertas Recientes</h2>
   
   @if (alerts().length === 0) {
-    <div style="padding: 40px; text-align: center; background: #f5f5f5; border-radius: 8px;">
-      <p style="color: #666; font-size: 18px;">No hay alertas en este momento</p>
+    <div style="padding: 40px; text-align: center; background: #f5f5f5; border-radius: 8px; color: #666;">
+      <p>No hay alertas en este momento</p>
     </div>
   }
 
   @for (alert of alerts(); track alert.id) {
     
-    <div [style.background]="alert.resolved ? '#e8e8e8' : (alert.severity === 'critical' ? '#ffe6e6' : '#fff3cd')"
-         style="padding: 15px; margin-bottom: 10px; border-radius: 8px; border-left: 4px solid;"
-         [style.border-left-color]="alert.severity === 'critical' ? '#dc3545' : '#ffc107'">
+    <div [style.background]="alert.resolved ? '#f8f9fa' : (alert.severity === 'critical' ? '#ffe6e6' : '#fff3cd')"
+         style="padding: 20px; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid; box-shadow: 0 2px 4px rgba(0,0,0,0.05);"
+         [style.border-left-color]="alert.resolved ? '#28a745' : (alert.severity === 'critical' ? '#dc3545' : '#ffc107')">
       
-      <div style="display: flex; justify-content: space-between; align-items: start;">
+      <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 20px;">
+        
         <div style="flex: 1;">
-          <h3 style="margin: 0 0 10px 0; color: #333;">
+          <h3 style="margin: 0 0 10px 0; color: #333; display: flex; align-items: center; gap: 10px;">
             {{ alert.severity | severityLabel }}
             
             @if (alert.resolved) {
-              <span style="color: #28a745; font-size: 14px;">(Atendida)</span>
+              <span style="font-size: 0.6em; background: #28a745; color: white; padding: 2px 6px; border-radius: 4px;">RESUELTO</span>
             }
           </h3>
           
-          <p style="margin: 5px 0;"><strong>Dispositivo:</strong> {{ alert.deviceId }}</p>
-          <p style="margin: 5px 0;"><strong>Fecha:</strong> {{ alert.timestamp | date:'medium' }}</p>
-          <p style="margin: 10px 0 0 0; color: #666;">{{ alert.message }}</p>
+          <div style="color: #555; font-size: 0.95em; line-height: 1.6;">
+            <div><strong>📍 Dispositivo:</strong> {{ alert.deviceId }}</div>
+            <div><strong>🕒 Fecha:</strong> {{ alert.timestamp | date:'medium' }}</div>
+            <div style="margin-top: 8px; font-style: italic;">"{{ alert.message }}"</div>
+          </div>
         </div>
         
-        @if (!alert.resolved) {
-          <button (click)="attendAlert(alert.id)"
-                  style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            ✓ Atender
-          </button>
-        }
+        <div style="min-width: 200px; text-align: right;">
+          
+          @if (!alert.assignedTo && !alert.resolved) {
+            <button (click)="attendAlert(alert.id)"
+                    style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9em; box-shadow: 0 2px 4px rgba(0,123,255,0.3);">
+              ✓ Atender
+            </button>
+          } 
+          
+          @else {
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px;">
+              <span style="color: #28a745; font-weight: bold; font-size: 0.9em;">
+                👷 Atendido por:
+              </span>
+              <span style="background: white; border: 1px solid #28a745; color: #28a745; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
+                {{ alert.assignedTo }}
+              </span>
+            </div>
+          }
+
+        </div>
       </div>
     </div>
   }

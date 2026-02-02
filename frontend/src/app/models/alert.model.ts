@@ -1,9 +1,9 @@
 export interface Alert {
   id: string;
+  severity: 'critical' | 'warning' | 'info';
+  message: string;
   deviceId: string;
   timestamp: Date;
-  severity: 'low' | 'medium' | 'critical';
-  message: string;
-  description: string;
   resolved: boolean;
+  assignedTo?: string;
 }
