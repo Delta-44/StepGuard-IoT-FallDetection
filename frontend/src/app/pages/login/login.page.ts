@@ -41,7 +41,9 @@ export class LoginPage {
         this.auth.saveSession(r.user);
       }),
       tap(() => this.loading.set(false)),
-      tap(() => this.router.navigate(['/dashboard'])),
+      
+      tap(() => this.router.navigate(['/home'])), 
+
       catchError((err) => {
         this.loading.set(false);
         this.error.set(err?.error?.message ?? 'Login incorrecto');

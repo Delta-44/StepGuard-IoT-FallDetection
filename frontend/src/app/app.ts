@@ -18,7 +18,9 @@ import { AuthService } from './services/auth.service';
 
           @if (currentUser()) {
             <div style="display: flex; gap: 20px;">
-              <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">Dashboard</a>
+              <a routerLink="/home" routerLinkActive="active-link" class="nav-item">Inicio</a>
+
+              <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">Panel de Control</a>
               <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">Dispositivos</a>
               
               @if (isAdmin()) {
