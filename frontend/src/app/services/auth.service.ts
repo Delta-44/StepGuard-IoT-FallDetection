@@ -72,44 +72,42 @@ export class AuthService {
     return 'http://localhost:3000/api/auth/google';
   }
 
-  // --- LÓGICA DE LOGIN SIMULADA (Privada) ---
+  // =========================================================
+  // 🧠 LÓGICA INTELIGENTE Y SIMULADA (MODIFICADA)
+  // =========================================================
   private mockLoginLogic(email: string, pass: string): { token: string; user: User } {
-    // Validaciones "Hardcodeadas"
     
-    // 1. ADMIN
-    if (email === 'admin@test.com' && pass === '123456') {
-      return { 
-        token: 'fake-admin-token', 
-        user: { 
-          id: '1', 
-          username: 'admin', 
-          role: 'admin', 
-          fullName: 'Super Admin', 
-          email,
-          status: 'active',       // <--- AÑADIDO
-          lastLogin: new Date()   // <--- AÑADIDO
-        } 
-      };
-    } 
-    
-    // 2. CUIDADOR
-    if (email === 'cuidador@test.com' && pass === '123456') {
-      return { 
-        token: 'fake-caregiver-token', 
-        user: { 
-          id: '2', 
-          username: 'cuidador', 
-          role: 'caregiver', 
-          fullName: 'Enfermero Juan', 
-          email,
-          status: 'active',       // <--- AÑADIDO
-          lastLogin: new Date()   // <--- AÑADIDO
-        } 
-      };
+    // 1. Detectamos el ROL analizando el texto del email
+    let role: 'admin' | 'caregiver' | 'user' = 'user'; // Por defecto "Usuario"
+
+    if (email.toLowerCase().includes('admin')) {
+      role = 'admin';
+    } else if (email.toLowerCase().includes('enfermero') || email.toLowerCase().includes('hospital')) {
+      role = 'caregiver';
     }
-    
-    // Error si falla
-    throw { error: { message: 'Credenciales inválidas (Prueba admin@test.com / 123456)' } };
+
+    // 2. Asignamos un nombre bonito según el rol detectado
+    let fullName = 'Usuario Anónimo';
+    if (role === 'admin') fullName = 'Super Admin';
+    else if (role === 'caregiver') fullName = 'Enfermero Juan';
+    else fullName = 'Ana García'; // Nombre para el usuario de prueba
+
+    // 3. Creamos el usuario simulado (Mock)
+    const mockUser: User = {
+      id: Math.random().toString(36).substr(2, 9), // ID aleatorio
+      username: email.split('@')[0],
+      fullName: fullName,
+      email: email,
+      role: role, // <--- AQUÍ ES DONDE OCURRE LA MAGIA
+      status: 'active',
+      lastLogin: new Date()
+    };
+
+    // 4. ¡Éxito siempre! (Para facilitar tus pruebas)
+    return {
+      token: 'fake-jwt-token-' + Date.now(),
+      user: mockUser
+    };
   }
 
   logout(): void {

@@ -29,7 +29,9 @@
             <br>
             <span [style.background]="user.role === 'admin' ? '#333' : (user.role === 'caregiver' ? '#007bff' : '#6c757d')"
                   style="color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; text-transform: uppercase;">
-              {{ user.role }}
+              @if (user.role === 'admin') { ADMINISTRADOR }
+              @else if (user.role === 'caregiver') { CUIDADOR }
+              @else { USUARIO }
             </span>
           </div>
 

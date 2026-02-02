@@ -18,6 +18,7 @@ export class DashboardComponent implements OnInit {
   // INYECCIONES
   private apiService = inject(ApiService);
   private authService = inject(AuthService); // <--- Inyectamos para saber quién eres
+  public currentUser = this.authService.currentUser;
 
   // --- SIGNALS ---
   public alerts = signal<Alert[]>([]);

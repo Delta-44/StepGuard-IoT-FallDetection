@@ -44,11 +44,9 @@ export const routes: Routes = [
     component: DevicesComponent,
     canActivate: [authGuard]
   },
-  {
-    path: 'users',
-    component: UsersComponent,
-    canActivate: [authGuard]
-  },
+  { path: 'users', component: UsersComponent,
+     canActivate: [authGuard]
+ },
   { path: 'home', component: HomeComponent,
      canActivate: [authGuard] 
   },
