@@ -1,0 +1,78 @@
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <div style="background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 400px;">
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h1 style="margin: 0; color: #333; font-size: 28px;">🎯 StepGuard IoT</h1>
+      <p style="color: #666; margin-top: 8px; font-size: 14px;">Sistema de Detección de Caídas</p>
+    </div>
+
+    <h2 style="color: #333; font-size: 20px; margin-bottom: 20px;">Crear Cuenta</h2>
+    
+    @if (success()) {
+      <div style="background: #d4edda; color: #155724; padding: 12px; margin-bottom: 15px; border-radius: 6px; border-left: 4px solid #28a745;">
+        ✓ Cuenta creada exitosamente. Redirigiendo al login...
+      </div>
+    }
+    
+    @if (error()) {
+      <div style="background: #fee; color: #c33; padding: 12px; margin-bottom: 15px; border-radius: 6px; border-left: 4px solid #c33;">
+        ⚠️ {{ error() }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" style="display: flex; flex-direction: column; gap: 15px;">
+      
+      <div>
+        <label style="display: block; margin-bottom: 5px; color: #555; font-weight: 500; font-size: 13px;">Nombre completo</label>
+        <input type="text" 
+               formControlName="name" 
+               placeholder="Juan Pérez"
+               style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <span style="color: #c33; font-size: 12px; margin-top: 4px; display: block;">⚠️ Mínimo 2 caracteres</span>
+        }
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 5px; color: #555; font-weight: 500; font-size: 13px;">Email</label>
+        <input type="email" 
+               formControlName="email" 
+               placeholder="tu@email.com"
+               style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+        @if (form.controls.email.touched && form.controls.email.invalid) {
+          <span style="color: #c33; font-size: 12px; margin-top: 4px; display: block;">⚠️ Email inválido</span>
+        }
+      </div>
+
+      <div>
+        <label style="display: block; margin-bottom: 5px; color: #555; font-weight: 500; font-size: 13px;">Contraseña</label>
+        <input type="password" 
+               formControlName="password" 
+               placeholder="Mínimo 6 caracteres"
+               style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+        @if (form.controls.password.touched && form.controls.password.invalid) {
+          <span style="color: #c33; font-size: 12px; margin-top: 4px; display: block;">⚠️ Mínimo 6 caracteres</span>
+        }
+      </div>
+
+      <button type="submit" 
+              [disabled]="loading()"
+              style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;">
+        @if (loading()) { 
+          <span>⏳ Creando cuenta...</span>
+        } @else { 
+          <span>Registrarse</span>
+        }
+      </button>
+
+    </form>
+
+    <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+      <p style="color: #666; font-size: 14px; margin: 0;">
+        ¿Ya tienes cuenta? 
+        <a routerLink="/login" style="color: #667eea; text-decoration: none; font-weight: 600;">Iniciar sesión</a>
+      </p>
+    </div>
+
+  </div>
+</div>
