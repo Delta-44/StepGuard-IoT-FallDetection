@@ -5,5 +5,7 @@ export interface User {
   username: string;
   fullName: string;
   role: UserRole;
-  email?: string;
+  email: string;
+  status: 'active' | 'inactive';
+  lastLogin?: Date;
 }

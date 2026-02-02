@@ -36,9 +36,16 @@
       </a>
       <a routerLink="/devices" 
          routerLinkActive="active"
-         style="color: cyan; text-decoration: none; padding: 8px 12px; border-radius: 4px;">
+         style="color: cyan; margin-right: 20px; text-decoration: none; padding: 8px 12px; border-radius: 4px;">
         Dispositivos
       </a>
+      @if (auth.currentUser()?.role === 'admin') {
+        <a routerLink="/users" 
+           routerLinkActive="active"
+           style="color: #ff4444; text-decoration: none; padding: 8px 12px; border-radius: 4px; border: 1px solid #ff4444;">
+          👥 Usuarios
+        </a>
+      }
     </nav>
   </div>
 }

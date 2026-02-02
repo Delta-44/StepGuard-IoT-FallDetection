@@ -1,0 +1,37 @@
+<div style="padding: 20px;">
+  <h2>👥 Gestión de Usuarios</h2>
+  
+  @if (isLoading()) {
+    <p>Cargando usuarios...</p>
+  } @else {
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <tr style="background: #eee; text-align: left;">
+        <th style="padding: 10px;">Nombre</th>
+        <th style="padding: 10px;">Rol</th>
+        <th style="padding: 10px;">Estado</th>
+        <th style="padding: 10px;">Acciones</th>
+      </tr>
+      
+      @for (user of users(); track user.id) {
+        <tr style="border-bottom: 1px solid #ddd;">
+          <td style="padding: 10px;">
+            <strong>{{ user.fullName }}</strong><br>
+            <span style="font-size: 0.8em; color: #666;">{{ user.email }}</span>
+          </td>
+          <td style="padding: 10px;">
+            <span [style.background]="user.role === 'admin' ? 'black' : (user.role === 'caregiver' ? '#007bff' : '#ccc')"
+                  style="color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em;">
+              {{ user.role | uppercase }}
+            </span>
+          </td>
+          <td style="padding: 10px;">{{ user.status }}</td>
+          <td style="padding: 10px;">
+            @if (isAdmin() && user.role !== 'admin') { 
+              <button (click)="deleteUser(user)" style="color: red; cursor: pointer;">🗑️ Eliminar</button>
+            }
+          </td>
+        </tr>
+      }
+    </table>
+  }
+</div>

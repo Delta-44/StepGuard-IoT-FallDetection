@@ -1,0 +1,31 @@
+<div style="padding: 20px;">
+  <h2>👥 Gestión de Usuarios (Solo Admin)</h2>
+
+  @if (isLoading()) {
+    <p>⏳ Cargando lista de usuarios...</p>
+  } @else {
+    <div style="display: grid; gap: 10px;">
+      @for (user of users(); track user.id) {
+        <div style="border: 1px solid #ccc; padding: 15px; background: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+          
+          <div>
+            <h3 style="margin: 0;">{{ user.fullName }}</h3>
+            <span style="color: #666; font-size: 0.9em;">{{ user.email }}</span>
+            <br>
+            <span [style.background]="user.role === 'admin' ? 'black' : '#007bff'" 
+                  style="color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; text-transform: uppercase;">
+              {{ user.role }}
+            </span>
+          </div>
+
+          @if (isAdmin() && user.role !== 'admin') {
+            <button (click)="deleteUser(user)" 
+                    style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+              🗑️ Eliminar
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

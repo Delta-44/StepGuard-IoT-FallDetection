@@ -8,7 +8,7 @@ import { User } from '../models/user.model';
   providedIn: 'root'
 })
 export class AuthService {
-  // Estado reactivo con Signal (Más moderno)
+  // Estado reactivo con Signal
   public currentUser = signal<User | null>(null);
 
   constructor(private router: Router) {
@@ -20,11 +20,9 @@ export class AuthService {
       try {
         this.currentUser.set(JSON.parse(saved));
       } catch {
-        // Si hay error al parsear, limpiar todo
         this.clearSession();
       }
     } else {
-      // Si no hay token o sesión, limpiar todo
       this.clearSession();
     }
   }
@@ -35,17 +33,26 @@ export class AuthService {
     this.currentUser.set(null);
   }
 
-  // --- LOGIN: Ahora devuelve un Token falso ---
+  // --- LOGIN ---
   login(email: string, password: string): Observable<{ token: string; user: User }> {
     // Simulamos retardo de red
     return of(this.mockLoginLogic(email, password)).pipe(delay(1000));
   }
 
-  // --- REGISTRO: Nuevo método ---
+  // --- REGISTRO ---
   register(data: { name: string; email: string; password: string }): Observable<{ token: string; user: User }> {
     console.log('Registrando usuario:', data);
-    // Simulamos éxito siempre
-    const newUser: User = { id: 'new-1', username: data.name, role: 'user', fullName: data.name, email: data.email };
+    
+    const newUser: User = { 
+      id: 'new-1', 
+      username: data.name, 
+      role: 'user', 
+      fullName: data.name, 
+      email: data.email,
+      status: 'active',
+      lastLogin: new Date()
+    };
+
     return of({ token: 'fake-jwt-token-register', user: newUser }).pipe(delay(1000));
   }
 
@@ -62,28 +69,46 @@ export class AuthService {
 
   // --- URL PARA LOGIN CON GOOGLE ---
   getGoogleLoginUrl(): string {
-    // En producción esto apuntaría a tu backend: http://localhost:3000/api/auth/google
-    // Por ahora retorna una URL de ejemplo
     return 'http://localhost:3000/api/auth/google';
   }
 
   // --- LÓGICA DE LOGIN SIMULADA (Privada) ---
   private mockLoginLogic(email: string, pass: string): { token: string; user: User } {
-    // Validaciones "Hardcodeadas" para pruebas
+    // Validaciones "Hardcodeadas"
+    
+    // 1. ADMIN
     if (email === 'admin@test.com' && pass === '123456') {
       return { 
         token: 'fake-admin-token', 
-        user: { id: '1', username: 'admin', role: 'admin', fullName: 'Super Admin', email } 
+        user: { 
+          id: '1', 
+          username: 'admin', 
+          role: 'admin', 
+          fullName: 'Super Admin', 
+          email,
+          status: 'active',       // <--- AÑADIDO
+          lastLogin: new Date()   // <--- AÑADIDO
+        } 
       };
     } 
+    
+    // 2. CUIDADOR
     if (email === 'cuidador@test.com' && pass === '123456') {
       return { 
         token: 'fake-caregiver-token', 
-        user: { id: '2', username: 'cuidador', role: 'caregiver', fullName: 'Enfermero Juan', email } 
+        user: { 
+          id: '2', 
+          username: 'cuidador', 
+          role: 'caregiver', 
+          fullName: 'Enfermero Juan', 
+          email,
+          status: 'active',       // <--- AÑADIDO
+          lastLogin: new Date()   // <--- AÑADIDO
+        } 
       };
     }
     
-    // Si falla, lanzamos error (para que el catchError del componente salte)
+    // Error si falla
     throw { error: { message: 'Credenciales inválidas (Prueba admin@test.com / 123456)' } };
   }
 
