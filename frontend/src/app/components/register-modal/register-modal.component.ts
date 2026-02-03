@@ -10,7 +10,7 @@ import { UserService } from '../../services/user.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './register-modal.component.html',
-  styleUrls: ['./register-modal.component.css']
+  styleUrls: ['./register-modal.component.css'],
 })
 export class RegisterModalComponent {
   private authService = inject(AuthService);
@@ -22,18 +22,18 @@ export class RegisterModalComponent {
 
   step: 'selection' | 'form' = 'selection';
   selectedRole: 'user' | 'caregiver' = 'user';
-  
+
   // ✅ ACTUALIZADO: Añadimos los campos nuevos de tus interfaces
-  registerData = { 
-    name: '', 
-    email: '', 
-    password: '', 
+  registerData = {
+    name: '',
+    email: '',
+    password: '',
     role: '',
-    telefono: '',          // Común
-    direccion: '',         // Solo Paciente
-    fecha_nacimiento: ''   // Solo Paciente
+    telefono: '', // Común
+    direccion: '', // Solo Paciente
+    fecha_nacimiento: '', // Solo Paciente
   };
-  
+
   isLoading = false;
 
   chooseRole(role: 'user' | 'caregiver') {
@@ -46,38 +46,32 @@ export class RegisterModalComponent {
     this.step = 'selection';
   }
 
-  onSubmit() {
-    this.isLoading = true;
-    const finalData = { ...this.registerData, role: this.selectedRole };
+  // register-modal.component.ts
 
-    this.authService.register(finalData).subscribe({
-      next: (response: { token: string; user: any }) => {
-        // 1. Guardar token y sesión
-        this.authService.saveToken(response.token);
-        this.authService.saveSession(response.user);
-        
-        // 2. ✅ NUEVO: Agregar usuario a la lista de UserService
-        this.userService.createUser(response.user).subscribe({
-          next: () => {
-            console.log('✅ Usuario registrado y agregado a la lista');
-            this.isLoading = false;
-            this.close.emit();
-            this.router.navigate(['/dashboard']);
-          },
-          error: (err) => {
-            console.error('Error al agregar usuario a la lista:', err);
-            this.isLoading = false;
-            // Aun así continuamos al dashboard ya que la autenticación fue exitosa
-            this.close.emit();
-            this.router.navigate(['/dashboard']);
-          }
-        });
-      },
-      error: () => {
-        this.isLoading = false;
-        alert('Error al registrar usuario');
-      }
-    });
+  onSubmit() {
+    // Validamos que los campos básicos existan en registerData
+    if (this.registerData.email && this.registerData.password && this.registerData.name) {
+      this.isLoading = true;
+
+      // Determinamos el tipo según el rol seleccionado
+      const tipo = this.selectedRole === 'caregiver' ? 'cuidador' : 'usuario';
+
+      this.authService.register(this.registerData, tipo).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          alert('✅ Registro completado con éxito.');
+          this.close.emit(); // 👈 Cambiado: usamos el Output 'close'
+          // Opcional: podrías redirigir al login o dashboard
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Error en registro', err);
+          alert('Hubo un error al crear la cuenta. Inténtalo de nuevo.');
+        },
+      });
+    } else {
+      alert('Por favor, completa todos los campos obligatorios.');
+    }
   }
 
   get roleTitle() {
