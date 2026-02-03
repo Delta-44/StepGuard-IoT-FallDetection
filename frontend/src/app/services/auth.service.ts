@@ -63,20 +63,46 @@ export class AuthService {
   }
 
   // --- REGISTRO ---
-  register(data: { name: string; email: string; password: string }): Observable<{ token: string; user: User }> {
+  register(data: { 
+    name: string; 
+    email: string; 
+    password: string; 
+    role?: string;
+    telefono?: string;
+    direccion?: string;
+    fecha_nacimiento?: string;
+  }): Observable<{ token: string; user: User }> {
     console.log('Registrando usuario:', data);
 
     const newUser: User = {
-      id: 'new-1',
-      username: data.name,
-      role: 'user',
+      id: `user-${Date.now()}`,
+      username: data.name.toLowerCase().replace(/\s+/g, ''),
+      role: (data.role as 'user' | 'caregiver' | 'admin') || 'user',
       fullName: data.name,
       email: data.email,
       status: 'active',
-      lastLogin: new Date()
+      lastLogin: new Date(),
+      telefono: data.telefono,
+      direccion: data.direccion,
+      fecha_nacimiento: data.fecha_nacimiento
     };
 
+    // Guardamos el usuario registrado en localStorage para el login
+    const registeredUsers = this.getRegisteredUsers();
+    registeredUsers.push({ 
+      email: data.email, 
+      password: data.password, 
+      user: newUser 
+    });
+    localStorage.setItem('registered_users', JSON.stringify(registeredUsers));
+
     return of({ token: 'fake-jwt-token-register', user: newUser }).pipe(delay(1000));
+  }
+
+  // Obtener usuarios registrados del localStorage
+  private getRegisteredUsers(): Array<{ email: string; password: string; user: User }> {
+    const stored = localStorage.getItem('registered_users');
+    return stored ? JSON.parse(stored) : [];
   }
 
   // --- GESTIÓN DE TOKEN ---
@@ -99,6 +125,21 @@ export class AuthService {
   // 🧠 LÓGICA INTELIGENTE Y SIMULADA (MODIFICADA)
   // =========================================================
   private mockLoginLogic(email: string, pass: string): { token: string; user: User } {
+
+    // 🔍 PRIMERO: Buscar si el usuario está registrado
+    const registeredUsers = this.getRegisteredUsers();
+    const foundUser = registeredUsers.find(u => u.email === email && u.password === pass);
+    
+    if (foundUser) {
+      console.log('✅ Usuario registrado encontrado:', foundUser.user.fullName);
+      return {
+        token: 'fake-jwt-token-' + Date.now(),
+        user: { ...foundUser.user, lastLogin: new Date() }
+      };
+    }
+
+    // Si no está registrado, usar lógica mock por defecto
+    console.log('⚠️ Usuario no registrado, usando lógica mock');
 
     // 1. Detectamos el ROL analizando el texto del email
     let role: 'admin' | 'caregiver' | 'user' = 'user'; // Por defecto "Usuario"

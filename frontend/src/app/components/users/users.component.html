@@ -141,12 +141,29 @@
                     📍 {{ alert.location }}
                   </div>
 
+                  @if (alert.notes) {
+                    <div style="margin-top: 8px; font-size: 0.8rem; background: #f0f0f0; padding: 6px; border-radius: 4px;">
+                      <span style="display:block; color: #666; font-style: italic;">"{{ alert.notes }}"</span>
+                      <span style="display:block; text-align: right; color: #007bff; font-weight: 600; margin-top: 2px;">
+                        — {{ alert.attendedBy }}
+                      </span>
+                    </div>
+                  }
+
                   <div class="alert-meta">
                     <span class="badge-severity">{{ alert.severity | uppercase }}</span>
+                    
                     <span class="status-text">
-                      {{ alert.resolved ? '✅ Resuelto' : '⚠️ Pendiente' }}
+                      @if (alert.status === 'atendida') {
+                        ✅ Atendida
+                      } @else if (alert.status === 'falsa_alarma') {
+                        🚫 Falsa Alarma
+                      } @else {
+                        ⚠️ Pendiente
+                      }
                     </span>
                   </div>
+
                 </div>
               </div>
             }

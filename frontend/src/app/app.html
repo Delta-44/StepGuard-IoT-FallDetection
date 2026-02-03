@@ -1,30 +1,25 @@
-<div style="font-family: 'Segoe UI', sans-serif;">
+<div style="font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column;">
       
   @if (criticalAlert()) {
-    <div class="emergency-overlay">
-      <div class="emergency-box">
-        <div class="siren-icon">🚨</div>
-        <h1>¡EMERGENCIA DETECTADA!</h1>
-
-        <div class="alert-details">
-          <p><strong>Dispositivo:</strong> {{ criticalAlert()?.deviceId }}</p>
-          
-          <p style="font-size: 1.2rem; color: #d63384;">
-            <strong>📍 Ubicación:</strong> {{ criticalAlert()?.location }}
-          </p>
-
-          <p><strong>Mensaje:</strong> {{ criticalAlert()?.message }}</p>
-          <p><strong>Hora:</strong> {{ criticalAlert()?.timestamp | date: 'mediumTime' }}</p>
+    <div class="critical-banner">
+      <div class="banner-content">
+        <span class="banner-icon">🚨</span>
+        <div>
+          <strong>¡EMERGENCIA CRÍTICA!</strong>
+          <span style="margin-left: 10px; font-weight: 400; opacity: 0.9;">
+            {{ criticalAlert()?.message }} en <u>{{ criticalAlert()?.location }}</u>
+          </span>
         </div>
-
-        <button (click)="goToDashboard()" class="btn-emergency">VER Y ATENDER AHORA</button>
       </div>
+      
+      <button (click)="goToDashboard()" class="btn-banner-action">
+        Ver y Atender
+      </button>
     </div>
   }
 
   @if (showNavbar()) {
     <nav style="background: #222; height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; z-index: 10;">
-      
       <a routerLink="/" style="text-decoration: none; cursor: pointer;">
         <div style="display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; font-size: 1.2em;">
           🎯 StepGuard IoT
@@ -33,26 +28,13 @@
 
       @if (currentUser()) {
         <div style="display: flex; gap: 20px;">
-          
-          <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">
-            🩺 Monitorización
-          </a>
-
-          <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">
-            📱 Dispositivos
-          </a>
-
-          <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
-            🚨 Historial
-          </a>
+          <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">🩺 Monitorización</a>
+          <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">📱 Dispositivos</a>
+          <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">🚨 Historial</a>
 
           @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
-            <a
-              routerLink="/users"
-              routerLinkActive="active-link"
-              [class.nav-item-admin]="isAdmin()"
-              [class.nav-item]="!isAdmin()"
-            >
+            <a routerLink="/users" routerLinkActive="active-link" 
+               [class.nav-item-admin]="isAdmin()" [class.nav-item]="!isAdmin()">
               👥 {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
             </a>
           }
@@ -60,7 +42,6 @@
       }
 
       <div style="display: flex; align-items: center; gap: 15px;">
-        
         @if (currentUser()) {
           <div style="text-align: right; color: white; line-height: 1.2;">
             <div style="font-weight: bold; font-size: 0.9em;">{{ currentUser()?.fullName }}</div>
@@ -72,23 +53,38 @@
               }
             </div>
           </div>
-          <button
-            (click)="logout()"
-            style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;"
-          >
+          <button (click)="logout()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">
             Salir
           </button>
-        } 
-        
-        @else {
-          <a routerLink="/" style="color: white; text-decoration: none; font-weight: 500; font-size: 0.9rem; margin-right: 10px; cursor: pointer;">
-            Iniciar Sesión
-          </a>
+        } @else {
+          <a routerLink="/" style="color: white; text-decoration: none; font-weight: 500; font-size: 0.9rem; margin-right: 10px; cursor: pointer;">Iniciar Sesión</a>
         }
-
       </div>
     </nav>
   }
 
-  <router-outlet></router-outlet>
+  <div style="flex: 1; position: relative;">
+    <router-outlet></router-outlet>
+  </div>
+
+  @if (miniAlert()) {
+    <div class="toast-notification" [ngClass]="miniAlert()?.severity">
+      <div class="toast-icon">
+        @if (miniAlert()?.severity === 'high') { ⚠️ }
+        @else if (miniAlert()?.severity === 'medium') { 🔔 }
+        @else { ℹ️ }
+      </div>
+      <div class="toast-content">
+        <h4>Nueva Alerta Detectada</h4>
+        <p>{{ miniAlert()?.message }}</p>
+        <small>📍 {{ miniAlert()?.location }}</small>
+      </div>
+      <div class="toast-actions">
+        <button class="btn-toast-view" (click)="goToDashboardFromMini()">Atender</button>
+        <button class="btn-toast-close" (click)="closeMiniAlert()">✕</button>
+      </div>
+      <div class="progress-bar"></div>
+    </div>
+  }
+
 </div>

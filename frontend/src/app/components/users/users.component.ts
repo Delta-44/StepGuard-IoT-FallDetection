@@ -45,16 +45,17 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers() {
-    this.isLoading = true;
-    this.userService.getAllUsers().subscribe({
-      next: (data) => {
-        this.users = data;
-        this.isLoading = false; 
-        this.cd.detectChanges(); 
-      },
-      error: () => this.isLoading = false
-    });
-  }
+  this.isLoading = true;
+  // Al ser un BehaviorSubject, esto se ejecutará inmediatamente y cada vez que cambie
+  this.userService.getAllUsers().subscribe({
+    next: (data) => {
+      this.users = data;
+      this.isLoading = false; 
+      this.cd.detectChanges(); // Forzar actualización visual
+    },
+    error: () => this.isLoading = false
+  });
+}
 
   // --- MODAL EDICIÓN ---
   openEditModal(user: User) {

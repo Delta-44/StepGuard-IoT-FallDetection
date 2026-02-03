@@ -1,97 +1,112 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
+  
+  // 👇 CLAVE PARA GUARDAR EN EL NAVEGADOR
+  private readonly STORAGE_KEY = 'stepguard_users';
 
-  // 1. ACTUALIZAMOS LOS DATOS MOCK PARA QUE COINCIDAN CON LA NUEVA INTERFAZ
-  private mockUsers: User[] = [
-    { 
-      id: '1', 
-      username: 'admin', 
-      fullName: 'Super Admin', 
-      role: 'admin', 
-      email: 'admin@stepguard.com',
-      status: 'active',
-      is_admin: true,
-      telefono: '+34 600 000 000'
-    },
-    { 
-      id: '2', 
-      username: 'enfermero1', 
-      fullName: 'Juan López', 
-      role: 'caregiver', 
-      email: 'juan@hospital.com',
-      status: 'active',
-      lastLogin: new Date(Date.now() - 86400000),
-      is_admin: false,
-      telefono: '+34 611 222 333'
-    },
-    { 
-      id: '3', 
-      username: 'paciente_ana', 
-      fullName: 'Ana García', 
-      role: 'user', 
-      email: 'ana.familia@gmail.com',
-      status: 'inactive',
-      // ✨ CAMBIO: Quitamos edad, ponemos fecha (YYYY-MM-DD para que el input lo lea bien)
-      fecha_nacimiento: '1946-05-15', 
-      direccion: 'C/ Mayor 123, 2ºA',
-      telefono: '+34 912 345 678'
-    },
-    {
-      id: '4',
-      username: 'paciente_luis',
-      fullName: 'Luis Rodríguez',
-      role: 'user', 
-      email: 'luis.rod@gmail.com',
-      status: 'active',
-      fecha_nacimiento: '1942-11-20', // ✨ CAMBIO
-      direccion: 'Av. Libertad 45',
-      telefono: '+34 699 888 777'
-    }
+  // Datos iniciales (Solo se usan la primera vez que abres la app)
+  private initialUsers: User[] = [
+    { id: 1, fullName: 'Pepito Pérez', email: 'pepito@test.com', role: 'user', status: 'active', username: 'pepito123' },
+    { id: 2, fullName: 'Super Admin', email: 'admin@test.com', role: 'admin', status: 'active', username: 'admin' },
+    { id: 3, fullName: 'Enfermera Laura', email: 'laura@test.com', role: 'caregiver', status: 'active', username: 'laura_nurse' }
   ];
 
-  constructor() { }
+  // Inicializamos el Subject vacío, los datos se cargarán en el constructor
+  private usersSubject = new BehaviorSubject<User[]>([]);
+  
+  users$ = this.usersSubject.asObservable();
+
+  constructor() { 
+    // 👇 AL INICIAR EL SERVICIO, CARGAMOS DEL DISCO DURO
+    this.loadFromStorage();
+  }
+
+  // --- MÉTODOS PRIVADOS DE PERSISTENCIA ---
+
+  private loadFromStorage() {
+    const saved = localStorage.getItem(this.STORAGE_KEY);
+    
+    if (saved) {
+      // ✅ Si hay datos guardados, usamos esos
+      this.usersSubject.next(JSON.parse(saved));
+    } else {
+      // ⚠️ Si es la primera vez, usamos los iniciales y los guardamos
+      this.usersSubject.next(this.initialUsers);
+      this.saveToStorage(this.initialUsers);
+    }
+  }
+
+  private saveToStorage(users: User[]) {
+    // 💾 Guardamos en el navegador y actualizamos la app
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
+    this.usersSubject.next(users);
+  }
+
+  // --- MÉTODOS PÚBLICOS (CRUD) ---
 
   getAllUsers(): Observable<User[]> {
-    return of(this.mockUsers).pipe(delay(500));
+    return this.users$;
+  }
+
+  createUser(user: User): Observable<boolean> {
+    // Usamos getValue() para obtener el estado actual
+    const currentUsers = this.usersSubject.getValue();
+    
+    // Calculamos ID asegurando que sean números
+    const maxId = currentUsers.length > 0 
+      ? Math.max(...currentUsers.map(u => Number(u.id))) 
+      : 0;
+
+    const newId = maxId + 1;
+    
+    const newUser: User = { 
+      ...user, 
+      id: newId, 
+      status: 'active' 
+    };
+    
+    const updatedUsers = currentUsers.concat(newUser);
+    
+    // 👇 GUARDAMOS EN MEMORIA PERSISTENTE
+    this.saveToStorage(updatedUsers);
+    
+    return new Observable(observer => {
+      observer.next(true);
+      observer.complete();
+    });
+  }
+
+  updateUser(id: string | number, updatedUser: User): Observable<boolean> {
+    const currentUsers = this.usersSubject.getValue();
+    // Usamos == para que '1' sea igual a 1
+    const index = currentUsers.findIndex(u => u.id == id);
+    
+    if (index !== -1) {
+      const updatedList = [...currentUsers];
+      // Mantenemos el ID original
+      updatedList[index] = { ...updatedUser, id: Number(id) };
+      
+      // 👇 GUARDAMOS EN MEMORIA PERSISTENTE
+      this.saveToStorage(updatedList);
+      
+      return new Observable(obs => { obs.next(true); obs.complete(); });
+    }
+    return new Observable(obs => { obs.next(false); obs.complete(); });
   }
 
   deleteUser(id: string | number): Observable<boolean> {
-    console.log(`🗑️ Eliminando usuario con ID: ${id}`);
-    const initialLength = this.mockUsers.length;
-    this.mockUsers = this.mockUsers.filter(u => u.id !== id);
-    return of(this.mockUsers.length < initialLength).pipe(delay(500));
-  }
-
-  createUser(user: User): Observable<User> {
-    const newUser = { 
-      ...user, 
-      id: Math.floor(Math.random() * 1000).toString(),
-      status: 'active' as const 
-    };
-    this.mockUsers.push(newUser);
-    return of(newUser).pipe(delay(800)); 
-  }
-
-  // --- EDITAR USUARIO ---
-  updateUser(id: string | number, updatedData: User): Observable<User> {
-    console.log(`📝 Editando usuario ${id}:`, updatedData);
-    const index = this.mockUsers.findIndex(u => u.id === id);
+    const currentUsers = this.usersSubject.getValue();
+    const filteredUsers = currentUsers.filter(u => u.id != id);
     
-    if (index !== -1) {
-      this.mockUsers[index] = { 
-        ...this.mockUsers[index], 
-        ...updatedData,
-        id: this.mockUsers[index].id 
-      };
-      return of(this.mockUsers[index]).pipe(delay(500));
-    }
-    return throwError(() => new Error('Usuario no encontrado'));
+    // 👇 GUARDAMOS EN MEMORIA PERSISTENTE
+    this.saveToStorage(filteredUsers);
+    
+    return new Observable(obs => { obs.next(true); obs.complete(); });
   }
 }

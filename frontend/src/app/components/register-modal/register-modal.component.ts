@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-register-modal',
@@ -13,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class RegisterModalComponent {
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private router = inject(Router);
 
   @Output() close = new EventEmitter<void>();
@@ -49,13 +51,27 @@ export class RegisterModalComponent {
     const finalData = { ...this.registerData, role: this.selectedRole };
 
     this.authService.register(finalData).subscribe({
-      // 🛠️ CORRECCIÓN AQUÍ: Definimos el tipo de 'response' explícitamente
       next: (response: { token: string; user: any }) => {
+        // 1. Guardar token y sesión
         this.authService.saveToken(response.token);
         this.authService.saveSession(response.user);
-        this.isLoading = false;
-        this.close.emit();
-        this.router.navigate(['/dashboard']);
+        
+        // 2. ✅ NUEVO: Agregar usuario a la lista de UserService
+        this.userService.createUser(response.user).subscribe({
+          next: () => {
+            console.log('✅ Usuario registrado y agregado a la lista');
+            this.isLoading = false;
+            this.close.emit();
+            this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            console.error('Error al agregar usuario a la lista:', err);
+            this.isLoading = false;
+            // Aun así continuamos al dashboard ya que la autenticación fue exitosa
+            this.close.emit();
+            this.router.navigate(['/dashboard']);
+          }
+        });
       },
       error: () => {
         this.isLoading = false;

@@ -1,64 +1,108 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
-import { ApiService } from './services/api.service';
-import { Alert } from './services/alert.service'; // Asegúrate de importar Alert desde donde esté tu interfaz
+import { AlertService, Alert } from './services/alert.service'; 
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs'; // 👈 Importante
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
-  styleUrl: './app.css', // Asegúrate de que este archivo exista
-  templateUrl: './app.html' // 👈 AHORA USAMOS EL ARCHIVO EXTERNO
+  styleUrl: './app.css',
+  templateUrl: './app.html'
 })
-export class AppComponent implements OnInit {
-  private authService = inject(AuthService);
-  private apiService = inject(ApiService); // O AlertService si lo cambiaste
+export class AppComponent implements OnInit, OnDestroy {
+  public authService = inject(AuthService); // Público para usar en HTML
+  private alertService = inject(AlertService);
   public router = inject(Router);
 
   public currentUser = this.authService.currentUser;
   public isAdmin = computed(() => this.currentUser()?.role === 'admin');
 
+  // Alerta Roja (Crítica)
   public criticalAlert = signal<Alert | null>(null);
+  
+  // 👇 Alerta Mini (Toast)
+  public miniAlert = signal<Alert | null>(null);
+  private miniAlertTimeout: any;
+
   public showNavbar = signal<boolean>(true);
+  private alertSub: Subscription | null = null;
 
   constructor() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      // Ocultar navbar en la portada
       const isLanding = event.url === '/';
       this.showNavbar.set(!isLanding);
     });
   }
 
   ngOnInit() {
-    // Si usas ApiService o AlertService, asegúrate de llamar al método correcto
-    // Aquí asumo que tienes un método getAlertsStream o similar
-    // Si no, puedes usar el AlertService que creamos antes con un polling simple o mock.
-    
-    // EJEMPLO CON TU LÓGICA ANTERIOR DE ALERTAS
-    /* this.apiService.getAlertsStream().subscribe(alerts => {
-      if (!this.currentUser() || this.currentUser()?.role === 'user') {
-        this.criticalAlert.set(null);
-        return;
-      }
-      
-      const emergency = alerts.find(a => a.severity === 'critical' && !a.resolved);
-      this.criticalAlert.set(emergency || null);
+    // 👇 SUSCRIPCIÓN A LAS NOTIFICACIONES
+    this.alertSub = this.alertService.alertNotification$.subscribe(newAlert => {
+      this.handleNewAlert(newAlert);
     });
-    */
+  }
+
+  handleNewAlert(alert: Alert) {
+    const user = this.currentUser();
+    
+    // 🔒 SEGURIDAD: Si no hay usuario o es PACIENTE, no mostramos nada
+    if (!user || user.role === 'user') return;
+
+    // Si es CRÍTICA, dejamos que salte el Overlay Rojo (opcional) o mostramos ambas
+    if (alert.severity === 'critical') {
+      this.criticalAlert.set(alert);
+      return; 
+    }
+
+    // Si es ALTA/MEDIA/BAJA -> Mini Notificación
+    this.showMiniNotification(alert);
+  }
+
+  showMiniNotification(alert: Alert) {
+    this.miniAlert.set(alert);
+
+    // Ocultar a los 6 segundos
+    if (this.miniAlertTimeout) clearTimeout(this.miniAlertTimeout);
+    this.miniAlertTimeout = setTimeout(() => {
+      this.closeMiniAlert();
+    }, 6000);
+  }
+
+  closeMiniAlert() {
+    this.miniAlert.set(null);
+  }
+
+  // Ir al dashboard desde la Alerta Roja
+  goToDashboard() {
+    if (this.criticalAlert()) {
+        this.alertService.currentActiveAlert = this.criticalAlert();
+        this.criticalAlert.set(null);
+        this.router.navigate(['/dashboard']);
+    }
+  }
+
+  // Ir al dashboard desde la Mini Alerta
+  goToDashboardFromMini() {
+    const alert = this.miniAlert();
+    if (alert) {
+      this.alertService.currentActiveAlert = alert;
+      this.miniAlert.set(null);
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   logout() {
     this.authService.logout();
     this.criticalAlert.set(null);
+    this.miniAlert.set(null);
   }
 
-  goToDashboard() {
-    this.criticalAlert.set(null);
-    this.router.navigate(['/dashboard']);
+  ngOnDestroy() {
+    if (this.alertSub) this.alertSub.unsubscribe();
   }
 }
