@@ -5,7 +5,7 @@ export interface Usuario {
   nombre: string;
   email: string;
   password_hash: string;
-  edad?: number;
+  fecha_nacimiento?: Date;
   direccion?: string;
   telefono?: string;
   dispositivo_id?: number;
@@ -20,14 +20,14 @@ export const UsuarioModel = {
     nombre: string,
     email: string,
     password_hash: string,
-    edad?: number,
+    fecha_nacimiento?: Date,
     direccion?: string,
     telefono?: string,
     dispositivo_id?: number
   ): Promise<Usuario> => {
     const result = await query(
-      'INSERT INTO usuarios (nombre, email, password_hash, edad, direccion, telefono, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [nombre, email, password_hash, edad, direccion, telefono, dispositivo_id]
+      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id]
     );
     return result.rows[0];
   },
@@ -115,13 +115,13 @@ export const UsuarioModel = {
     id: number,
     nombre: string,
     email: string,
-    edad?: number,
+    fecha_nacimiento?: Date,
     direccion?: string,
     telefono?: string
   ): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET nombre = $1, email = $2, edad = $3, direccion = $4, telefono = $5 WHERE id = $6 RETURNING *',
-      [nombre, email, edad, direccion, telefono, id]
+      'UPDATE usuarios SET nombre = $1, email = $2, fecha_nacimiento = $3, direccion = $4, telefono = $5 WHERE id = $6 RETURNING *',
+      [nombre, email, fecha_nacimiento, direccion, telefono, id]
     );
     return result.rows[0] || null;
   },

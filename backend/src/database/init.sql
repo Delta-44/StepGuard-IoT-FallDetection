@@ -67,7 +67,7 @@ CREATE TABLE usuarios (
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    edad INTEGER CHECK (edad > 0 AND edad < 150),
+    fecha_nacimiento DATE CHECK (fecha_nacimiento <= CURRENT_DATE),
     direccion VARCHAR(200),
     telefono VARCHAR(20),
     
@@ -80,6 +80,14 @@ CREATE TABLE usuarios (
 -- Índices para búsquedas frecuentes
 CREATE INDEX idx_usuarios_email ON usuarios(email);
 CREATE INDEX idx_usuarios_dispositivo_id ON usuarios(dispositivo_id);
+
+-- Función para calcular la edad automáticamente
+CREATE OR REPLACE FUNCTION calcular_edad(fecha_nacimiento DATE)
+RETURNS INTEGER AS $$
+BEGIN
+    RETURN EXTRACT(YEAR FROM AGE(CURRENT_DATE, fecha_nacimiento))::INTEGER;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
 
 -- ================================================
 -- TABLA: usuario_cuidador
@@ -225,8 +233,8 @@ CREATE INDEX idx_audit_accion ON audit_log(accion, fecha_hora DESC);
 -- VALUES ('ESP32-001', 'AA:BB:CC:DD:EE:FF', 'Dispositivo Principal', 'Sala de estar');
 
 -- Insertar usuario de prueba (password: usuario123)
--- INSERT INTO usuarios (nombre, email, password_hash, edad, direccion, telefono, dispositivo_id) 
--- VALUES ('Juan Pérez', 'juan@stepguard.com', '$2a$10$rOzJqKxQxjLVKj0AEPmjX.yF8fXLxg7dxVMqHGzNjYvQxIxVxMUyC', 75, 'Calle Mayor 123', '+34 600 654 321', 1);
+-- INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id) 
+-- VALUES ('Juan Pérez', 'juan@stepguard.com', '$2a$10$rOzJqKxQxjLVKj0AEPmjX.yF8fXLxg7dxVMqHGzNjYvQxIxVxMUyC', '1949-01-15', 'Calle Mayor 123', '+34 600 654 321', 1);
 
 -- Asignar cuidador a usuario
 -- INSERT INTO usuario_cuidador (usuario_id, cuidador_id) 
