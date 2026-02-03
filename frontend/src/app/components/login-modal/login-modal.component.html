@@ -1,0 +1,33 @@
+<div class="modal-header">
+  <h2>Bienvenido de nuevo 👋</h2>
+  <p>Accede a tu panel de control</p>
+</div>
+
+<form (ngSubmit)="onSubmit()">
+  <div class="input-group">
+    <label>Email</label>
+    <input type="email" [(ngModel)]="loginData.email" name="email" placeholder="admin@test.com" required>
+  </div>
+  
+  <div class="input-group">
+    <label>Contraseña</label>
+    <input type="password" [(ngModel)]="loginData.password" name="password" placeholder="••••••" required>
+  </div>
+
+  <div class="forgot-password">
+    <a (click)="onForgotPassword()">¿Olvidaste tu contraseña?</a>
+  </div>
+
+  <button type="submit" class="btn-full blue-btn" [disabled]="isLoading">
+    {{ isLoading ? 'Verificando...' : 'Entrar' }}
+  </button>
+</form>
+
+<div class="google-btn" (click)="onGoogleLogin()">
+  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18" style="margin-right: 10px;">
+  Continuar con Google
+</div>
+
+<div class="modal-footer">
+  ¿No tienes cuenta? <a (click)="switchToRegister.emit()">Regístrate aquí</a>
+</div>

@@ -1,0 +1,176 @@
+/* CONTENEDOR PRINCIPAL */
+.users-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header-section h2 {
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #007bff;
+  display: inline-block;
+  padding-bottom: 5px;
+}
+
+/* TABLA BONITA */
+.table-responsive {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  overflow: hidden; /* Para redondear esquinas */
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.users-table th {
+  background-color: #007bff; /* Azul encabezado */
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.users-table td {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+  color: #555;
+}
+
+.users-table tr:last-child td {
+  border-bottom: none;
+}
+
+.users-table tr:hover {
+  background-color: #f8faff;
+}
+
+/* INFO USUARIO */
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.user-sub {
+  color: #888;
+  font-size: 0.8rem;
+}
+
+/* BADGES (ETIQUETAS DE ROL) */
+.badge {
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+}
+
+.badge-admin { background-color: #dc3545; }    /* Rojo */
+.badge-caregiver { background-color: #28a745; } /* Verde */
+.badge-user { background-color: #007bff; }      /* Azul */
+
+/* ESTADO (Puntito verde) */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: capitalize;
+}
+
+.dot {
+  width: 10px; height: 10px;
+  background-color: #ccc;
+  border-radius: 50%;
+}
+.dot.active {
+  background-color: #28a745;
+  box-shadow: 0 0 5px #28a745;
+}
+
+/* ACCIONES (Botones) */
+.text-center { text-align: center !important; }
+.actions-cell { text-align: center; }
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 5px;
+  transition: transform 0.2s;
+  margin: 0 5px;
+}
+
+.action-btn:hover { transform: scale(1.2); }
+.edit:hover { filter: drop-shadow(0 0 2px orange); }
+.delete:hover { filter: drop-shadow(0 0 2px red); }
+
+/* --- MODAL DE EDICIÓN --- */
+.modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+.form-group input, .form-group select {
+  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.btn-save { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+.btn-cancel { background: #eee; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+
+/* Botón Historial */
+.history-btn:hover { transform: scale(1.1); filter: drop-shadow(0 0 2px #6610f2); }
+
+/* Modal más ancho */
+.history-modal-content { max-width: 500px; width: 95%; }
+
+.close-btn-simple {
+  background: none; border: none; font-size: 1.2rem; cursor: pointer; float: right;
+}
+
+/* Lista de Alertas */
+.timeline-container {
+  max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-top: 15px;
+}
+
+.alert-card {
+  display: flex; gap: 15px; padding: 12px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9;
+}
+
+/* Colores según severidad */
+.alert-card.critical { border-left-color: #dc3545; background: #fff5f5; }
+.alert-card.warning { border-left-color: #ffc107; background: #fffbf0; }
+.alert-card.info { border-left-color: #0d6efd; background: #f0f7ff; }
+
+.alert-time { font-size: 0.85rem; color: #666; min-width: 80px; font-weight: bold; }
+
+.alert-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.alert-info strong { color: #333; font-size: 0.95rem; }
+
+.alert-meta { display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; }
+.badge-severity { font-weight: bold; opacity: 0.7; }

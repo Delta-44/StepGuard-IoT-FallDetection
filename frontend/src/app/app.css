@@ -1,122 +1,182 @@
 /* =========================================
-   NAVBAR Y ENLACES
+   GLOBAL & LAYOUT
+   ========================================= */
+:host {
+  display: block;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* =========================================
+   NAVBAR LINKS
    ========================================= */
 .nav-item {
-  color: #aaa;
+  color: #ccc;
   text-decoration: none;
   font-weight: 500;
-  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.3s;
 }
 
 .nav-item:hover {
   color: white;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .active-link {
   color: #00d2ff !important;
+  background: rgba(0, 210, 255, 0.15);
   font-weight: bold;
 }
 
-/* Enlaces específicos de Admin (Rojo) */
+/* Admin Specific Link (Red) */
 .nav-item-admin {
   color: #ff8888;
   text-decoration: none;
-  border: 1px solid #ff8888;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.9em;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 136, 136, 0.3);
+  transition: all 0.3s;
+}
+
+.nav-item-admin:hover {
+  background: rgba(255, 68, 68, 0.1);
+  color: white;
 }
 
 .nav-item-admin.active-link {
-  background: #ff4444 !important;
-  color: white !important;
-}
-
-/* =========================================
-   🚨 OVERLAY DE EMERGENCIA (PANTALLA ROJA)
-   ========================================= */
-.emergency-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(255, 0, 0, 0.85);
-  z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  animation: pulseBackground 2s infinite;
-  backdrop-filter: blur(5px);
-}
-
-.emergency-box {
-  background: white;
-  padding: 40px;
-  border-radius: 20px;
-  text-align: center;
-  max-width: 500px;
-  width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  border: 5px solid #dc3545;
-}
-
-.siren-icon {
-  font-size: 80px;
-  animation: bounce 1s infinite;
-  margin-bottom: 20px;
-}
-
-.emergency-box h1 {
-  color: #dc3545;
-  margin: 0 0 20px 0;
-  font-size: 2em;
-  letter-spacing: -1px;
-}
-
-.alert-details {
-  background: #fff0f0;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 25px;
-  text-align: left;
-  border: 1px solid #ffcccc;
-}
-
-.alert-details p {
-  margin: 5px 0;
-  color: #555;
-  font-size: 1.1em;
-}
-
-.btn-emergency {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  font-size: 1.2em;
+  background: rgba(255, 68, 68, 0.2) !important;
+  color: #ff4444 !important;
   font-weight: bold;
-  border-radius: 50px;
-  cursor: pointer;
-  box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
-  transition: transform 0.2s;
-}
-
-.btn-emergency:hover {
-  transform: scale(1.05);
-  background: #c82333;
+  border-color: #ff4444;
 }
 
 /* =========================================
-   ANIMACIONES
+   🚨 CRITICAL ALERT BANNER (TOP BAR)
    ========================================= */
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+.critical-banner {
+  background-color: #dc3545; /* Alert Red */
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  position: sticky; /* Stays at the top */
+  top: 0;
+  z-index: 10000; /* Above everything */
+  animation: slideDown 0.4s ease-out;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-@keyframes pulseBackground {
-  0% { background: rgba(220, 53, 69, 0.8); }
-  50% { background: rgba(180, 0, 0, 0.9); }
-  100% { background: rgba(220, 53, 69, 0.8); }
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1.1rem;
+}
+
+.banner-icon {
+  font-size: 1.5rem;
+  animation: pulse-icon 1.5s infinite;
+}
+
+.btn-banner-action {
+  background-color: white;
+  color: #dc3545;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.btn-banner-action:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  background-color: #f8f9fa;
+}
+
+/* =========================================
+   🔔 MINI TOAST NOTIFICATION (BOTTOM RIGHT)
+   ========================================= */
+.toast-notification {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: white;
+  width: 350px;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 9000;
+  border-left: 6px solid #ccc;
+  animation: slideInRight 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  overflow: hidden;
+}
+
+/* Toast Severity Colors */
+.toast-notification.high { border-left-color: #dc3545; }   /* Red */
+.toast-notification.medium { border-left-color: #ffc107; } /* Yellow */
+.toast-notification.low { border-left-color: #0d6efd; }    /* Blue */
+
+.toast-icon { font-size: 1.5rem; }
+
+.toast-content { flex: 1; }
+.toast-content h4 { margin: 0 0 5px 0; font-size: 0.95rem; color: #333; }
+.toast-content p { margin: 0; font-size: 0.85rem; color: #555; font-weight: 500; }
+.toast-content small { font-size: 0.75rem; color: #888; }
+
+.toast-actions { display: flex; flex-direction: column; gap: 5px; align-items: center; }
+
+.btn-toast-view {
+  background: #333; color: white; border: none;
+  padding: 5px 10px; border-radius: 4px; font-size: 0.75rem;
+  cursor: pointer; font-weight: bold;
+}
+
+.btn-toast-close {
+  background: transparent; border: none; color: #999;
+  cursor: pointer; font-size: 1rem;
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+  position: absolute; bottom: 0; left: 0; height: 4px; background: rgba(0, 0, 0, 0.1);
+  width: 100%;
+  animation: progress 6s linear forwards;
+}
+
+/* =========================================
+   ANIMATIONS
+   ========================================= */
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse-icon {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes progress {
+  from { width: 100%; }
+  to { width: 0%; }
 }
