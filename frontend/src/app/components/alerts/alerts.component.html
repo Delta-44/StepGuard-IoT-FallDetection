@@ -1,0 +1,79 @@
+<div class="page-container">
+  <h2>🚨 Centro de Alertas Global</h2>
+  
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>HORA</th>
+          <th>SEVERIDAD</th>
+          <th style="width: 40%;">MENSAJE / DETALLES</th>
+          <th>LUGAR</th> 
+          <th>DISPOSITIVO</th>
+          <th>ESTADO</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (alert of alerts; track alert.id) {
+          <tr [ngClass]="{'row-critical': alert.severity === 'critical' && alert.status === 'pendiente'}">
+            
+            <td style="white-space: nowrap;">{{ alert.timestamp | date:'dd/MM HH:mm' }}</td>
+            
+            <td>
+              <span class="badge" [ngClass]="alert.severity">
+                {{ alert.severity | uppercase }}
+              </span>
+            </td>
+            
+            <td>
+              <div class="message-row">
+                <span class="message-text">{{ alert.message }}</span>
+                
+                @if (alert.notes) {
+                  <button class="btn-toggle" (click)="toggleNotes(alert.id)">
+                    {{ isExpanded(alert.id) ? '🔼 Ocultar' : '🔽 Ver Notas' }}
+                  </button>
+                }
+              </div>
+              
+              @if (isExpanded(alert.id) && alert.notes) {
+                <div class="resolution-box">
+                  <div class="note-content">
+                    <span class="icon">📝</span> 
+                    <em>"{{ alert.notes }}"</em>
+                  </div>
+                  <div class="note-footer">
+                    — Atendido por: <strong>{{ alert.attendedBy }}</strong>
+                    <span class="note-date">({{ alert.attendedAt | date:'short' }})</span>
+                  </div>
+                </div>
+              }
+            </td>
+            
+            <td style="font-weight: 500; color: #555;">📍 {{ alert.location }}</td>
+
+            <td><small>ID: {{ alert.deviceId }}</small></td>
+            
+            <td>
+              <span class="status" 
+                    [class.done]="alert.status === 'atendida'"
+                    [class.ignored]="alert.status === 'falsa_alarma' || alert.status === 'ignorada'">
+                
+                @if (alert.status === 'atendida') {
+                  ✅ Resuelto
+                } @else if (alert.status === 'falsa_alarma') {
+                  🚫 Falsa Alarma
+                } @else if (alert.status === 'ignorada') {
+                  👁️ Ignorada
+                } @else {
+                  ⚠️ Pendiente
+                }
+
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

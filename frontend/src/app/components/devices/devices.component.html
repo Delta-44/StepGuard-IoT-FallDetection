@@ -32,8 +32,8 @@
           <div>📍 <strong>Ubicación:</strong> {{ device.location }}</div>
           <div>
             🔋 <strong>Batería:</strong> 
-            <span [style.color]="device.battery < 20 ? 'red' : 'green'" style="font-weight: bold;">
-              {{ device.battery }}%
+            <span [style.color]="(device.batteryLevel ?? 100) < 20 ? 'red' : 'green'" style="font-weight: bold;">
+              {{ device.batteryLevel ?? 100 }}%
             </span>
           </div>
           <div>🕒 <strong>Última vez:</strong> {{ device.lastSeen | date:'shortTime' }}</div>

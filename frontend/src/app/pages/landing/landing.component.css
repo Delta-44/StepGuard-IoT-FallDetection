@@ -1,0 +1,399 @@
+/* =========================================
+   1. CONFIGURACIÓN GLOBAL Y LAYOUT
+   ========================================= */
+:host {
+  display: block;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.landing-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e6e9f0 100%);
+  position: relative;
+}
+
+/* =========================================
+   2. BARRA DE NAVEGACIÓN (NAVBAR)
+   ========================================= */
+.landing-nav {
+  position: absolute;
+  top: 0; left: 0; width: 100%;
+  padding: 20px 10%;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+.logo {
+  font-size: 1.5rem; font-weight: 800; color: #333;
+  display: flex; align-items: center; gap: 10px; cursor: default;
+}
+.logo-icon { font-size: 1.8rem; }
+
+.nav-links { display: flex; align-items: center; gap: 20px; }
+
+/* Botones del Menú */
+.link-login, .btn-register {
+  cursor: pointer; font-family: inherit; border: none; font-weight: 600; transition: all 0.2s;
+}
+
+.link-login {
+  background: none; color: #555; font-size: 1rem;
+}
+.link-login:hover { color: #007bff; }
+
+.btn-register {
+  background: #222; color: white; padding: 10px 24px; border-radius: 50px; font-size: 0.95rem;
+}
+.btn-register:hover { transform: translateY(-2px); background: black; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+/* =========================================
+   3. HERO SECTION (PORTADA)
+   ========================================= */
+.hero {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 120px 10% 4rem; /* Top padding para compensar el nav */
+  min-height: 85vh; gap: 4rem;
+}
+
+/* Texto Hero */
+.hero-content { flex: 1; max-width: 600px; animation: slideUp 0.8s ease-out; }
+
+.badge {
+  display: inline-block; padding: 6px 12px; margin-bottom: 20px;
+  background: rgba(0, 123, 255, 0.1); color: #007bff;
+  font-weight: 700; font-size: 0.85rem; border-radius: 20px;
+}
+
+h1 {
+  font-size: 3.5rem; line-height: 1.1; color: #222; margin-bottom: 1.5rem; font-weight: 800;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #007bff, #6610f2);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-description { font-size: 1.2rem; color: #555; margin-bottom: 2.5rem; line-height: 1.6; }
+
+/* Botón Hero Principal */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 30px; border-radius: 50px; border: none;
+  background: #007bff; color: white; font-weight: 600; font-size: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3); cursor: pointer; transition: all 0.3s ease;
+}
+.btn-primary:hover { transform: translateY(-3px); background: #0056b3; }
+
+/* Estadísticas */
+.stats { display: flex; align-items: center; gap: 20px; margin-top: 3rem; }
+.stat-item strong { display: block; font-size: 1.5rem; color: #222; }
+.stat-item span { font-size: 0.9rem; color: #777; }
+.divider { width: 1px; height: 40px; background: #ccc; }
+
+/* Visual Hero (Derecha) */
+.hero-visual {
+  flex: 1; position: relative; display: flex; justify-content: center; align-items: center; height: 400px;
+}
+
+.floating-card {
+  background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);
+  padding: 2.5rem; border-radius: 30px; text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1); border: 1px solid rgba(255, 255, 255, 0.5);
+  position: relative; z-index: 2; animation: float 6s ease-in-out infinite;
+}
+
+.icon-big { font-size: 4rem; margin-bottom: 10px; }
+.status-dot {
+  width: 12px; height: 12px; background: #28a745; border-radius: 50%;
+  margin: 15px auto 0; box-shadow: 0 0 10px #28a745; animation: blink 2s infinite;
+}
+
+/* Decoración Flotante */
+.pulse-circle {
+  position: absolute; width: 300px; height: 300px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(0,123,255,0.1), rgba(102,16,242,0.1));
+  z-index: 1; animation: pulse 4s infinite;
+}
+.pulse-circle.delay-1 { animation-delay: 2s; width: 400px; height: 400px; opacity: 0.5; }
+
+.float-element {
+  position: absolute; background: white; padding: 12px; border-radius: 14px;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15); font-size: 1.8rem; z-index: 3;
+}
+.e1 { top: -30px; left: -30px; animation: float 5s infinite 1s; }
+.e2 { top: 10%; right: -40px; animation: float 7s infinite 0.5s; }
+.e3 { bottom: -30px; right: 15%; animation: float 4s infinite 2s; }
+
+/* =========================================
+   4. FEATURES SECTION
+   ========================================= */
+.features {
+  padding: 5rem 10%;
+  background: white;
+}
+
+.features h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #222;
+  margin-bottom: 3rem;
+  font-weight: 800;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  padding: 2.5rem;
+  border-radius: 20px;
+  background: #f8f9fa;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  background: white;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+  border-color: #007bff;
+}
+
+.feature-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.3rem;
+  color: #222;
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+}
+
+.feature-card p {
+  color: #666;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* =========================================
+   STATS SECTION
+   ========================================= */
+.stats {
+  padding: 4rem 10%;
+  background: linear-gradient(135deg, #007bff, #6610f2);
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 3rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.stat-item {
+  color: white;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 500;
+}
+
+/* =========================================
+   FOOTER
+   ========================================= */
+.footer {
+  padding: 2.5rem 10%;
+  background: #222;
+  color: white;
+  text-align: center;
+}
+
+.footer p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  opacity: 0.8;
+}
+
+/* =========================================
+   HERO ACTIONS
+   ========================================= */
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn {
+  padding: 14px 32px;
+  border-radius: 50px;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  background: #0056b3;
+  box-shadow: 0 15px 40px rgba(0, 123, 255, 0.4);
+}
+
+.btn-secondary {
+  background: white;
+  color: #007bff;
+  border: 2px solid #007bff;
+}
+
+.btn-secondary:hover {
+  background: #007bff;
+  color: white;
+  transform: translateY(-3px);
+}
+
+.arrow {
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+}
+
+.btn-primary:hover .arrow {
+  transform: translateX(5px);
+}
+
+/* =========================================
+   5. ESTILOS DE LOS MODALES (POP-UPS)
+   ========================================= */
+.modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+  z-index: 1000; display: flex; justify-content: center; align-items: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  background: white; padding: 2.5rem; border-radius: 20px;
+  width: 90%; max-width: 420px; position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease-out;
+}
+
+.modal-header { margin-bottom: 20px; text-align: center; }
+.modal-header h2 { margin: 0; color: #333; }
+.modal-header p { color: #666; margin: 5px 0 0; }
+
+.close-btn {
+  position: absolute; top: 15px; right: 15px; background: none; border: none;
+  font-size: 1.2rem; cursor: pointer; color: #aaa;
+}
+.close-btn:hover { color: #333; }
+
+/* Inputs del Modal */
+.input-group { margin-bottom: 15px; }
+.input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #444; }
+.input-group input {
+  width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem;
+  box-sizing: border-box; /* Importante para que no se salga */
+}
+.input-group input:focus { border-color: #007bff; outline: none; }
+
+/* Botones del Modal */
+.btn-full {
+  width: 100%; padding: 12px; border: none; border-radius: 10px;
+  color: white; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px;
+  transition: background 0.3s;
+}
+.blue-btn { background: #4a6cf7; }
+.blue-btn:hover { background: #3b5bdb; }
+.black-btn { background: #222; }
+.black-btn:hover { background: black; }
+
+.google-btn {
+  margin-top: 15px; border: 1px solid #ddd; padding: 10px; border-radius: 10px;
+  text-align: center; cursor: pointer; display: flex; justify-content: center; 
+  align-items: center; font-weight: 500; color: #555;
+}
+
+.modal-footer { margin-top: 20px; text-align: center; font-size: 0.9rem; color: #666; }
+.modal-footer a { color: #007bff; font-weight: bold; cursor: pointer; text-decoration: underline; }
+
+/* =========================================
+   6. ANIMACIONES Y RESPONSIVE
+   ========================================= */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.7; } 50% { transform: scale(1.05); opacity: 0.4; } 100% { transform: scale(0.95); opacity: 0.7; } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+@media (max-width: 900px) {
+  .hero { flex-direction: column; text-align: center; padding: 100px 5% 2rem; }
+  .hero-actions { justify-content: center; }
+  .stats { justify-content: center; }
+  .hero-visual { width: 100%; height: 300px; margin-top: 2rem; }
+  h1 { font-size: 2.5rem; }
+}   
+
+/* src/app/components/login-modal/login-modal.component.css */
+
+/* CABECERA */
+.modal-header { text-align: center; margin-bottom: 20px; }
+.modal-header h2 { margin: 0; color: #333; font-size: 1.8rem; }
+.modal-header p { color: #666; margin: 5px 0 0; }
+
+/* INPUTS */
+.input-group { margin-bottom: 15px; text-align: left; }
+.input-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: #444; }
+.input-group input {
+  width: 100%; padding: 12px; border: 2px solid #eee; border-radius: 10px; font-size: 1rem;
+  box-sizing: border-box; /* IMPORTANTE para que no se salga */
+}
+.input-group input:focus { border-color: #007bff; outline: none; }
+
+/* BOTONES */
+.btn-full {
+  width: 100%; padding: 12px; border: none; border-radius: 10px;
+  color: white; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px;
+  transition: background 0.3s;
+}
+.blue-btn { background: #4a6cf7; }
+.blue-btn:hover { background: #3b5bdb; }
+.btn-full:disabled { background: #ccc; cursor: not-allowed; }
+
+/* GOOGLE */
+.google-btn {
+  margin-top: 15px; border: 1px solid #ddd; padding: 10px; border-radius: 10px;
+  text-align: center; cursor: pointer; display: flex; justify-content: center;
+  align-items: center; font-weight: 500; color: #555;
+}
+
+/* FOOTER */
+.modal-footer { margin-top: 20px; text-align: center; font-size: 0.9rem; color: #666; }
+.modal-footer a { color: #007bff; font-weight: bold; cursor: pointer; text-decoration: underline; }

@@ -1,76 +1,100 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core'; // 👈 OnDestroy añadido
 import { CommonModule } from '@angular/common';
-import { Alert } from '../../models/alert.model';
-import { ApiService } from '../../services/api.service';
-import { AuthService } from '../../services/auth.service'; // <--- IMPORTANTE: Importar Auth
-import { SeverityLabelPipe } from '../../pipes/severity-label-pipe';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { AlertService, Alert } from '../../services/alert.service';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs'; // 👈 Importar
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, SeverityLabelPipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
+  private alertService = inject(AlertService);
+  public authService = inject(AuthService);
+  
+  // Guardamos la suscripción para limpiarla al salir
+  private alertSub: Subscription | null = null;
 
-  // INYECCIONES
-  private apiService = inject(ApiService);
-  private authService = inject(AuthService); // <--- Inyectamos para saber quién eres
-  public currentUser = this.authService.currentUser;
+  today = new Date();
+  stats = { activePatients: 0, pendingAlerts: 0, onlineDevices: 0, lowBattery: 0 };
+  public activeAlerts: Alert[] = []; 
 
-  // --- SIGNALS ---
-  public alerts = signal<Alert[]>([]);
-  public connectionStatus = signal<string>('Conectando...');
+  // Variables Modal
+  public processingAlert: Alert | null = null;
+  public resolutionNotes: string = '';
+  public selectedSeverity: 'low' | 'medium' | 'high' | 'critical' = 'medium';
+  public isSubmitting = false;
 
-  // Calculamos si hay crisis
-  public isCriticalState = computed(() => 
-    this.alerts().some(a => a.severity === 'critical' && !a.resolved)
-  );
-
-  constructor() {
-    this.apiService.getAlertsStream()
-      .pipe(takeUntilDestroyed()) 
-      .subscribe({
-        next: (data) => {
-          this.alerts.set(data);
-          this.connectionStatus.set('Conectado');
-        },
-        error: (err) => {
-          console.error(err);
-          this.connectionStatus.set('Error de conexión');
-        }
-      });
+  get canAttend() {
+    const role = this.authService.currentUser()?.role;
+    return role === 'admin' || role === 'caregiver';
   }
 
-  ngOnInit(): void {}
-
-  // --- ACCIÓN DE ATENDER ---
-  public attendAlert(id: string): void {
-    // 1. Obtenemos el usuario actual
-    const currentUser = this.authService.currentUser();
+  ngOnInit() {
+    const user = this.authService.currentUser();
     
-    // Si por alguna razón no hay usuario, usamos un nombre genérico o paramos
-    const userName = currentUser ? currentUser.fullName : 'Admin Desconocido';
-
-    // 2. Llamamos a la API pasando el ID Y EL NOMBRE (Aquí estaba el error)
-    this.apiService.markAsResolved(id, userName).subscribe(() => {
+    // 👇 SUSCRIPCIÓN VIVA: Se actualiza sola cada vez que el servicio genere una alerta
+    this.alertSub = this.alertService.alerts$.subscribe(allAlerts => {
       
-      // Actualizamos la señal localmente para ver el cambio instantáneo
-      this.alerts.update(currentAlerts => 
-        currentAlerts.map(alert => {
-          if (alert.id === id) {
-            return { 
-              ...alert, 
-              resolved: true, 
-              assignedTo: userName // Guardamos el nombre visualmente
-            };
-          }
-          return alert;
-        })
-      );
+      let filteredAlerts = allAlerts;
+      
+      // Filtro de seguridad (Paciente ve solo lo suyo)
+      if (user?.role === 'user') {
+        filteredAlerts = allAlerts.filter(a => 
+          a.userId === Number(user.id) || a.deviceId === String(user.id)
+        );
+      }
 
+      // Actualizar lista y stats en tiempo real
+      this.activeAlerts = filteredAlerts.filter(a => a.status === 'pendiente');
+      
+      this.stats.pendingAlerts = this.activeAlerts.length;
+      this.stats.activePatients = user?.role === 'user' ? 1 : 12;
+      this.stats.onlineDevices = user?.role === 'user' ? 1 : 10;
+      this.stats.lowBattery = filteredAlerts.filter(a => a.message.includes('Batería')).length;
+    });
+
+    // Manejo de redirección desde alerta roja
+    if (this.alertService.currentActiveAlert && this.canAttend) {
+      this.openResolutionModal(this.alertService.currentActiveAlert);
+      this.alertService.currentActiveAlert = null; 
+    }
+  }
+
+  ngOnDestroy() {
+    // Evitar fugas de memoria
+    if (this.alertSub) this.alertSub.unsubscribe();
+  }
+
+  // --- FUNCIONES DEL MODAL (Igual que antes) ---
+  openResolutionModal(alert: Alert) {
+    if (!this.canAttend) return;
+    this.processingAlert = alert;
+    this.resolutionNotes = ''; 
+    this.selectedSeverity = alert.severity;
+  }
+
+  cancelResolution() { this.processingAlert = null; }
+
+  submitResolution(type: 'atendida' | 'falsa_alarma') {
+    if (!this.processingAlert) return;
+    this.isSubmitting = true;
+    const caregiver = this.authService.currentUser()?.fullName || 'Desconocido';
+
+    this.alertService.resolveAlert(
+      this.processingAlert.id,
+      this.resolutionNotes,
+      type,
+      caregiver,
+      this.selectedSeverity
+    ).subscribe(() => {
+      this.isSubmitting = false;
+      this.processingAlert = null;
+      // No hace falta llamar a loadDashboardData(), la suscripción lo hace sola
     });
   }
 }

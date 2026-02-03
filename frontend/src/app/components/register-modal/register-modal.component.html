@@ -1,0 +1,81 @@
+@if (step === 'selection') {
+  <div class="modal-header">
+    <h2>¿Quién eres? 🤔</h2>
+    <p>Selecciona tu perfil para comenzar</p>
+  </div>
+
+  <div class="role-selection">
+    <div class="role-card" (click)="chooseRole('user')">
+      <div class="role-icon">👤</div>
+      <div>
+        <h3>Paciente / Familiar</h3>
+        <p>Monitorización personal y seguridad en el hogar.</p>
+      </div>
+    </div>
+
+    <div class="role-card caregiver" (click)="chooseRole('caregiver')">
+      <div class="role-icon">🏥</div>
+      <div>
+        <h3>Cuidador / Enfermero</h3>
+        <p>Gestión de múltiples pacientes y recepción de alertas.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()">Inicia Sesión</a>
+  </div>
+}
+
+@else {
+  <div class="modal-header">
+    <button class="back-btn" (click)="goBack()">← Volver</button>
+    <h2>{{ roleTitle }}</h2>
+    <p>Los campos con <span class="required">*</span> son obligatorios</p>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" #regForm="ngForm">
+    
+    <div class="input-group">
+      <label>Nombre Completo <span class="required">*</span></label>
+      <input type="text" [(ngModel)]="registerData.name" name="name" placeholder="Ej: Juan Pérez" required minlength="2">
+    </div>
+    
+    <div class="input-group">
+      <label>Email <span class="required">*</span></label>
+      <input type="email" [(ngModel)]="registerData.email" name="email" placeholder="tu@email.com" required email>
+    </div>
+    
+    <div class="input-group">
+      <label>Teléfono Móvil <span class="required">*</span></label>
+      <input type="tel" [(ngModel)]="registerData.telefono" name="telefono" placeholder="+34 600 000 000" required>
+    </div>
+
+    @if (selectedRole === 'user') {
+      <div class="row-2-col">
+        <div class="input-group">
+          <label>Fecha Nacimiento <span class="required">*</span></label>
+          <input type="date" [(ngModel)]="registerData.fecha_nacimiento" name="fecha_nacimiento" required>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Dirección (Emergencias) <span class="required">*</span></label>
+        <input type="text" [(ngModel)]="registerData.direccion" name="direccion" placeholder="Calle, Número, Piso..." required>
+      </div>
+    }
+
+    <div class="input-group">
+      <label>Contraseña <span class="required">*</span></label>
+      <input type="password" [(ngModel)]="registerData.password" name="password" placeholder="Mínimo 6 caracteres" required minlength="6">
+    </div>
+
+    <button type="submit" class="btn-full black-btn" [disabled]="!regForm.valid || isLoading">
+      {{ isLoading ? 'Creando cuenta...' : 'Confirmar Registro' }}
+    </button>
+  </form>
+
+  <div class="modal-footer">
+    ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()">Inicia Sesión</a>
+  </div>
+}
