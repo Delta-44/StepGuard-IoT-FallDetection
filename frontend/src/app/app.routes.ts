@@ -8,6 +8,7 @@ import { UsersComponent } from './components/users/users.component';
 import { AuthService } from './services/auth.service';
 import { HomeComponent } from './components/home/home.component';
 import { LandingComponent } from './pages/landing/landing.component';
+import { AlertsComponent } from './components/alerts/alerts.component';
 
 // --- LÓGICA DE GUARDIA (SECURITY GUARD) ---
 const authGuard = () => {
@@ -59,6 +60,7 @@ export const routes: Routes = [
     component: HomeComponent,
     canActivate: [authGuard] 
   },
+  { path: 'alerts', component: AlertsComponent, canActivate: [authGuard] },
 
   // ==========================================
   // 3. RUTAS DESCONOCIDAS

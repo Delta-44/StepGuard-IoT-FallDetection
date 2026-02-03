@@ -20,6 +20,10 @@
             <th>ROL</th>
             <th>ESTADO</th>
             
+            @if (canViewHistory()) {
+              <th class="text-center">HISTORIAL</th>
+            }
+
             @if (isAdmin()) {
               <th class="text-center">ACCIONES</th>
             }
@@ -30,7 +34,7 @@
             <tr>
               <td>
                 <div class="user-info">
-                  <span class="user-name">{{ user.fullName }}</span>
+                  <span class="user-name">{{ user.fullName }}</span> 
                   <small class="user-sub">{{ user.username || 'N/A' }}</small>
                 </div>
               </td>
@@ -51,6 +55,14 @@
                   {{ user.status }}
                 </div>
               </td>
+
+              @if (canViewHistory()) {
+                <td class="text-center">
+                  <button class="action-btn history-btn" (click)="openHistoryModal(user)" title="Ver Alertas">
+                    📋
+                  </button>
+                </td>
+              }
 
               @if (isAdmin()) {
                 <td class="actions-cell">
@@ -99,6 +111,47 @@
             <button type="submit" class="btn-save">Guardar</button>
           </div>
         </form>
+      </div>
+    </div>
+  }
+
+  @if (isHistoryModalOpen) {
+    <div class="modal-backdrop" (click)="closeHistoryModal()">
+      <div class="modal-content history-modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Historial: {{ selectedHistoryUserName }}</h3>
+          <button class="close-btn-simple" (click)="closeHistoryModal()">✕</button>
+        </div>
+  
+        @if (userHistory.length === 0) {
+          <div class="empty-state">
+            <p>✅ Sin incidentes registrados.</p>
+          </div>
+        } @else {
+          <div class="timeline-container">
+            @for (alert of userHistory; track alert.id) {
+              <div class="alert-card" [ngClass]="alert.severity">
+                <div class="alert-time">
+                  {{ alert.timestamp | date:'dd MMM, HH:mm' }}
+                </div>
+                <div class="alert-info">
+                  <strong>{{ alert.message }}</strong>
+                  
+                  <div style="font-size: 0.85rem; color: #444; margin: 2px 0;">
+                    📍 {{ alert.location }}
+                  </div>
+
+                  <div class="alert-meta">
+                    <span class="badge-severity">{{ alert.severity | uppercase }}</span>
+                    <span class="status-text">
+                      {{ alert.resolved ? '✅ Resuelto' : '⚠️ Pendiente' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </div>
     </div>
   }

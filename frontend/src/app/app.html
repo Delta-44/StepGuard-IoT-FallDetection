@@ -1,54 +1,94 @@
-<!-- Navbar solo visible cuando estás autenticado -->
-@if (showNavbar()) {
-  <div style="padding: 20px; background: #333; color: white;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <h1 style="margin: 0;">StepGuard IoT - Sistema de Detección de Caídas</h1>
-      <div style="display: flex; align-items: center; gap: 20px;">
-        @if (auth.currentUser()) {
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <div style="text-align: right;">
-              <div style="color: white; font-weight: 600;">👤 {{ auth.currentUser()?.fullName }}</div>
-              <div style="font-size: 12px; color: #aaa;">
-                @if (auth.currentUser()?.role === 'admin') {
-                  <span style="background: #dc3545; padding: 2px 8px; border-radius: 3px; color: white;">🔐 Administrador</span>
-                }
-                @if (auth.currentUser()?.role === 'caregiver') {
-                  <span style="background: #28a745; padding: 2px 8px; border-radius: 3px; color: white;">🏥 Cuidador</span>
-                }
-                @if (auth.currentUser()?.role === 'user') {
-                  <span style="background: #007bff; padding: 2px 8px; border-radius: 3px; color: white;">👥 Usuario</span>
-                }
-              </div>
-            </div>
-            <button (click)="logout()" 
-                    style="padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
-              Cerrar Sesión
-            </button>
-          </div>
-        }
+<div style="font-family: 'Segoe UI', sans-serif;">
+      
+  @if (criticalAlert()) {
+    <div class="emergency-overlay">
+      <div class="emergency-box">
+        <div class="siren-icon">🚨</div>
+        <h1>¡EMERGENCIA DETECTADA!</h1>
+
+        <div class="alert-details">
+          <p><strong>Dispositivo:</strong> {{ criticalAlert()?.deviceId }}</p>
+          
+          <p style="font-size: 1.2rem; color: #d63384;">
+            <strong>📍 Ubicación:</strong> {{ criticalAlert()?.location }}
+          </p>
+
+          <p><strong>Mensaje:</strong> {{ criticalAlert()?.message }}</p>
+          <p><strong>Hora:</strong> {{ criticalAlert()?.timestamp | date: 'mediumTime' }}</p>
+        </div>
+
+        <button (click)="goToDashboard()" class="btn-emergency">VER Y ATENDER AHORA</button>
       </div>
     </div>
-    <nav style="margin: 20px 0;">
-      <a routerLink="/dashboard" 
-         routerLinkActive="active"
-         style="color: cyan; margin-right: 20px; text-decoration: none; padding: 8px 12px; border-radius: 4px;">
-        Dashboard
-      </a>
-      <a routerLink="/devices" 
-         routerLinkActive="active"
-         style="color: cyan; margin-right: 20px; text-decoration: none; padding: 8px 12px; border-radius: 4px;">
-        Dispositivos
-      </a>
-      @if (auth.currentUser()?.role === 'admin') {
-        <a routerLink="/users" 
-           routerLinkActive="active"
-           style="color: #ff4444; text-decoration: none; padding: 8px 12px; border-radius: 4px; border: 1px solid #ff4444;">
-          👥 Usuarios
-        </a>
-      }
-    </nav>
-  </div>
-}
+  }
 
-<!-- Contenido principal -->
-<router-outlet></router-outlet>
+  @if (showNavbar()) {
+    <nav style="background: #222; height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; z-index: 10;">
+      
+      <a routerLink="/" style="text-decoration: none; cursor: pointer;">
+        <div style="display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; font-size: 1.2em;">
+          🎯 StepGuard IoT
+        </div>
+      </a>
+
+      @if (currentUser()) {
+        <div style="display: flex; gap: 20px;">
+          
+          <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">
+            🩺 Monitorización
+          </a>
+
+          <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">
+            📱 Dispositivos
+          </a>
+
+          <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
+            🚨 Historial
+          </a>
+
+          @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
+            <a
+              routerLink="/users"
+              routerLinkActive="active-link"
+              [class.nav-item-admin]="isAdmin()"
+              [class.nav-item]="!isAdmin()"
+            >
+              👥 {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
+            </a>
+          }
+        </div>
+      }
+
+      <div style="display: flex; align-items: center; gap: 15px;">
+        
+        @if (currentUser()) {
+          <div style="text-align: right; color: white; line-height: 1.2;">
+            <div style="font-weight: bold; font-size: 0.9em;">{{ currentUser()?.fullName }}</div>
+            <div style="font-size: 0.75em; opacity: 0.8; color: #ccc;">
+              @switch (currentUser()?.role) {
+                @case ('admin') { 🔒 Administrador }
+                @case ('caregiver') { 🏥 Cuidador }
+                @case ('user') { 👤 Paciente }
+              }
+            </div>
+          </div>
+          <button
+            (click)="logout()"
+            style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;"
+          >
+            Salir
+          </button>
+        } 
+        
+        @else {
+          <a routerLink="/" style="color: white; text-decoration: none; font-weight: 500; font-size: 0.9rem; margin-right: 10px; cursor: pointer;">
+            Iniciar Sesión
+          </a>
+        }
+
+      </div>
+    </nav>
+  }
+
+  <router-outlet></router-outlet>
+</div>

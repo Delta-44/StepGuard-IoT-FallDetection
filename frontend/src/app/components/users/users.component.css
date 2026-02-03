@@ -142,3 +142,35 @@
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .btn-save { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
 .btn-cancel { background: #eee; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+
+/* Botón Historial */
+.history-btn:hover { transform: scale(1.1); filter: drop-shadow(0 0 2px #6610f2); }
+
+/* Modal más ancho */
+.history-modal-content { max-width: 500px; width: 95%; }
+
+.close-btn-simple {
+  background: none; border: none; font-size: 1.2rem; cursor: pointer; float: right;
+}
+
+/* Lista de Alertas */
+.timeline-container {
+  max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-top: 15px;
+}
+
+.alert-card {
+  display: flex; gap: 15px; padding: 12px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9;
+}
+
+/* Colores según severidad */
+.alert-card.critical { border-left-color: #dc3545; background: #fff5f5; }
+.alert-card.warning { border-left-color: #ffc107; background: #fffbf0; }
+.alert-card.info { border-left-color: #0d6efd; background: #f0f7ff; }
+
+.alert-time { font-size: 0.85rem; color: #666; min-width: 80px; font-weight: bold; }
+
+.alert-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.alert-info strong { color: #333; font-size: 0.95rem; }
+
+.alert-meta { display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; }
+.badge-severity { font-weight: bold; opacity: 0.7; }
