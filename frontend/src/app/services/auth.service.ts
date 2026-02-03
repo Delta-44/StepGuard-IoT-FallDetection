@@ -39,6 +39,29 @@ export class AuthService {
     return of(this.mockLoginLogic(email, password)).pipe(delay(1000));
   }
 
+  // --- LOGIN CON GOOGLE ---
+  async loginWithGoogle(): Promise<User> {
+    console.log('🔄 Conectando con Google (Simulado)...');
+    
+    // Simulamos el tiempo que tarda la ventanita de Google (1.5 segundos)
+    return new Promise<User>((resolve) => {
+      setTimeout(() => {
+        // Creamos un usuario ficticio que "viene" de Google
+        const googleUser: User = {
+          id: 'google-12345',
+          username: 'usuariogoogle',
+          fullName: 'Usuario Google',
+          email: 'usuario@gmail.com',
+          role: 'user',
+          status: 'active',
+          lastLogin: new Date()
+        };
+
+        resolve(googleUser);
+      }, 1500);
+    });
+  }
+
   // --- REGISTRO ---
   register(data: { name: string; email: string; password: string }): Observable<{ token: string; user: User }> {
     console.log('Registrando usuario:', data);
@@ -50,13 +73,7 @@ export class AuthService {
       fullName: data.name,
       email: data.email,
       status: 'active',
-      lastLogin: new Date(),
-      
-      // ✨ NUEVOS CAMPOS (Por defecto para registros nuevos)
-      is_admin: false, 
-      telefono: '',     // Se deja vacío para que lo rellene luego
-      edad: 0,
-      direccion: ''
+      lastLogin: new Date()
     };
 
     return of({ token: 'fake-jwt-token-register', user: newUser }).pipe(delay(1000));
@@ -83,47 +100,41 @@ export class AuthService {
   // =========================================================
   private mockLoginLogic(email: string, pass: string): { token: string; user: User } {
 
-    // 1. Detectamos el ROL
-    let role: 'admin' | 'caregiver' | 'user' = 'user';
-    let isAdmin = false; // Nuevo campo para la BD
+    // 1. Detectamos el ROL analizando el texto del email
+    let role: 'admin' | 'caregiver' | 'user' = 'user'; // Por defecto "Usuario"
 
     if (email.toLowerCase().includes('admin')) {
       role = 'admin';
-      isAdmin = true; // <--- COHERENCIA CON TU SQL
     } else if (email.toLowerCase().includes('enfermero') ||
       email.toLowerCase().includes('hospital') ||
       email.toLowerCase().includes('cuidador')) {
       role = 'caregiver';
-      isAdmin = false;
     }
 
-    // 2. Asignamos nombre según rol
+    // 2. Asignamos un nombre bonito según el rol detectado
     let fullName = 'Usuario Anónimo';
     if (role === 'admin') fullName = 'Super Admin';
     else if (role === 'caregiver') fullName = 'Enfermero Juan';
-    else fullName = 'Ana García';
+    else fullName = 'Ana García'; // Nombre para el usuario de prueba
 
-    // 3. Creamos el usuario simulado CON LOS CAMPOS NUEVOS
+    // 3. Creamos el usuario simulado (Mock)
     const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: Math.random().toString(36).substr(2, 9), // ID aleatorio
       username: email.split('@')[0],
       fullName: fullName,
       email: email,
-      role: role,
+      role: role, // <--- AQUÍ ES DONDE OCURRE LA MAGIA
       status: 'active',
       lastLogin: new Date(),
-      
-      // ✨ DATOS EXTRA (Para que coincida con user.model.ts)
-      is_admin: isAdmin,
-      telefono: '+34 600 000 000', 
-      
-      // Solo rellenamos edad/dirección si es paciente (opcional)
+      is_admin: role === 'admin',
+      telefono: '+34 600 000 000',
       ...(role === 'user' && {
-        edad: 78,
+        fecha_nacimiento: '1946-01-15',
         direccion: 'Calle Mayor 123, Madrid'
       })
     };
 
+    // 4. ¡Éxito siempre! (Para facilitar tus pruebas)
     return {
       token: 'fake-jwt-token-' + Date.now(),
       user: mockUser

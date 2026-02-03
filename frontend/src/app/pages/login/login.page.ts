@@ -36,7 +36,7 @@ export class LoginPage {
 
     this.loading.set(true);
     this.auth.login(email, password).pipe(
-      tap(r => {
+      tap((r: { token: string; user: any }) => {
         this.auth.saveToken(r.token);
         this.auth.saveSession(r.user);
       }),

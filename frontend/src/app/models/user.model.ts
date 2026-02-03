@@ -14,6 +14,6 @@ export interface User {
   // ✨ NUEVOS CAMPOS (Que vienen de la nueva BD)
   telefono?: string;
   direccion?: string; // Solo para pacientes
-  edad?: number;      // Solo para pacientes
+  fecha_nacimiento?: string | Date; // Solo para pacientes
   is_admin?: boolean; // Viene de la tabla cuidadores
 }

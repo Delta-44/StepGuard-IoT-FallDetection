@@ -1,16 +1,16 @@
 import { Component, inject, computed, signal, OnInit } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router'; // 👈 Importante: NavigationEnd
+import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { ApiService } from './services/api.service';
 import { Alert } from './models/alert.model';
 import { CommonModule } from '@angular/common';
-import { filter } from 'rxjs/operators'; // 👈 Importante: filter
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
-  styleUrl: './app.css', // Tu CSS externo
+  styleUrl: './app.css',
   template: `
     <div style="font-family: 'Segoe UI', sans-serif;">
       
@@ -34,42 +34,40 @@ import { filter } from 'rxjs/operators'; // 👈 Importante: filter
       @if (showNavbar()) {
         <nav style="background: #222; height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; z-index: 10;">
           
-          <div style="display: flex; align-items: center; gap: 30px;">
+          <a routerLink="/" style="text-decoration: none; cursor: pointer;">
             <div style="display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; font-size: 1.2em;">
               🎯 StepGuard IoT
             </div>
-
-            @if (currentUser()) {
-              <div style="display: flex; gap: 20px;">
-                <a routerLink="/home" routerLinkActive="active-link" class="nav-item">🏠 Inicio</a>
-                <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">🩺 Monitorización</a>
-                <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">📱 Dispositivos</a>
-
-                @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
-                  <a
-                    routerLink="/users"
-                    routerLinkActive="active-link"
-                    [class.nav-item-admin]="isAdmin()"
-                    [class.nav-item]="!isAdmin()"
-                  >
-                    👥 {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
-                  </a>
-                }
-              </div>
-            }
-          </div>
+          </a>
 
           @if (currentUser()) {
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="display: flex; gap: 20px;">
+              <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">🩺 Monitorización</a>
+              <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">📱 Dispositivos</a>
+
+              @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
+                <a
+                  routerLink="/users"
+                  routerLinkActive="active-link"
+                  [class.nav-item-admin]="isAdmin()"
+                  [class.nav-item]="!isAdmin()"
+                >
+                  👥 {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
+                </a>
+              }
+            </div>
+          }
+
+          <div style="display: flex; align-items: center; gap: 15px;">
+            
+            @if (currentUser()) {
               <div style="text-align: right; color: white; line-height: 1.2;">
                 <div style="font-weight: bold; font-size: 0.9em;">{{ currentUser()?.fullName }}</div>
                 <div style="font-size: 0.75em; opacity: 0.8; color: #ccc;">
-                  @if (currentUser()?.role === 'admin') {
-                    🔒 Administrador
-                  } @else if (currentUser()?.role === 'caregiver') {
-                    🏥 Cuidador
-                  } @else {
-                    👥 Usuario
+                  @switch (currentUser()?.role) {
+                    @case ('admin') { 🔒 Administrador }
+                    @case ('caregiver') { 🏥 Cuidador }
+                    @case ('user') { 👤 Paciente }
                   }
                 </div>
               </div>
@@ -79,8 +77,18 @@ import { filter } from 'rxjs/operators'; // 👈 Importante: filter
               >
                 Salir
               </button>
-            </div>
-          }
+            } 
+            
+            @else {
+              <a routerLink="/login" style="color: white; text-decoration: none; font-weight: 500; font-size: 0.9rem; margin-right: 10px; cursor: pointer;">
+                Iniciar Sesión
+              </a>
+              <a routerLink="/register" style="background: #007bff; color: white; text-decoration: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; transition: background 0.3s; cursor: pointer;">
+                Registrarse
+              </a>
+            }
+
+          </div>
         </nav>
       }
 
@@ -95,53 +103,46 @@ export class AppComponent implements OnInit {
 
   public currentUser = this.authService.currentUser;
   public isAdmin = computed(() => this.currentUser()?.role === 'admin');
-  
-  // Variables para Alertas
+
   public criticalAlert = signal<Alert | null>(null);
-  
-  // ✅ NUEVA LÓGICA: Control de la Barra de Navegación
-  public showNavbar = signal<boolean>(true); 
+
+  // Control de la Barra de Navegación
+  public showNavbar = signal<boolean>(true);
 
   constructor() {
-    // Escuchamos activamente el cambio de URL para ocultar el menú en Login/Registro
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      const isAuthPage = event.url.includes('/login') || event.url.includes('/register');
-      // Si es página de auth, FALSE (ocultar). Si no, TRUE (mostrar).
-      this.showNavbar.set(!isAuthPage);
+      // Ocultamos la barra global en: Portada, Login y Registro
+      const isLandingOrAuth = event.url === '/' || event.url.includes('/login') || event.url.includes('/register');
+      this.showNavbar.set(!isLandingOrAuth);
     });
   }
 
   ngOnInit() {
     this.apiService.getAlertsStream().subscribe(alerts => {
-      
-      // 1. Si no hay usuario, nada
+
       if (!this.currentUser()) {
         this.criticalAlert.set(null);
         return;
       }
 
-      // 🔒 BLOQUEO: Pacientes no ven alertas globales
       if (this.currentUser()?.role === 'user') {
         this.criticalAlert.set(null);
         return;
       }
 
-      // 2. Si estamos en Login/Registro, nada (aunque el navbar ya no sale, aseguramos la alerta)
       const currentUrl = this.router.url;
       if (currentUrl.includes('/login') || currentUrl.includes('/register')) {
         this.criticalAlert.set(null);
         return;
       }
 
-      // 3. Si ya estamos en Dashboard, nada
       if (currentUrl.includes('/dashboard')) {
-        this.criticalAlert.set(null); 
-        return; 
+        this.criticalAlert.set(null);
+        return;
       }
 
-      // Detectamos alerta crítica no resuelta
       const emergency = alerts.find(a => a.severity === 'critical' && !a.resolved);
       this.criticalAlert.set(emergency || null);
     });

@@ -1,0 +1,159 @@
+/* =========================================
+   ESTILOS PROPIOS DEL LOGIN
+   (Angular requiere que estén aquí)
+   ========================================= */
+
+/* CABECERA */
+.modal-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.modal-header h2 {
+  margin: 0;
+  color: #333;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+.modal-header p {
+  color: #666;
+  margin: 5px 0 0;
+  font-size: 0.95rem;
+}
+
+/* INPUTS (Cajas de texto) */
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+.input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #444;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #eee;
+  border-radius: 10px;
+  font-size: 1rem;
+  box-sizing: border-box; /* ESTO ES CRÍTICO PARA QUE NO SE SALGA */
+  transition: border-color 0.3s;
+  font-family: inherit;
+}
+.input-group input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* BOTÓN ENTRAR */
+.btn-full {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.3s, transform 0.2s;
+  font-family: inherit;
+}
+
+.blue-btn {
+  background: #007bff; /* Azul vibrante */
+}
+.blue-btn:hover {
+  background: #0056b3;
+}
+.btn-full:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* BOTÓN GOOGLE */
+.google-btn {
+  margin-top: 15px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  color: #555;
+  background: white;
+  transition: background 0.2s;
+}
+.google-btn:hover {
+  background: #f8f9fa;
+}
+
+/* PIE (Footer) */
+.modal-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+.modal-footer a {
+  color: #007bff;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+.modal-footer a:hover {
+  text-decoration: underline;
+}   
+
+.google-btn {
+  margin-top: 15px; 
+  border: 1px solid #ddd; 
+  padding: 10px; 
+  border-radius: 10px;
+  text-align: center; 
+  cursor: pointer; /* 👈 Importante: Manita */
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  font-weight: 500; 
+  color: #555;
+  transition: all 0.2s;
+  user-select: none; /* Evita que se seleccione el texto al hacer click rápido */
+}
+
+.google-btn:hover {
+  background-color: #f1f3f4;
+  border-color: #c1c1c1;
+  transform: translateY(-1px);
+}
+
+.google-btn:active {
+  transform: translateY(0);
+  background-color: #e8e8e8;
+}
+
+/* ... tus otros estilos ... */
+
+.forgot-password {
+  text-align: right;
+  margin-top: -10px; /* Pegarlo un poco al input de arriba */
+  margin-bottom: 15px;
+}
+
+.forgot-password a {
+  color: #666;
+  font-size: 0.85rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.forgot-password a:hover {
+  color: #007bff;
+  text-decoration: underline;
+}

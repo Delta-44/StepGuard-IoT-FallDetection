@@ -1,0 +1,111 @@
+<div class="landing-page">
+  <nav class="landing-nav">
+    <div class="logo"><span class="logo-icon">🎯</span> StepGuard IoT</div>
+    <div class="nav-links">
+      <button (click)="openLogin()" class="link-login">Iniciar Sesión</button>
+      <button (click)="openRegister()" class="btn-register">Registrarse</button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <h1>
+        Protección Inteligente para <span class="text-gradient">Personas Mayores</span>
+      </h1>
+      <p class="hero-description">
+        Sistema avanzado de detección de caídas con tecnología IoT. 
+        Monitoreo en tiempo real, alertas instantáneas y tranquilidad para tu familia.
+      </p>
+      <div class="hero-actions">
+        <button (click)="openRegister()" class="btn btn-primary">
+          Comenzar Ahora <span class="arrow">→</span>
+        </button>
+        <button class="btn btn-secondary">Ver Demo</button>
+      </div>
+    </div>
+  </header>
+  
+  <section class="features">
+    <h2>¿Por qué elegir StepGuard?</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🚨</div>
+        <h3>Detección Inmediata</h3>
+        <p>Alertas en tiempo real cuando se detecta una caída mediante sensores IoT avanzados.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Monitoreo Remoto</h3>
+        <p>Accede desde cualquier dispositivo para verificar el estado de tus seres queridos.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Notificaciones Inteligentes</h3>
+        <p>Recibe avisos instantáneos en tu móvil con información detallada del incidente.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏥</div>
+        <h3>Gestión de Cuidadores</h3>
+        <p>Coordina con múltiples cuidadores y familiares para una atención óptima.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de estadísticas -->
+  <section class="stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">99.9%</div>
+        <div class="stat-label">Precisión</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">&lt;2s</div>
+        <div class="stat-label">Tiempo de Respuesta</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Monitoreo Continuo</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Familias Protegidas</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2026 StepGuard IoT. Todos los derechos reservados.</p>
+    <p>Desarrollado con ❤️ para el cuidado de nuestros mayores</p>
+  </footer>
+
+  <!-- Modales -->
+  @if (isLoginOpen) {
+    <div class="modal-backdrop" (click)="closeModals()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeModals()">✕</button>
+        
+        <app-login-modal 
+          (close)="closeModals()" 
+          (switchToRegister)="openRegister()">
+        </app-login-modal>
+
+      </div>
+    </div>
+  }
+
+  @if (isRegisterOpen) {
+    <div class="modal-backdrop" (click)="closeModals()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="closeModals()">✕</button>
+        
+        <app-register-modal 
+          (close)="closeModals()" 
+          (switchToLogin)="openLogin()">
+        </app-register-modal>
+
+      </div>
+    </div>
+  }
+
+</div>
