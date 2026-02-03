@@ -59,7 +59,28 @@ Base URL: `http://localhost:3000`
   }
   ```
 
-## ESP32 Device Data (`/api/esp32`)
+### Forgot Password
+
+- **URL:** `/api/auth/forgot-password`
+- **Method:** `POST`
+- **Body:**
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+
+### Reset Password
+
+- **URL:** `/api/auth/reset-password`
+- **Method:** `POST`
+- **Body:**
+  ```json
+  {
+    "token": "RESET_TOKEN_FROM_EMAIL",
+    "password": "newSecurePassword123"
+  }
+  ```
 
 ### Receive Device Data
 

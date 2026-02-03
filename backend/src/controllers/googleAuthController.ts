@@ -6,8 +6,86 @@ import { UsuarioModel } from '../models/usuario';
 import { CuidadorModel } from '../models/cuidador';
 import bcrypt from 'bcryptjs';
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_SECRET,
+  'http://localhost:3000/api/auth/google/callback'
+);
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+export const googleAuthRedirect = (req: Request, res: Response) => {
+  const authorizeUrl = client.generateAuthUrl({
+    access_type: 'offline',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/userinfo.email',
+    ],
+  });
+  res.redirect(authorizeUrl);
+};
+
+export const googleAuthCallback = async (req: Request, res: Response) => {
+    try {
+        const { code } = req.query;
+        if (!code) {
+           return res.status(400).send('No code provided');
+        }
+
+        const { tokens } = await client.getToken(code as string);
+        client.setCredentials(tokens);
+
+        const ticket = await client.verifyIdToken({
+            idToken: tokens.id_token!,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+             return res.status(400).send('Invalid Google token payload');
+        }
+
+        const { email, name } = payload;
+        
+        // 1. Find or create user logic (Shared with googleLogin)
+        // For simplicity, I'll copy the finding logic here or refactor. 
+        // Given constraint of single file edits, I will duplicate logic for now for safety.
+        
+        let user = await UsuarioModel.findByEmail(email);
+        let role = 'usuario';
+        let dbUser: any = user;
+
+        if (!user) {
+            const caregiver = await CuidadorModel.findByEmail(email);
+            if (caregiver) {
+                dbUser = caregiver;
+                role = 'cuidador';
+            }
+        }
+
+        if (!dbUser) {
+            const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            const salt = await bcrypt.genSalt(10);
+            const passwordHash = await bcrypt.hash(randomPassword, salt);
+
+            dbUser = await UsuarioModel.create(
+                name || 'Google User',
+                email,
+                passwordHash,
+                undefined, undefined, undefined, undefined
+            );
+            role = 'usuario';
+        }
+
+        const jwtToken = jwt.sign({ id: dbUser.id, email: dbUser.email, role }, JWT_SECRET, { expiresIn: '1h' });
+
+        // Redirect back to frontend with token
+        res.redirect(`http://localhost:4200/login?token=${jwtToken}`);
+
+    } catch (error) {
+        console.error('Error in Google callback', error);
+        res.status(500).send('Authentication failed');
+    }
+};
 
 export const googleLogin = async (req: Request, res: Response) => {
   try {
