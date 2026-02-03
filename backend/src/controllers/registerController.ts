@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { Usuario, UsuarioModel } from '../models/usuario';
+import { UsuarioModel } from '../models/usuario';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-import { Cuidador, CuidadorModel } from '../models/cuidador';
+import { CuidadorModel } from '../models/cuidador';
 
 export const registerUsuario = async (req: Request, res: Response) => {
   try {
