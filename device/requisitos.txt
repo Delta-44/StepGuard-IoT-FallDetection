@@ -3,9 +3,26 @@ Esta extension requiere platformio.ini para que algunas dependencias funcionen b
 
 Librerias: Adafruit MPU6050 o la de Electronic Cats.
 
-El sensor de emocion es este: HC-SR501 Module
+El sensor de movimiento es este: HC-SR501 Module
 
 Conexiones fisicas:
 VCC:    Rojo       :VIN
 OUT:    Marron     :D13
 GND:    Negro      :GND
+
+El boton debe tener en diagonal los pines
+
+Conexiones fisicas:
+izquierda arriba: GND
+izquierda abajo: nada
+derecha arriba: nada
+derecha abajo: D14
+
+El sensor de inclinacion es: MAGIC LIGHT CUP KY-027
+
+conexiones fisicas:
+
+Pin1(G): GND
+pin2: VIN
+pin3(S): D32
+pin4(L): D33
