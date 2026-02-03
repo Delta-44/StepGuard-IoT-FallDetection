@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 
 import authRoutes from './routes/authRoutes';
+import esp32Routes from './routes/esp32Routes';
 import authMiddleware, { AuthRequest } from './middleware/auth';
 
 const app = express();
@@ -25,6 +26,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/esp32', esp32Routes);
 
 // Protected Route Example
 app.get('/api/protected', authMiddleware, (req: AuthRequest, res: Response) => {
