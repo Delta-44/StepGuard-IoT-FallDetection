@@ -5,11 +5,13 @@ export interface Usuario {
   nombre: string;
   email: string;
   password_hash: string;
-  edad?: number;
+  fecha_nacimiento?: Date;
   direccion?: string;
   telefono?: string;
   dispositivo_id?: number;
   fecha_creacion?: Date;
+  reset_password_token?: string;
+  reset_password_expires?: Date;
 }
 
 export const UsuarioModel = {
@@ -20,14 +22,14 @@ export const UsuarioModel = {
     nombre: string,
     email: string,
     password_hash: string,
-    edad?: number,
+    fecha_nacimiento?: Date,
     direccion?: string,
     telefono?: string,
     dispositivo_id?: number
   ): Promise<Usuario> => {
     const result = await query(
-      'INSERT INTO usuarios (nombre, email, password_hash, edad, direccion, telefono, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [nombre, email, password_hash, edad, direccion, telefono, dispositivo_id]
+      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id]
     );
     return result.rows[0];
   },
@@ -115,13 +117,13 @@ export const UsuarioModel = {
     id: number,
     nombre: string,
     email: string,
-    edad?: number,
+    fecha_nacimiento?: Date,
     direccion?: string,
     telefono?: string
   ): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET nombre = $1, email = $2, edad = $3, direccion = $4, telefono = $5 WHERE id = $6 RETURNING *',
-      [nombre, email, edad, direccion, telefono, id]
+      'UPDATE usuarios SET nombre = $1, email = $2, fecha_nacimiento = $3, direccion = $4, telefono = $5 WHERE id = $6 RETURNING *',
+      [nombre, email, fecha_nacimiento, direccion, telefono, id]
     );
     return result.rows[0] || null;
   },
@@ -132,5 +134,38 @@ export const UsuarioModel = {
   delete: async (id: number): Promise<boolean> => {
     const result = await query('DELETE FROM usuarios WHERE id = $1', [id]);
     return (result.rowCount ?? 0) > 0;
+  },
+
+  /**
+   * Guardar token de recuperación de contraseña
+   */
+  saveResetToken: async (id: number, token: string, expires: Date): Promise<Usuario | null> => {
+    const result = await query(
+      'UPDATE usuarios SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3 RETURNING *',
+      [token, expires, id]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Buscar usuario por token de recuperación
+   */
+  findByResetToken: async (token: string): Promise<Usuario | null> => {
+    const result = await query(
+      'SELECT * FROM usuarios WHERE reset_password_token = $1 AND reset_password_expires > NOW()',
+      [token]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Actualizar contraseña
+   */
+  updatePassword: async (id: number, passwordHash: string): Promise<Usuario | null> => {
+    const result = await query(
+      'UPDATE usuarios SET password_hash = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2 RETURNING *',
+      [passwordHash, id]
+    );
+    return result.rows[0] || null;
   },
 };

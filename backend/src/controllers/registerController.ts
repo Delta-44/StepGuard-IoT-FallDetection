@@ -1,102 +1,81 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { CuidadorModel } from '../models/cuidador';
 import { UsuarioModel } from '../models/usuario';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-export const register = async (req: Request, res: Response) => {
-  try {
-    const {
-      email,
-      password,
-      name,
-      role = 'user',
-      telefono,
-      edad,
-      direccion,
-      is_admin = false
-    } = req.body;
+import { CuidadorModel } from '../models/cuidador';
 
-    if (!email || !password || !name) {
-      return res.status(400).json({ message: 'Email, password and name are required' });
+export const registerUsuario = async (req: Request, res: Response) => {
+  try {
+    const { email, password, name, edad, direccion, telefono, dispositivo_id } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Verificar si el email ya existe en cuidadores o usuarios
-    const existingCuidador = await CuidadorModel.findByEmail(email);
-    const existingUsuario = await UsuarioModel.findByEmail(email);
-
-    if (existingCuidador || existingUsuario) {
+    const existingUser = await UsuarioModel.findByEmail(email);
+    if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Crear según el rol
-    if (role === 'admin' || role === 'caregiver') {
-      const newCuidador = await CuidadorModel.create(
-        name,
-        email,
-        hashedPassword,
-        telefono,
-        role === 'admin'
-      );
+    const newUser = await UsuarioModel.create(
+      name,
+      email,
+      hashedPassword,
+      edad,
+      direccion,
+      telefono,
+      dispositivo_id,
+    );
 
-      const token = jwt.sign(
-        { id: newCuidador.id, email: newCuidador.email, type: 'cuidador' },
-        JWT_SECRET,
-        { expiresIn: '1h' }
-      );
+    const token = jwt.sign({ id: newUser.id, email: newUser.email, role: 'usuario' }, JWT_SECRET, { expiresIn: '1h' });
 
-      return res.status(201).json({
-        message: 'User registered successfully',
-        token,
-        user: {
-          id: newCuidador.id,
-          username: newCuidador.email.split('@')[0],
-          email: newCuidador.email,
-          fullName: newCuidador.nombre,
-          role: newCuidador.is_admin ? 'admin' : 'caregiver',
-          status: 'active',
-          telefono: newCuidador.telefono,
-          is_admin: newCuidador.is_admin
-        }
-      });
-    } else {
-      // Crear como usuario/paciente
-      const newUsuario = await UsuarioModel.create(
-        name,
-        email,
-        hashedPassword,
-        edad,
-        direccion,
-        telefono
-      );
+    res.status(201).json({
+      message: 'User registered successfully',
+      token,
+      user: { id: newUser.id, email: newUser.email, name: newUser.nombre, role: 'usuario' }
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 
-      const token = jwt.sign(
-        { id: newUsuario.id, email: newUsuario.email, type: 'usuario' },
-        JWT_SECRET,
-        { expiresIn: '1h' }
-      );
+export const registerCuidador = async (req: Request, res: Response) => {
+  try {
+    const { email, password, name, telefono, is_admin } = req.body;
 
-      return res.status(201).json({
-        message: 'User registered successfully',
-        token,
-        user: {
-          id: newUsuario.id,
-          username: newUsuario.email.split('@')[0],
-          email: newUsuario.email,
-          fullName: newUsuario.nombre,
-          role: 'user',
-          status: 'active',
-          telefono: newUsuario.telefono,
-          edad: newUsuario.edad,
-          direccion: newUsuario.direccion
-        }
-      });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
+
+    const existingCuidador = await CuidadorModel.findByEmail(email);
+    if (existingCuidador) {
+      return res.status(400).json({ message: 'Caregiver already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newCuidador = await CuidadorModel.create(
+      name,
+      email,
+      hashedPassword,
+      telefono,
+      is_admin
+    );
+
+    const token = jwt.sign({ id: newCuidador.id, email: newCuidador.email, role: 'cuidador' }, JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(201).json({
+      message: 'Caregiver registered successfully',
+      token,
+      user: { id: newCuidador.id, email: newCuidador.email, name: newCuidador.nombre, role: 'cuidador' }
+    });
   } catch (error: any) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
