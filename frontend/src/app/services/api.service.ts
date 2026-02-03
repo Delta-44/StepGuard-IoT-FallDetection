@@ -9,39 +9,95 @@ import { Device } from '../models/device';
 })
 export class ApiService {
 
-  // 1. BASE DE DATOS EN MEMORIA (El cambio clave)
-  // Al sacarlo fuera de la función, los cambios se guardan.
+  // ============================================================
+  // 1. BASE DE DATOS SIMULADA (MOCK DATA)
+  // Ahora coinciden con la estructura de tu nueva Base de Datos
+  // ============================================================
+
   private mockAlerts: Alert[] = [
+    // 🌪️ MODO CAOS: Puedes comentar/descomentar esto para probar
     {
-      id: '1',
-      deviceId: 'Sensor-Pasillo',
+      id: 'alert-1',
+      deviceId: 'ESP32-002', // Referencia al ID físico
       timestamp: new Date(),
       severity: 'critical',
-      message: 'Caída detectada en entrada - Sensor detectó impacto',
+      message: '🚨 Caída detectada (Impacto fuerte)',
       resolved: false,
     },
     {
-      id: '2',
-      deviceId: 'Sensor-Habitacion',
-      timestamp: new Date(Date.now() - 600000), 
+      id: 'alert-2',
+      deviceId: 'ESP32-003',
+      timestamp: new Date(Date.now() - 5000),
+      severity: 'critical',
+      message: '🔥 Temperatura crítica (>60ºC) detectada',
+      resolved: false,
+    },
+    {
+      id: 'alert-3',
+      deviceId: 'ESP32-001',
+      timestamp: new Date(Date.now() - 3600000),
       severity: 'warning',
-      message: 'Inactividad prolongada - Sin movimiento 10 min',
-      resolved: true,
+      message: '⚠️ Batería baja (15%)',
+      resolved: false,
+    }
+  ];
+
+  // 🆕 AHORA LOS DISPOSITIVOS SON PERSISTENTES EN MEMORIA
+  // Coinciden con tu interfaz Device actualizada
+  private mockDevices: Device[] = [
+    {
+      id: '1',                  // ID interno de la BD
+      deviceId: 'ESP32-001',    // ID físico (etiqueta)
+      name: 'Sensor Salón',
+      location: 'Salón Principal',
+      status: 'online',
+      batteryLevel: 85,         
+      macAddress: 'AA:BB:CC:DD:EE:01',
+      firmwareVersion: 'v1.0.2',
+      sensitivity: 'medium',
+      lastSeen: new Date(),
+      sensorData: { accX: 0.12, accY: -0.05, accZ: 9.81, fallDetected: false, temperature: 22.5 },
+      assignedUser: 'Ana García'
+    },
+    {
+      id: '2',
+      deviceId: 'ESP32-002',
+      name: 'Sensor Baño',
+      location: 'Baño',
+      status: 'offline',       // Simulamos fallo
+      batteryLevel: 12,
+      macAddress: 'AA:BB:CC:DD:EE:02',
+      firmwareVersion: 'v1.0.0',
+      sensitivity: 'high',     // Más sensible en el baño
+      lastSeen: new Date(Date.now() - 3600000), // Hace 1 hora
+      sensorData: { accX: -8.23, accY: 2.15, accZ: -1.45, fallDetected: true, temperature: 24.1 },
+      assignedUser: 'Juan Pérez'
+    },
+    {
+      id: '3',
+      deviceId: 'ESP32-003',
+      name: 'Sensor Cocina',
+      location: 'Cocina',
+      status: 'online',
+      batteryLevel: 98,
+      macAddress: 'AA:BB:CC:DD:EE:03',
+      firmwareVersion: 'v1.1.0',
+      sensitivity: 'low',
+      lastSeen: new Date(),
+      sensorData: { accX: 0.03, accY: 0.08, accZ: 9.79, fallDetected: false, temperature: 21.8 }
     }
   ];
 
   constructor() { }
 
   // ==========================================
-  // 🚨 LÓGICA DE ALERTAS (DASHBOARD)
+  // 🚨 LÓGICA DE ALERTAS
   // ==========================================
 
   getAlertsStream(): Observable<Alert[]> {
-    // Emitimos cada 2 segundos
     return timer(0, 2000).pipe(
       map(() => {
-        // Devolvemos SIEMPRE la variable 'mockAlerts' (la que tiene memoria)
-        // Y ordenamos: Primero las NO resueltas
+        // Devolvemos las alertas ordenadas: No resueltas primero
         return [...this.mockAlerts].sort((a, b) => 
           (a.resolved === b.resolved) ? 0 : a.resolved ? 1 : -1
         );
@@ -49,16 +105,13 @@ export class ApiService {
     );
   }
 
-  // Ahora acepta el nombre de QUIEN atiende la alerta
   markAsResolved(alertId: string, who: string): Observable<boolean> {
     const alert = this.mockAlerts.find(a => a.id === alertId);
-    
     if (alert) {
-      alert.resolved = true;     // Marcamos como resuelta
-      alert.assignedTo = who;    // Guardamos el nombre del cuidador
+      alert.resolved = true;
+      alert.assignedTo = who;
       console.log(`✅ Alerta ${alertId} atendida por ${who}`);
     }
-    
     return of(true);
   }
   
@@ -67,43 +120,19 @@ export class ApiService {
   // ==========================================
 
   getDevices(): Observable<Device[]> {
-    const mockDevices: Device[] = [
-      {
-        id: 'ESP32-001',
-        name: 'Sensor Salón',
-        location: 'Salón Principal',
-        battery: 85,
-        status: 'online',
-        lastSeen: new Date(),
-        macAddress: 'AA:BB:CC:DD:EE:01',
-        sensorData: { accX: 0.12, accY: -0.05, accZ: 9.81, fallDetected: false, temperature: 22.5 }
-      },
-      {
-        id: 'ESP32-002',
-        name: 'Sensor Baño',
-        location: 'Baño',
-        battery: 12,
-        status: 'offline', // Simulamos offline
-        lastSeen: new Date(Date.now() - 3600000),
-        macAddress: 'AA:BB:CC:DD:EE:02',
-        sensorData: { accX: -8.23, accY: 2.15, accZ: -1.45, fallDetected: true, temperature: 24.1 }
-      },
-      {
-        id: 'ESP32-003',
-        name: 'Sensor Cocina',
-        location: 'Cocina',
-        battery: 98,
-        status: 'online',
-        lastSeen: new Date(),
-        macAddress: 'AA:BB:CC:DD:EE:03',
-        sensorData: { accX: 0.03, accY: 0.08, accZ: 9.79, fallDetected: false, temperature: 21.8 }
-      }
-    ];
-    return of(mockDevices);
+    // Simulamos un pequeño retardo de red como si viniera del Backend real
+    return of(this.mockDevices); 
   }
 
+  // Ejemplo: Función para reiniciar o cambiar estado (simulado)
   toggleDevice(deviceId: string): Observable<boolean> {
-    console.log(`🔌 Reiniciando dispositivo ${deviceId}...`);
+    const device = this.mockDevices.find(d => d.deviceId === deviceId);
+    if (device) {
+      console.log(`🔌 Reiniciando dispositivo ${deviceId}...`);
+      // Simulamos que se reinicia y vuelve a estar online/offline
+      device.status = device.status === 'online' ? 'offline' : 'online';
+      device.lastSeen = new Date();
+    }
     return of(true);
   }
 }

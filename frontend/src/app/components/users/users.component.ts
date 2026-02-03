@@ -66,8 +66,9 @@ export class UsersComponent implements OnInit {
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       role: ['user', Validators.required],
-      phone: [''],
-      address: ['']
+      telefono: [''],
+      direccion: [''],
+      edad: [null]
     });
   }
 
@@ -108,7 +109,11 @@ export class UsersComponent implements OnInit {
       fullName: formData.fullName,
       email: formData.email,
       role: formData.role,
-      status: 'active'
+      status: 'active',
+      telefono: formData.telefono || undefined,
+      direccion: formData.direccion || undefined,
+      edad: formData.edad || undefined,
+      is_admin: formData.role === 'admin'
     };
 
     this.isLoading.set(true);
