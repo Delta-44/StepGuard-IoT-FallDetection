@@ -81,18 +81,18 @@ async function seedDatabase() {
     const usuarioPassword = await bcrypt.hash('usuario123', 10);
     
     const usuarios = [
-      ['Juan Pérez García', 'juan.perez@example.com', 75, 'Calle Mayor 123, Madrid', '+34 600 444 444', 1],
-      ['Carmen Rodríguez López', 'carmen.rodriguez@example.com', 82, 'Avenida Libertad 45, Barcelona', '+34 600 555 555', 2],
-      ['Antonio Fernández Ruiz', 'antonio.fernandez@example.com', 78, 'Plaza España 8, Valencia', '+34 600 666 666', 3],
-      ['Isabel Martín Sánchez', 'isabel.martin@example.com', 70, 'Calle Real 67, Sevilla', '+34 600 777 777', 4],
-      ['Francisco García Torres', 'francisco.garcia@example.com', 85, 'Paseo Marítimo 22, Málaga', '+34 600 888 888', 5],
+      ['Juan Pérez García', 'juan.perez@example.com', '1949-01-15', 'Calle Mayor 123, Madrid', '+34 600 444 444', 1],
+      ['Carmen Rodríguez López', 'carmen.rodriguez@example.com', '1944-06-20', 'Avenida Libertad 45, Barcelona', '+34 600 555 555', 2],
+      ['Antonio Fernández Ruiz', 'antonio.fernandez@example.com', '1948-03-10', 'Plaza España 8, Valencia', '+34 600 666 666', 3],
+      ['Isabel Martín Sánchez', 'isabel.martin@example.com', '1956-11-25', 'Calle Real 67, Sevilla', '+34 600 777 777', 4],
+      ['Francisco García Torres', 'francisco.garcia@example.com', '1941-08-30', 'Paseo Marítimo 22, Málaga', '+34 600 888 888', 5],
     ];
 
-    for (const [nombre, email, edad, direccion, telefono, dispositivo_id] of usuarios) {
+    for (const [nombre, email, fecha_nacimiento, direccion, telefono, dispositivo_id] of usuarios) {
       await query(
-        `INSERT INTO usuarios (nombre, email, password_hash, edad, direccion, telefono, dispositivo_id) 
+        `INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id) 
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [nombre, email, usuarioPassword, edad, direccion, telefono, dispositivo_id]
+        [nombre, email, usuarioPassword, fecha_nacimiento, direccion, telefono, dispositivo_id]
       );
     }
     
