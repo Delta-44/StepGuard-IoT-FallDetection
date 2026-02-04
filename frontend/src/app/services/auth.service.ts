@@ -1,191 +1,133 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http'; // 👈 Necesario
 import { Router } from '@angular/router';
-import { Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Observable, of, tap, catchError } from 'rxjs'; // 👈 Añadido tap
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment'; // 👈 Tu URL del paso 1
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Estado reactivo con Signal
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private apiUrl = environment.apiUrl;
+
   public currentUser = signal<User | null>(null);
 
-  constructor(private router: Router) {
-    // SOLO cargar sesión si hay token válido
-    const token = localStorage.getItem('auth_token');
-    const saved = localStorage.getItem('mock_session');
-
-    if (token && saved) {
-      try {
-        this.currentUser.set(JSON.parse(saved));
-      } catch {
-        this.clearSession();
-      }
-    } else {
-      this.clearSession();
+  constructor() {
+    // Intentar recuperar sesión real al recargar
+    const saved = localStorage.getItem('stepguard_session');
+    if (saved) {
+      this.currentUser.set(JSON.parse(saved));
     }
   }
 
-  private clearSession(): void {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('mock_session');
-    this.currentUser.set(null);
-  }
+  // --- LOGIN REAL ---
+  login(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
+      tap(res => {
+        // Adaptamos la respuesta del backend a tu modelo de User
+        // Res viene como { message, token, user: { id, email, name, role } }
+        const backendUser = res.user;
 
-  // --- LOGIN ---
-  login(email: string, password: string): Observable<{ token: string; user: User }> {
-    // Simulamos retardo de red
-    return of(this.mockLoginLogic(email, password)).pipe(delay(1000));
-  }
+        // El backend ahora envía el rol directamente: 'admin', 'cuidador', 'usuario'
+        let role: 'admin' | 'caregiver' | 'user' = 'user';
+        if (backendUser.role === 'admin') role = 'admin';
+        else if (backendUser.role === 'cuidador') role = 'caregiver';
+        else if (backendUser.role === 'usuario') role = 'user';
 
-  // --- LOGIN CON GOOGLE ---
-  async loginWithGoogle(): Promise<User> {
-    console.log('🔄 Conectando con Google (Simulado)...');
-    
-    // Simulamos el tiempo que tarda la ventanita de Google (1.5 segundos)
-    return new Promise<User>((resolve) => {
-      setTimeout(() => {
-        // Creamos un usuario ficticio que "viene" de Google
-        const googleUser: User = {
-          id: 'google-12345',
-          username: 'usuariogoogle',
-          fullName: 'Usuario Google',
-          email: 'usuario@gmail.com',
-          role: 'user',
+        const userToSave: User = {
+          id: backendUser.id,
+          username: backendUser.email.split('@')[0],
+          fullName: backendUser.name, // Mapeamos name -> fullName
+          email: backendUser.email,
+          role: role,
           status: 'active',
-          lastLogin: new Date()
+          token: res.token,
+          telefono: backendUser.telefono,
+          is_admin: backendUser.role === 'admin'
         };
 
-        resolve(googleUser);
-      }, 1500);
-    });
+        this.saveSession(userToSave, res.token);
+      })
+    );
   }
 
-  // --- REGISTRO ---
-  register(data: { 
-    name: string; 
-    email: string; 
-    password: string; 
-    role?: string;
-    telefono?: string;
-    direccion?: string;
-    fecha_nacimiento?: string;
-  }): Observable<{ token: string; user: User }> {
-    console.log('Registrando usuario:', data);
-
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      username: data.name.toLowerCase().replace(/\s+/g, ''),
-      role: (data.role as 'user' | 'caregiver' | 'admin') || 'user',
-      fullName: data.name,
-      email: data.email,
-      status: 'active',
-      lastLogin: new Date(),
-      telefono: data.telefono,
-      direccion: data.direccion,
-      fecha_nacimiento: data.fecha_nacimiento
-    };
-
-    // Guardamos el usuario registrado en localStorage para el login
-    const registeredUsers = this.getRegisteredUsers();
-    registeredUsers.push({ 
-      email: data.email, 
-      password: data.password, 
-      user: newUser 
-    });
-    localStorage.setItem('registered_users', JSON.stringify(registeredUsers));
-
-    return of({ token: 'fake-jwt-token-register', user: newUser }).pipe(delay(1000));
+  // --- REGISTRO REAL (CUIDADOR O PACIENTE) ---
+  register(data: any, type: 'usuario' | 'cuidador'): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/register/${type}`, data);
   }
 
-  // Obtener usuarios registrados del localStorage
-  private getRegisteredUsers(): Array<{ email: string; password: string; user: User }> {
-    const stored = localStorage.getItem('registered_users');
-    return stored ? JSON.parse(stored) : [];
-  }
-
-  // --- GESTIÓN DE TOKEN ---
-  saveToken(token: string): void {
+  // --- GESTIÓN DE SESIÓN ---
+  private saveSession(user: User, token: string): void {
     localStorage.setItem('auth_token', token);
-  }
-
-  // --- GUARDAR SESIÓN COMPLETA ---
-  saveSession(user: User): void {
-    localStorage.setItem('mock_session', JSON.stringify(user));
+    localStorage.setItem('stepguard_session', JSON.stringify(user));
     this.currentUser.set(user);
   }
 
-  // --- URL PARA LOGIN CON GOOGLE ---
-  getGoogleLoginUrl(): string {
-    return 'http://localhost:3000/api/auth/google';
-  }
-
-  // =========================================================
-  // 🧠 LÓGICA INTELIGENTE Y SIMULADA (MODIFICADA)
-  // =========================================================
-  private mockLoginLogic(email: string, pass: string): { token: string; user: User } {
-
-    // 🔍 PRIMERO: Buscar si el usuario está registrado
-    const registeredUsers = this.getRegisteredUsers();
-    const foundUser = registeredUsers.find(u => u.email === email && u.password === pass);
-    
-    if (foundUser) {
-      console.log('✅ Usuario registrado encontrado:', foundUser.user.fullName);
-      return {
-        token: 'fake-jwt-token-' + Date.now(),
-        user: { ...foundUser.user, lastLogin: new Date() }
-      };
-    }
-
-    // Si no está registrado, usar lógica mock por defecto
-    console.log('⚠️ Usuario no registrado, usando lógica mock');
-
-    // 1. Detectamos el ROL analizando el texto del email
-    let role: 'admin' | 'caregiver' | 'user' = 'user'; // Por defecto "Usuario"
-
-    if (email.toLowerCase().includes('admin')) {
-      role = 'admin';
-    } else if (email.toLowerCase().includes('enfermero') ||
-      email.toLowerCase().includes('hospital') ||
-      email.toLowerCase().includes('cuidador')) {
-      role = 'caregiver';
-    }
-
-    // 2. Asignamos un nombre bonito según el rol detectado
-    let fullName = 'Usuario Anónimo';
-    if (role === 'admin') fullName = 'Super Admin';
-    else if (role === 'caregiver') fullName = 'Enfermero Juan';
-    else fullName = 'Ana García'; // Nombre para el usuario de prueba
-
-    // 3. Creamos el usuario simulado (Mock)
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9), // ID aleatorio
-      username: email.split('@')[0],
-      fullName: fullName,
-      email: email,
-      role: role, // <--- AQUÍ ES DONDE OCURRE LA MAGIA
-      status: 'active',
-      lastLogin: new Date(),
-      is_admin: role === 'admin',
-      telefono: '+34 600 000 000',
-      ...(role === 'user' && {
-        fecha_nacimiento: '1946-01-15',
-        direccion: 'Calle Mayor 123, Madrid'
-      })
-    };
-
-    // 4. ¡Éxito siempre! (Para facilitar tus pruebas)
-    return {
-      token: 'fake-jwt-token-' + Date.now(),
-      user: mockUser
-    };
-  }
-
   logout(): void {
-    localStorage.removeItem('mock_session');
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('stepguard_session');
     this.currentUser.set(null);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
+  }
+
+  // Helper para el login con Google
+  getGoogleLoginUrl(): string {
+    return `${this.apiUrl}/auth/google`;
+  }
+
+
+  loginWithGoogle(googleToken: string, role?: string): Observable<any> {
+    const payload: any = { token: googleToken };
+    if (role) {
+      payload.role = role;
+    }
+
+    return this.http.post<any>(`${this.apiUrl}/auth/google`, payload).pipe(
+      tap(res => {
+        // Si es un usuario nuevo, el backend devolverá isNewUser: true
+        if (res.isNewUser) {
+          // El frontend debe manejar esto mostrando un selector de rol
+          return;
+        }
+
+        // El backend validará el token de Google y te devolverá SU propio token
+        const backendUser = res.user;
+
+        if (!backendUser) {
+          throw new Error('No user data received from backend');
+        }
+
+        // Mapear el rol correctamente
+        let userRole: 'admin' | 'caregiver' | 'user' = 'user';
+        if (backendUser.role === 'admin') userRole = 'admin';
+        else if (backendUser.role === 'cuidador') userRole = 'caregiver';
+        else if (backendUser.role === 'usuario') userRole = 'user';
+
+        const userToSave: User = {
+          id: backendUser.id,
+          username: backendUser.email.split('@')[0],
+          fullName: backendUser.name || backendUser.nombre,
+          email: backendUser.email,
+          role: userRole,
+          status: 'active',
+          token: res.token,
+          telefono: backendUser.telefono,
+          is_admin: backendUser.role === 'admin'
+        };
+
+        this.saveSession(userToSave, res.token);
+      })
+    );
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/reset-password`, { token, password });
   }
 }

@@ -153,5 +153,5 @@ export const CuidadorModel = {
   delete: async (id: number): Promise<boolean> => {
     const result = await query('DELETE FROM cuidadores WHERE id = $1', [id]);
     return (result.rowCount ?? 0) > 0;
-  },
+  }
 };

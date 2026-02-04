@@ -24,7 +24,8 @@ export const login = async (req: Request, res: Response) => {
         const caregiver = await CuidadorModel.findByEmail(email);
         if (caregiver) {
             dbUser = caregiver;
-            role = 'cuidador';
+            // Determine role based on is_admin field
+            role = caregiver.is_admin ? 'admin' : 'cuidador';
         }
     }
 
