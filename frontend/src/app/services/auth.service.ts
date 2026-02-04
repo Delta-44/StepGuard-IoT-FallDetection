@@ -79,24 +79,39 @@ export class AuthService {
   }
 
 
-  loginWithGoogle(googleToken: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auth/google`, { token: googleToken }).pipe(
+  loginWithGoogle(googleToken: string, role?: string): Observable<any> {
+    const payload: any = { token: googleToken };
+    if (role) {
+      payload.role = role;
+    }
+
+    return this.http.post<any>(`${this.apiUrl}/auth/google`, payload).pipe(
       tap(res => {
+        // Si es un usuario nuevo, el backend devolverá isNewUser: true
+        if (res.isNewUser) {
+          // El frontend debe manejar esto mostrando un selector de rol
+          return;
+        }
+
         // El backend validará el token de Google y te devolverá SU propio token
         const backendUser = res.user;
 
+        if (!backendUser) {
+          throw new Error('No user data received from backend');
+        }
+
         // Mapear el rol correctamente
-        let role: 'admin' | 'caregiver' | 'user' = 'user';
-        if (backendUser.role === 'admin') role = 'admin';
-        else if (backendUser.role === 'cuidador') role = 'caregiver';
-        else if (backendUser.role === 'usuario') role = 'user';
+        let userRole: 'admin' | 'caregiver' | 'user' = 'user';
+        if (backendUser.role === 'admin') userRole = 'admin';
+        else if (backendUser.role === 'cuidador') userRole = 'caregiver';
+        else if (backendUser.role === 'usuario') userRole = 'user';
 
         const userToSave: User = {
           id: backendUser.id,
           username: backendUser.email.split('@')[0],
           fullName: backendUser.name || backendUser.nombre,
           email: backendUser.email,
-          role: role,
+          role: userRole,
           status: 'active',
           token: res.token,
           telefono: backendUser.telefono,

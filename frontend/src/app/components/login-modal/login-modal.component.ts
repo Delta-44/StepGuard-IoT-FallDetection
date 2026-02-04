@@ -49,7 +49,36 @@ export class LoginModalComponent implements AfterViewInit {
         
         // Llamamos a tu servicio que hace el POST al backend
         this.authService.loginWithGoogle(response.credential).subscribe({
-          next: () => {
+          next: (res) => {
+            // Si es un usuario nuevo, mostrar selector de rol
+            if (res.isNewUser) {
+              console.log('⚠️ Usuario nuevo detectado:', res.email);
+              this.isLoading = false;
+              const role = prompt(`Usuario ${res.email} no registrado.\n\n¿Qué tipo de cuenta deseas?\n1. Usuario (persona mayor)\n2. Cuidador\n\nEscribe "usuario" o "cuidador":`);
+              
+              if (role === 'usuario' || role === 'cuidador') {
+                this.isLoading = true;
+                // Reenviar con el rol seleccionado
+                this.authService.loginWithGoogle(response.credential, role).subscribe({
+                  next: () => {
+                    console.log('✅ Google registro exitoso con rol:', role);
+                    this.isLoading = false;
+                    this.close.emit();
+                    this.router.navigate(['/dashboard']);
+                  },
+                  error: (err) => {
+                    console.error('❌ Error registrando con Google:', err);
+                    this.isLoading = false;
+                    alert('Error al registrar con Google');
+                  }
+                });
+              } else {
+                this.isLoading = false;
+                alert('Rol inválido. Intenta de nuevo.');
+              }
+              return;
+            }
+
             console.log('✅ Google Login exitoso');
             this.isLoading = false;
             this.close.emit();
