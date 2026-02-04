@@ -1,6 +1,18 @@
 <div class="landing-page">
+  <!-- Formas animadas de fondo -->
+  <div class="animated-bg">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+  </div>
+
   <nav class="landing-nav">
-    <div class="logo"><span class="logo-icon">🎯</span> StepGuard IoT</div>
+    <div class="logo">
+      StepGuard IoT
+    </div>
     <div class="nav-links">
       <button (click)="openLogin()" class="link-login">Iniciar Sesión</button>
       <button (click)="openRegister()" class="btn-register">Registrarse</button>
@@ -20,31 +32,41 @@
         <button (click)="openRegister()" class="btn btn-primary">
           Comenzar Ahora <span class="arrow">→</span>
         </button>
-        <button class="btn btn-secondary">Ver Demo</button>
       </div>
+    </div>
+    <div class="hero-image">
+      <img src="/fondo.png" alt="Sistema Inteligente de Detección de Caídas StepGuard IoT">
     </div>
   </header>
   
   <section class="features">
-    <h2>¿Por qué elegir StepGuard?</h2>
+    <h2>¿ Qué es elegir StepGuard?</h2>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon">🚨</div>
+        <div class="feature-icon">
+          <i-lucide name="alert-triangle" [size]="48" class="text-emergency"></i-lucide>
+        </div>
         <h3>Detección Inmediata</h3>
         <p>Alertas en tiempo real cuando se detecta una caída mediante sensores IoT avanzados.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📱</div>
+        <div class="feature-icon">
+          <i-lucide name="smartphone" [size]="48" class="text-primary"></i-lucide>
+        </div>
         <h3>Monitoreo Remoto</h3>
         <p>Accede desde cualquier dispositivo para verificar el estado de tus seres queridos.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔔</div>
+        <div class="feature-icon">
+          <i-lucide name="bell" [size]="48" class="text-preventive"></i-lucide>
+        </div>
         <h3>Notificaciones Inteligentes</h3>
         <p>Recibe avisos instantáneos en tu móvil con información detallada del incidente.</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🏥</div>
+        <div class="feature-icon">
+          <i-lucide name="users" [size]="48" class="text-operational"></i-lucide>
+        </div>
         <h3>Gestión de Cuidadores</h3>
         <p>Coordina con múltiples cuidadores y familiares para una atención óptima.</p>
       </div>
@@ -52,22 +74,30 @@
   </section>
 
   <!-- Sección de estadísticas -->
-  <section class="stats">
+  <section class="stats" #statsSection>
     <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-number">99.9%</div>
+      <div class="stat-item" [class.animate]="animateStats">
+        <div class="stat-display">
+          <span class="stat-number" data-target="99.9">0</span><span class="stat-suffix">%</span>
+        </div>
         <div class="stat-label">Precisión</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-number">&lt;2s</div>
+      <div class="stat-item" [class.animate]="animateStats">
+        <div class="stat-display">
+          <span class="stat-number" data-target="2">0</span><span class="stat-suffix">s</span>
+        </div>
         <div class="stat-label">Tiempo de Respuesta</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-number">24/7</div>
+      <div class="stat-item" [class.animate]="animateStats">
+        <div class="stat-display">
+          <span class="stat-number-text">24/7</span>
+        </div>
         <div class="stat-label">Monitoreo Continuo</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-number">500+</div>
+      <div class="stat-item" [class.animate]="animateStats">
+        <div class="stat-display">
+          <span class="stat-number" data-target="500">0</span><span class="stat-suffix">+</span>
+        </div>
         <div class="stat-label">Familias Protegidas</div>
       </div>
     </div>
@@ -75,8 +105,91 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <p>&copy; 2026 StepGuard IoT. Todos los derechos reservados.</p>
-    <p>Desarrollado con ❤️ para el cuidado de nuestros mayores</p>
+    <div class="footer-content">
+      <div class="footer-section">
+        <div class="footer-brand">
+          <i-lucide name="shield" [size]="32" class="text-primary"></i-lucide>
+          <h3>StepGuard IoT</h3>
+        </div>
+        <p class="footer-tagline">Tecnología que cuida de quienes más queremos</p>
+        <p class="footer-copyright">&copy; 2026 StepGuard IoT. Todos los derechos reservados.</p>
+      </div>
+
+      <div class="footer-section">
+        <button class="footer-toggle" (click)="toggleTeam()">
+          <h4 class="footer-title">Equipo de Desarrollo</h4>
+          <i-lucide [name]="isTeamOpen ? 'chevron-up' : 'chevron-down'" [size]="20"></i-lucide>
+        </button>
+        @if (isTeamOpen) {
+          <div class="team-grid">
+            <div class="team-member">
+              <div class="member-info">
+                <div class="member-name">Javier Sío Gesteira</div>
+                <div class="role">Visual Designer (UI)</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="member-info">
+                <div class="member-name">Diego Argüelles Fernández</div>
+                <div class="role">Tech-IoT</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="member-info">
+                <div class="member-name">Javier González Rodríguez</div>
+                <div class="role">Backend</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="member-info">
+                <div class="member-name">Diego Alonso Lourido</div>
+                <div class="role">Scrum Master / Database Creator</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="member-info">
+                <div class="member-name">Marta de Castro Vázquez</div>
+                <div class="role">Technical Writer</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="member-info">
+                <div class="member-name">Juan Carlos Lorenzo</div>
+                <div class="role">Frontend / Logic</div>
+              </div>
+            </div>
+            <div class="team-member">
+              <div class="member-info">
+                <div class="member-name">Pedro Lourido</div>
+                <div class="role">Integrator Developer</div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="footer-section">
+        <h4 class="footer-title">Contacto</h4>
+        <div class="footer-links">
+          <a href="mailto:info@stepguard.com" class="footer-link">
+            <i-lucide name="mail" [size]="16"></i-lucide>
+            info&#64;stepguard.com
+          </a>
+          <a href="tel:+34900000000" class="footer-link">
+            <i-lucide name="phone" [size]="16"></i-lucide>
+            +34 900 000 000
+          </a>
+          <div class="footer-link">
+            <i-lucide name="map-pin" [size]="16"></i-lucide>
+            Vigo, España
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p class="footer-heart">Desarrollado con <i-lucide name="heart" [size]="16" class="text-emergency animate-pulse"></i-lucide> para el cuidado de nuestros mayores</p>
+    </div>
   </footer>
 
   <!-- Modales -->

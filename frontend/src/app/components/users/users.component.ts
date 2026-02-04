@@ -5,11 +5,12 @@ import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
 import { AlertService, Alert } from '../../services/alert.service'; // 👈 IMPORTANTE
 import { User } from '../../models/user.model';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
