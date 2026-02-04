@@ -38,6 +38,12 @@ export class AppComponent implements OnInit, OnDestroy {
     ).subscribe((event: any) => {
       const isLanding = event.url === '/';
       this.showNavbar.set(!isLanding);
+      
+      // Limpiar alertas cuando estás en landing
+      if (isLanding) {
+        this.criticalAlert.set(null);
+        this.miniAlert.set(null);
+      }
     });
   }
 
