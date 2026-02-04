@@ -31,18 +31,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public showNavbar = signal<boolean>(true);
   private alertSub: Subscription | null = null;
+  private routerSub: Subscription | null = null;
 
-  constructor() {
-    this.router.events.pipe(
+  ngOnInit() {
+    // Suscripción a navegación
+    this.routerSub = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       const isLanding = event.url === '/';
       this.showNavbar.set(!isLanding);
     });
-  }
 
-  ngOnInit() {
-    // 👇 SUSCRIPCIÓN A LAS NOTIFICACIONES
+    // Suscripción a alertas
     this.alertSub = this.alertService.alertNotification$.subscribe(newAlert => {
       this.handleNewAlert(newAlert);
     });
@@ -105,5 +105,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     if (this.alertSub) this.alertSub.unsubscribe();
+    if (this.routerSub) this.routerSub.unsubscribe();
   }
 }

@@ -1,8 +1,8 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
-import { AuthService } from '../../services/auth.service'; // <--- Seguridad
-import { Device } from '../../models/device';       // <--- Modelo correcto
+import { AuthService } from '../../services/auth.service';
+import { Device } from '../../models/device';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -10,36 +10,36 @@ import { LucideAngularModule } from 'lucide-angular';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './devices.component.html',
-  styleUrl: './devices.component.css'
+  styleUrl: './devices.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DevicesComponent implements OnInit {
 
-  // INYECCIONES
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
 
-  // --- SIGNALS DE DATOS ---
   public devices = signal<Device[]>([]);
   public isLoading = signal<boolean>(true);
   public showTechnicalPanel = signal<boolean>(true);
   public connectionStatus = signal<'Conectado' | 'Desconectado'>('Conectado');
   public criticalState = signal<boolean>(false);
 
-  // --- SIGNALS DE SEGURIDAD (Roles) ---
   public isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
 
   ngOnInit(): void {
     this.loadDevices();
   }
 
+  trackDeviceById(index: number, device: Device): string {
+    return device.id || index.toString();
+  }
+
   public loadDevices(): void {
     this.isLoading.set(true);
     this.connectionStatus.set('Conectado');
-    // Ahora llamamos a getDevices, NO a getAlertsStream
     this.apiService.getDevices().subscribe({
       next: (data) => {
         this.devices.set(data);
-        // Verificar si hay estado crítico
         const hasCritical = data.some(d => d.sensorData?.fallDetected || d.status === 'offline');
         this.criticalState.set(hasCritical);
         this.isLoading.set(false);

@@ -41,14 +41,15 @@ export class AlertService {
   public currentActiveAlert: Alert | null = null;
 
   constructor() {
-    this.startSimulation();
+    // Iniciar simulación después de 5 segundos para no bloquear carga inicial
+    setTimeout(() => this.startSimulation(), 5000);
   }
 
-  // Genera una alerta aleatoria cada 15 segundos
+  // Genera una alerta aleatoria cada 30 segundos (optimización de rendimiento)
   private startSimulation() {
     setInterval(() => {
       this.generateRandomAlert();
-    }, 15000); 
+    }, 30000); 
   }
 
   private generateRandomAlert() {

@@ -20,6 +20,10 @@ export class LoginModalComponent {
 
   loginData = { email: '', password: '' };
   isLoading = false;
+  showSuccessModal = false;
+  showErrorModal = false;
+  modalMessage = '';
+  modalEmail = '';
 
   // --- LÓGICA DE EMAIL / PASS ---
   onSubmit() {
@@ -31,20 +35,31 @@ export class LoginModalComponent {
       },
       error: () => {
         this.isLoading = false;
-        alert('Credenciales incorrectas');
+        this.showErrorModal = true;
+        this.modalMessage = 'Credenciales incorrectas. Por favor, verifica tu email y contraseña.';
       }
     });
   }
 
-  // --- 👇 NUEVO: OLVIDASTE CONTRASEÑA ---
+  // --- OLVIDASTE CONTRASEÑA ---
   onForgotPassword() {
     if (!this.loginData.email) {
-      alert('⚠️ Por favor, escribe tu email en la casilla primero para poder enviarte el enlace.');
+      this.showErrorModal = true;
+      this.modalMessage = 'Por favor, escribe tu email en la casilla primero para poder enviarte el enlace de recuperación.';
       return;
     }
     
     // Aquí conectarías con tu lógica de recuperación
-    alert(`✅ Hemos enviado un enlace de recuperación a: ${this.loginData.email}\n(Revisa tu bandeja de entrada o spam)`);
+    this.showSuccessModal = true;
+    this.modalEmail = this.loginData.email;
+  }
+
+  closeSuccessModal() {
+    this.showSuccessModal = false;
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
   }
 
   // --- 👇 LÓGICA DE GOOGLE ---

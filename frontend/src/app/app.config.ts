@@ -8,7 +8,7 @@ import {
   SquarePen, Trash2, Zap, ChartColumn, Heart, Mail, Phone, ChevronDown, ChevronUp,
   LayoutDashboard, Battery, BatteryWarning, RefreshCw, MessageSquare, Calendar,
   User, Info, Braces, Terminal, Cpu, Wifi, Network, Thermometer, Siren,
-  ArrowRight, ArrowUp, MoveVertical, BarChart3, CheckCircle, XCircle
+  ArrowRight, ArrowUp, MoveVertical, BarChart3, CheckCircle, XCircle, X
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -19,7 +19,7 @@ const icons = {
   SquarePen, Trash2, Zap, ChartColumn, Heart, Mail, Phone, ChevronDown, ChevronUp,
   LayoutDashboard, Battery, BatteryWarning, RefreshCw, MessageSquare, Calendar,
   User, Info, Braces, Terminal, Cpu, Wifi, Network, Thermometer, Siren,
-  ArrowRight, ArrowUp, MoveVertical, BarChart3, CheckCircle, XCircle
+  ArrowRight, ArrowUp, MoveVertical, BarChart3, CheckCircle, XCircle, X
 };
 
 export const appConfig: ApplicationConfig = {

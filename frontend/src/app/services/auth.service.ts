@@ -12,17 +12,20 @@ export class AuthService {
   public currentUser = signal<User | null>(null);
 
   constructor(private router: Router) {
-    // SOLO cargar sesión si hay token válido
-    const token = localStorage.getItem('auth_token');
-    const saved = localStorage.getItem('mock_session');
+    // Carga inmediata sin bloqueos
+    this.loadSession();
+  }
 
-    if (token && saved) {
-      try {
+  private loadSession(): void {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const saved = localStorage.getItem('mock_session');
+      
+      if (token && saved) {
         this.currentUser.set(JSON.parse(saved));
-      } catch {
-        this.clearSession();
       }
-    } else {
+    } catch {
+      // Si hay error, limpiar silenciosamente
       this.clearSession();
     }
   }
@@ -35,8 +38,8 @@ export class AuthService {
 
   // --- LOGIN ---
   login(email: string, password: string): Observable<{ token: string; user: User }> {
-    // Simulamos retardo de red
-    return of(this.mockLoginLogic(email, password)).pipe(delay(1000));
+    // Simulamos retardo de red mínimo (300ms en lugar de 1000ms)
+    return of(this.mockLoginLogic(email, password)).pipe(delay(300));
   }
 
   // --- LOGIN CON GOOGLE ---
