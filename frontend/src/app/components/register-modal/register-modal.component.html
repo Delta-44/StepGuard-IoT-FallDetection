@@ -1,29 +1,37 @@
-@if (step === 'selection') {
-  <div class="modal-header">
-    <h2>¿Quién eres? 🤔</h2>
-    <p>Selecciona tu perfil para comenzar</p>
+﻿@if (step === 'selection') {
+  <div class="p-8 text-center">
+    <h2 class="text-3xl font-bold text-gray-800 mb-3">¿Quién eres?</h2>
+    <p class="text-gray-600 mb-8">Selecciona tu perfil para comenzar</p>
   </div>
 
-  <div class="role-selection">
-    <div class="role-card" (click)="chooseRole('user')">
-      <div class="role-icon">👤</div>
-      <div>
-        <h3>Paciente / Familiar</h3>
-        <p>Monitorización personal y seguridad en el hogar.</p>
+  <div class="px-8 pb-8 space-y-4">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 cursor-pointer hover:border-blue-400 hover:-translate-y-1 transition-all duration-300" (click)="chooseRole('user')">
+      <div class="flex items-center gap-4">
+        <div class="p-4 bg-blue-500 text-white rounded-xl text-4xl">
+          <i-lucide name="user" [size]="32"></i-lucide>
+        </div>
+        <div class="flex-1 text-left">
+          <h3 class="text-xl font-bold text-gray-800 mb-1">Paciente / Familiar</h3>
+          <p class="text-gray-600 text-sm">Monitorización personal y seguridad en el hogar.</p>
+        </div>
       </div>
     </div>
 
-    <div class="role-card caregiver" (click)="chooseRole('caregiver')">
-      <div class="role-icon">🏥</div>
-      <div>
-        <h3>Cuidador / Enfermero</h3>
-        <p>Gestión de múltiples pacientes y recepción de alertas.</p>
+    <div class="bg-gradient-to-r from-pink-50 to-purple-50 border-2 border-pink-200 rounded-2xl p-6 cursor-pointer hover:border-pink-400 hover:-translate-y-1 transition-all duration-300" (click)="chooseRole('caregiver')">
+      <div class="flex items-center gap-4">
+        <div class="p-4 bg-pink-500 text-white rounded-xl text-4xl">
+          <i-lucide name="heart-pulse" [size]="32"></i-lucide>
+        </div>
+        <div class="flex-1 text-left">
+          <h3 class="text-xl font-bold text-gray-800 mb-1">Cuidador / Enfermero</h3>
+          <p class="text-gray-600 text-sm">Gestión de múltiples pacientes y recepción de alertas.</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="modal-footer">
-    ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()">Inicia Sesión</a>
+  <div class="px-8 pb-8 text-center text-sm text-gray-600">
+    ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()" class="text-blue-600 font-semibold hover:underline cursor-pointer">Inicia Sesión</a>
   </div>
 }
 
