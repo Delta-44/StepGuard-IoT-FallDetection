@@ -140,4 +140,5 @@ export const ESP32Cache = {
   },
 };
 
+export { redis };
 export default redis;
