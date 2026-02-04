@@ -34,3 +34,10 @@ CS a D5
 DIN a D32
 GND a GND
 VCC a VIN
+
+El acelerometro es el: MPU6050
+
+VCC a 3.3 (no a VIN)
+GND a GND
+SCL a D22
+SDA a D21
