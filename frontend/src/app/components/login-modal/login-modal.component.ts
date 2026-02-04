@@ -24,6 +24,10 @@ export class LoginModalComponent implements AfterViewInit {
 
   loginData = { email: '', password: '' };
   isLoading = false;
+  showSuccessModal = false;
+  showErrorModal = false;
+  modalMessage = '';
+  modalEmail = '';
 
   // --- 👇 INICIALIZAR BOTÓN DE GOOGLE ---
   ngAfterViewInit() {
@@ -117,7 +121,8 @@ export class LoginModalComponent implements AfterViewInit {
 
   onForgotPassword() {
     if (!this.loginData.email) {
-      alert('⚠️ Por favor, escribe tu email en la casilla primero.');
+      this.showErrorModal = true;
+      this.modalMessage = 'Por favor, escribe tu email en la casilla primero para poder enviarte el enlace de recuperación.';
       return;
     }
 
@@ -126,13 +131,23 @@ export class LoginModalComponent implements AfterViewInit {
       next: (res) => {
         console.log('✅ Solicitud de recuperación enviada:', res);
         this.isLoading = false;
-        alert(`✅ ${res.message || 'Enlace de recuperación enviado a tu correo.'}`);
+        this.showSuccessModal = true;
+        this.modalEmail = this.loginData.email;
       },
       error: (err) => {
         console.error('❌ Error en recuperación:', err);
         this.isLoading = false;
-        alert('❌ Error al enviar el correo de recuperación. Intenta de nuevo.');
+        this.showErrorModal = true;
+        this.modalMessage = 'Error al enviar el correo de recuperación. Intenta de nuevo.';
       }
     });
+  }
+
+  closeSuccessModal() {
+    this.showSuccessModal = false;
+  }
+
+  closeErrorModal() {
+    this.showErrorModal = false;
   }
 }

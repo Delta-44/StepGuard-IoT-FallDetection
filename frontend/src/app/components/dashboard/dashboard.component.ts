@@ -1,9 +1,9 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core'; // 👈 OnDestroy añadido
+import { Component, inject, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlertService, Alert } from '../../services/alert.service';
 import { AuthService } from '../../services/auth.service';
-import { Subscription } from 'rxjs'; // 👈 Importar
+import { Subscription } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -11,17 +11,20 @@ import { LucideAngularModule } from 'lucide-angular';
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   private alertService = inject(AlertService);
   public authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
   
   // Guardamos la suscripción para limpiarla al salir
   private alertSub: Subscription | null = null;
 
   today = new Date();
-  stats = { activePatients: 0, pendingAlerts: 0, onlineDevices: 0, lowBattery: 0 };
+  // Inicializar con datos inmediatos para evitar delay
+  stats = { activePatients: 12, pendingAlerts: 0, onlineDevices: 10, lowBattery: 0 };
   public activeAlerts: Alert[] = []; 
 
   // Variables Modal
@@ -38,7 +41,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const user = this.authService.currentUser();
     
-    // 👇 SUSCRIPCIÓN VIVA: Se actualiza sola cada vez que el servicio genere una alerta
+    // Mostrar datos inmediatamente ajustados al rol
+    if (user?.role === 'user') {
+      this.stats.activePatients = 1;
+      this.stats.onlineDevices = 1;
+    }
+    
+    // Suscripción a alertas (carga asíncrona)
     this.alertSub = this.alertService.alerts$.subscribe(allAlerts => {
       
       let filteredAlerts = allAlerts;
@@ -57,6 +66,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.stats.activePatients = user?.role === 'user' ? 1 : 12;
       this.stats.onlineDevices = user?.role === 'user' ? 1 : 10;
       this.stats.lowBattery = filteredAlerts.filter(a => a.message.includes('Batería')).length;
+      
+      // Marcar para actualizar cambios en OnPush mode
+      this.cdr.markForCheck();
     });
 
     // Manejo de redirección desde alerta roja
@@ -80,6 +92,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   cancelResolution() { this.processingAlert = null; }
+
+  trackAlertById(index: number, alert: Alert): string {
+    return alert.id;
+  }
 
   submitResolution(type: 'atendida' | 'falsa_alarma') {
     if (!this.processingAlert) return;
