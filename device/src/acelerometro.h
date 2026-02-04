@@ -3,5 +3,6 @@
 
 void setupAcelerometro();
 bool detectarCaida(); // Retorna true si detecta un impacto fuerte
+float obtenerMagnitudImpacto();
 
 #endif
