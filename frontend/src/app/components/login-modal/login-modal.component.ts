@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject, AfterViewInit, NgZone } from '@angular/core';
+import { Component, EventEmitter, Output, inject, AfterViewInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -18,6 +18,7 @@ export class LoginModalComponent implements AfterViewInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private ngZone = inject(NgZone); // 👈 Necesario para volver a Angular desde Google
+  private cdr = inject(ChangeDetectorRef);
 
   @Output() close = new EventEmitter<void>();
   @Output() switchToRegister = new EventEmitter<void>();
@@ -123,6 +124,7 @@ export class LoginModalComponent implements AfterViewInit {
     if (!this.loginData.email) {
       this.showErrorModal = true;
       this.modalMessage = 'Por favor, escribe tu email en la casilla primero para poder enviarte el enlace de recuperación.';
+      this.cdr.detectChanges();
       return;
     }
 
@@ -133,12 +135,14 @@ export class LoginModalComponent implements AfterViewInit {
         this.isLoading = false;
         this.showSuccessModal = true;
         this.modalEmail = this.loginData.email;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('❌ Error en recuperación:', err);
         this.isLoading = false;
         this.showErrorModal = true;
         this.modalMessage = 'Error al enviar el correo de recuperación. Intenta de nuevo.';
+        this.cdr.detectChanges();
       }
     });
   }

@@ -30,10 +30,10 @@ export class UserService {
         const mappedUsers = users.map(u => ({
           id: u.id,
           username: u.email.split('@')[0],
-          fullName: u.nombre,
+          fullName: u.fullName || u.nombre,
           email: u.email,
-          role: 'user' as const,
-          status: 'active' as const,
+          role: u.role || 'user',
+          status: u.status || 'active',
           telefono: u.telefono,
           direccion: u.direccion,
           fecha_nacimiento: u.fecha_nacimiento

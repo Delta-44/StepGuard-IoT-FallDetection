@@ -46,17 +46,28 @@ export class UsersComponent implements OnInit {
   }
 
   loadUsers() {
-  this.isLoading = true;
-  // Al ser un BehaviorSubject, esto se ejecutará inmediatamente y cada vez que cambie
-  this.userService.getAllUsers().subscribe({
-    next: (data) => {
-      this.users = data;
-      this.isLoading = false; 
-      this.cd.detectChanges(); // Forzar actualización visual
-    },
-    error: () => this.isLoading = false
-  });
-}
+    this.isLoading = true;
+    const currentUserRole = this.authService.currentUser()?.role;
+    
+    this.userService.getAllUsers().subscribe({
+      next: (data) => {
+        // Filtrar usuarios según el rol del usuario actual
+        if (currentUserRole === 'admin') {
+          // Los admins ven a todos (pacientes, cuidadores y otros admins)
+          this.users = data;
+        } else if (currentUserRole === 'caregiver') {
+          // Los cuidadores ven solo pacientes y otros cuidadores (NO admins)
+          this.users = data.filter(u => u.role !== 'admin');
+        } else {
+          // Los pacientes no deberían acceder a esta vista, pero por seguridad
+          this.users = [];
+        }
+        this.isLoading = false; 
+        this.cd.detectChanges();
+      },
+      error: () => this.isLoading = false
+    });
+  }
 
   // --- MODAL EDICIÓN ---
   openEditModal(user: User) {
@@ -71,11 +82,21 @@ export class UsersComponent implements OnInit {
   // --- MODAL HISTORIAL (NUEVO) 🆕 ---
   openHistoryModal(user: User) {
     this.selectedHistoryUserName = user.fullName;
-    // Convertimos el ID a string porque tu modelo Alert usa string en deviceId
-    this.alertService.getAlertsByDeviceId(String(user.id)).subscribe(data => {
-      this.userHistory = data;
-      this.isHistoryModalOpen = true;
-    });
+    
+    // Si es un paciente, buscar alertas por deviceId
+    if (user.role === 'user') {
+      this.alertService.getAlertsByDeviceId(String(user.id)).subscribe(data => {
+        this.userHistory = data;
+        this.isHistoryModalOpen = true;
+      });
+    } 
+    // Si es cuidador o admin, buscar alertas atendidas por ellos
+    else if (user.role === 'caregiver' || user.role === 'admin') {
+      this.alertService.getAlertsByCaregiver(user.fullName).subscribe(data => {
+        this.userHistory = data;
+        this.isHistoryModalOpen = true;
+      });
+    }
   }
 
   closeHistoryModal() {

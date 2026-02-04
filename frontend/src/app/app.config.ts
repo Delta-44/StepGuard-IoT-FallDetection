@@ -4,7 +4,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 import { 
   Shield, Users, AlertTriangle, Smartphone, Activity, Bell, CircleAlert, AlertCircle,
-  Settings, CircleUser, LogOut, MapPin, Radio, Clock, ClipboardList, 
+  Settings, CircleUser, LogOut, LogIn, MapPin, Radio, Clock, ClipboardList, 
   SquarePen, Trash2, Zap, ChartColumn, Heart, Mail, Phone, ChevronDown, ChevronUp,
   UserCircle, BarChart3,
   LayoutDashboard, Battery, BatteryWarning, RefreshCw, MessageSquare, Calendar,
@@ -17,7 +17,7 @@ import { authInterceptor } from './interceptors/auth.interceptor';
 
 const icons = {
   Shield, Users, AlertTriangle, Smartphone, Activity, Bell, CircleAlert, AlertCircle,
-  Settings, CircleUser, LogOut, MapPin, Radio, Clock, ClipboardList, 
+  Settings, CircleUser, LogOut, LogIn, MapPin, Radio, Clock, ClipboardList, 
   SquarePen, Trash2, Zap, ChartColumn, Heart, Mail, Phone, ChevronDown, ChevronUp,
   UserCircle, BarChart3,
   LayoutDashboard, Battery, BatteryWarning, RefreshCw, MessageSquare, Calendar,
