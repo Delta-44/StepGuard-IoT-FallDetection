@@ -1,0 +1,159 @@
+<div class="dashboard-container">
+  
+  <header class="dashboard-header">
+    <div>
+      <h1>Panel de Control</h1>
+      <p class="subtitle">Resumen en tiempo real del sistema StepGuard IoT</p>
+    </div>
+    <div class="date-badge">{{ today | date:'fullDate' }}</div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="stat-card blue">
+      <div class="icon">👥</div>
+      <div class="info">
+        <h3>Pacientes</h3>
+        <p class="number">{{ stats.activePatients }}</p>
+        <small>Monitoreados</small>
+      </div>
+    </div>
+
+    <div class="stat-card red" [class.pulse]="stats.pendingAlerts > 0">
+      <div class="icon">🚨</div>
+      <div class="info">
+        <h3>Pendientes</h3>
+        <p class="number">{{ stats.pendingAlerts }}</p>
+        <small>Alertas activas</small>
+      </div>
+    </div>
+
+    <div class="stat-card green">
+      <div class="icon">📱</div>
+      <div class="info">
+        <h3>Dispositivos</h3>
+        <p class="number">{{ stats.onlineDevices }}</p>
+        <small>En línea</small>
+      </div>
+    </div>
+
+    <div class="stat-card orange">
+      <div class="icon">⚡</div>
+      <div class="info">
+        <h3>Batería</h3>
+        <p class="number">{{ stats.lowBattery }}</p>
+        <small>Nivel bajo</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-section">
+    <div class="chart-card">
+      <h3>📈 Actividad de Sensores (Última Hora)</h3>
+      <div class="fake-chart">
+        <div class="bar" style="height: 40%"></div>
+        <div class="bar" style="height: 70%"></div>
+        <div class="bar" style="height: 50%"></div>
+        <div class="bar" style="height: 80%"></div>
+        <div class="bar" style="height: 30%"></div>
+        <div class="bar" style="height: 60%"></div>
+        <div class="bar" style="height: 90%"></div>
+        <div class="bar" style="height: 45%"></div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>🚨 Alertas Pendientes de Atención</h3>
+      
+      @if (activeAlerts.length === 0) {
+        <div class="empty-list">
+          <p>✅ Todo tranquilo. No hay alertas pendientes.</p>
+        </div>
+      } @else {
+        <ul class="alert-list">
+          @for (alert of activeAlerts; track alert.id) {
+            <li class="alert-item" [ngClass]="alert.severity">
+              <div class="alert-content">
+                <strong>{{ alert.message }}</strong>
+                <small>📍 {{ alert.location }} • 🕒 {{ alert.timestamp | date:'shortTime' }}</small>
+              </div>
+              <button class="btn-attend" (click)="openResolutionModal(alert)">
+                Atender
+              </button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+
+</div>
+
+
+@if (processingAlert) {
+  <div class="modal-backdrop">
+    <div class="modal-content attention-modal">
+      
+      <div class="modal-header warning-header">
+        <h2>⚠️ Atendiendo Incidencia #{{ processingAlert.id }}</h2>
+      </div>
+
+      <div class="modal-body">
+        
+        <div class="auto-data">
+          <div class="data-row">
+            <strong>📍 Ubicación:</strong> <span>{{ processingAlert.location }}</span>
+          </div>
+          <div class="data-row">
+            <strong>🕒 Hora:</strong> <span>{{ processingAlert.timestamp | date:'medium' }}</span>
+          </div>
+          <div class="data-row">
+             <strong>🤖 Detección:</strong> <span>{{ processingAlert.message }}</span>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="form-row" style="display: flex; gap: 20px; margin-bottom: 15px;">
+          
+          <div class="form-group" style="flex: 1;">
+            <label style="font-weight:bold; display:block; margin-bottom:5px;">📊 Nivel de Gravedad Final:</label>
+            <select [(ngModel)]="selectedSeverity" class="severity-select">
+              <option value="low">🟢 Baja (Low)</option>
+              <option value="medium">🟠 Media (Medium)</option>
+              <option value="high">🔴 Alta (High)</option>
+              <option value="critical">🚨 Crítica (Critical)</option>
+            </select>
+          </div>
+          
+        </div>
+
+        <div class="form-group">
+          <label style="font-weight:bold; display:block; margin-bottom:5px;">📝 Documentación / Notas:</label>
+          <textarea 
+            [(ngModel)]="resolutionNotes" 
+            placeholder="Describe qué ha pasado y cómo se ha solucionado..."
+            rows="5"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cancelResolution()" [disabled]="isSubmitting">
+          Cancelar
+        </button>
+        
+        <div class="action-buttons">
+          <button class="btn-false" (click)="submitResolution('falsa_alarma')" [disabled]="isSubmitting">
+            🚫 Falsa Alarma
+          </button>
+          
+          <button class="btn-success" (click)="submitResolution('atendida')" [disabled]="isSubmitting">
+            ✅ Finalizar y Guardar
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+}

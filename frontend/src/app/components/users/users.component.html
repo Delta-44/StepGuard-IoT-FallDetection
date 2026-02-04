@@ -1,0 +1,175 @@
+<div class="users-container">
+  
+  <div class="header-section">
+    <h2>Gestión de Usuarios</h2>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando datos...</p>
+    </div>
+  } @else {
+    
+    <div class="table-responsive">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>NOMBRE</th>
+            <th>EMAIL</th>
+            <th>ROL</th>
+            <th>ESTADO</th>
+            
+            @if (canViewHistory()) {
+              <th class="text-center">HISTORIAL</th>
+            }
+
+            @if (isAdmin()) {
+              <th class="text-center">ACCIONES</th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.email) {
+            <tr>
+              <td>
+                <div class="user-info">
+                  <span class="user-name">{{ user.fullName }}</span> 
+                  <small class="user-sub">{{ user.username || 'N/A' }}</small>
+                </div>
+              </td>
+              <td class="email-text">{{ user.email }}</td>
+              <td>
+                <span class="badge" 
+                      [ngClass]="{
+                        'badge-admin': user.role === 'admin',
+                        'badge-caregiver': user.role === 'caregiver',
+                        'badge-user': user.role === 'user'
+                      }">
+                  {{ user.role === 'user' ? 'PACIENTE' : (user.role | uppercase) }}
+                </span>
+              </td>
+              <td>
+                <div class="status-indicator">
+                  <span class="dot" [class.active]="user.status === 'active'"></span>
+                  {{ user.status }}
+                </div>
+              </td>
+
+              @if (canViewHistory()) {
+                <td class="text-center">
+                  <button class="action-btn history-btn" (click)="openHistoryModal(user)" title="Ver Alertas">
+                    📋
+                  </button>
+                </td>
+              }
+
+              @if (isAdmin()) {
+                <td class="actions-cell">
+                  <button class="action-btn edit" (click)="openEditModal(user)" title="Editar">
+                    ✏️
+                  </button>
+                  <button class="action-btn delete" (click)="deleteUser(user.id)" title="Eliminar">
+                    🗑️
+                  </button>
+                </td>
+              }
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (isEditModalOpen) {
+    <div class="modal-backdrop" (click)="closeEditModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>Editar Usuario</h3>
+        
+        <form (ngSubmit)="saveUserChanges()">
+          <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" [(ngModel)]="selectedUser.fullName" name="fullName" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="selectedUser.email" name="email" required>
+          </div>
+
+          <div class="form-group">
+            <label>Rol</label>
+            <select [(ngModel)]="selectedUser.role" name="role">
+              <option value="admin">Administrador</option>
+              <option value="caregiver">Cuidador</option>
+              <option value="user">Paciente</option>
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn-cancel" (click)="closeEditModal()">Cancelar</button>
+            <button type="submit" class="btn-save">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  @if (isHistoryModalOpen) {
+    <div class="modal-backdrop" (click)="closeHistoryModal()">
+      <div class="modal-content history-modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Historial: {{ selectedHistoryUserName }}</h3>
+          <button class="close-btn-simple" (click)="closeHistoryModal()">✕</button>
+        </div>
+  
+        @if (userHistory.length === 0) {
+          <div class="empty-state">
+            <p>✅ Sin incidentes registrados.</p>
+          </div>
+        } @else {
+          <div class="timeline-container">
+            @for (alert of userHistory; track alert.id) {
+              <div class="alert-card" [ngClass]="alert.severity">
+                <div class="alert-time">
+                  {{ alert.timestamp | date:'dd MMM, HH:mm' }}
+                </div>
+                <div class="alert-info">
+                  <strong>{{ alert.message }}</strong>
+                  
+                  <div style="font-size: 0.85rem; color: #444; margin: 2px 0;">
+                    📍 {{ alert.location }}
+                  </div>
+
+                  @if (alert.notes) {
+                    <div style="margin-top: 8px; font-size: 0.8rem; background: #f0f0f0; padding: 6px; border-radius: 4px;">
+                      <span style="display:block; color: #666; font-style: italic;">"{{ alert.notes }}"</span>
+                      <span style="display:block; text-align: right; color: #007bff; font-weight: 600; margin-top: 2px;">
+                        — {{ alert.attendedBy }}
+                      </span>
+                    </div>
+                  }
+
+                  <div class="alert-meta">
+                    <span class="badge-severity">{{ alert.severity | uppercase }}</span>
+                    
+                    <span class="status-text">
+                      @if (alert.status === 'atendida') {
+                        ✅ Atendida
+                      } @else if (alert.status === 'falsa_alarma') {
+                        🚫 Falsa Alarma
+                      } @else {
+                        ⚠️ Pendiente
+                      }
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
