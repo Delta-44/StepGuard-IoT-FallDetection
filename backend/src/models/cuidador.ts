@@ -8,6 +8,7 @@ export interface Cuidador {
   telefono?: string;
   is_admin: boolean;
   fecha_creacion?: Date;
+  password_last_changed_at?: Date;
 }
 
 export const CuidadorModel = {
@@ -136,10 +137,21 @@ export const CuidadorModel = {
   },
 
   /**
+   * Actualizar contraseña
+   */
+  updatePassword: async (id: number, passwordHash: string): Promise<Cuidador | null> => {
+    const result = await query(
+      'UPDATE cuidadores SET password_hash = $1, password_last_changed_at = NOW() WHERE id = $2 RETURNING *',
+      [passwordHash, id]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
    * Eliminar cuidador
    */
   delete: async (id: number): Promise<boolean> => {
     const result = await query('DELETE FROM cuidadores WHERE id = $1', [id]);
     return (result.rowCount ?? 0) > 0;
-  },
+  }
 };

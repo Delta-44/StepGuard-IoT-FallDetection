@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-register-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './register-modal.component.html',
-  styleUrls: ['./register-modal.component.css']
+  styleUrls: ['./register-modal.component.css'],
 })
 export class RegisterModalComponent {
   private authService = inject(AuthService);
@@ -22,18 +23,19 @@ export class RegisterModalComponent {
 
   step: 'selection' | 'form' = 'selection';
   selectedRole: 'user' | 'caregiver' = 'user';
-  
+
   // ✅ ACTUALIZADO: Añadimos los campos nuevos de tus interfaces
-  registerData = { 
-    name: '', 
-    email: '', 
-    password: '', 
+  registerData = {
+    name: '',
+    email: '',
+    password: '',
     role: '',
-    telefono: '',          // Común
-    direccion: '',         // Solo Paciente
-    fecha_nacimiento: ''   // Solo Paciente
+    telefono: '', // Común
+    direccion: '', // Solo Paciente
+    fecha_nacimiento: '', // Solo Paciente (convertiremos a edad)
+    edad: 0, // Edad calculada
   };
-  
+
   isLoading = false;
 
   chooseRole(role: 'user' | 'caregiver') {
@@ -46,38 +48,62 @@ export class RegisterModalComponent {
     this.step = 'selection';
   }
 
-  onSubmit() {
-    this.isLoading = true;
-    const finalData = { ...this.registerData, role: this.selectedRole };
+  // register-modal.component.ts
 
-    this.authService.register(finalData).subscribe({
-      next: (response: { token: string; user: any }) => {
-        // 1. Guardar token y sesión
-        this.authService.saveToken(response.token);
-        this.authService.saveSession(response.user);
+  onSubmit() {
+    if (this.registerData.email && this.registerData.password && this.registerData.name) {
+      this.isLoading = true;
+
+      // 1. Preparamos el objeto EXACTO que pide el Backend
+      const payload: any = {
+        email: this.registerData.email,
+        password: this.registerData.password,
+        name: this.registerData.name,
+        telefono: this.registerData.telefono || null
+      };
+
+      // 2. Añadimos campos específicos según el rol
+      const tipo = this.selectedRole === 'caregiver' ? 'cuidador' : 'usuario';
+
+      if (tipo === 'usuario') {
+        payload.direccion = this.registerData.direccion || null;
         
-        // 2. ✅ NUEVO: Agregar usuario a la lista de UserService
-        this.userService.createUser(response.user).subscribe({
-          next: () => {
-            console.log('✅ Usuario registrado y agregado a la lista');
-            this.isLoading = false;
-            this.close.emit();
-            this.router.navigate(['/dashboard']);
-          },
-          error: (err) => {
-            console.error('Error al agregar usuario a la lista:', err);
-            this.isLoading = false;
-            // Aun así continuamos al dashboard ya que la autenticación fue exitosa
-            this.close.emit();
-            this.router.navigate(['/dashboard']);
+        // Calcular edad desde fecha_nacimiento si está disponible
+        if (this.registerData.fecha_nacimiento) {
+          const birthDate = new Date(this.registerData.fecha_nacimiento);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
           }
-        });
-      },
-      error: () => {
-        this.isLoading = false;
-        alert('Error al registrar usuario');
+          payload.edad = age;
+        } else {
+          payload.edad = null;
+        }
+        
+        payload.dispositivo_id = null; // Será asignado por un admin después
+      } else {
+        payload.is_admin = false; // Por defecto cuidador normal
       }
-    });
+
+      // 3. Llamada al servicio
+      this.authService.register(payload, tipo).subscribe({
+        next: (res) => {
+          this.isLoading = false;
+          alert('✅ ¡Registro exitoso! Ya puedes loguearte.');
+          this.close.emit();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('Error en registro:', err);
+          const errorMsg = err.error?.message || 'Error al registrar. Revisa los datos';
+          alert('❌ ' + errorMsg);
+        }
+      });
+    } else {
+      alert('⚠️ Por favor completa todos los campos obligatorios');
+    }
   }
 
   get roleTitle() {

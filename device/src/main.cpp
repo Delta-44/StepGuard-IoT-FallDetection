@@ -1,40 +1,50 @@
 #include <Arduino.h>
 #include "boton.h"
-#include "sensor_movimiento.h"
-#include "vibrador.h"
 #include "inclinacion.h"
+#include "acelerometro.h"
+#include "vibrador.h"
 
 void setup() {
     Serial.begin(115200);
     
-    setupBoton();       
-    setupPIR();         
-    setupVibrador();    
-    setupInclinacion(); 
+    setupBoton();
+    setupInclinacion();
+    setupAcelerometro();
+    setupVibrador(); // <--- REACTIVADO (Pin D25)
 
-    Serial.println("StepGuard: Sistema con Sensor de Inclinación Listo.");
+    Serial.println("StepGuard: Modo Test de Sensibilidad.");
 }
 
 void loop() {
-    // 1. SOS
+    // 1. SOS MANUAL
     if (verificarBotonSOS()) {
-        Serial.println("[ALERTA] SOS!");
+        Serial.println("SOS MANUAL");
         activarVibrador(500);
     }
 
-    // 2. INCLINACIÓN (Detección de posición)
+    // 2. DETECCIÓN DE CAÍDA (Sensible)
+    if (detectarCaida()) {
+        // Si detecta movimiento brusco, hacemos una vibración corta de aviso
+        activarVibrador(100); 
+
+        // Si además está inclinado, es caída confirmada
+        if (estaInclinado()) {
+            Serial.println("¡¡¡ CAÍDA CONFIRMADA !!!");
+            activarVibrador(1000); // Vibración larga
+        }
+    }
+
+    // 3. MONITOR DE INCLINACIÓN (Mensaje cada segundo si está inclinado)
     if (estaInclinado()) {
-        Serial.println("[!] AVISO: Dispositivo inclinado / Usuario en el suelo");
-        controlarLedInclinacion(true); // Enciende el LED del propio sensor
-        activarVibrador(200);          // Vibra para avisar
+        parpadearLedInclinacion();
+        static unsigned long lastMsg = 0;
+        if (millis() - lastMsg > 1000) {
+            Serial.println("Estado: Inclinado/Suelo");
+            lastMsg = millis();
+        }
     } else {
         controlarLedInclinacion(false);
     }
 
-    // 3. MOVIMIENTO
-    if (hayMovimiento()) {
-        Serial.println("Movimiento detectado.");
-    }
-
-    delay(200);
+    delay(10);
 }
