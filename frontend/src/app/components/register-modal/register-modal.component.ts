@@ -31,7 +31,8 @@ export class RegisterModalComponent {
     role: '',
     telefono: '', // Común
     direccion: '', // Solo Paciente
-    fecha_nacimiento: '', // Solo Paciente
+    fecha_nacimiento: '', // Solo Paciente (convertiremos a edad)
+    edad: 0, // Edad calculada
   };
 
   isLoading = false;
@@ -49,28 +50,58 @@ export class RegisterModalComponent {
   // register-modal.component.ts
 
   onSubmit() {
-    // Validamos que los campos básicos existan en registerData
     if (this.registerData.email && this.registerData.password && this.registerData.name) {
       this.isLoading = true;
 
-      // Determinamos el tipo según el rol seleccionado
+      // 1. Preparamos el objeto EXACTO que pide el Backend
+      const payload: any = {
+        email: this.registerData.email,
+        password: this.registerData.password,
+        name: this.registerData.name,
+        telefono: this.registerData.telefono || null
+      };
+
+      // 2. Añadimos campos específicos según el rol
       const tipo = this.selectedRole === 'caregiver' ? 'cuidador' : 'usuario';
 
-      this.authService.register(this.registerData, tipo).subscribe({
-        next: (response) => {
+      if (tipo === 'usuario') {
+        payload.direccion = this.registerData.direccion || null;
+        
+        // Calcular edad desde fecha_nacimiento si está disponible
+        if (this.registerData.fecha_nacimiento) {
+          const birthDate = new Date(this.registerData.fecha_nacimiento);
+          const today = new Date();
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+          }
+          payload.edad = age;
+        } else {
+          payload.edad = null;
+        }
+        
+        payload.dispositivo_id = null; // Será asignado por un admin después
+      } else {
+        payload.is_admin = false; // Por defecto cuidador normal
+      }
+
+      // 3. Llamada al servicio
+      this.authService.register(payload, tipo).subscribe({
+        next: (res) => {
           this.isLoading = false;
-          alert('✅ Registro completado con éxito.');
-          this.close.emit(); // 👈 Cambiado: usamos el Output 'close'
-          // Opcional: podrías redirigir al login o dashboard
+          alert('✅ ¡Registro exitoso! Ya puedes loguearte.');
+          this.close.emit();
         },
         error: (err) => {
           this.isLoading = false;
-          console.error('Error en registro', err);
-          alert('Hubo un error al crear la cuenta. Inténtalo de nuevo.');
-        },
+          console.error('Error en registro:', err);
+          const errorMsg = err.error?.message || 'Error al registrar. Revisa los datos';
+          alert('❌ ' + errorMsg);
+        }
       });
     } else {
-      alert('Por favor, completa todos los campos obligatorios.');
+      alert('⚠️ Por favor completa todos los campos obligatorios');
     }
   }
 
