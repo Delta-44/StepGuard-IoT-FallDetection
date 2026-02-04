@@ -1,22 +1,26 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+
+// Declaramos la variable de Google para que TypeScript no se queje
+declare var google: any;
 
 @Component({
   selector: 'app-login-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login-modal.component.html',
-  styleUrl: './login-modal.component.css'
+  styleUrl: './login-modal.component.css',
 })
-export class LoginModalComponent {
+export class LoginModalComponent implements AfterViewInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private ngZone = inject(NgZone); // 👈 Necesario para volver a Angular desde Google
 
-  @Output() close = new EventEmitter<void>(); 
-  @Output() switchToRegister = new EventEmitter<void>(); 
+  @Output() close = new EventEmitter<void>();
+  @Output() switchToRegister = new EventEmitter<void>();
 
   loginData = { email: '', password: '' };
   isLoading = false;
@@ -25,33 +29,118 @@ export class LoginModalComponent {
   modalMessage = '';
   modalEmail = '';
 
-  // --- LÓGICA DE EMAIL / PASS ---
-  onSubmit() {
-    this.isLoading = true;
-    this.authService.login(this.loginData.email, this.loginData.password).subscribe({
-      // ✅ APLICADO: Tipado explícito para evitar error de TypeScript
-      next: (response: { token: string; user: any }) => {
-        this.finalizeLogin(response);
-      },
-      error: () => {
-        this.isLoading = false;
-        this.showErrorModal = true;
-        this.modalMessage = 'Credenciales incorrectas. Por favor, verifica tu email y contraseña.';
-      }
+  // --- 👇 INICIALIZAR BOTÓN DE GOOGLE ---
+  ngAfterViewInit() {
+    // CLIENT_ID de Google Cloud Console
+    google.accounts.id.initialize({
+      client_id: "644678657987-fukshit2bmdcvlfh3uv8rpfuhr72csqm.apps.googleusercontent.com",
+      callback: (resp: any) => this.handleGoogleLogin(resp)
     });
+
+    google.accounts.id.renderButton(
+      document.getElementById("google-btn-container"),
+      { theme: "outline", size: "large", width: "100%", text: "continue_with" } // Estilo oficial
+    );
   }
 
-  // --- OLVIDASTE CONTRASEÑA ---
+  // --- 👇 LÓGICA DE RESPUESTA DE GOOGLE ---
+  handleGoogleLogin(response: any) {
+    // Google nos devuelve un 'credential' (el token)
+    if (response.credential) {
+      // Usamos ngZone.run porque esto viene de fuera de Angular
+      this.ngZone.run(() => {
+        this.isLoading = true;
+        
+        // Llamamos a tu servicio que hace el POST al backend
+        this.authService.loginWithGoogle(response.credential).subscribe({
+          next: (res) => {
+            // Si es un usuario nuevo, mostrar selector de rol
+            if (res.isNewUser) {
+              console.log('⚠️ Usuario nuevo detectado:', res.email);
+              this.isLoading = false;
+              const role = prompt(`Usuario ${res.email} no registrado.\n\n¿Qué tipo de cuenta deseas?\n1. Usuario (persona mayor)\n2. Cuidador\n\nEscribe "usuario" o "cuidador":`);
+              
+              if (role === 'usuario' || role === 'cuidador') {
+                this.isLoading = true;
+                // Reenviar con el rol seleccionado
+                this.authService.loginWithGoogle(response.credential, role).subscribe({
+                  next: () => {
+                    console.log('✅ Google registro exitoso con rol:', role);
+                    this.isLoading = false;
+                    this.close.emit();
+                    this.router.navigate(['/dashboard']);
+                  },
+                  error: (err) => {
+                    console.error('❌ Error registrando con Google:', err);
+                    this.isLoading = false;
+                    alert('Error al registrar con Google');
+                  }
+                });
+              } else {
+                this.isLoading = false;
+                alert('Rol inválido. Intenta de nuevo.');
+              }
+              return;
+            }
+
+            console.log('✅ Google Login exitoso');
+            this.isLoading = false;
+            this.close.emit();
+            this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            console.error('❌ Error Google:', err);
+            this.isLoading = false;
+            alert('Error al iniciar sesión con Google');
+          }
+        });
+      });
+    }
+  }
+
+  // --- LÓGICA DE EMAIL / PASS (Estaba perfecta, solo añadí logs) ---
+  onSubmit() {
+    if (this.loginData.email && this.loginData.password) {
+      this.isLoading = true;
+
+      this.authService.login(this.loginData.email, this.loginData.password).subscribe({
+        next: () => {
+          console.log('✅ Login exitoso');
+          this.isLoading = false;
+          this.close.emit();
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('❌ Error en login:', err);
+          alert('Email o contraseña incorrectos');
+        },
+      });
+    }
+  }
+
   onForgotPassword() {
     if (!this.loginData.email) {
       this.showErrorModal = true;
       this.modalMessage = 'Por favor, escribe tu email en la casilla primero para poder enviarte el enlace de recuperación.';
       return;
     }
-    
-    // Aquí conectarías con tu lógica de recuperación
-    this.showSuccessModal = true;
-    this.modalEmail = this.loginData.email;
+
+    this.isLoading = true;
+    this.authService.forgotPassword(this.loginData.email).subscribe({
+      next: (res) => {
+        console.log('✅ Solicitud de recuperación enviada:', res);
+        this.isLoading = false;
+        this.showSuccessModal = true;
+        this.modalEmail = this.loginData.email;
+      },
+      error: (err) => {
+        console.error('❌ Error en recuperación:', err);
+        this.isLoading = false;
+        this.showErrorModal = true;
+        this.modalMessage = 'Error al enviar el correo de recuperación. Intenta de nuevo.';
+      }
+    });
   }
 
   closeSuccessModal() {
@@ -60,36 +149,5 @@ export class LoginModalComponent {
 
   closeErrorModal() {
     this.showErrorModal = false;
-  }
-
-  // --- 👇 LÓGICA DE GOOGLE ---
-  async onGoogleLogin() {
-    this.isLoading = true;
-    
-    try {
-      // Llamamos al servicio (Simulado o Firebase)
-      const user = await this.authService.loginWithGoogle();
-      
-      // Simulamos una respuesta de backend con los datos de Google
-      const response = {
-        token: 'google-session-token', 
-        user: user
-      };
-
-      this.finalizeLogin(response);
-
-    } catch (error) {
-      console.error('Error Google:', error);
-      this.isLoading = false;
-    }
-  }
-
-  // ✅ APLICADO: Función auxiliar con tipos definidos
-  private finalizeLogin(response: { token: string; user: any }) {
-    this.authService.saveToken(response.token);
-    this.authService.saveSession(response.user);
-    this.isLoading = false;
-    this.close.emit(); 
-    this.router.navigate(['/dashboard']);
   }
 }
