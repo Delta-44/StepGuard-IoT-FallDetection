@@ -1,64 +1,114 @@
-<div class="page-container">
-  <h2>🚨 Centro de Alertas Global</h2>
+<div class="min-h-screen bg-base-bg p-8">
   
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>HORA</th>
-          <th>SEVERIDAD</th>
-          <th style="width: 40%;">MENSAJE / DETALLES</th>
-          <th>LUGAR</th> 
-          <th>DISPOSITIVO</th>
-          <th>ESTADO</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (alert of alerts; track alert.id) {
-          <tr [ngClass]="{'row-critical': alert.severity === 'critical' && alert.status === 'pendiente'}">
+  <!-- Header -->
+  <div class="mb-8 animate-fade-in">
+    <h2 class="text-3xl font-bold text-base-text flex items-center gap-3">
+      <i-lucide name="bell" [size]="32"></i-lucide>
+      Centro de Alertas Global
+    </h2>
+    <p class="text-gray-600 mt-2">Historial completo de eventos y caídas detectadas</p>
+  </div>
+  
+  <!-- Tabla de Alertas -->
+  <div class="bg-white rounded-xl shadow-lg overflow-hidden animate-fade-in">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-primary text-white">
+          <tr>
+            <th class="px-6 py-4 text-left font-semibold">HORA</th>
+            <th class="px-6 py-4 text-left font-semibold">SEVERIDAD</th>
+            <th class="px-6 py-4 text-left font-semibold" style="width: 40%;">MENSAJE / DETALLES</th>
+            <th class="px-6 py-4 text-left font-semibold">LUGAR</th> 
+            <th class="px-6 py-4 text-left font-semibold">DISPOSITIVO</th>
+            <th class="px-6 py-4 text-left font-semibold">ESTADO</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @for (alert of alerts; track alert.id) {
+            <tr 
+              class="transition-all duration-300 hover:bg-gray-50"
+              [ngClass]="{
+                'bg-emergency/10 animate-pulse-emergency': alert.severity === 'critical' && alert.status === 'pendiente',
+                'bg-red-50': alert.severity === 'high' && alert.status === 'pendiente',
+                'bg-preventive/5': alert.severity === 'medium' && alert.status === 'pendiente'
+              }"
+            >
             
-            <td style="white-space: nowrap;">{{ alert.timestamp | date:'dd/MM HH:mm' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-base-text font-medium">
+              {{ alert.timestamp | date:'dd/MM HH:mm' }}
+            </td>
             
-            <td>
-              <span class="badge" [ngClass]="alert.severity">
-                {{ alert.severity | uppercase }}
+            <td class="px-6 py-4">
+              <span 
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold uppercase"
+                [ngClass]="{
+                  'bg-emergency text-white animate-pulse-emergency': alert.severity === 'critical',
+                  'bg-red-500 text-white': alert.severity === 'high',
+                  'bg-preventive text-white': alert.severity === 'medium',
+                  'bg-primary text-white': alert.severity === 'low'
+                }"
+              >
+                @if (alert.severity === 'critical') {
+                  <i-lucide name="alert-triangle" [size]="14"></i-lucide> {{ alert.severity }}
+                } @else if (alert.severity === 'high') {
+                  <i-lucide name="circle-alert" [size]="14"></i-lucide> {{ alert.severity }}
+                } @else if (alert.severity === 'medium') {
+                  <i-lucide name="bell" [size]="14"></i-lucide> {{ alert.severity }}
+                } @else {
+                  <i-lucide name="circle-alert" [size]="14"></i-lucide> {{ alert.severity }}
+                }
               </span>
             </td>
             
-            <td>
-              <div class="message-row">
-                <span class="message-text">{{ alert.message }}</span>
+            <td class="px-6 py-4">
+              <div class="space-y-2">
+                <span class="text-base-text font-medium block">{{ alert.message }}</span>
                 
                 @if (alert.notes) {
-                  <button class="btn-toggle" (click)="toggleNotes(alert.id)">
-                    {{ isExpanded(alert.id) ? '🔼 Ocultar' : '🔽 Ver Notas' }}
+                  <button 
+                    class="text-primary hover:text-primary-dark font-semibold text-sm transition-colors duration-300 flex items-center gap-1"
+                    (click)="toggleNotes(alert.id)"
+                  >
+                    @if (isExpanded(alert.id)) {
+                      🔼 Ocultar Notas
+                    } @else {
+                      🔽 Ver Notas
+                    }
                   </button>
                 }
               </div>
               
               @if (isExpanded(alert.id) && alert.notes) {
-                <div class="resolution-box">
-                  <div class="note-content">
-                    <span class="icon">📝</span> 
-                    <em>"{{ alert.notes }}"</em>
+                <div class="mt-3 bg-blue-50 border-l-4 border-primary rounded-r-lg p-4 animate-slide-down">
+                  <div class="flex items-start gap-2 text-gray-700 mb-2">
+                    <span class="text-xl">📝</span> 
+                    <em class="flex-1">"{{ alert.notes }}"</em>
                   </div>
-                  <div class="note-footer">
-                    — Atendido por: <strong>{{ alert.attendedBy }}</strong>
-                    <span class="note-date">({{ alert.attendedAt | date:'short' }})</span>
+                  <div class="text-sm text-gray-600 mt-2 pl-7">
+                    — Atendido por: <strong class="text-base-text">{{ alert.attendedBy }}</strong>
+                    <span class="text-gray-500 ml-2">({{ alert.attendedAt | date:'short' }})</span>
                   </div>
                 </div>
               }
             </td>
             
-            <td style="font-weight: 500; color: #555;">📍 {{ alert.location }}</td>
+            <td class="px-6 py-4 text-gray-700 font-medium">
+              📍 {{ alert.location }}
+            </td>
 
-            <td><small>ID: {{ alert.deviceId }}</small></td>
+            <td class="px-6 py-4 text-gray-600 text-sm">
+              ID: {{ alert.deviceId }}
+            </td>
             
-            <td>
-              <span class="status" 
-                    [class.done]="alert.status === 'atendida'"
-                    [class.ignored]="alert.status === 'falsa_alarma' || alert.status === 'ignorada'">
-                
+            <td class="px-6 py-4">
+              <span 
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold"
+                [ngClass]="{
+                  'bg-operational text-white': alert.status === 'atendida',
+                  'bg-gray-500 text-white': alert.status === 'falsa_alarma' || alert.status === 'ignorada',
+                  'bg-preventive text-white animate-breathe': alert.status === 'pendiente'
+                }"
+              >
                 @if (alert.status === 'atendida') {
                   ✅ Resuelto
                 } @else if (alert.status === 'falsa_alarma') {
@@ -68,12 +118,12 @@
                 } @else {
                   ⚠️ Pendiente
                 }
-
               </span>
             </td>
           </tr>
-        }
-      </tbody>
-    </table>
+          }
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

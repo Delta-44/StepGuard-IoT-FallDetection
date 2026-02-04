@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { AlertService, Alert } from '../../services/alert.service';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs'; // 👈 Importar
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
