@@ -11,7 +11,7 @@ export const registerUsuario = async (req: Request, res: Response) => {
   try {
     console.log('📝 Registro de usuario - Body recibido:', JSON.stringify(req.body, null, 2));
     
-    const { email, password, name, edad, direccion, telefono, dispositivo_id } = req.body;
+    const { email, password, name, edad, fecha_nacimiento: fechaNacimientoParam, direccion, telefono, dispositivo_id } = req.body;
 
     if (!email || !password || !name) {
       return res.status(400).json({ message: 'Email, password and name are required' });
@@ -25,11 +25,14 @@ export const registerUsuario = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Calcular fecha de nacimiento aproximada desde la edad si se proporciona
+    // Calcular fecha de nacimiento: priorizar fecha_nacimiento, si no hay calcular desde edad
     let fecha_nacimiento: Date | undefined = undefined;
-    if (edad && typeof edad === 'number' && edad > 0) {
+    if (fechaNacimientoParam) {
+      fecha_nacimiento = new Date(fechaNacimientoParam);
+      console.log(`📅 Fecha nacimiento recibida: ${fecha_nacimiento.toISOString()}`);
+    } else if (edad && typeof edad === 'number' && edad > 0) {
       const currentYear = new Date().getFullYear();
-      fecha_nacimiento = new Date(currentYear - edad, 0, 1); // 1 de enero del año calculado
+      fecha_nacimiento = new Date(currentYear - edad, 0, 1);
       console.log(`📅 Edad ${edad} años -> Fecha nacimiento aproximada: ${fecha_nacimiento.toISOString()}`);
     }
 
