@@ -24,10 +24,8 @@ export class UserService {
   private loadUsers() {
     if (this.loaded) return; // Evitar múltiples cargas
     
-    console.log('🔄 Cargando usuarios desde el backend...');
     this.http.get<any[]>(`${this.apiUrl}/users`).subscribe({
       next: (users) => {
-        console.log(`📦 Recibidos ${users.length} usuarios del backend:`, users);
         // Mapear datos del backend al modelo frontend
         const mappedUsers = users.map(u => ({
           id: u.id,
@@ -40,11 +38,10 @@ export class UserService {
           direccion: u.direccion,
           fecha_nacimiento: u.fecha_nacimiento
         }));
-        console.log(`✅ Mapeados ${mappedUsers.length} usuarios:`, mappedUsers);
         this.usersSubject.next(mappedUsers);
         this.loaded = true;
       },
-      error: (err) => console.error('❌ Error cargando usuarios:', err)
+      error: (err) => console.error('Error cargando usuarios:', err)
     });
   }
 

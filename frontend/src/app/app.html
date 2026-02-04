@@ -1,6 +1,6 @@
 <div style="font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column;">
       
-  @if (criticalAlert()) {
+  @if (criticalAlert() && showNavbar()) {
     <div class="critical-banner">
       <div class="banner-content">
         <i-lucide name="alert-triangle" class="banner-icon" [size]="28"></i-lucide>
