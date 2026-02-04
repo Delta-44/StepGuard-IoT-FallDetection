@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-base-bg p-8">
+﻿<div class="min-h-screen bg-transparent p-8">
   
   <!-- Header -->
   <div class="mb-8 animate-fade-in">
@@ -18,7 +18,7 @@
   } @else {
     
     <!-- Tabla de Usuarios -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden animate-fade-in">
+    <div class="bg-transparent/50 rounded-xl  overflow-hidden animate-fade-in">
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead class="bg-primary text-white">
@@ -39,7 +39,7 @@
           </thead>
           <tbody class="divide-y divide-gray-200">
             @for (user of users; track user.email) {
-              <tr class="hover:bg-gray-50 transition-colors duration-200">
+              <tr class="hover:bg-transparent transition-colors duration-200">
                 <td class="px-6 py-4">
                   <div class="flex flex-col">
                     <span class="text-base-text font-semibold">{{ user.fullName }}</span> 
@@ -77,7 +77,7 @@
                 @if (canViewHistory()) {
                   <td class="px-6 py-4 text-center">
                     <button 
-                      class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 mx-auto"
+                      class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-300 hover: hover:-translate-y-0.5 flex items-center gap-2 mx-auto"
                       (click)="openHistoryModal(user)" 
                       title="Ver Alertas"
                     >
@@ -90,14 +90,14 @@
                   <td class="px-6 py-4">
                     <div class="flex justify-center gap-2">
                       <button 
-                        class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 hover:shadow-lg"
+                        class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 hover:"
                         (click)="openEditModal(user)" 
                         title="Editar"
                       >
                         <i-lucide name="edit" [size]="16"></i-lucide>
                       </button>
                       <button 
-                        class="px-3 py-2 bg-emergency text-white rounded-lg hover:bg-emergency-dark transition-all duration-300 hover:shadow-lg"
+                        class="px-3 py-2 bg-emergency text-white rounded-lg hover:bg-emergency-dark transition-all duration-300 hover:"
                         (click)="deleteUser(user.id)" 
                         title="Eliminar"
                       >
@@ -116,8 +116,8 @@
 
   <!-- Modal de Edición -->
   @if (isEditModalOpen) {
-    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" (click)="closeEditModal()">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 animate-slide-down" (click)="$event.stopPropagation()">
+    <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in" (click)="closeEditModal()">
+      <div class="bg-transparent/50 rounded-2xl  w-full max-w-md mx-4 animate-slide-down" (click)="$event.stopPropagation()">
         <div class="bg-primary text-white px-8 py-6 rounded-t-2xl">
           <h3 class="text-2xl font-bold">Editar Usuario</h3>
         </div>
@@ -168,7 +168,7 @@
             </button>
             <button 
               type="submit" 
-              class="flex-1 px-6 py-3 bg-operational text-white rounded-xl font-semibold hover:bg-operational-dark hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+              class="flex-1 px-6 py-3 bg-operational text-white rounded-xl font-semibold hover:bg-operational-dark hover: transition-all duration-300 hover:-translate-y-0.5"
             >
               Guardar
             </button>
@@ -180,8 +180,8 @@
 
   <!-- Modal de Historial -->
   @if (isHistoryModalOpen) {
-    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" (click)="closeHistoryModal()">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col animate-slide-down" (click)="$event.stopPropagation()">
+    <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in" (click)="closeHistoryModal()">
+      <div class="bg-transparent/50 rounded-2xl  w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col animate-slide-down" (click)="$event.stopPropagation()">
         
         <!-- Header del Modal -->
         <div class="bg-primary text-white px-8 py-6 rounded-t-2xl flex justify-between items-center">
@@ -208,7 +208,7 @@
             <div class="space-y-4">
               @for (alert of userHistory; track alert.id) {
                 <div 
-                  class="bg-white border-l-4 rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300 animate-fade-in"
+                  class="border-l-4 rounded-lg p-6  hover: transition-all duration-300 animate-fade-in"
                   [ngClass]="{
                     'border-emergency bg-emergency/5': alert.severity === 'critical',
                     'border-red-500 bg-red-50': alert.severity === 'high',
@@ -268,7 +268,7 @@
                       class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
                       [ngClass]="{
                         'bg-operational text-white': alert.status === 'atendida',
-                        'bg-gray-500 text-white': alert.status === 'falsa_alarma',
+                        'bg-transparent0 text-white': alert.status === 'falsa_alarma',
                         'bg-preventive text-white': alert.status === 'pendiente'
                       }"
                     >
@@ -291,3 +291,5 @@
     </div>
   }
 </div>
+
+

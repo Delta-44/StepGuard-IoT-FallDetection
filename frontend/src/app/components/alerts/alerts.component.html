@@ -1,129 +1,173 @@
-<div class="min-h-screen bg-base-bg p-8">
+﻿<div class="min-h-screen p-8">
   
   <!-- Header -->
   <div class="mb-8 animate-fade-in">
-    <h2 class="text-3xl font-bold text-base-text flex items-center gap-3">
-      <i-lucide name="bell" [size]="32"></i-lucide>
-      Centro de Alertas Global
-    </h2>
-    <p class="text-gray-600 mt-2">Historial completo de eventos y caídas detectadas</p>
-  </div>
-  
-  <!-- Tabla de Alertas -->
-  <div class="bg-white rounded-xl shadow-lg overflow-hidden animate-fade-in">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead class="bg-primary text-white">
-          <tr>
-            <th class="px-6 py-4 text-left font-semibold">HORA</th>
-            <th class="px-6 py-4 text-left font-semibold">SEVERIDAD</th>
-            <th class="px-6 py-4 text-left font-semibold" style="width: 40%;">MENSAJE / DETALLES</th>
-            <th class="px-6 py-4 text-left font-semibold">LUGAR</th> 
-            <th class="px-6 py-4 text-left font-semibold">DISPOSITIVO</th>
-            <th class="px-6 py-4 text-left font-semibold">ESTADO</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          @for (alert of alerts; track alert.id) {
-            <tr 
-              class="transition-all duration-300 hover:bg-gray-50"
-              [ngClass]="{
-                'bg-emergency/10 animate-pulse-emergency': alert.severity === 'critical' && alert.status === 'pendiente',
-                'bg-red-50': alert.severity === 'high' && alert.status === 'pendiente',
-                'bg-preventive/5': alert.severity === 'medium' && alert.status === 'pendiente'
-              }"
-            >
-            
-            <td class="px-6 py-4 whitespace-nowrap text-base-text font-medium">
-              {{ alert.timestamp | date:'dd/MM HH:mm' }}
-            </td>
-            
-            <td class="px-6 py-4">
-              <span 
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold uppercase"
-                [ngClass]="{
-                  'bg-emergency text-white animate-pulse-emergency': alert.severity === 'critical',
-                  'bg-red-500 text-white': alert.severity === 'high',
-                  'bg-preventive text-white': alert.severity === 'medium',
-                  'bg-primary text-white': alert.severity === 'low'
-                }"
-              >
-                @if (alert.severity === 'critical') {
-                  <i-lucide name="alert-triangle" [size]="14"></i-lucide> {{ alert.severity }}
-                } @else if (alert.severity === 'high') {
-                  <i-lucide name="circle-alert" [size]="14"></i-lucide> {{ alert.severity }}
-                } @else if (alert.severity === 'medium') {
-                  <i-lucide name="bell" [size]="14"></i-lucide> {{ alert.severity }}
-                } @else {
-                  <i-lucide name="circle-alert" [size]="14"></i-lucide> {{ alert.severity }}
-                }
-              </span>
-            </td>
-            
-            <td class="px-6 py-4">
-              <div class="space-y-2">
-                <span class="text-base-text font-medium block">{{ alert.message }}</span>
-                
-                @if (alert.notes) {
-                  <button 
-                    class="text-primary hover:text-primary-dark font-semibold text-sm transition-colors duration-300 flex items-center gap-1"
-                    (click)="toggleNotes(alert.id)"
-                  >
-                    @if (isExpanded(alert.id)) {
-                      🔼 Ocultar Notas
-                    } @else {
-                      🔽 Ver Notas
-                    }
-                  </button>
-                }
-              </div>
-              
-              @if (isExpanded(alert.id) && alert.notes) {
-                <div class="mt-3 bg-blue-50 border-l-4 border-primary rounded-r-lg p-4 animate-slide-down">
-                  <div class="flex items-start gap-2 text-gray-700 mb-2">
-                    <span class="text-xl">📝</span> 
-                    <em class="flex-1">"{{ alert.notes }}"</em>
-                  </div>
-                  <div class="text-sm text-gray-600 mt-2 pl-7">
-                    — Atendido por: <strong class="text-base-text">{{ alert.attendedBy }}</strong>
-                    <span class="text-gray-500 ml-2">({{ alert.attendedAt | date:'short' }})</span>
-                  </div>
-                </div>
-              }
-            </td>
-            
-            <td class="px-6 py-4 text-gray-700 font-medium">
-              📍 {{ alert.location }}
-            </td>
-
-            <td class="px-6 py-4 text-gray-600 text-sm">
-              ID: {{ alert.deviceId }}
-            </td>
-            
-            <td class="px-6 py-4">
-              <span 
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold"
-                [ngClass]="{
-                  'bg-operational text-white': alert.status === 'atendida',
-                  'bg-gray-500 text-white': alert.status === 'falsa_alarma' || alert.status === 'ignorada',
-                  'bg-preventive text-white animate-breathe': alert.status === 'pendiente'
-                }"
-              >
-                @if (alert.status === 'atendida') {
-                  ✅ Resuelto
-                } @else if (alert.status === 'falsa_alarma') {
-                  🚫 Falsa Alarma
-                } @else if (alert.status === 'ignorada') {
-                  👁️ Ignorada
-                } @else {
-                  ⚠️ Pendiente
-                }
-              </span>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
+    <div class="bg-white rounded-2xl p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="p-4 bg-gradient-to-br from-emergency/10 to-red-500/5 rounded-xl">
+            <i-lucide name="bell" [size]="32" class="text-emergency"></i-lucide>
+          </div>
+          <div>
+            <h2 class="text-3xl font-bold text-gray-800">Centro de Alertas</h2>
+            <p class="text-gray-600 mt-1">Monitoreo en tiempo real de eventos críticos</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-sm text-gray-500">Total de alertas</div>
+          <div class="text-3xl font-bold text-emergency">{{ alerts.length }}</div>
+        </div>
+      </div>
     </div>
   </div>
+  
+  <!-- Grid de Alertas -->
+  <div class="space-y-4 animate-fade-in">
+          @for (alert of alerts; track alert.id) {
+            <div 
+              class="bg-white rounded-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1"
+              [ngClass]="{
+                'ring-2 ring-emergency animate-pulse-emergency': alert.severity === 'critical' && alert.status === 'pendiente',
+                'ring-2 ring-red-400': alert.severity === 'high' && alert.status === 'pendiente',
+                'ring-2 ring-preventive': alert.severity === 'medium' && alert.status === 'pendiente'
+              }"
+            >
+              <!-- Indicador superior de severidad -->
+              <div class="h-2"
+                [ngClass]="{
+                  'bg-gradient-to-r from-emergency via-red-600 to-emergency': alert.severity === 'critical',
+                  'bg-gradient-to-r from-red-500 to-red-600': alert.severity === 'high',
+                  'bg-gradient-to-r from-preventive to-yellow-500': alert.severity === 'medium',
+                  'bg-gradient-to-r from-primary to-blue-600': alert.severity === 'low'
+                }"
+              ></div>
+
+              <div class="p-6">
+                <!-- Header de la alerta -->
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-4 flex-1">
+                    <div class="p-3 rounded-xl"
+                      [ngClass]="{
+                        'bg-emergency/10': alert.severity === 'critical',
+                        'bg-red-500/10': alert.severity === 'high',
+                        'bg-preventive/10': alert.severity === 'medium',
+                        'bg-primary/10': alert.severity === 'low'
+                      }"
+                    >
+                      <i-lucide 
+                        [name]="alert.severity === 'critical' ? 'alert-triangle' : alert.severity === 'high' ? 'alert-circle' : alert.severity === 'medium' ? 'bell' : 'info'"
+                        [size]="28"
+                        [ngClass]="{
+                          'text-emergency': alert.severity === 'critical',
+                          'text-red-500': alert.severity === 'high',
+                          'text-preventive': alert.severity === 'medium',
+                          'text-primary': alert.severity === 'low'
+                        }"
+                      ></i-lucide>
+                    </div>
+                    
+                    <div class="flex-1">
+                      <div class="flex items-center gap-3 mb-2">
+                        <span 
+                          class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider"
+                          [ngClass]="{
+                            'bg-emergency/20 text-emergency border border-emergency/30': alert.severity === 'critical',
+                            'bg-red-500/20 text-red-700 border border-red-300': alert.severity === 'high',
+                            'bg-preventive/20 text-preventive border border-preventive/30': alert.severity === 'medium',
+                            'bg-primary/20 text-primary border border-primary/30': alert.severity === 'low'
+                          }"
+                        >
+                          {{ alert.severity }}
+                        </span>
+                        
+                        <span class="text-sm text-gray-500 flex items-center gap-1.5">
+                          <i-lucide name="clock" [size]="14"></i-lucide>
+                          {{ alert.timestamp | date:'dd/MM/yyyy HH:mm' }}
+                        </span>
+                      </div>
+                      <p class="text-gray-800 font-semibold text-lg">{{ alert.message }}</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Badges de estado y acciones -->
+                  <div class="flex items-center gap-2">
+                    <span 
+                      class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold "
+                      [ngClass]="{
+                        'bg-operational text-white': alert.status === 'atendida',
+                        'bg-transparent0 text-white': alert.status === 'falsa_alarma' || alert.status === 'ignorada',
+                        'bg-preventive text-white': alert.status === 'pendiente'
+                      }"
+                    >
+                      <i-lucide 
+                        [name]="alert.status === 'atendida' ? 'check-circle' : alert.status === 'pendiente' ? 'alert-circle' : 'x-circle'"
+                        [size]="16"
+                      ></i-lucide>
+                      {{ alert.status === 'atendida' ? 'Resuelta' : alert.status === 'falsa_alarma' ? 'Falsa' : alert.status === 'ignorada' ? 'Ignorada' : 'Pendiente' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Información adicional -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                  <div class="flex items-center gap-3 p-3 bg-transparent rounded-xl">
+                    <i-lucide name="map-pin" [size]="18" class="text-primary"></i-lucide>
+                    <div>
+                      <div class="text-xs text-gray-500 font-medium">Ubicación</div>
+                      <div class="text-sm font-semibold text-gray-800">{{ alert.location }}</div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center gap-3 p-3 bg-transparent rounded-xl">
+                    <i-lucide name="radio" [size]="18" class="text-gray-600"></i-lucide>
+                    <div>
+                      <div class="text-xs text-gray-500 font-medium">Dispositivo</div>
+                      <div class="text-sm font-semibold text-gray-800">ID: {{ alert.deviceId }}</div>
+                    </div>
+                  </div>
+                  
+                  @if (alert.notes) {
+                    <button 
+                      class="flex items-center justify-center gap-2 p-3 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors border border-primary/20 hover:border-primary/40"
+                      (click)="toggleNotes(alert.id)"
+                    >
+                      <i-lucide [name]="isExpanded(alert.id) ? 'chevron-up' : 'chevron-down'" [size]="18" class="text-primary"></i-lucide>
+                      <span class="text-sm font-semibold text-primary">
+                        {{ isExpanded(alert.id) ? 'Ocultar' : 'Ver' }} Notas
+                      </span>
+                    </button>
+                  }
+                </div>
+              
+
+                @if (isExpanded(alert.id) && alert.notes) {
+                  <div class="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-r-xl p-5 animate-slide-down ">
+                    <div class="flex items-start gap-3">
+                      <i-lucide name="message-square" [size]="20" class="text-primary mt-1"></i-lucide>
+                      <div class="flex-1">
+                        <p class="text-gray-700 italic mb-3">"{{ alert.notes }}"</p>
+                        <div class="flex items-center gap-3 text-sm">
+                          <div class="flex items-center gap-2 text-gray-600">
+                            <i-lucide name="user" [size]="14"></i-lucide>
+                            <strong class="text-gray-800">{{ alert.attendedBy }}</strong>
+                          </div>
+                          <span class="text-gray-400">•</span>
+                          <div class="flex items-center gap-1.5 text-gray-500">
+                            <i-lucide name="calendar" [size]="14"></i-lucide>
+                            {{ alert.attendedAt | date:'short' }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+  </div>
 </div>
+
+
+
+
+
