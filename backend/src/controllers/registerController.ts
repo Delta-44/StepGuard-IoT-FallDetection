@@ -9,7 +9,7 @@ import { CuidadorModel } from '../models/cuidador';
 
 export const registerUsuario = async (req: Request, res: Response) => {
   try {
-    const { email, password, name, edad, direccion, telefono, dispositivo_id } = req.body;
+    const { email, password, name, fecha_nacimiento, direccion, telefono, dispositivo_id } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
@@ -27,7 +27,7 @@ export const registerUsuario = async (req: Request, res: Response) => {
       name,
       email,
       hashedPassword,
-      edad,
+      fecha_nacimiento ? new Date(fecha_nacimiento) : undefined,
       direccion,
       telefono,
       dispositivo_id,
