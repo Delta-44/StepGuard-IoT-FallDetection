@@ -168,4 +168,25 @@ export const UsuarioModel = {
     );
     return result.rows[0] || null;
   },
+
+  /**
+   * Buscar usuario por ID con información del dispositivo
+   */
+  findByIdWithDevice: async (id: number): Promise<any | null> => {
+    const result = await query(
+      `SELECT u.*, 
+              d.device_id as dispositivo_device_id,
+              d.mac_address as dispositivo_mac,
+              d.nombre as dispositivo_nombre,
+              d.estado as dispositivo_estado,
+              d.ubicacion as dispositivo_ubicacion,
+              d.sensibilidad_caida as dispositivo_sensibilidad,
+              d.led_habilitado as dispositivo_led
+       FROM usuarios u
+       LEFT JOIN dispositivos d ON u.dispositivo_id = d.id
+       WHERE u.id = $1`,
+      [id]
+    );
+    return result.rows[0] || null;
+  },
 };

@@ -16,7 +16,7 @@ const testUser = {
   email: `user_${Date.now()}@test.com`,
   password: 'password123',
   name: 'Test User',
-  edad: 30
+  fecha_nacimiento: '1990-01-01'
 };
 
 const testCaregiver = {
