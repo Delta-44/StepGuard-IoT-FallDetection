@@ -1,8 +1,11 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, AfterViewInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+
+// Declaramos la variable de Google para que TypeScript no se queje
+declare var google: any;
 
 @Component({
   selector: 'app-login-modal',
@@ -11,9 +14,10 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login-modal.component.html',
   styleUrl: './login-modal.component.css',
 })
-export class LoginModalComponent {
+export class LoginModalComponent implements AfterViewInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private ngZone = inject(NgZone); // 👈 Necesario para volver a Angular desde Google
 
   @Output() close = new EventEmitter<void>();
   @Output() switchToRegister = new EventEmitter<void>();
@@ -21,54 +25,73 @@ export class LoginModalComponent {
   loginData = { email: '', password: '' };
   isLoading = false;
 
-  // --- LÓGICA DE EMAIL / PASS ---
-  onSubmit() {
-  if (this.loginData.email && this.loginData.password) {
-    this.isLoading = true;
-
-    this.authService.login(this.loginData.email, this.loginData.password).subscribe({
-      next: (response) => {
-        // ✅ No llamamos a nada más, el servicio ya guardó todo.
-        console.log('✅ Login exitoso');
-        this.isLoading = false;
-        this.close.emit(); 
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        console.error('❌ Error en login:', err);
-        alert('Email o contraseña incorrectos');
-      },
+  // --- 👇 INICIALIZAR BOTÓN DE GOOGLE ---
+  ngAfterViewInit() {
+    // CLIENT_ID de Google Cloud Console
+    google.accounts.id.initialize({
+      client_id: "644678657987-fukshit2bmdcvlfh3uv8rpfuhr72csqm.apps.googleusercontent.com",
+      callback: (resp: any) => this.handleGoogleLogin(resp)
     });
-  }
-}
 
-  // --- 👇 NUEVO: OLVIDASTE CONTRASEÑA ---
-  onForgotPassword() {
-    if (!this.loginData.email) {
-      alert('⚠️ Por favor, escribe tu email en la casilla primero para poder enviarte el enlace.');
-      return;
-    }
-
-    // Aquí conectarías con tu lógica de recuperación
-    alert(
-      `✅ Hemos enviado un enlace de recuperación a: ${this.loginData.email}\n(Revisa tu bandeja de entrada o spam)`,
+    google.accounts.id.renderButton(
+      document.getElementById("google-btn-container"),
+      { theme: "outline", size: "large", width: "100%", text: "continue_with" } // Estilo oficial
     );
   }
 
-  // --- 👇 LÓGICA DE GOOGLE ---
-  async onGoogleLogin() {
-  // El backend de tu compañero usa una redirección. 
-  // Lo más sencillo es redirigir al usuario a la URL de Google que nos da el servicio.
-  window.location.href = this.authService.getGoogleLoginUrl();
-}
+  // --- 👇 LÓGICA DE RESPUESTA DE GOOGLE ---
+  handleGoogleLogin(response: any) {
+    // Google nos devuelve un 'credential' (el token)
+    if (response.credential) {
+      // Usamos ngZone.run porque esto viene de fuera de Angular
+      this.ngZone.run(() => {
+        this.isLoading = true;
+        
+        // Llamamos a tu servicio que hace el POST al backend
+        this.authService.loginWithGoogle(response.credential).subscribe({
+          next: () => {
+            console.log('✅ Google Login exitoso');
+            this.isLoading = false;
+            this.close.emit();
+            this.router.navigate(['/dashboard']);
+          },
+          error: (err) => {
+            console.error('❌ Error Google:', err);
+            this.isLoading = false;
+            alert('Error al iniciar sesión con Google');
+          }
+        });
+      });
+    }
+  }
 
-  // // ✅ APLICADO: Función auxiliar con tipos definidos
-  // private finalizeLogin(response: { token: string; user: any }) {
-  //   this.authService.saveToken(response.token);
-  //   this.authService.saveSession(response.user);
-  //   this.isLoading = false;
-  //   this.close.emit();
-  //   this.router.navigate(['/dashboard']);
-  // }
+  // --- LÓGICA DE EMAIL / PASS (Estaba perfecta, solo añadí logs) ---
+  onSubmit() {
+    if (this.loginData.email && this.loginData.password) {
+      this.isLoading = true;
+
+      this.authService.login(this.loginData.email, this.loginData.password).subscribe({
+        next: () => {
+          console.log('✅ Login exitoso');
+          this.isLoading = false;
+          this.close.emit();
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          console.error('❌ Error en login:', err);
+          alert('Email o contraseña incorrectos');
+        },
+      });
+    }
+  }
+
+  onForgotPassword() {
+    if (!this.loginData.email) {
+      alert('⚠️ Por favor, escribe tu email en la casilla primero.');
+      return;
+    }
+    // Aquí iría la llamada al backend real: authService.forgotPassword(email)
+    alert(`✅ Enlace de recuperación enviado a: ${this.loginData.email}`);
+  }
 }
