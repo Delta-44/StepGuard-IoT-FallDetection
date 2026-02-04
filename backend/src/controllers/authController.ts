@@ -93,6 +93,17 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    // Validar que el token no se generó antes del último cambio de contraseña
+    if (usuario.password_last_changed_at) {
+      const tokenIssuedAt = decoded.iat * 1000; // JWT iat está en segundos, convertir a ms
+      const lastPasswordChange = new Date(usuario.password_last_changed_at).getTime();
+      
+      if (tokenIssuedAt < lastPasswordChange) {
+        res.status(400).json({ message: 'Token inválido o expirado' });
+        return;
+      }
+    }
+
     // Hashear nueva contraseña
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
