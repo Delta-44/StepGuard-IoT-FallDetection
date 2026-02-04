@@ -2,11 +2,12 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AlertService, Alert } from '../../services/alert.service';
 import { AuthService } from '../../services/auth.service'; // 👈 IMPORTAR AUTH
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-alerts',
   standalone: true,
-  imports: [CommonModule, DatePipe],
+  imports: [CommonModule, DatePipe, LucideAngularModule],
   templateUrl: './alerts.component.html',
   styleUrls: ['./alerts.component.css']
 })

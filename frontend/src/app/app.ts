@@ -5,11 +5,12 @@ import { AlertService, Alert } from './services/alert.service';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs'; // 👈 Importante
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, LucideAngularModule],
   styleUrl: './app.css',
   templateUrl: './app.html'
 })

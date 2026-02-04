@@ -1,159 +1,277 @@
-<div class="users-container">
+<div class="min-h-screen bg-base-bg p-8">
   
-  <div class="header-section">
-    <h2>Gestión de Usuarios</h2>
+  <!-- Header -->
+  <div class="mb-8 animate-fade-in">
+    <h2 class="text-3xl font-bold text-base-text flex items-center gap-3">
+      <i-lucide name="users" [size]="32"></i-lucide>
+      Gestión de Usuarios
+    </h2>
+    <p class="text-gray-600 mt-2">Administración de pacientes y personal del sistema</p>
   </div>
 
+  <!-- Loading State -->
   @if (isLoading) {
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <p>Cargando datos...</p>
+    <div class="flex flex-col items-center justify-center h-64 animate-fade-in">
+      <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-600 text-lg">Cargando datos...</p>
     </div>
   } @else {
     
-    <div class="table-responsive">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>NOMBRE</th>
-            <th>EMAIL</th>
-            <th>ROL</th>
-            <th>ESTADO</th>
-            
-            @if (canViewHistory()) {
-              <th class="text-center">HISTORIAL</th>
-            }
-
-            @if (isAdmin()) {
-              <th class="text-center">ACCIONES</th>
-            }
-          </tr>
-        </thead>
-        <tbody>
-          @for (user of users; track user.email) {
+    <!-- Tabla de Usuarios -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden animate-fade-in">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-primary text-white">
             <tr>
-              <td>
-                <div class="user-info">
-                  <span class="user-name">{{ user.fullName }}</span> 
-                  <small class="user-sub">{{ user.username || 'N/A' }}</small>
-                </div>
-              </td>
-              <td class="email-text">{{ user.email }}</td>
-              <td>
-                <span class="badge" 
-                      [ngClass]="{
-                        'badge-admin': user.role === 'admin',
-                        'badge-caregiver': user.role === 'caregiver',
-                        'badge-user': user.role === 'user'
-                      }">
-                  {{ user.role === 'user' ? 'PACIENTE' : (user.role | uppercase) }}
-                </span>
-              </td>
-              <td>
-                <div class="status-indicator">
-                  <span class="dot" [class.active]="user.status === 'active'"></span>
-                  {{ user.status }}
-                </div>
-              </td>
-
+              <th class="px-6 py-4 text-left font-semibold">NOMBRE</th>
+              <th class="px-6 py-4 text-left font-semibold">EMAIL</th>
+              <th class="px-6 py-4 text-left font-semibold">ROL</th>
+              <th class="px-6 py-4 text-left font-semibold">ESTADO</th>
+              
               @if (canViewHistory()) {
-                <td class="text-center">
-                  <button class="action-btn history-btn" (click)="openHistoryModal(user)" title="Ver Alertas">
-                    📋
-                  </button>
-                </td>
+                <th class="px-6 py-4 text-center font-semibold">HISTORIAL</th>
               }
 
               @if (isAdmin()) {
-                <td class="actions-cell">
-                  <button class="action-btn edit" (click)="openEditModal(user)" title="Editar">
-                    ✏️
-                  </button>
-                  <button class="action-btn delete" (click)="deleteUser(user.id)" title="Eliminar">
-                    🗑️
-                  </button>
-                </td>
+                <th class="px-6 py-4 text-center font-semibold">ACCIONES</th>
               }
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+            @for (user of users; track user.email) {
+              <tr class="hover:bg-gray-50 transition-colors duration-200">
+                <td class="px-6 py-4">
+                  <div class="flex flex-col">
+                    <span class="text-base-text font-semibold">{{ user.fullName }}</span> 
+                    <small class="text-gray-500">{{ user.username || 'N/A' }}</small>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-gray-700">{{ user.email }}</td>
+                <td class="px-6 py-4">
+                  <span 
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase"
+                    [ngClass]="{
+                      'bg-red-600 text-white': user.role === 'admin',
+                      'bg-primary text-white': user.role === 'caregiver',
+                      'bg-operational text-white': user.role === 'user'
+                    }"
+                  >
+                    {{ user.role === 'user' ? 'PACIENTE' : (user.role | uppercase) }}
+                  </span>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <span 
+                      class="w-3 h-3 rounded-full"
+                      [ngClass]="user.status === 'active' ? 'bg-operational animate-glow' : 'bg-gray-400'"
+                    ></span>
+                    <span 
+                      class="font-medium capitalize"
+                      [ngClass]="user.status === 'active' ? 'text-operational' : 'text-gray-500'"
+                    >
+                      {{ user.status }}
+                    </span>
+                  </div>
+                </td>
+
+                @if (canViewHistory()) {
+                  <td class="px-6 py-4 text-center">
+                    <button 
+                      class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 mx-auto"
+                      (click)="openHistoryModal(user)" 
+                      title="Ver Alertas"
+                    >
+                      <i-lucide name="clipboard-list" [size]="16"></i-lucide> Historial
+                    </button>
+                  </td>
+                }
+
+                @if (isAdmin()) {
+                  <td class="px-6 py-4">
+                    <div class="flex justify-center gap-2">
+                      <button 
+                        class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 hover:shadow-lg"
+                        (click)="openEditModal(user)" 
+                        title="Editar"
+                      >
+                        <i-lucide name="edit" [size]="16"></i-lucide>
+                      </button>
+                      <button 
+                        class="px-3 py-2 bg-emergency text-white rounded-lg hover:bg-emergency-dark transition-all duration-300 hover:shadow-lg"
+                        (click)="deleteUser(user.id)" 
+                        title="Eliminar"
+                      >
+                        <i-lucide name="trash-2" [size]="16"></i-lucide>
+                      </button>
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   }
 
+  <!-- Modal de Edición -->
   @if (isEditModalOpen) {
-    <div class="modal-backdrop" (click)="closeEditModal()">
-      <div class="modal-content" (click)="$event.stopPropagation()">
-        <h3>Editar Usuario</h3>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" (click)="closeEditModal()">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 animate-slide-down" (click)="$event.stopPropagation()">
+        <div class="bg-primary text-white px-8 py-6 rounded-t-2xl">
+          <h3 class="text-2xl font-bold">Editar Usuario</h3>
+        </div>
         
-        <form (ngSubmit)="saveUserChanges()">
-          <div class="form-group">
-            <label>Nombre</label>
-            <input type="text" [(ngModel)]="selectedUser.fullName" name="fullName" required>
+        <form (ngSubmit)="saveUserChanges()" class="p-8 space-y-6">
+          <div>
+            <label class="block text-base-text font-semibold mb-2">Nombre</label>
+            <input 
+              type="text" 
+              [(ngModel)]="selectedUser.fullName" 
+              name="fullName" 
+              required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+            >
           </div>
           
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" [(ngModel)]="selectedUser.email" name="email" required>
+          <div>
+            <label class="block text-base-text font-semibold mb-2">Email</label>
+            <input 
+              type="email" 
+              [(ngModel)]="selectedUser.email" 
+              name="email" 
+              required
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+            >
           </div>
 
-          <div class="form-group">
-            <label>Rol</label>
-            <select [(ngModel)]="selectedUser.role" name="role">
+          <div>
+            <label class="block text-base-text font-semibold mb-2">Rol</label>
+            <select 
+              [(ngModel)]="selectedUser.role" 
+              name="role"
+              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all duration-300"
+            >
               <option value="admin">Administrador</option>
               <option value="caregiver">Cuidador</option>
               <option value="user">Paciente</option>
             </select>
           </div>
 
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" (click)="closeEditModal()">Cancelar</button>
-            <button type="submit" class="btn-save">Guardar</button>
+          <div class="flex gap-3 pt-4">
+            <button 
+              type="button" 
+              class="flex-1 px-6 py-3 border-2 border-gray-400 text-gray-700 rounded-xl font-semibold hover:bg-gray-100 transition-all duration-300"
+              (click)="closeEditModal()"
+            >
+              Cancelar
+            </button>
+            <button 
+              type="submit" 
+              class="flex-1 px-6 py-3 bg-operational text-white rounded-xl font-semibold hover:bg-operational-dark hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+            >
+              Guardar
+            </button>
           </div>
         </form>
       </div>
     </div>
   }
 
+  <!-- Modal de Historial -->
   @if (isHistoryModalOpen) {
-    <div class="modal-backdrop" (click)="closeHistoryModal()">
-      <div class="modal-content history-modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h3>Historial: {{ selectedHistoryUserName }}</h3>
-          <button class="close-btn-simple" (click)="closeHistoryModal()">✕</button>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" (click)="closeHistoryModal()">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col animate-slide-down" (click)="$event.stopPropagation()">
+        
+        <!-- Header del Modal -->
+        <div class="bg-primary text-white px-8 py-6 rounded-t-2xl flex justify-between items-center">
+          <h3 class="text-2xl font-bold flex items-center gap-2">
+            <i-lucide name="clipboard-list" [size]="28"></i-lucide>
+            Historial: {{ selectedHistoryUserName }}
+          </h3>
+          <button 
+            class="text-3xl hover:bg-white/20 w-10 h-10 rounded-full transition-all duration-300"
+            (click)="closeHistoryModal()"
+          >
+            ✕
+          </button>
         </div>
   
-        @if (userHistory.length === 0) {
-          <div class="empty-state">
-            <p>✅ Sin incidentes registrados.</p>
-          </div>
-        } @else {
-          <div class="timeline-container">
-            @for (alert of userHistory; track alert.id) {
-              <div class="alert-card" [ngClass]="alert.severity">
-                <div class="alert-time">
-                  {{ alert.timestamp | date:'dd MMM, HH:mm' }}
-                </div>
-                <div class="alert-info">
-                  <strong>{{ alert.message }}</strong>
+        <!-- Contenido Scrollable -->
+        <div class="flex-1 overflow-y-auto p-8">
+          @if (userHistory.length === 0) {
+            <div class="flex flex-col items-center justify-center h-48 text-gray-400">
+              <div class="text-6xl mb-3">✅</div>
+              <p class="text-lg">Sin incidentes registrados.</p>
+            </div>
+          } @else {
+            <div class="space-y-4">
+              @for (alert of userHistory; track alert.id) {
+                <div 
+                  class="bg-white border-l-4 rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300 animate-fade-in"
+                  [ngClass]="{
+                    'border-emergency bg-emergency/5': alert.severity === 'critical',
+                    'border-red-500 bg-red-50': alert.severity === 'high',
+                    'border-preventive bg-preventive/5': alert.severity === 'medium',
+                    'border-primary bg-blue-50': alert.severity === 'low'
+                  }"
+                >
+                  <!-- Timestamp -->
+                  <div class="text-sm text-gray-500 font-medium mb-2">
+                    🕒 {{ alert.timestamp | date:'dd MMM, HH:mm' }}
+                  </div>
                   
-                  <div style="font-size: 0.85rem; color: #444; margin: 2px 0;">
-                    📍 {{ alert.location }}
+                  <!-- Mensaje -->
+                  <div class="mb-3">
+                    <strong 
+                      class="text-lg block mb-1"
+                      [ngClass]="{
+                        'text-emergency': alert.severity === 'critical',
+                        'text-red-600': alert.severity === 'high',
+                        'text-preventive': alert.severity === 'medium',
+                        'text-primary': alert.severity === 'low'
+                      }"
+                    >
+                      {{ alert.message }}
+                    </strong>
+                    
+                    <div class="text-gray-700 text-sm">
+                      📍 {{ alert.location }}
+                    </div>
                   </div>
 
+                  <!-- Notas de Resolución -->
                   @if (alert.notes) {
-                    <div style="margin-top: 8px; font-size: 0.8rem; background: #f0f0f0; padding: 6px; border-radius: 4px;">
-                      <span style="display:block; color: #666; font-style: italic;">"{{ alert.notes }}"</span>
-                      <span style="display:block; text-align: right; color: #007bff; font-weight: 600; margin-top: 2px;">
-                        — {{ alert.attendedBy }}
-                      </span>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-3">
+                      <p class="text-gray-700 italic mb-2">"{{ alert.notes }}"</p>
+                      <div class="text-right text-sm">
+                        <span class="text-primary font-semibold">— {{ alert.attendedBy }}</span>
+                      </div>
                     </div>
                   }
 
-                  <div class="alert-meta">
-                    <span class="badge-severity">{{ alert.severity | uppercase }}</span>
+                  <!-- Metadata -->
+                  <div class="flex items-center gap-3 mt-3">
+                    <span 
+                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase"
+                      [ngClass]="{
+                        'bg-emergency text-white': alert.severity === 'critical',
+                        'bg-red-500 text-white': alert.severity === 'high',
+                        'bg-preventive text-white': alert.severity === 'medium',
+                        'bg-primary text-white': alert.severity === 'low'
+                      }"
+                    >
+                      {{ alert.severity }}
+                    </span>
                     
-                    <span class="status-text">
+                    <span 
+                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+                      [ngClass]="{
+                        'bg-operational text-white': alert.status === 'atendida',
+                        'bg-gray-500 text-white': alert.status === 'falsa_alarma',
+                        'bg-preventive text-white': alert.status === 'pendiente'
+                      }"
+                    >
                       @if (alert.status === 'atendida') {
                         ✅ Atendida
                       } @else if (alert.status === 'falsa_alarma') {
@@ -165,10 +283,10 @@
                   </div>
 
                 </div>
-              </div>
-            }
-          </div>
-        }
+              }
+            </div>
+          }
+        </div>
       </div>
     </div>
   }

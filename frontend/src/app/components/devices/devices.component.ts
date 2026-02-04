@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service'; // <--- Seguridad
 import { Device } from '../../models/device';       // <--- Modelo correcto
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-devices',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideAngularModule],
   templateUrl: './devices.component.html',
   styleUrl: './devices.component.css'
 })
