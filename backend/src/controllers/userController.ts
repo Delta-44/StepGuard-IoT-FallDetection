@@ -4,6 +4,8 @@ import { UsuarioModel } from '../models/usuario';
 export const getUsers = async (req: Request, res: Response) => {
   try {
     const users = await UsuarioModel.findAll();
+    console.log(`📊 GET /api/users - Total usuarios en BD: ${users.length}`);
+    users.forEach(u => console.log(`  - ID: ${u.id}, Nombre: ${u.nombre}, Email: ${u.email}`));
     const safeUsers = users.map(user => {
       const { password_hash, ...safeUser } = user;
       return safeUser;

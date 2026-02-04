@@ -1,112 +1,80 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { User } from '../models/user.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  
-  // 👇 CLAVE PARA GUARDAR EN EL NAVEGADOR
-  private readonly STORAGE_KEY = 'stepguard_users';
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl;
 
-  // Datos iniciales (Solo se usan la primera vez que abres la app)
-  private initialUsers: User[] = [
-    { id: 1, fullName: 'Pepito Pérez', email: 'pepito@test.com', role: 'user', status: 'active', username: 'pepito123' },
-    { id: 2, fullName: 'Super Admin', email: 'admin@test.com', role: 'admin', status: 'active', username: 'admin' },
-    { id: 3, fullName: 'Enfermera Laura', email: 'laura@test.com', role: 'caregiver', status: 'active', username: 'laura_nurse' }
-  ];
-
-  // Inicializamos el Subject vacío, los datos se cargarán en el constructor
+  // Cache local de usuarios
   private usersSubject = new BehaviorSubject<User[]>([]);
-  
   users$ = this.usersSubject.asObservable();
+  private loaded = false;
 
   constructor() { 
-    // 👇 AL INICIAR EL SERVICIO, CARGAMOS DEL DISCO DURO
-    this.loadFromStorage();
+    // Cargar usuarios al iniciar el servicio
+    this.loadUsers();
   }
 
-  // --- MÉTODOS PRIVADOS DE PERSISTENCIA ---
-
-  private loadFromStorage() {
-    const saved = localStorage.getItem(this.STORAGE_KEY);
+  private loadUsers() {
+    if (this.loaded) return; // Evitar múltiples cargas
     
-    if (saved) {
-      // ✅ Si hay datos guardados, usamos esos
-      this.usersSubject.next(JSON.parse(saved));
-    } else {
-      // ⚠️ Si es la primera vez, usamos los iniciales y los guardamos
-      this.usersSubject.next(this.initialUsers);
-      this.saveToStorage(this.initialUsers);
-    }
+    console.log('🔄 Cargando usuarios desde el backend...');
+    this.http.get<any[]>(`${this.apiUrl}/users`).subscribe({
+      next: (users) => {
+        console.log(`📦 Recibidos ${users.length} usuarios del backend:`, users);
+        // Mapear datos del backend al modelo frontend
+        const mappedUsers = users.map(u => ({
+          id: u.id,
+          username: u.email.split('@')[0],
+          fullName: u.nombre,
+          email: u.email,
+          role: 'user' as const,
+          status: 'active' as const,
+          telefono: u.telefono,
+          direccion: u.direccion,
+          fecha_nacimiento: u.fecha_nacimiento
+        }));
+        console.log(`✅ Mapeados ${mappedUsers.length} usuarios:`, mappedUsers);
+        this.usersSubject.next(mappedUsers);
+        this.loaded = true;
+      },
+      error: (err) => console.error('❌ Error cargando usuarios:', err)
+    });
   }
-
-  private saveToStorage(users: User[]) {
-    // 💾 Guardamos en el navegador y actualizamos la app
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(users));
-    this.usersSubject.next(users);
-  }
-
-  // --- MÉTODOS PÚBLICOS (CRUD) ---
 
   getAllUsers(): Observable<User[]> {
+    // Retornar el observable directamente sin recargar
     return this.users$;
   }
 
-  createUser(user: User): Observable<boolean> {
-    // Usamos getValue() para obtener el estado actual
-    const currentUsers = this.usersSubject.getValue();
-    
-    // Calculamos ID asegurando que sean números
-    const maxId = currentUsers.length > 0 
-      ? Math.max(...currentUsers.map(u => Number(u.id))) 
-      : 0;
+  getUserById(id: string | number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users/${id}`);
+  }
 
-    const newId = maxId + 1;
-    
-    const newUser: User = { 
-      ...user, 
-      id: newId, 
-      status: 'active' 
-    };
-    
-    const updatedUsers = currentUsers.concat(newUser);
-    
-    // 👇 GUARDAMOS EN MEMORIA PERSISTENTE
-    this.saveToStorage(updatedUsers);
-    
+  createUser(user: User): Observable<boolean> {
+    // TODO: Implementar POST al backend cuando esté disponible
+    console.log('Crear usuario aún no implementado en el backend');
     return new Observable(observer => {
-      observer.next(true);
+      observer.next(false);
       observer.complete();
     });
   }
 
   updateUser(id: string | number, updatedUser: User): Observable<boolean> {
-    const currentUsers = this.usersSubject.getValue();
-    // Usamos == para que '1' sea igual a 1
-    const index = currentUsers.findIndex(u => u.id == id);
-    
-    if (index !== -1) {
-      const updatedList = [...currentUsers];
-      // Mantenemos el ID original
-      updatedList[index] = { ...updatedUser, id: Number(id) };
-      
-      // 👇 GUARDAMOS EN MEMORIA PERSISTENTE
-      this.saveToStorage(updatedList);
-      
-      return new Observable(obs => { obs.next(true); obs.complete(); });
-    }
+    // TODO: Implementar PUT al backend cuando esté disponible
+    console.log('Actualizar usuario aún no implementado en el backend');
     return new Observable(obs => { obs.next(false); obs.complete(); });
   }
 
   deleteUser(id: string | number): Observable<boolean> {
-    const currentUsers = this.usersSubject.getValue();
-    const filteredUsers = currentUsers.filter(u => u.id != id);
-    
-    // 👇 GUARDAMOS EN MEMORIA PERSISTENTE
-    this.saveToStorage(filteredUsers);
-    
-    return new Observable(obs => { obs.next(true); obs.complete(); });
+    // TODO: Implementar DELETE al backend cuando esté disponible
+    console.log('Eliminar usuario aún no implementado en el backend');
+    return new Observable(obs => { obs.next(false); obs.complete(); });
   }
 }
