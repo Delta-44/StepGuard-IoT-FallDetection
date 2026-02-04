@@ -8,6 +8,7 @@ export interface Cuidador {
   telefono?: string;
   is_admin: boolean;
   fecha_creacion?: Date;
+  password_last_changed_at?: Date;
 }
 
 export const CuidadorModel = {
@@ -133,6 +134,17 @@ export const CuidadorModel = {
       [id]
     );
     return result.rows[0]?.is_admin || false;
+  },
+
+  /**
+   * Actualizar contraseña
+   */
+  updatePassword: async (id: number, passwordHash: string): Promise<Cuidador | null> => {
+    const result = await query(
+      'UPDATE cuidadores SET password_hash = $1, password_last_changed_at = NOW() WHERE id = $2 RETURNING *',
+      [passwordHash, id]
+    );
+    return result.rows[0] || null;
   },
 
   /**
