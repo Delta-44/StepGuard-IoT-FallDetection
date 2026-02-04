@@ -191,4 +191,24 @@ export class AuthService {
     this.currentUser.set(null);
     this.router.navigate(['/login']);
   }
+
+  // --- RECUPERACIÓN DE CONTRASEÑA ---
+  requestPasswordReset(email: string): Observable<{ message: string }> {
+    console.log('📧 Solicitando recuperación de contraseña para:', email);
+    
+    // Simulamos el envío del email
+    return of({ 
+      message: 'Se ha enviado un correo con las instrucciones para restablecer tu contraseña' 
+    }).pipe(delay(500));
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    console.log('🔑 Restableciendo contraseña con token:', token);
+    
+    // Simulamos el cambio de contraseña
+    // En producción, esto haría una llamada al backend
+    return of({ 
+      message: 'Contraseña actualizada con éxito' 
+    }).pipe(delay(500));
+  }
 }
