@@ -142,4 +142,15 @@ export const CuidadorModel = {
     const result = await query('DELETE FROM cuidadores WHERE id = $1', [id]);
     return (result.rowCount ?? 0) > 0;
   },
+
+  /**
+   * Actualizar contraseña de un cuidador
+   */
+  updatePassword: async (id: number, passwordHash: string): Promise<Cuidador | null> => {
+    const result = await query(
+      'UPDATE cuidadores SET password_hash = $1 WHERE id = $2 RETURNING *',
+      [passwordHash, id]
+    );
+    return result.rows[0] || null;
+  },
 };

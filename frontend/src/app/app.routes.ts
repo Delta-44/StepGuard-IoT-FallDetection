@@ -8,8 +8,7 @@ import { UsersComponent } from './components/users/users.component';
 import { AuthService } from './services/auth.service';
 import { HomeComponent } from './components/home/home.component';
 import { LandingComponent } from './pages/landing/landing.component';
-import { AlertsComponent } from './components/alerts/alerts.component';
-
+import { AlertsComponent } from './components/alerts/alerts.component';import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 // --- LÓGICA DE GUARDIA (SECURITY GUARD) ---
 const authGuard = () => {
   const auth = inject(AuthService);
@@ -63,7 +62,12 @@ export const routes: Routes = [
   { path: 'alerts', component: AlertsComponent, canActivate: [authGuard] },
 
   // ==========================================
-  // 3. RUTAS DESCONOCIDAS
+  // 4. RESET PASSWORD (PÚBLICO)
+  // ==========================================
+  { path: 'reset-password', component: ResetPasswordComponent },
+
+  // ==========================================
+  // 5. RUTAS DESCONOCIDAS
   // ==========================================
   // Cualquier cosa rara -> A la portada
   { path: '**', redirectTo: '' } 

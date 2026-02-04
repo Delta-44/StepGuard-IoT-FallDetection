@@ -120,7 +120,19 @@ export class LoginModalComponent implements AfterViewInit {
       alert('⚠️ Por favor, escribe tu email en la casilla primero.');
       return;
     }
-    // Aquí iría la llamada al backend real: authService.forgotPassword(email)
-    alert(`✅ Enlace de recuperación enviado a: ${this.loginData.email}`);
+
+    this.isLoading = true;
+    this.authService.forgotPassword(this.loginData.email).subscribe({
+      next: (res) => {
+        console.log('✅ Solicitud de recuperación enviada:', res);
+        this.isLoading = false;
+        alert(`✅ ${res.message || 'Enlace de recuperación enviado a tu correo.'}`);
+      },
+      error: (err) => {
+        console.error('❌ Error en recuperación:', err);
+        this.isLoading = false;
+        alert('❌ Error al enviar el correo de recuperación. Intenta de nuevo.');
+      }
+    });
   }
 }
