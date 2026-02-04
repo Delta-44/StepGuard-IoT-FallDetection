@@ -253,6 +253,49 @@ COMMENT ON TABLE notificaciones IS 'Registro de notificaciones enviadas a cuidad
 COMMENT ON TABLE audit_log IS 'Registro de auditoría de todas las acciones importantes del sistema para trazabilidad y seguridad';
 
 -- ================================================
+-- MIGRACIÓN: Añadir password_last_changed_at y eliminar campos de tokens
+-- Fecha: 2026-02-04
+-- Descripción: Cambio de almacenamiento de tokens en base de datos a enfoque JWT stateless
+-- ================================================
+
+-- Añadir password_last_changed_at a la tabla usuarios
+ALTER TABLE usuarios
+ADD COLUMN IF NOT EXISTS password_last_changed_at TIMESTAMP;
+
+-- Añadir password_last_changed_at a la tabla cuidadores
+ALTER TABLE cuidadores
+ADD COLUMN IF NOT EXISTS password_last_changed_at TIMESTAMP;
+
+-- Eliminar campos de tokens de la tabla usuarios si existen
+-- Estos campos ya no son necesarios con el enfoque JWT
+DO $$ 
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'usuarios' AND column_name = 'reset_password_token'
+    ) THEN
+        ALTER TABLE usuarios DROP COLUMN reset_password_token;
+    END IF;
+    
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'usuarios' AND column_name = 'reset_password_expires'
+    ) THEN
+        ALTER TABLE usuarios DROP COLUMN reset_password_expires;
+    END IF;
+END $$;
+
+-- Crear índices para password_last_changed_at para mejor rendimiento
+CREATE INDEX IF NOT EXISTS idx_usuarios_password_changed ON usuarios (password_last_changed_at);
+
+CREATE INDEX IF NOT EXISTS idx_cuidadores_password_changed ON cuidadores (password_last_changed_at);
+
+-- Añadir comentarios
+COMMENT ON COLUMN usuarios.password_last_changed_at IS 'Timestamp del último cambio de contraseña. Usado para invalidar tokens JWT generados antes de este timestamp.';
+
+COMMENT ON COLUMN cuidadores.password_last_changed_at IS 'Timestamp del último cambio de contraseña. Usado para invalidar tokens JWT generados antes de este timestamp.';
+
+-- ================================================
 -- FIN DEL SCRIPT
 -- ================================================
 
