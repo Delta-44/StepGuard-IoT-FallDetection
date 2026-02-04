@@ -1,14 +1,31 @@
 import { Request, Response } from 'express';
 import { UsuarioModel } from '../models/usuario';
+import { CuidadorModel } from '../models/cuidador';
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
-    const users = await UsuarioModel.findAll();
-    const safeUsers = users.map(user => {
+    // Obtener usuarios (pacientes)
+    const usuarios = await UsuarioModel.findAll();
+    const safeUsuarios = usuarios.map(user => {
       const { password_hash, ...safeUser } = user;
-      return safeUser;
+      return { ...safeUser, role: 'user' };
     });
-    res.json(safeUsers);
+
+    // Obtener cuidadores y admins
+    const cuidadores = await CuidadorModel.findAll();
+    const safeCuidadores = cuidadores.map(cuidador => {
+      const { password_hash, is_admin, ...safeCuidador } = cuidador;
+      return { 
+        ...safeCuidador, 
+        role: is_admin ? 'admin' : 'caregiver',
+        fullName: cuidador.nombre,
+        status: 'active'
+      };
+    });
+
+    // Combinar ambos arrays
+    const allUsers = [...safeUsuarios, ...safeCuidadores];
+    res.json(allUsers);
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Error fetching users' });

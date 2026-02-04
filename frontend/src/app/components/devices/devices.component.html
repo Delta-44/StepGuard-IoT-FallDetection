@@ -147,6 +147,8 @@
 
   <!-- PANEL TÉCNICO / DEBUG -->
   <div class="animate-fade-in">
+  <!-- Vista Técnica (Solo Admin y Cuidadores) -->
+  @if (canViewTechnical()) {
     <button 
       (click)="toggleTechnicalPanel()" 
       class="w-full px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-2xl font-semibold hover:from-slate-700 hover:to-slate-800 transition-all duration-300 mb-4 flex items-center justify-between  border border-slate-700 hover:border-slate-600"
@@ -294,7 +296,7 @@
         </div>
       </div>
     }
-  </div>
+  }
 </div>
 
 

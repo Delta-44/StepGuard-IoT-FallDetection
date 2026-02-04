@@ -99,6 +99,15 @@ export class AlertService {
     return new Observable(obs => obs.next(filtered));
   }
 
+  getAlertsByCaregiver(caregiverName: string): Observable<Alert[]> {
+    const current = this.alertsSubject.value;
+    const filtered = current.filter(a => 
+      a.attendedBy === caregiverName && 
+      (a.status === 'atendida' || a.status === 'falsa_alarma')
+    );
+    return new Observable(obs => obs.next(filtered));
+  }
+
   resolveAlert(id: string, notes: string, status: 'atendida' | 'falsa_alarma', caregiverName: string, newSeverity: any) {
     const currentAlerts = this.alertsSubject.value;
     const index = currentAlerts.findIndex(a => a.id === id);

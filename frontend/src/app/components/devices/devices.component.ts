@@ -25,6 +25,10 @@ export class DevicesComponent implements OnInit {
   public criticalState = signal<boolean>(false);
 
   public isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
+  public canViewTechnical = computed(() => {
+    const role = this.authService.currentUser()?.role;
+    return role === 'admin' || role === 'caregiver';
+  });
 
   ngOnInit(): void {
     this.loadDevices();
