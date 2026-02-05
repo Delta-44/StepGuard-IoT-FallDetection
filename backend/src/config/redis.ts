@@ -36,33 +36,33 @@ redis.on('error', (err) => {
 export const ESP32Cache = {
   /**
    * Guardar datos del dispositivo ESP32
-   * @param deviceId - ID del dispositivo (ej: "ESP32-001")
-   * @param data - Datos del sensor
+   * @param macAddress - Dirección MAC del dispositivo (ej: "AA:BB:CC:DD:EE:FF")
+   * @param data - Datos del ESP32 (interface ESP32)
    */
-  setDeviceData: async (deviceId: string, data: any) => {
-    const key = `device:${deviceId}`;
+  setDeviceData: async (macAddress: string, data: any) => {
+    const key = `device:${macAddress}`;
     await redis.set(key, JSON.stringify(data), 'EX', 3600); // Expira en 1 hora
     return true;
   },
 
   /**
    * Obtener datos del dispositivo ESP32
-   * @param deviceId - ID del dispositivo
+   * @param macAddress - Dirección MAC del dispositivo
    */
-  getDeviceData: async (deviceId: string) => {
-    const key = `device:${deviceId}`;
+  getDeviceData: async (macAddress: string) => {
+    const key = `device:${macAddress}`;
     const data = await redis.get(key);
     return data ? JSON.parse(data) : null;
   },
 
   /**
    * Guardar historial de lecturas (últimas N lecturas)
-   * @param deviceId - ID del dispositivo
+   * @param macAddress - Dirección MAC del dispositivo
    * @param data - Datos del sensor
    * @param maxEntries - Máximo de entradas a mantener (por defecto 100)
    */
-  addDeviceHistory: async (deviceId: string, data: any, maxEntries: number = 100) => {
-    const key = `history:${deviceId}`;
+  addDeviceHistory: async (macAddress: string, data: any, maxEntries: number = 100) => {
+    const key = `history:${macAddress}`;
     const timestamp = Date.now();
     const entry = JSON.stringify({ ...data, timestamp });
     
@@ -74,24 +74,24 @@ export const ESP32Cache = {
 
   /**
    * Obtener historial de lecturas
-   * @param deviceId - ID del dispositivo
+   * @param macAddress - Dirección MAC del dispositivo
    * @param count - Número de entradas a obtener (por defecto 10)
    */
-  getDeviceHistory: async (deviceId: string, count: number = 10) => {
-    const key = `history:${deviceId}`;
+  getDeviceHistory: async (macAddress: string, count: number = 10) => {
+    const key = `history:${macAddress}`;
     const history = await redis.lrange(key, 0, count - 1);
     return history.map(entry => JSON.parse(entry));
   },
 
   /**
    * Guardar alerta de caída detectada
-   * @param deviceId - ID del dispositivo
+   * @param macAddress - Dirección MAC del dispositivo
    * @param data - Datos de la alerta
    */
-  setFallAlert: async (deviceId: string, data: any) => {
-    const key = `alert:${deviceId}`;
+  setFallAlert: async (macAddress: string, data: any) => {
+    const key = `alert:${macAddress}`;
     const timestamp = Date.now();
-    await redis.zadd('fall_alerts', timestamp, JSON.stringify({ deviceId, ...data, timestamp }));
+    await redis.zadd('fall_alerts', timestamp, JSON.stringify({ macAddress, ...data, timestamp }));
     await redis.set(key, JSON.stringify({ ...data, timestamp }), 'EX', 86400); // Expira en 24 horas
     return true;
   },
@@ -108,31 +108,31 @@ export const ESP32Cache = {
 
   /**
    * Actualizar estado de conexión del dispositivo
-   * @param deviceId - ID del dispositivo
-   * @param status - Estado ('online' | 'offline')
+   * @param macAddress - Dirección MAC del dispositivo
+   * @param status - Estado (true=activo, false=inactivo)
    */
-  setDeviceStatus: async (deviceId: string, status: 'online' | 'offline') => {
-    const key = `status:${deviceId}`;
-    await redis.set(key, status, 'EX', 300); // Expira en 5 minutos
+  setDeviceStatus: async (macAddress: string, status: boolean) => {
+    const key = `status:${macAddress}`;
+    await redis.set(key, status.toString(), 'EX', 300); // Expira en 5 minutos
     return true;
   },
 
   /**
    * Obtener estado de conexión del dispositivo
-   * @param deviceId - ID del dispositivo
+   * @param macAddress - Dirección MAC del dispositivo
    */
-  getDeviceStatus: async (deviceId: string) => {
-    const key = `status:${deviceId}`;
+  getDeviceStatus: async (macAddress: string) => {
+    const key = `status:${macAddress}`;
     const status = await redis.get(key);
-    return status || 'offline';
+    return status === 'true';
   },
 
   /**
    * Eliminar todos los datos de un dispositivo
-   * @param deviceId - ID del dispositivo
+   * @param macAddress - Dirección MAC del dispositivo
    */
-  clearDeviceData: async (deviceId: string) => {
-    const keys = await redis.keys(`*:${deviceId}`);
+  clearDeviceData: async (macAddress: string) => {
+    const keys = await redis.keys(`*:${macAddress}`);
     if (keys.length > 0) {
       await redis.del(...keys);
     }
