@@ -23,6 +23,50 @@
     </button>
   </div>
 
+  <!-- Barra de Búsqueda -->
+  <div class="mb-4 animate-fade-in">
+    <div class="relative">
+      <i-lucide name="search" [size]="20" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i-lucide>
+      <input 
+        type="text" 
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event); onSearchChange()"
+        placeholder="Buscar por nombre o dirección MAC..."
+        class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white"
+      >
+    </div>
+  </div>
+
+  <!-- Botones de Filtro por Estado -->
+  <div class="flex gap-3 mb-6 animate-fade-in">
+    <button 
+      (click)="setStatusFilter('all')"
+      class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+      [ngClass]="statusFilter() === 'all' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+    >
+      <i-lucide name="list" [size]="20"></i-lucide>
+      Todos <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'all' ? 'bg-white/25' : 'bg-gray-200'">{{ devices().length }}</span>
+    </button>
+    
+    <button 
+      (click)="setStatusFilter('online')"
+      class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+      [ngClass]="statusFilter() === 'online' ? 'bg-green-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+    >
+      <i-lucide name="check-circle" [size]="20"></i-lucide>
+      Online <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'online' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('online') }}</span>
+    </button>
+    
+    <button 
+      (click)="setStatusFilter('offline')"
+      class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+      [ngClass]="statusFilter() === 'offline' ? 'bg-red-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+    >
+      <i-lucide name="x-circle" [size]="20"></i-lucide>
+      Offline <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'offline' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('offline') }}</span>
+    </button>
+  </div>
+
   <!-- Empty State -->
   @if (!isLoading() && devices().length === 0) {
     <div class="bg-white rounded-xl p-12 text-center animate-fade-in">
@@ -31,10 +75,36 @@
     </div>
   }
 
+  <!-- Mensaje de búsqueda sin resultados -->
+  @if (!isLoading() && devices().length > 0 && filteredDevices().length === 0) {
+    <div class="bg-white rounded-2xl p-12 text-center animate-fade-in">
+      <div class="text-6xl mb-4">🔍</div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">No se encontraron resultados</h3>
+      <p class="text-gray-500">
+        @if (searchTerm()) {
+          No hay dispositivos 
+          @if (statusFilter() === 'online') {
+            online
+          } @else if (statusFilter() === 'offline') {
+            offline
+          }
+          que coincidan con "{{ searchTerm() }}"
+        } @else {
+          No hay dispositivos 
+          @if (statusFilter() === 'online') {
+            online
+          } @else if (statusFilter() === 'offline') {
+            offline
+          }
+        }
+      </p>
+    </div>
+  }
+
   <!-- Grid de Dispositivos -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     
-    @for (device of devices(); track device.mac_address) {
+    @for (device of paginatedDevices(); track device.mac_address) {
       <div 
         class="bg-white rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden animate-fade-in relative group"
       >
@@ -42,8 +112,8 @@
         <!-- Indicador de estado superior -->
         <div class="h-1.5 w-full"
           [ngClass]="{
-            'bg-gradient-to-r from-operational to-operational-light': device.estado,
-            'bg-gradient-to-r from-emergency to-red-600': !device.estado
+            'bg-green-600': device.estado,
+            'bg-red-600': !device.estado
           }"
         ></div>
         
@@ -127,6 +197,57 @@
       </div>
     }
   </div>
+
+  <!-- Controles de Paginación -->
+  @if (filteredDevices().length > pageSize()) {
+    <div class="bg-white rounded-2xl mb-8 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in">
+      <!-- Info de páginas -->
+      <div class="text-sm text-gray-700 font-medium">
+        Mostrando <span class="font-bold text-blue-600">{{ (currentPage() - 1) * pageSize() + 1 }}</span> a 
+        <span class="font-bold text-blue-600">{{ currentPage() * pageSize() > filteredDevices().length ? filteredDevices().length : currentPage() * pageSize() }}</span> de 
+        <span class="font-bold text-blue-600">{{ filteredDevices().length }}</span> dispositivos
+        @if (searchTerm()) {
+          <span class="text-gray-500 italic">(filtrados)</span>
+        }
+      </div>
+
+      <!-- Botones de paginación -->
+      <div class="flex items-center gap-2">
+        <button 
+          (click)="prevPage()" 
+          [disabled]="currentPage() === 1"
+          class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          [ngClass]="currentPage() === 1 ? 'bg-gray-200 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
+        >
+          <i-lucide name="chevron-left" [size]="18"></i-lucide>
+          Anterior
+        </button>
+
+        <!-- Números de página -->
+        <div class="flex gap-1">
+          @for (page of pages; track page) {
+            <button 
+              (click)="changePage(page)"
+              class="w-10 h-10 rounded-lg font-bold transition-all duration-300"
+              [ngClass]="currentPage() === page ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+            >
+              {{ page }}
+            </button>
+          }
+        </div>
+
+        <button 
+          (click)="nextPage()" 
+          [disabled]="currentPage() === totalPages()"
+          class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          [ngClass]="currentPage() === totalPages() ? 'bg-gray-200 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
+        >
+          Siguiente
+          <i-lucide name="chevron-right" [size]="18"></i-lucide>
+        </button>
+      </div>
+    </div>
+  }
 
   <!-- PANEL TÉCNICO / DEBUG -->
   <div class="animate-fade-in">

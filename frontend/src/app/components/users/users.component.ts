@@ -21,7 +21,19 @@ export class UsersComponent implements OnInit {
   private cd = inject(ChangeDetectorRef);
   
   public users: User[] = [];
+  public filteredUsers: User[] = [];
+  public paginatedUsers: User[] = [];
   public isLoading = true;
+  
+  // Variables de paginación
+  public currentPage = 1;
+  public pageSize = 5;
+  public totalPages = 1;
+  
+  // Variables de filtro
+  public activeFilter: 'user' | 'caregiver' = 'user';
+  public searchTerm: string = '';
+  public isAlphabeticalOrder: boolean = true;
 
   // Variables Modal Edición
   public isEditModalOpen = false;
@@ -67,10 +79,15 @@ export class UsersComponent implements OnInit {
           // Los pacientes no deberían acceder a esta vista, pero por seguridad
           this.users = [];
         }
+        this.applyFilter();
         this.isLoading = false; 
         this.cd.detectChanges();
       },
-      error: () => this.isLoading = false
+      error: (err) => {
+        console.error('Error cargando usuarios:', err);
+        this.isLoading = false;
+        this.cd.detectChanges();
+      }
     });
   }
 
@@ -139,5 +156,85 @@ export class UsersComponent implements OnInit {
   closePatientInfoModal() {
     this.isPatientInfoModalOpen = false;
     this.selectedPatientInfo = null;
+  }
+
+  // --- MÉTODOS DE FILTRADO ---
+  setFilter(filter: 'user' | 'caregiver') {
+    this.activeFilter = filter;
+    this.currentPage = 1; // Reset a la primera página
+    this.applyFilter();
+  }
+
+  onSearchChange() {
+    this.currentPage = 1;
+    setTimeout(() => this.applyFilter(), 0);
+  }
+
+  toggleAlphabeticalOrder() {
+    this.isAlphabeticalOrder = !this.isAlphabeticalOrder;
+    this.applyFilter();
+  }
+
+  applyFilter() {
+    // Filtrar por rol
+    let filtered = this.users.filter(u => u.role === this.activeFilter);
+    
+    // Filtrar por término de búsqueda
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(u => 
+        u.fullName.toLowerCase().includes(term) ||
+        u.email.toLowerCase().includes(term) ||
+        (u.username && u.username.toLowerCase().includes(term))
+      );
+    }
+    
+    // Ordenar alfabéticamente
+    if (this.isAlphabeticalOrder) {
+      filtered.sort((a, b) => a.fullName.localeCompare(b.fullName));
+    } else {
+      filtered.sort((a, b) => b.fullName.localeCompare(a.fullName));
+    }
+    
+    this.filteredUsers = filtered;
+    this.updatePaginatedUsers();
+  }
+
+  // --- MÉTODOS DE PAGINACIÓN ---
+  updatePaginatedUsers() {
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
+  }
+
+  changePage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedUsers();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePaginatedUsers();
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePaginatedUsers();
+    }
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  // --- MÉTODOS HELPER PARA CONTEO ---
+  getUserCountByRole(role: 'user' | 'caregiver'): number {
+    return this.users.filter(u => u.role === role).length;
   }
 }

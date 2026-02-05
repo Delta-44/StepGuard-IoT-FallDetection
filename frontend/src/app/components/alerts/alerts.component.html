@@ -19,11 +19,94 @@
         </div>
       </div>
     </div>
+    
+    <!-- Barra de Búsqueda y Ordenamiento -->
+    <div class="flex gap-3 mt-6 items-center">
+      <!-- Input de Búsqueda -->
+      <div class="flex-1 relative">
+        <i-lucide name="search" [size]="20" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i-lucide>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Buscar por mensaje, ubicación, dispositivo o notas..."
+          class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white"
+        >
+      </div>
+
+      <!-- Botón de Ordenamiento por Fecha -->
+      <button 
+        (click)="toggleSortOrder()"
+        class="px-5 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:shadow-lg"
+        [title]="sortOrder === 'newest' ? 'Más recientes primero' : 'Más antiguas primero'"
+      >
+        <i-lucide [name]="sortOrder === 'newest' ? 'arrow-down' : 'arrow-up'" [size]="20"></i-lucide>
+        {{ sortOrder === 'newest' ? 'Más nuevas' : 'Más viejas' }}
+      </button>
+    </div>
+    
+    <!-- Botones de Filtro por Estado -->
+    <div class="flex gap-3 mt-4">
+      <button 
+        (click)="setStatusFilter('all')"
+        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        [ngClass]="statusFilter === 'all' ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+      >
+        <i-lucide name="list" [size]="20"></i-lucide>
+        Todas <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter === 'all' ? 'bg-white/25' : 'bg-gray-200'">{{ alerts.length }}</span>
+      </button>
+      
+      <button 
+        (click)="setStatusFilter('pendiente')"
+        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        [ngClass]="statusFilter === 'pendiente' ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+      >
+        <i-lucide name="alert-circle" [size]="20"></i-lucide>
+        Pendientes <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter === 'pendiente' ? 'bg-white/25' : 'bg-gray-200'">{{ getAlertCountByStatus('pendiente') }}</span>
+      </button>
+      
+      <button 
+        (click)="setStatusFilter('atendida')"
+        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        [ngClass]="statusFilter === 'atendida' ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+      >
+        <i-lucide name="check-circle" [size]="20"></i-lucide>
+        Atendidas <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter === 'atendida' ? 'bg-white/25' : 'bg-gray-200'">{{ getAlertCountByStatus('atendida') }}</span>
+      </button>
+    </div>
   </div>
   
   <!-- Grid de Alertas -->
+  @if (filteredAlerts.length === 0) {
+    <div class="bg-white rounded-2xl p-12 text-center animate-fade-in">
+      <div class="text-6xl mb-4">🔍</div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">No se encontraron resultados</h3>
+      <p class="text-gray-500">
+        @if (searchTerm.trim()) {
+          No hay 
+          @if (statusFilter === 'pendiente') {
+            alertas pendientes
+          } @else if (statusFilter === 'atendida') {
+            alertas atendidas
+          } @else {
+            alertas
+          }
+          que coincidan con "{{ searchTerm }}"
+        } @else {
+          No hay 
+          @if (statusFilter === 'pendiente') {
+            alertas pendientes
+          } @else if (statusFilter === 'atendida') {
+            alertas atendidas
+          } @else {
+            alertas registradas
+          }
+        }
+      </p>
+    </div>
+  } @else {
   <div class="space-y-4 animate-fade-in">
-          @for (alert of alerts; track alert.id) {
+          @for (alert of paginatedAlerts; track alert.id) {
             <div 
               class="bg-white rounded-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1"
               [ngClass]="{
@@ -175,6 +258,65 @@
             </div>
           }
   </div>
+  }
+
+  <!-- Controles de Paginación -->
+  @if (filteredAlerts.length > pageSize) {
+    <div class="bg-white rounded-2xl mt-6 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in">
+      <!-- Info de páginas -->
+      <div class="text-sm text-gray-700 font-medium">
+        Mostrando <span class="font-bold text-blue-600">{{ (currentPage - 1) * pageSize + 1 }}</span> a 
+        <span class="font-bold text-blue-600">{{ currentPage * pageSize > filteredAlerts.length ? filteredAlerts.length : currentPage * pageSize }}</span> de 
+        <span class="font-bold text-blue-600">{{ filteredAlerts.length }}</span> 
+        @if (statusFilter === 'pendiente') {
+          <span>alertas pendientes</span>
+        } @else if (statusFilter === 'atendida') {
+          <span>alertas atendidas</span>
+        } @else {
+          <span>alertas</span>
+        }
+        @if (searchTerm.trim()) {
+          <span class="text-gray-500 italic">(filtradas)</span>
+        }
+      </div>
+
+      <!-- Botones de paginación -->
+      <div class="flex items-center gap-2">
+        <button 
+          (click)="prevPage()" 
+          [disabled]="currentPage === 1"
+          class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          [ngClass]="currentPage === 1 ? 'bg-gray-200 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
+        >
+          <i-lucide name="chevron-left" [size]="18"></i-lucide>
+          Anterior
+        </button>
+
+        <!-- Números de página -->
+        <div class="flex gap-1">
+          @for (page of pages; track page) {
+            <button 
+              (click)="changePage(page)"
+              class="w-10 h-10 rounded-lg font-bold transition-all duration-300"
+              [ngClass]="currentPage === page ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+            >
+              {{ page }}
+            </button>
+          }
+        </div>
+
+        <button 
+          (click)="nextPage()" 
+          [disabled]="currentPage === totalPages"
+          class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          [ngClass]="currentPage === totalPages ? 'bg-gray-200 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
+        >
+          Siguiente
+          <i-lucide name="chevron-right" [size]="18"></i-lucide>
+        </button>
+      </div>
+    </div>
+  }
 </div>
 
 

@@ -49,6 +49,29 @@ export class ApiService {
   // 🆕 AHORA LOS DISPOSITIVOS SON PERSISTENTES EN MEMORIA
   // Coinciden con la estructura actualizada del backend
   private mockDevices: Device[] = [
+    // 🔴 DISPOSITIVO ESP32 REAL DEL USUARIO
+    // La MAC se configura en environment.ts
+    {
+      mac_address: environment.realESP32Mac,
+      nombre: '🌟 ESP32-StepGuard-REAL',
+      estado: false,  // Offline por defecto
+      total_impactos: 0,
+      ultima_magnitud: 0,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(Date.now() - 86400000), // Hace 24 horas
+      esp32Data: {
+        macAddress: environment.realESP32Mac,
+        name: 'ESP32-StepGuard-REAL',
+        impact_count: 0,
+        impact_magnitude: 0,
+        timestamp: new Date(Date.now() - 86400000),
+        status: false,
+        isFallDetected: false,
+        isButtonPressed: false
+      },
+      assignedUser: 'Usuario Real'
+    },
+    // DISPOSITIVOS MOCK PARA TESTING
     {
       mac_address: 'AA:BB:CC:DD:EE:01',
       nombre: 'ESP32-Sala',
@@ -107,6 +130,240 @@ export class ApiService {
         isFallDetected: false,
         isButtonPressed: false
       }
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:04',
+      nombre: 'ESP32-Dormitorio-Principal',
+      estado: true,
+      total_impactos: 1,
+      ultima_magnitud: 0.8,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:04',
+        name: 'ESP32-Dormitorio-Principal',
+        impact_count: 1,
+        impact_magnitude: 0.8,
+        timestamp: new Date(),
+        status: true,
+        isFallDetected: false,
+        isButtonPressed: false
+      },
+      assignedUser: 'María López'
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:05',
+      nombre: 'ESP32-Pasillo',
+      estado: false,
+      total_impactos: 7,
+      ultima_magnitud: 3.2,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(Date.now() - 7200000),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:05',
+        name: 'ESP32-Pasillo',
+        impact_count: 7,
+        impact_magnitude: 3.2,
+        timestamp: new Date(Date.now() - 7200000),
+        status: false,
+        isFallDetected: false,
+        isButtonPressed: false
+      }
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:06',
+      nombre: 'ESP32-Comedor',
+      estado: true,
+      total_impactos: 4,
+      ultima_magnitud: 1.9,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:06',
+        name: 'ESP32-Comedor',
+        impact_count: 4,
+        impact_magnitude: 1.9,
+        timestamp: new Date(),
+        status: true,
+        isFallDetected: false,
+        isButtonPressed: false
+      },
+      assignedUser: 'Pedro Martínez'
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:07',
+      nombre: 'ESP32-Terraza',
+      estado: true,
+      total_impactos: 2,
+      ultima_magnitud: 1.5,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:07',
+        name: 'ESP32-Terraza',
+        impact_count: 2,
+        impact_magnitude: 1.5,
+        timestamp: new Date(),
+        status: true,
+        isFallDetected: false,
+        isButtonPressed: false
+      }
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:08',
+      nombre: 'ESP32-Garaje',
+      estado: false,
+      total_impactos: 15,
+      ultima_magnitud: 6.7,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(Date.now() - 10800000),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:08',
+        name: 'ESP32-Garaje',
+        impact_count: 15,
+        impact_magnitude: 6.7,
+        timestamp: new Date(Date.now() - 10800000),
+        status: false,
+        isFallDetected: false,
+        isButtonPressed: false
+      },
+      assignedUser: 'Carmen Ruiz'
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:09',
+      nombre: 'ESP32-Estudio',
+      estado: true,
+      total_impactos: 6,
+      ultima_magnitud: 2.3,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:09',
+        name: 'ESP32-Estudio',
+        impact_count: 6,
+        impact_magnitude: 2.3,
+        timestamp: new Date(),
+        status: true,
+        isFallDetected: false,
+        isButtonPressed: false
+      }
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:10',
+      nombre: 'ESP32-Jardín',
+      estado: true,
+      total_impactos: 8,
+      ultima_magnitud: 2.8,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:10',
+        name: 'ESP32-Jardín',
+        impact_count: 8,
+        impact_magnitude: 2.8,
+        timestamp: new Date(),
+        status: true,
+        isFallDetected: false,
+        isButtonPressed: false
+      },
+      assignedUser: 'Luis Fernández'
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:11',
+      nombre: 'ESP32-Habitación-Invitados',
+      estado: false,
+      total_impactos: 0,
+      ultima_magnitud: 0,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(Date.now() - 14400000),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:11',
+        name: 'ESP32-Habitación-Invitados',
+        impact_count: 0,
+        impact_magnitude: 0,
+        timestamp: new Date(Date.now() - 14400000),
+        status: false,
+        isFallDetected: false,
+        isButtonPressed: false
+      }
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:12',
+      nombre: 'ESP32-Lavandería',
+      estado: true,
+      total_impactos: 9,
+      ultima_magnitud: 3.1,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:12',
+        name: 'ESP32-Lavandería',
+        impact_count: 9,
+        impact_magnitude: 3.1,
+        timestamp: new Date(),
+        status: true,
+        isFallDetected: false,
+        isButtonPressed: false
+      },
+      assignedUser: 'Sofía Hernández'
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:13',
+      nombre: 'ESP32-Biblioteca',
+      estado: true,
+      total_impactos: 2,
+      ultima_magnitud: 1.1,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:13',
+        name: 'ESP32-Biblioteca',
+        impact_count: 2,
+        impact_magnitude: 1.1,
+        timestamp: new Date(),
+        status: true,
+        isFallDetected: false,
+        isButtonPressed: false
+      }
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:14',
+      nombre: 'ESP32-Gimnasio',
+      estado: false,
+      total_impactos: 20,
+      ultima_magnitud: 9.2,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(Date.now() - 5400000),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:14',
+        name: 'ESP32-Gimnasio',
+        impact_count: 20,
+        impact_magnitude: 9.2,
+        timestamp: new Date(Date.now() - 5400000),
+        status: false,
+        isFallDetected: true,
+        isButtonPressed: false
+      },
+      assignedUser: 'Roberto Sánchez'
+    },
+    {
+      mac_address: 'AA:BB:CC:DD:EE:15',
+      nombre: 'ESP32-Recibidor',
+      estado: true,
+      total_impactos: 3,
+      ultima_magnitud: 1.7,
+      fecha_registro: new Date(),
+      ultima_conexion: new Date(),
+      esp32Data: {
+        macAddress: 'AA:BB:CC:DD:EE:15',
+        name: 'ESP32-Recibidor',
+        impact_count: 3,
+        impact_magnitude: 1.7,
+        timestamp: new Date(),
+        status: true,
+        isFallDetected: false,
+        isButtonPressed: false
+      }
     }
   ];
 
@@ -142,8 +399,46 @@ export class ApiService {
   // ==========================================
 
   getDevices(): Observable<Device[]> {
-    // Simulamos un pequeño retardo de red como si viniera del Backend real
-    return of(this.mockDevices); 
+    // Devolver los dispositivos mock y enriquecerlos con datos reales del backend
+    return of(this.mockDevices).pipe(
+      map(devices => {
+        // Para cada dispositivo, intentar obtener datos actualizados del backend
+        devices.forEach(device => {
+          // Hacer una llamada asíncrona para obtener datos reales del ESP32
+          this.http.get<any>(`${this.apiUrl}/esp32/data/${device.mac_address}`).subscribe({
+            next: (realData) => {
+              // Actualizar el dispositivo con datos reales del backend
+              if (realData) {
+                device.esp32Data = {
+                  macAddress: device.mac_address,
+                  name: device.nombre,
+                  impact_count: realData.impact_count || device.total_impactos,
+                  impact_magnitude: realData.impact_magnitude || device.ultima_magnitud,
+                  timestamp: realData.timestamp ? new Date(realData.timestamp) : new Date(),
+                  status: realData.status !== undefined ? realData.status : device.estado,
+                  isFallDetected: realData.isFallDetected || false,
+                  isButtonPressed: realData.isButtonPressed || false
+                };
+                
+                // Actualizar también los campos principales
+                device.estado = realData.status !== undefined ? realData.status : device.estado;
+                device.total_impactos = realData.impact_count || device.total_impactos;
+                device.ultima_magnitud = realData.impact_magnitude || device.ultima_magnitud;
+                device.ultima_conexion = realData.timestamp ? new Date(realData.timestamp) : device.ultima_conexion;
+                
+                console.log(`✅ Datos reales obtenidos para ${device.mac_address}:`, realData);
+              }
+            },
+            error: (err) => {
+              console.warn(`⚠️ No se pudieron obtener datos reales para ${device.mac_address}, usando datos mock`);
+              // Si falla, mantener los datos mock
+            }
+          });
+        });
+        
+        return devices;
+      })
+    );
   }
 
   // Ejemplo: Función para reiniciar o cambiar estado (simulado)
