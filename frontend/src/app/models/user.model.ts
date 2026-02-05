@@ -12,4 +12,7 @@ export interface User {
   dispositivo_mac?: string; // MAC del dispositivo asignado (solo pacientes)
   is_admin?: boolean; // Viene de la tabla cuidadores
   token?: string;
+  // Campos adicionales para perfil de paciente
+  edad?: number;
+  genero?: string;
 }

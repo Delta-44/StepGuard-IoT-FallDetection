@@ -1,0 +1,160 @@
+<div class="profile-container">
+  @if (isLoading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando tu información...</p>
+    </div>
+  } @else {
+    <div class="profile-header">
+      <div class="header-icon">
+        <i-lucide name="user-circle" [size]="64"></i-lucide>
+      </div>
+      <h1>Mi Perfil</h1>
+      <p class="subtitle">Información personal y registro de alertas</p>
+    </div>
+
+    <div class="profile-content">
+      <!-- Información Personal -->
+      <section class="card info-card">
+        <div class="card-header">
+          <i-lucide name="user" [size]="20"></i-lucide>
+          <h2>Información Personal</h2>
+        </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Nombre Completo</span>
+            <span class="info-value">{{ currentUser()?.fullName }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ currentUser()?.email }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Teléfono</span>
+            <span class="info-value">{{ currentUser()?.telefono || 'No especificado' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Dirección</span>
+            <span class="info-value">{{ currentUser()?.direccion || 'No especificada' }}</span>
+          </div>
+          @if (currentUser()?.edad) {
+            <div class="info-item">
+              <span class="info-label">Edad</span>
+              <span class="info-value">{{ currentUser()?.edad }} años</span>
+            </div>
+          }
+          @if (currentUser()?.genero) {
+            <div class="info-item">
+              <span class="info-label">Género</span>
+              <span class="info-value">{{ currentUser()?.genero }}</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Dispositivo Asignado -->
+      <section class="card device-card">
+        <div class="card-header">
+          <i-lucide name="smartphone" [size]="20"></i-lucide>
+          <h2>Dispositivo Asignado</h2>
+        </div>
+        @if (device()) {
+          <div class="device-info">
+            <div class="device-status" [style.background-color]="getDeviceStatusColor()">
+              <i-lucide name="activity" [size]="16"></i-lucide>
+              {{ getDeviceStatusText() }}
+            </div>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Nombre del Dispositivo</span>
+                <span class="info-value">{{ device()?.nombre }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">MAC Address</span>
+                <span class="info-value code">{{ device()?.mac_address }}</span>
+              </div>
+              @if (device()?.total_impactos !== undefined) {
+                <div class="info-item">
+                  <span class="info-label">Total de Impactos Registrados</span>
+                  <span class="info-value">{{ device()?.total_impactos }}</span>
+                </div>
+              }
+              @if (device()?.ultima_magnitud) {
+                <div class="info-item">
+                  <span class="info-label">Última Magnitud</span>
+                  <span class="info-value">{{ device()?.ultima_magnitud }} g</span>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="no-device">
+            <i-lucide name="smartphone" [size]="48"></i-lucide>
+            <p>No tienes un dispositivo asignado</p>
+          </div>
+        }
+      </section>
+
+      <!-- Calendario de Alertas -->
+      <section class="card alerts-card">
+        <div class="card-header">
+          <i-lucide name="calendar" [size]="20"></i-lucide>
+          <h2>Mi Historial de Alertas</h2>
+        </div>
+        
+        @if (alerts().length === 0) {
+          <div class="no-alerts">
+            <i-lucide name="check-circle" [size]="48"></i-lucide>
+            <p>¡Excelente! No tienes alertas registradas</p>
+          </div>
+        } @else {
+          <div class="alerts-summary">
+            <div class="summary-stat">
+              <span class="stat-number">{{ alerts().length }}</span>
+              <span class="stat-label">Total de Alertas</span>
+            </div>
+          </div>
+
+          <div class="calendar-view">
+            @for (dateEntry of alertsByDate() | keyvalue; track dateEntry.key) {
+              <div class="date-group">
+                <div class="date-header">
+                  <i-lucide name="calendar" [size]="16"></i-lucide>
+                  <h3>{{ dateEntry.key }}</h3>
+                  <span class="date-count">{{ dateEntry.value.length }} alerta(s)</span>
+                </div>
+                
+                <div class="alerts-timeline">
+                  @for (alert of dateEntry.value; track alert.id) {
+                    <div class="alert-item" [style.border-left-color]="getSeverityColor(alert.severity)">
+                      <div class="alert-time">{{ formatTime(alert.timestamp) }}</div>
+                      <div class="alert-content">
+                        <div class="alert-icon" [style.background-color]="getSeverityColor(alert.severity)">
+                          <i-lucide [name]="getAlertIcon(alert.type || 'other')" [size]="16"></i-lucide>
+                        </div>
+                        <div class="alert-details">
+                          <div class="alert-title">{{ alert.message }}</div>
+                          <div class="alert-meta">
+                            <span class="severity-badge" [style.background-color]="getSeverityColor(alert.severity)">
+                              {{ getSeverityLabel(alert.severity) }}
+                            </span>
+                            @if (alert.location) {
+                              <span class="location">
+                                <i-lucide name="map-pin" [size]="12"></i-lucide>
+                                {{ alert.location }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>

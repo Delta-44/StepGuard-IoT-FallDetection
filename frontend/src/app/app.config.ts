@@ -9,7 +9,7 @@ import {
   UserCircle, BarChart3,
   LayoutDashboard, Battery, BatteryWarning, RefreshCw, MessageSquare, Calendar,
   User, Info, Braces, Terminal, Cpu, Wifi, Network, Thermometer, Siren,
-  ArrowRight, ArrowUp, MoveVertical, CheckCircle, XCircle, X
+  ArrowRight, ArrowUp, MoveVertical, CheckCircle, XCircle, X, Check, FileText
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -22,7 +22,7 @@ const icons = {
   UserCircle, BarChart3,
   LayoutDashboard, Battery, BatteryWarning, RefreshCw, MessageSquare, Calendar,
   User, Info, Braces, Terminal, Cpu, Wifi, Network, Thermometer, Siren,
-  ArrowRight, ArrowUp, MoveVertical, CheckCircle, XCircle, X
+  ArrowRight, ArrowUp, MoveVertical, CheckCircle, XCircle, X, Check, FileText
 };
 
 export const appConfig: ApplicationConfig = {

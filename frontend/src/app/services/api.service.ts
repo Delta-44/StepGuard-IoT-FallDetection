@@ -1,13 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Observable, timer, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Alert } from '../models/alert.model';
 import { Device } from '../models/device';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl;
 
   // ============================================================
   // 1. BASE DE DATOS SIMULADA (MOCK DATA)
@@ -156,5 +160,65 @@ export class ApiService {
       }
     }
     return of(true);
+  }
+
+  // 🆕 Obtener dispositivo por MAC address desde el backend
+  async getDeviceByMac(macAddress: string): Promise<Device | null> {
+    try {
+      // Usar el nuevo endpoint de devices
+      const response = await this.http.get<any>(`${this.apiUrl}/devices/${macAddress}`).toPromise();
+      
+      if (response) {
+        return {
+          mac_address: response.mac_address || macAddress,
+          nombre: response.nombre || 'Dispositivo',
+          estado: response.estado || false,
+          total_impactos: response.total_impactos || 0,
+          ultima_magnitud: response.ultima_magnitud,
+          fecha_registro: response.fecha_registro ? new Date(response.fecha_registro) : new Date(),
+          ultima_conexion: response.ultima_conexion ? new Date(response.ultima_conexion) : new Date(),
+          esp32Data: response.esp32Data
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error obteniendo dispositivo del backend:', error);
+      return null;
+    }
+  }
+
+  // 🆕 Obtener usuario por ID desde el backend
+  async getUserById(userId: string): Promise<any> {
+    try {
+      const response = await this.http.get<any>(`${this.apiUrl}/users/${userId}`).toPromise();
+      
+      // Mapear la respuesta del backend al formato esperado por el frontend
+      return {
+        id: response.id,
+        fullName: response.nombre || response.fullName,
+        email: response.email,
+        telefono: response.telefono,
+        direccion: response.direccion,
+        edad: response.edad,
+        genero: response.genero,
+        dispositivo_mac: response.dispositivo?.mac_address || null,
+        role: 'user'
+      };
+    } catch (error) {
+      console.error('Error obteniendo usuario del backend:', error);
+      // Fallback a datos mock si falla
+      return {
+        id: userId,
+        fullName: 'Usuario',
+        email: 'usuario@ejemplo.com',
+        telefono: 'N/A',
+        direccion: 'N/A',
+        edad: null,
+        genero: null,
+        dispositivo_mac: null,
+        role: 'user'
+      };
+    }
   }
 }

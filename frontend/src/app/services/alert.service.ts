@@ -14,6 +14,7 @@ export interface Alert {
   notes?: string;
   attendedBy?: string;
   attendedAt?: Date;
+  type?: 'fall' | 'inactivity' | 'sos' | 'battery' | 'other'; // Tipo de alerta
 }
 
 @Injectable({
