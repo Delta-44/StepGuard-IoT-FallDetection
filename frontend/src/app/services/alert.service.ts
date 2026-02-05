@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, Subject } from 'rxjs'; // 👈 Añadido Su
 
 export interface Alert {
   id: string; 
-  deviceId: string;
+  macAddress: string;
   userId?: number;
   acc_x?: number; acc_y?: number; acc_z?: number;
   severity: 'low' | 'medium' | 'high' | 'critical'; 
@@ -26,7 +26,7 @@ export class AlertService {
     { 
       id: '201', severity: 'critical', status: 'pendiente',
       message: 'Caída detectada (Alto Impacto)', location: 'Dormitorio', 
-      deviceId: 'Device-101', userId: 1, timestamp: new Date(), 
+      macAddress: 'AA:BB:CC:DD:EE:01', userId: 1, timestamp: new Date(), 
       acc_x: 2.5, acc_y: -0.1, acc_z: 0.3 
     }
   ];
@@ -65,7 +65,7 @@ export class AlertService {
 
     const newAlert: Alert = {
       id: Date.now().toString(),
-      deviceId: `Device-${Math.floor(Math.random() * 5) + 1}`,
+      macAddress: `AA:BB:CC:DD:EE:0${Math.floor(Math.random() * 3) + 1}`,
       userId: Math.floor(Math.random() * 3) + 1,
       severity: finalSeverity,
       status: 'pendiente',
@@ -95,7 +95,7 @@ export class AlertService {
 
   getAlertsByDeviceId(id: string): Observable<Alert[]> {
     const current = this.alertsSubject.value;
-    const filtered = current.filter(a => a.deviceId === id || (a.userId && String(a.userId) === id));
+    const filtered = current.filter(a => a.macAddress === id || (a.userId && String(a.userId) === id));
     return new Observable(obs => obs.next(filtered));
   }
 

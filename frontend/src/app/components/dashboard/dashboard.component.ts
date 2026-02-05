@@ -79,7 +79,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       // Filtro de seguridad (Paciente ve solo lo suyo)
       if (user?.role === 'user') {
         filteredAlerts = allAlerts.filter(a => 
-          a.userId === Number(user.id) || a.deviceId === String(user.id)
+          a.userId === Number(user.id) || a.macAddress === String(user.dispositivo_mac)
         );
       }
 

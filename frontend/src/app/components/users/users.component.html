@@ -42,7 +42,7 @@
               <tr 
                 class="hover:bg-transparent transition-colors duration-200"
                 [ngClass]="{'cursor-pointer': user.role === 'user'}"
-                (click)="user.role === 'user' ? openPatientInfoModal(user) : null"
+                (click)="user.role === 'user' && openPatientInfoModal(user)"
               >
                 <td class="px-6 py-4">
                   <div class="flex flex-col">
@@ -389,7 +389,7 @@
               <!-- Información Médica / Adicional -->
               <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200">
                 <h4 class="text-lg font-bold text-green-900 mb-4 flex items-center gap-2">
-                  <i-lucide name="heart-pulse" [size]="20"></i-lucide>
+                  <i-lucide name="heart" [size]="20"></i-lucide>
                   Información Adicional
                 </h4>
                 <div class="grid grid-cols-2 gap-4">

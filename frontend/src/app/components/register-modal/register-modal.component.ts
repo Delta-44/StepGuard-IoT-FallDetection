@@ -95,7 +95,7 @@ export class RegisterModalComponent {
           payload.edad = null;
         }
         
-        payload.dispositivo_id = null; // Será asignado por un admin después
+        payload.dispositivo_mac = null; // Será asignado por un admin después
       } else {
         payload.is_admin = false; // Por defecto cuidador normal
       }

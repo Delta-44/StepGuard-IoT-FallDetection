@@ -37,7 +37,7 @@ export class DevicesComponent implements OnInit {
   }
 
   trackDeviceById(index: number, device: Device): string {
-    return device.id || index.toString();
+    return device.mac_address || index.toString();
   }
 
   public loadDevices(): void {
@@ -46,7 +46,7 @@ export class DevicesComponent implements OnInit {
     this.apiService.getDevices().subscribe({
       next: (data) => {
         this.devices.set(data);
-        const hasCritical = data.some(d => d.sensorData?.fallDetected || d.status === 'offline');
+        const hasCritical = data.some(d => d.esp32Data?.isFallDetected || !d.estado);
         this.criticalState.set(hasCritical);
         this.isLoading.set(false);
       },
@@ -72,15 +72,15 @@ export class DevicesComponent implements OnInit {
 
     // 2. Confirmación visual
     const confirmed = await this.notificationService.confirm(
-      `¿Reiniciar el sensor "${device.name}" en ${device.location}?`,
+      `¿Reiniciar el sensor "${device.nombre}"?`,
       'Esta acción reiniciará temporalmente el dispositivo.'
     );
     
     if (!confirmed) return;
 
     // 3. Llamada al servicio (Simulada)
-    this.apiService.toggleDevice(device.id).subscribe(() => {
-      this.notificationService.success('Comando Enviado', `Reinicio enviado a ${device.name}`);
+    this.apiService.toggleDevice(device.mac_address).subscribe(() => {
+      this.notificationService.success('Comando Enviado', `Reinicio enviado a ${device.nombre}`);
     });
   }
 }

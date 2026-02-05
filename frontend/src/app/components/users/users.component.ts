@@ -112,9 +112,15 @@ export class UsersComponent implements OnInit {
   openPatientInfoModal(user: User) {
     if (user.role !== 'user') return; // Solo para pacientes
     
+    // Inicializar inmediatamente para evitar ExpressionChangedAfterItHasBeenCheckedError
+    this.selectedPatientInfo = user;
     this.isLoadingPatientInfo = true;
     this.isPatientInfoModalOpen = true;
     
+    // Forzar detección de cambios para que el modal se abra inmediatamente
+    this.cd.detectChanges();
+    
+    // Luego cargar datos completos del backend
     this.userService.getUserById(user.id).subscribe({
       next: (data) => {
         this.selectedPatientInfo = data;
@@ -124,8 +130,8 @@ export class UsersComponent implements OnInit {
       error: (err) => {
         console.error('Error cargando información del paciente:', err);
         this.isLoadingPatientInfo = false;
-        this.selectedPatientInfo = user; // Fallback a datos básicos
         this.cd.detectChanges();
+        // selectedPatientInfo ya tiene los datos básicos del user
       }
     });
   }
