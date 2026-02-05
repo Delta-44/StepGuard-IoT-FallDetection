@@ -44,27 +44,20 @@ export const getUserById = async (req: Request, res: Response) => {
     // Estructurar la respuesta
     const { 
       password_hash, 
-      dispositivo_device_id,
       dispositivo_mac,
       dispositivo_nombre,
       dispositivo_estado,
-      dispositivo_ubicacion,
-      dispositivo_sensibilidad,
-      dispositivo_led,
+      dispositivo_total_impactos,
       ...userData 
     } = user;
 
     const response = {
       ...userData,
-      dispositivo: user.dispositivo_id ? {
-        id: user.dispositivo_id,
-        device_id: dispositivo_device_id,
+      dispositivo: user.dispositivo_mac ? {
         mac_address: dispositivo_mac,
         nombre: dispositivo_nombre,
         estado: dispositivo_estado,
-        ubicacion: dispositivo_ubicacion,
-        sensibilidad_caida: dispositivo_sensibilidad,
-        led_habilitado: dispositivo_led
+        total_impactos: dispositivo_total_impactos
       } : null
     };
 

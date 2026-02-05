@@ -1,37 +1,22 @@
 export interface ESP32 {
-    //complete revision of the ESP32 model, do not toutch too much until the DB is ready
-    id: string;
     macAddress: string;
     name: string;
-  //  location: string; // e.g., "Living Room"
-    status: 'online' | 'offline' | 'maintenance';
-
-    // firmwareVersion: string;
-
+    impact_count: number;
+    impact_magnitude: number;
+    timestamp: Date;
+    status: boolean;
     isFallDetected: boolean;
-    config: ESP32Config;
+    isButtonPressed: boolean;
 }
 
-export interface ESP32Config {
-    fallDetectionSensitivity: 'low' | 'medium' | 'high';
-    reportIntervalMs: number;
-    ledEnabled: boolean;
-}
-
-// Optional: Factory function / Mock data generator since no DB is set up yet
-export const createDefaultESP32 = (id: string, mac: string): ESP32 => ({
-    id,
+// Factory function para crear datos de prueba ESP32
+export const createDefaultESP32 = (mac: string, name: string): ESP32 => ({
     macAddress: mac,
-    name: `ESP32-${id}`,
-    // location: 'Unassigned',
-    status: 'offline',
-    //no tocar por ahora
-    // firmwareVersion: '1.0.0',
-   
+    name: name,
+    impact_count: 0,
+    impact_magnitude: 0,
+    timestamp: new Date(),
+    status: false, // offline por defecto
     isFallDetected: false,
-    config: {
-        fallDetectionSensitivity: 'medium',
-        reportIntervalMs: 60000,
-        ledEnabled: true
-    }
+    isButtonPressed: false
 });

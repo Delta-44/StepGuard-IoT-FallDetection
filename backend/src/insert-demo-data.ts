@@ -45,28 +45,28 @@ async function insertDemoData() {
     // 2. Insertar dispositivos
     console.log('\n📱 Insertando dispositivos...');
     const dispositivoResult = await client.query(`
-      INSERT INTO dispositivos (device_id, mac_address, nombre, ubicacion, estado, firmware_version, sensibilidad_caida, ultima_conexion) 
+      INSERT INTO dispositivos (mac_address, nombre, estado, total_impactos, ultima_conexion) 
       VALUES 
-        ('ESP32-001', 'AA:BB:CC:DD:EE:01', 'Dispositivo Sala', 'Sala de estar - Casa 1', 'online', '1.0.0', 'medium', NOW()),
-        ('ESP32-002', 'AA:BB:CC:DD:EE:02', 'Dispositivo Habitación', 'Habitación principal - Casa 1', 'online', '1.0.0', 'high', NOW()),
-        ('ESP32-003', 'AA:BB:CC:DD:EE:03', 'Dispositivo Cocina', 'Cocina - Casa 2', 'offline', '1.0.0', 'medium', NOW() - INTERVAL '2 hours')
-      RETURNING id, device_id, nombre, estado
+        ('AA:BB:CC:DD:EE:01', 'ESP32-Sala', true, 5, NOW()),
+        ('AA:BB:CC:DD:EE:02', 'ESP32-Habitación', true, 2, NOW()),
+        ('AA:BB:CC:DD:EE:03', 'ESP32-Cocina', false, 8, NOW() - INTERVAL '2 hours')
+      RETURNING mac_address, nombre, estado
     `);
     console.log(`✅ ${dispositivoResult.rowCount} dispositivos insertados`);
-    dispositivoResult.rows.forEach(row => console.log(`   - ${row.device_id}: ${row.nombre} [${row.estado}]`));
+    dispositivoResult.rows.forEach(row => console.log(`   - ${row.mac_address}: ${row.nombre} [${row.estado ? 'online' : 'offline'}]`));
 
     // 3. Insertar usuarios
     console.log('\n🧓 Insertando usuarios...');
     const usuarioResult = await client.query(`
-      INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id, password_last_changed_at) 
+      INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac, password_last_changed_at) 
       VALUES 
-        ('Juan Pérez', 'juan@stepguard.com', $1, '1945-03-15', 'Calle Mayor 123, Madrid', '+34 600 654 321', 1, NOW()),
-        ('Ana Martínez', 'ana@stepguard.com', $1, '1950-07-22', 'Avenida Principal 456, Barcelona', '+34 600 888 999', 2, NOW()),
-        ('Luis Fernández', 'luis@stepguard.com', $1, '1948-11-30', 'Plaza Central 789, Valencia', '+34 600 777 666', 3, NOW())
-      RETURNING id, nombre, email, dispositivo_id
+        ('Juan Pérez', 'juan@stepguard.com', $1, '1945-03-15', 'Calle Mayor 123, Madrid', '+34 600 654 321', 'AA:BB:CC:DD:EE:01', NOW()),
+        ('Ana Martínez', 'ana@stepguard.com', $1, '1950-07-22', 'Avenida Principal 456, Barcelona', '+34 600 888 999', 'AA:BB:CC:DD:EE:02', NOW()),
+        ('Luis Fernández', 'luis@stepguard.com', $1, '1948-11-30', 'Plaza Central 789, Valencia', '+34 600 777 666', 'AA:BB:CC:DD:EE:03', NOW())
+      RETURNING id, nombre, email, dispositivo_mac
     `, [usuarioHash]);
     console.log(`✅ ${usuarioResult.rowCount} usuarios insertados`);
-    usuarioResult.rows.forEach(row => console.log(`   - ${row.nombre} (${row.email}) - Dispositivo: ${row.dispositivo_id}`));
+    usuarioResult.rows.forEach(row => console.log(`   - ${row.nombre} (${row.email}) - Dispositivo: ${row.dispositivo_mac}`));
 
     // 4. Asignar cuidadores a usuarios
     console.log('\n🔗 Asignando cuidadores a usuarios...');
@@ -84,12 +84,12 @@ async function insertDemoData() {
     // 5. Insertar algunos eventos de caída de ejemplo
     console.log('\n🚨 Insertando eventos de caída de ejemplo...');
     const eventosResult = await client.query(`
-      INSERT INTO eventos_caida (dispositivo_id, usuario_id, fecha_hora, acc_x, acc_y, acc_z, severidad, estado, ubicacion) 
+      INSERT INTO eventos_caida (dispositivo_mac, usuario_id, fecha_hora, acc_x, acc_y, acc_z, severidad, estado, ubicacion) 
       VALUES 
-        (1, 1, NOW() - INTERVAL '2 hours', 12.5, -3.2, 8.7, 'high', 'atendida', 'Sala de estar'),
-        (1, 1, NOW() - INTERVAL '1 day', 8.3, -2.1, 5.4, 'medium', 'atendida', 'Sala de estar'),
-        (2, 2, NOW() - INTERVAL '3 hours', 15.2, -4.8, 10.3, 'critical', 'pendiente', 'Habitación'),
-        (3, 3, NOW() - INTERVAL '5 days', 6.7, -1.8, 4.2, 'low', 'falsa_alarma', 'Cocina')
+        ('AA:BB:CC:DD:EE:01', 1, NOW() - INTERVAL '2 hours', 12.5, -3.2, 8.7, 'high', 'atendida', 'Sala de estar'),
+        ('AA:BB:CC:DD:EE:01', 1, NOW() - INTERVAL '1 day', 8.3, -2.1, 5.4, 'medium', 'atendida', 'Sala de estar'),
+        ('AA:BB:CC:DD:EE:02', 2, NOW() - INTERVAL '3 hours', 15.2, -4.8, 10.3, 'critical', 'pendiente', 'Habitación'),
+        ('AA:BB:CC:DD:EE:03', 3, NOW() - INTERVAL '5 days', 6.7, -1.8, 4.2, 'low', 'falsa_alarma', 'Cocina')
       RETURNING id, usuario_id, severidad, estado
     `);
     console.log(`✅ ${eventosResult.rowCount} eventos de caída insertados`);

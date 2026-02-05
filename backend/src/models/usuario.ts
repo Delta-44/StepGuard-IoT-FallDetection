@@ -8,7 +8,7 @@ export interface Usuario {
   fecha_nacimiento?: Date;
   direccion?: string;
   telefono?: string;
-  dispositivo_id?: number;
+  dispositivo_mac?: string; // MAC address del dispositivo asignado
   fecha_creacion?: Date;
   password_last_changed_at?: Date;
 }
@@ -24,11 +24,11 @@ export const UsuarioModel = {
     fecha_nacimiento?: Date,
     direccion?: string,
     telefono?: string,
-    dispositivo_id?: number
+    dispositivo_mac?: string
   ): Promise<Usuario> => {
     const result = await query(
-      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id]
+      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac]
     );
     return result.rows[0];
   },
@@ -56,12 +56,12 @@ export const UsuarioModel = {
   },
 
   /**
-   * Buscar usuario por dispositivo
+   * Buscar usuario por MAC del dispositivo
    */
-  findByDispositivo: async (dispositivoId: number): Promise<Usuario | null> => {
+  findByDispositivo: async (macAddress: string): Promise<Usuario | null> => {
     const result = await query(
-      'SELECT * FROM usuarios WHERE dispositivo_id = $1',
-      [dispositivoId]
+      'SELECT * FROM usuarios WHERE dispositivo_mac = $1',
+      [macAddress]
     );
     return result.rows[0] || null;
   },
@@ -90,10 +90,10 @@ export const UsuarioModel = {
   /**
    * Asignar dispositivo a usuario
    */
-  asignarDispositivo: async (usuarioId: number, dispositivoId: number): Promise<Usuario | null> => {
+  asignarDispositivo: async (usuarioId: number, macAddress: string): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET dispositivo_id = $1 WHERE id = $2 RETURNING *',
-      [dispositivoId, usuarioId]
+      'UPDATE usuarios SET dispositivo_mac = $1 WHERE id = $2 RETURNING *',
+      [macAddress, usuarioId]
     );
     return result.rows[0] || null;
   },
@@ -103,7 +103,7 @@ export const UsuarioModel = {
    */
   desasignarDispositivo: async (usuarioId: number): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET dispositivo_id = NULL WHERE id = $1 RETURNING *',
+      'UPDATE usuarios SET dispositivo_mac = NULL WHERE id = $1 RETURNING *',
       [usuarioId]
     );
     return result.rows[0] || null;
@@ -154,15 +154,12 @@ export const UsuarioModel = {
   findByIdWithDevice: async (id: number): Promise<any | null> => {
     const result = await query(
       `SELECT u.*, 
-              d.device_id as dispositivo_device_id,
               d.mac_address as dispositivo_mac,
               d.nombre as dispositivo_nombre,
               d.estado as dispositivo_estado,
-              d.ubicacion as dispositivo_ubicacion,
-              d.sensibilidad_caida as dispositivo_sensibilidad,
-              d.led_habilitado as dispositivo_led
+              d.total_impactos as dispositivo_total_impactos
        FROM usuarios u
-       LEFT JOIN dispositivos d ON u.dispositivo_id = d.id
+       LEFT JOIN dispositivos d ON u.dispositivo_mac = d.mac_address
        WHERE u.id = $1`,
       [id]
     );
