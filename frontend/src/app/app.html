@@ -29,22 +29,33 @@
 
       @if (currentUser()) {
         <div style="display: flex; gap: 20px;">
-          <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">
-            <i-lucide name="activity" [size]="16"></i-lucide> Monitorización
-          </a>
-          <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">
-            <i-lucide name="smartphone" [size]="16"></i-lucide> Dispositivos
-          </a>
-          <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
-            <i-lucide name="bell" [size]="16"></i-lucide> Historial
-          </a>
-
-          @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
-            <a routerLink="/users" routerLinkActive="active-link" 
-               [class.nav-item-admin]="isAdmin()" [class.nav-item]="!isAdmin()">
-              <i-lucide name="users" [size]="16"></i-lucide>
-              {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
+          @if (currentUser()?.role === 'user') {
+            <!-- Navegación para Pacientes -->
+            <a routerLink="/profile" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="user" [size]="16"></i-lucide> Mi Perfil
             </a>
+            <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="bell" [size]="16"></i-lucide> Mis Incidencias
+            </a>
+          } @else {
+            <!-- Navegación para Admin y Cuidadores -->
+            <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="activity" [size]="16"></i-lucide> Monitorización
+            </a>
+            <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="smartphone" [size]="16"></i-lucide> Dispositivos
+            </a>
+            <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="bell" [size]="16"></i-lucide> Historial
+            </a>
+
+            @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
+              <a routerLink="/users" routerLinkActive="active-link" 
+                 [class.nav-item-admin]="isAdmin()" [class.nav-item]="!isAdmin()">
+                <i-lucide name="users" [size]="16"></i-lucide>
+                {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
+              </a>
+            }
           }
         </div>
       }

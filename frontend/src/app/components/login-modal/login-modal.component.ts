@@ -67,11 +67,12 @@ export class LoginModalComponent implements AfterViewInit {
                 this.isLoading = true;
                 // Reenviar con el rol seleccionado
                 this.authService.loginWithGoogle(response.credential, role).subscribe({
-                  next: () => {
+                  next: (res) => {
                     console.log('✅ Google registro exitoso con rol:', role);
                     this.isLoading = false;
                     this.close.emit();
-                    this.router.navigate(['/dashboard']);
+                    const redirectPath = role === 'usuario' ? '/profile' : '/dashboard';
+                    this.router.navigate([redirectPath]);
                   },
                   error: (err) => {
                     console.error('❌ Error registrando con Google:', err);
@@ -89,7 +90,9 @@ export class LoginModalComponent implements AfterViewInit {
             console.log('✅ Google Login exitoso');
             this.isLoading = false;
             this.close.emit();
-            this.router.navigate(['/dashboard']);
+            const userRole = this.authService.currentUser()?.role;
+            const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';
+            this.router.navigate([redirectPath]);
           },
           error: (err) => {
             console.error('❌ Error Google:', err);
@@ -121,7 +124,9 @@ export class LoginModalComponent implements AfterViewInit {
           console.log('✅ Login exitoso');
           this.isLoading = false;
           this.close.emit();
-          this.router.navigate(['/dashboard']);
+          const userRole = this.authService.currentUser()?.role;
+          const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';
+          this.router.navigate([redirectPath]);
         },
         error: (err) => {
           this.isLoading = false;
