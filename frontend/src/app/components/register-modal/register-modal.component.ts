@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -17,6 +17,7 @@ export class RegisterModalComponent {
   private authService = inject(AuthService);
   private userService = inject(UserService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   @Output() close = new EventEmitter<void>();
   @Output() switchToLogin = new EventEmitter<void>();
@@ -37,6 +38,9 @@ export class RegisterModalComponent {
   };
 
   isLoading = false;
+  showSuccessModal = false;
+  ageError = false;
+  minAge = 18;
 
   chooseRole(role: 'user' | 'caregiver') {
     this.selectedRole = role;
@@ -51,6 +55,15 @@ export class RegisterModalComponent {
   // register-modal.component.ts
 
   onSubmit() {
+    // Validar edad si es paciente
+    if (this.selectedRole === 'user') {
+      this.validateAge();
+      if (this.ageError) {
+        alert('⚠️ Debes ser mayor de 18 años para registrarte como paciente.');
+        return;
+      }
+    }
+
     if (this.registerData.email && this.registerData.password && this.registerData.name) {
       this.isLoading = true;
 
@@ -91,8 +104,8 @@ export class RegisterModalComponent {
       this.authService.register(payload, tipo).subscribe({
         next: (res) => {
           this.isLoading = false;
-          alert('✅ ¡Registro exitoso! Ya puedes loguearte.');
-          this.close.emit();
+          this.showSuccessModal = true;
+          this.cdr.detectChanges(); // Forzar detección de cambios
         },
         error: (err) => {
           this.isLoading = false;
@@ -108,5 +121,25 @@ export class RegisterModalComponent {
 
   get roleTitle() {
     return this.selectedRole === 'caregiver' ? 'Cuenta de Cuidador 🏥' : 'Cuenta de Paciente 👤';
+  }
+  
+  closeSuccessModal() {
+    this.showSuccessModal = false;
+    this.switchToLogin.emit();
+  }
+
+  validateAge() {
+    if (this.registerData.fecha_nacimiento) {
+      const birthDate = new Date(this.registerData.fecha_nacimiento);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      this.ageError = age < this.minAge;
+    } else {
+      this.ageError = false;
+    }
   }
 }

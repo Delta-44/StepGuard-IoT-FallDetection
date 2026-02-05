@@ -9,6 +9,7 @@ export interface User {
   telefono?: string;
   direccion?: string; // Solo para pacientes
   fecha_nacimiento?: string | Date; // Solo para pacientes
+  dispositivo_id?: number; // ID del dispositivo asignado (solo pacientes)
   is_admin?: boolean; // Viene de la tabla cuidadores
   token?: string;
 }
