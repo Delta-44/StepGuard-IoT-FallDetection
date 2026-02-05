@@ -62,7 +62,7 @@
         [ngClass]="statusFilter === 'pendiente' ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
       >
         <i-lucide name="alert-circle" [size]="20"></i-lucide>
-        Pendientes <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter === 'pendiente' ? 'bg-white/25' : 'bg-gray-200'">{{ getAlertCountByStatus('pendiente') }}</span>
+        Pendientes <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter === 'pendiente' ? 'bg-white text-yellow-700' : 'bg-gray-200 text-gray-700'">{{ getAlertCountByStatus('pendiente') }}</span>
       </button>
       
       <button 
@@ -179,7 +179,7 @@
                       [ngClass]="{
                         'bg-operational text-white': alert.status === 'atendida',
                         'bg-transparent0 text-white': alert.status === 'falsa_alarma' || alert.status === 'ignorada',
-                        'bg-preventive text-white': alert.status === 'pendiente'
+                        'bg-yellow-100 text-yellow-800 border-2 border-yellow-300': alert.status === 'pendiente'
                       }"
                     >
                       <i-lucide 
