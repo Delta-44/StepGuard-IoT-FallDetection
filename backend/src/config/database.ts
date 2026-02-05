@@ -12,11 +12,12 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD || 'postgres',
   max: 20, // máximo de conexiones en el pool
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000,
   // SSL requerido para Neon y otros servicios cloud
   ssl: process.env.DB_HOST?.includes('neon.tech') || process.env.DB_HOST?.includes('supabase') 
     ? { rejectUnauthorized: false } 
     : false,
+  options: '-c timezone=Europe/Madrid',
 });
 
 // Test de conexión
