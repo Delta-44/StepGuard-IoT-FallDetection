@@ -1,18 +1,13 @@
 import pool, { query } from '../config/database';
 
 export interface Dispositivo {
-  id: number;
-  device_id: string; // Identificador único del ESP32 (ej: "ESP32-001")
-  mac_address: string;
-  nombre: string;
-  ubicacion?: string;
-  estado: 'online' | 'offline' | 'maintenance';
-  firmware_version?: string;
-  sensibilidad_caida: 'low' | 'medium' | 'high';
-  intervalo_reporte_ms: number;
-  led_habilitado: boolean;
+  mac_address: string; // macAddress del ESP32 (PK)
+  nombre: string; // name del ESP32
+  estado: boolean; // status del ESP32 (true=activo, false=inactivo)
+  total_impactos: number; // impact_count del ESP32
+  ultima_magnitud?: number; // impact_magnitude del ESP32
   fecha_registro?: Date;
-  ultima_conexion?: Date;
+  ultima_conexion?: Date; // timestamp del ESP32
 }
 
 export const DispositivoModel = {
@@ -20,39 +15,27 @@ export const DispositivoModel = {
    * Crear un nuevo dispositivo
    */
   create: async (
-    device_id: string,
     mac_address: string,
-    nombre: string,
-    ubicacion?: string,
-    firmware_version?: string
+    nombre: string
   ): Promise<Dispositivo> => {
     const result = await query(
       `INSERT INTO dispositivos 
-       (device_id, mac_address, nombre, ubicacion, firmware_version) 
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [device_id, mac_address, nombre, ubicacion, firmware_version]
+       (mac_address, nombre) 
+       VALUES ($1, $2) RETURNING *`,
+      [mac_address, nombre]
     );
     return result.rows[0];
   },
 
-  /**
-   * Buscar dispositivo por device_id (ej: "ESP32-001")
-   */
-  findByDeviceId: async (device_id: string): Promise<Dispositivo | null> => {
-    const result = await query(
-      'SELECT * FROM dispositivos WHERE device_id = $1',
-      [device_id]
-    );
-    return result.rows[0] || null;
-  },
+
 
   /**
-   * Buscar dispositivo por ID numérico
+   * Buscar dispositivo por MAC address
    */
-  findById: async (id: number): Promise<Dispositivo | null> => {
+  findByMac: async (mac_address: string): Promise<Dispositivo | null> => {
     const result = await query(
-      'SELECT * FROM dispositivos WHERE id = $1',
-      [id]
+      'SELECT * FROM dispositivos WHERE mac_address = $1',
+      [mac_address]
     );
     return result.rows[0] || null;
   },
@@ -77,9 +60,9 @@ export const DispositivoModel = {
   },
 
   /**
-   * Listar dispositivos por estado
+   * Listar dispositivos activos o inactivos
    */
-  findByEstado: async (estado: 'online' | 'offline' | 'maintenance'): Promise<Dispositivo[]> => {
+  findByEstado: async (estado: boolean): Promise<Dispositivo[]> => {
     const result = await query(
       'SELECT * FROM dispositivos WHERE estado = $1',
       [estado]
@@ -88,48 +71,24 @@ export const DispositivoModel = {
   },
 
   /**
-   * Actualizar estado del dispositivo
+   * Actualizar estado del dispositivo por MAC
    */
-  updateEstado: async (device_id: string, estado: 'online' | 'offline' | 'maintenance'): Promise<Dispositivo | null> => {
+  updateEstado: async (mac_address: string, estado: boolean): Promise<Dispositivo | null> => {
     const result = await query(
-      'UPDATE dispositivos SET estado = $1, ultima_conexion = CURRENT_TIMESTAMP WHERE device_id = $2 RETURNING *',
-      [estado, device_id]
+      'UPDATE dispositivos SET estado = $1, ultima_conexion = CURRENT_TIMESTAMP WHERE mac_address = $2 RETURNING *',
+      [estado, mac_address]
     );
     return result.rows[0] || null;
   },
 
   /**
-   * Actualizar configuración del dispositivo
+   * Actualizar datos del ESP32 (impact_count y magnitude)
    */
-  updateConfig: async (
-    device_id: string,
-    sensibilidad_caida?: 'low' | 'medium' | 'high',
-    intervalo_reporte_ms?: number,
-    led_habilitado?: boolean
-  ): Promise<Dispositivo | null> => {
-    const updates: string[] = [];
-    const values: any[] = [];
-    let paramIndex = 1;
-
-    if (sensibilidad_caida !== undefined) {
-      updates.push(`sensibilidad_caida = $${paramIndex++}`);
-      values.push(sensibilidad_caida);
-    }
-    if (intervalo_reporte_ms !== undefined) {
-      updates.push(`intervalo_reporte_ms = $${paramIndex++}`);
-      values.push(intervalo_reporte_ms);
-    }
-    if (led_habilitado !== undefined) {
-      updates.push(`led_habilitado = $${paramIndex++}`);
-      values.push(led_habilitado);
-    }
-
-    if (updates.length === 0) return null;
-
-    values.push(device_id);
-    const queryText = `UPDATE dispositivos SET ${updates.join(', ')} WHERE device_id = $${paramIndex} RETURNING *`;
-
-    const result = await query(queryText, values);
+  actualizarDatosESP32: async (mac_address: string, impact_count: number, impact_magnitude?: number): Promise<Dispositivo | null> => {
+    const result = await query(
+      'UPDATE dispositivos SET total_impactos = $1, ultima_magnitud = $2, ultima_conexion = CURRENT_TIMESTAMP, estado = true WHERE mac_address = $3 RETURNING *',
+      [impact_count, impact_magnitude, mac_address]
+    );
     return result.rows[0] || null;
   },
 
@@ -137,25 +96,23 @@ export const DispositivoModel = {
    * Actualizar información básica del dispositivo
    */
   update: async (
-    id: number,
-    nombre: string,
-    ubicacion?: string,
-    firmware_version?: string
+    mac_address: string,
+    nombre: string
   ): Promise<Dispositivo | null> => {
     const result = await query(
-      'UPDATE dispositivos SET nombre = $1, ubicacion = $2, firmware_version = $3 WHERE id = $4 RETURNING *',
-      [nombre, ubicacion, firmware_version, id]
+      'UPDATE dispositivos SET nombre = $1 WHERE mac_address = $2 RETURNING *',
+      [nombre, mac_address]
     );
     return result.rows[0] || null;
   },
 
   /**
-   * Actualizar última conexión
+   * Actualizar última conexión por MAC
    */
-  updateUltimaConexion: async (device_id: string): Promise<boolean> => {
+  updateUltimaConexion: async (mac_address: string): Promise<boolean> => {
     const result = await query(
-      'UPDATE dispositivos SET ultima_conexion = CURRENT_TIMESTAMP WHERE device_id = $1',
-      [device_id]
+      'UPDATE dispositivos SET ultima_conexion = CURRENT_TIMESTAMP WHERE mac_address = $1',
+      [mac_address]
     );
     return (result.rowCount ?? 0) > 0;
   },
@@ -163,10 +120,10 @@ export const DispositivoModel = {
   /**
    * Obtener usuario asignado al dispositivo
    */
-  getUsuarioAsignado: async (dispositivoId: number): Promise<any | null> => {
+  getUsuarioAsignado: async (mac_address: string): Promise<any | null> => {
     const result = await query(
-      'SELECT u.* FROM usuarios u WHERE u.dispositivo_id = $1',
-      [dispositivoId]
+      'SELECT u.* FROM usuarios u WHERE u.dispositivo_mac = $1',
+      [mac_address]
     );
     return result.rows[0] || null;
   },
@@ -174,8 +131,8 @@ export const DispositivoModel = {
   /**
    * Eliminar dispositivo
    */
-  delete: async (id: number): Promise<boolean> => {
-    const result = await query('DELETE FROM dispositivos WHERE id = $1', [id]);
+  delete: async (mac_address: string): Promise<boolean> => {
+    const result = await query('DELETE FROM dispositivos WHERE mac_address = $1', [mac_address]);
     return (result.rowCount ?? 0) > 0;
   },
 };

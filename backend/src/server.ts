@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes';
 import esp32Routes from './routes/esp32Routes';
 import userRoutes from './routes/userRoutes';
 import authMiddleware, { AuthRequest } from './middleware/auth';
+import { connectMQTT } from './config/mqtt';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,4 +45,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  connectMQTT();
 });

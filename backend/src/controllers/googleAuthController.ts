@@ -157,10 +157,10 @@ export const googleLogin = async (req: Request, res: Response) => {
             name || 'Google User',
             email,
             passwordHash,
-            undefined, // age
-            undefined, // address
-            undefined, // phone
-            undefined  // device_id
+            undefined, // fecha_nacimiento
+            undefined, // direccion
+            undefined, // telefono
+            undefined  // dispositivo_mac
         );
         finalRole = 'usuario';
     } else if (requestedRole === 'cuidador') {
