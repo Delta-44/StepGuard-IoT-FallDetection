@@ -62,6 +62,8 @@ import {
   Eye,
   EyeOff,
   ArrowLeft,
+  Gift,
+  CalendarDays,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -127,6 +129,8 @@ const icons = {
   Eye,
   EyeOff,
   ArrowLeft,
+  Gift,
+  CalendarDays,
 };
 
 export const appConfig: ApplicationConfig = {

@@ -7,7 +7,7 @@ import { Device } from '../models/device';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   private http = inject(HttpClient);
@@ -27,6 +27,7 @@ export class ApiService {
       severity: 'critical',
       message: '🚨 Caída detectada (Impacto fuerte)',
       resolved: false,
+      status: 'pendiente',
     },
     {
       id: 'alert-2',
@@ -35,6 +36,7 @@ export class ApiService {
       severity: 'critical',
       message: '🔥 Temperatura crítica (>60ºC) detectada',
       resolved: false,
+      status: 'pendiente',
     },
     {
       id: 'alert-3',
@@ -43,7 +45,8 @@ export class ApiService {
       severity: 'warning',
       message: '⚠️ Batería baja (15%)',
       resolved: false,
-    }
+      status: 'pendiente',
+    },
   ];
 
   // 🆕 AHORA LOS DISPOSITIVOS SON PERSISTENTES EN MEMORIA
@@ -54,7 +57,7 @@ export class ApiService {
     {
       mac_address: environment.realESP32Mac,
       nombre: '🌟 ESP32-StepGuard-REAL',
-      estado: false,  // Offline por defecto
+      estado: false, // Offline por defecto
       total_impactos: 0,
       ultima_magnitud: 0,
       fecha_registro: new Date(),
@@ -67,9 +70,9 @@ export class ApiService {
         timestamp: new Date(Date.now() - 86400000),
         status: false,
         isFallDetected: false,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'Usuario Real'
+      assignedUser: 'Usuario Real',
     },
     // DISPOSITIVOS MOCK PARA TESTING
     {
@@ -88,9 +91,9 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'Ana García'
+      assignedUser: 'Ana García',
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:02',
@@ -108,9 +111,9 @@ export class ApiService {
         timestamp: new Date(Date.now() - 3600000),
         status: false,
         isFallDetected: true,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'Juan Pérez'
+      assignedUser: 'Juan Pérez',
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:03',
@@ -128,8 +131,8 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
-      }
+        isButtonPressed: false,
+      },
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:04',
@@ -147,9 +150,9 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'María López'
+      assignedUser: 'María López',
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:05',
@@ -167,8 +170,8 @@ export class ApiService {
         timestamp: new Date(Date.now() - 7200000),
         status: false,
         isFallDetected: false,
-        isButtonPressed: false
-      }
+        isButtonPressed: false,
+      },
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:06',
@@ -186,9 +189,9 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'Pedro Martínez'
+      assignedUser: 'Pedro Martínez',
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:07',
@@ -206,8 +209,8 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
-      }
+        isButtonPressed: false,
+      },
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:08',
@@ -225,9 +228,9 @@ export class ApiService {
         timestamp: new Date(Date.now() - 10800000),
         status: false,
         isFallDetected: false,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'Carmen Ruiz'
+      assignedUser: 'Carmen Ruiz',
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:09',
@@ -245,8 +248,8 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
-      }
+        isButtonPressed: false,
+      },
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:10',
@@ -264,9 +267,9 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'Luis Fernández'
+      assignedUser: 'Luis Fernández',
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:11',
@@ -284,8 +287,8 @@ export class ApiService {
         timestamp: new Date(Date.now() - 14400000),
         status: false,
         isFallDetected: false,
-        isButtonPressed: false
-      }
+        isButtonPressed: false,
+      },
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:12',
@@ -303,9 +306,9 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'Sofía Hernández'
+      assignedUser: 'Sofía Hernández',
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:13',
@@ -323,8 +326,8 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
-      }
+        isButtonPressed: false,
+      },
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:14',
@@ -342,9 +345,9 @@ export class ApiService {
         timestamp: new Date(Date.now() - 5400000),
         status: false,
         isFallDetected: true,
-        isButtonPressed: false
+        isButtonPressed: false,
       },
-      assignedUser: 'Roberto Sánchez'
+      assignedUser: 'Roberto Sánchez',
     },
     {
       mac_address: 'AA:BB:CC:DD:EE:15',
@@ -362,12 +365,12 @@ export class ApiService {
         timestamp: new Date(),
         status: true,
         isFallDetected: false,
-        isButtonPressed: false
-      }
-    }
+        isButtonPressed: false,
+      },
+    },
   ];
 
-  constructor() { }
+  constructor() {}
 
   // ==========================================
   // 🚨 LÓGICA DE ALERTAS
@@ -377,15 +380,15 @@ export class ApiService {
     return timer(0, 2000).pipe(
       map(() => {
         // Devolvemos las alertas ordenadas: No resueltas primero
-        return [...this.mockAlerts].sort((a, b) => 
-          (a.resolved === b.resolved) ? 0 : a.resolved ? 1 : -1
+        return [...this.mockAlerts].sort((a, b) =>
+          a.resolved === b.resolved ? 0 : a.resolved ? 1 : -1,
         );
-      })
+      }),
     );
   }
 
   markAsResolved(alertId: string, who: string): Observable<boolean> {
-    const alert = this.mockAlerts.find(a => a.id === alertId);
+    const alert = this.mockAlerts.find((a) => a.id === alertId);
     if (alert) {
       alert.resolved = true;
       alert.assignedTo = who;
@@ -393,7 +396,7 @@ export class ApiService {
     }
     return of(true);
   }
-  
+
   // ==========================================
   // 📡 LÓGICA DE DISPOSITIVOS
   // ==========================================
@@ -401,9 +404,9 @@ export class ApiService {
   getDevices(): Observable<Device[]> {
     // Devolver los dispositivos mock y enriquecerlos con datos reales del backend
     return of(this.mockDevices).pipe(
-      map(devices => {
+      map((devices) => {
         // Para cada dispositivo, intentar obtener datos actualizados del backend
-        devices.forEach(device => {
+        devices.forEach((device) => {
           // Hacer una llamada asíncrona para obtener datos reales del ESP32
           this.http.get<any>(`${this.apiUrl}/esp32/data/${device.mac_address}`).subscribe({
             next: (realData) => {
@@ -417,33 +420,37 @@ export class ApiService {
                   timestamp: realData.timestamp ? new Date(realData.timestamp) : new Date(),
                   status: realData.status !== undefined ? realData.status : device.estado,
                   isFallDetected: realData.isFallDetected || false,
-                  isButtonPressed: realData.isButtonPressed || false
+                  isButtonPressed: realData.isButtonPressed || false,
                 };
-                
+
                 // Actualizar también los campos principales
                 device.estado = realData.status !== undefined ? realData.status : device.estado;
                 device.total_impactos = realData.impact_count || device.total_impactos;
                 device.ultima_magnitud = realData.impact_magnitude || device.ultima_magnitud;
-                device.ultima_conexion = realData.timestamp ? new Date(realData.timestamp) : device.ultima_conexion;
-                
+                device.ultima_conexion = realData.timestamp
+                  ? new Date(realData.timestamp)
+                  : device.ultima_conexion;
+
                 console.log(`✅ Datos reales obtenidos para ${device.mac_address}:`, realData);
               }
             },
             error: (err) => {
-              console.warn(`⚠️ No se pudieron obtener datos reales para ${device.mac_address}, usando datos mock`);
+              console.warn(
+                `⚠️ No se pudieron obtener datos reales para ${device.mac_address}, usando datos mock`,
+              );
               // Si falla, mantener los datos mock
-            }
+            },
           });
         });
-        
+
         return devices;
-      })
+      }),
     );
   }
 
   // Ejemplo: Función para reiniciar o cambiar estado (simulado)
   toggleDevice(macAddress: string): Observable<boolean> {
-    const device = this.mockDevices.find(d => d.mac_address === macAddress);
+    const device = this.mockDevices.find((d) => d.mac_address === macAddress);
     if (device) {
       console.log(`🔌 Reiniciando dispositivo ${macAddress}...`);
       // Simulamos que se reinicia y vuelve a estar online/offline
@@ -457,37 +464,79 @@ export class ApiService {
     return of(true);
   }
 
-  // 🆕 Obtener dispositivo por MAC address desde el backend
+  // 🆕 Obtener historial de alertas (Real + Mock)
+  async getEvents(userId?: string): Promise<Alert[]> {
+    try {
+      // 1. Obtener alertas reales del backend
+      let url = `${this.apiUrl}/events`;
+      if (userId) url += `?userId=${userId}`;
+
+      const realEvents: any[] = (await this.http.get<any[]>(url).toPromise()) || [];
+
+      const mappedEvents = realEvents.map((e) => ({
+        id: String(e.id),
+        macAddress: e.dispositivo_mac,
+        userId: e.usuario_id,
+        severity: e.severidad,
+        status: e.estado,
+        message: e.notas || (e.severidad === 'critical' ? 'Caída Detectada' : 'Alerta de Sensor'),
+        location: e.ubicacion || 'Desconocida',
+        timestamp: new Date(e.fecha_hora),
+        attendedBy: e.atendido_por,
+        resolutionNotes: e.notas,
+        resolved: e.estado === 'atendida' || e.estado === 'falsa_alarma',
+      })) as Alert[];
+
+      return mappedEvents;
+    } catch (error) {
+      console.error('Error fetching real events, falling back to mocks:', error);
+      return [];
+    }
+  }
+
+  // 🆕 Obtener dispositivo por MAC address con datos en tiempo real
   async getDeviceByMac(macAddress: string): Promise<Device | null> {
     try {
-      // Usar el nuevo endpoint de devices
-      const response = await this.http.get<any>(`${this.apiUrl}/devices/${macAddress}`).toPromise();
-      
-      if (response) {
+      // 1. Intentar endpoint de telemetría primero
+      const telemetry = await this.http
+        .get<any>(`${this.apiUrl}/esp32/data/${macAddress}`)
+        .toPromise();
+
+      if (telemetry) {
         return {
-          mac_address: response.mac_address || macAddress,
-          nombre: response.nombre || 'Dispositivo',
-          estado: response.estado || false,
-          total_impactos: response.total_impactos || 0,
-          ultima_magnitud: response.ultima_magnitud,
-          fecha_registro: response.fecha_registro ? new Date(response.fecha_registro) : new Date(),
-          ultima_conexion: response.ultima_conexion ? new Date(response.ultima_conexion) : new Date(),
-          esp32Data: response.esp32Data
+          mac_address: macAddress,
+          nombre: `ESP32-${macAddress.slice(-4)}`, // Nombre fallback
+          estado: telemetry.status !== undefined ? telemetry.status : false,
+          total_impactos: telemetry.impact_count || 0,
+          ultima_magnitud: telemetry.impact_magnitude || 0,
+          fecha_registro: new Date(),
+          ultima_conexion: telemetry.timestamp ? new Date(telemetry.timestamp) : new Date(),
+          esp32Data: {
+            macAddress: macAddress,
+            name: `ESP32-${macAddress.slice(-4)}`,
+            impact_count: telemetry.impact_count || 0,
+            impact_magnitude: telemetry.impact_magnitude || 0,
+            timestamp: telemetry.timestamp ? new Date(telemetry.timestamp) : new Date(),
+            status: telemetry.status !== undefined ? telemetry.status : false,
+            isFallDetected: telemetry.isFallDetected || false,
+            isButtonPressed: telemetry.isButtonPressed || false,
+          },
         };
       }
-      
-      return null;
     } catch (error) {
-      console.error('Error obteniendo dispositivo del backend:', error);
-      return null;
+      // Silent fail to fallback
     }
+
+    // 2. Fallback a mocks si no se encuentra (para demo)
+    const mock = this.mockDevices.find((d) => d.mac_address === macAddress);
+    return mock || null;
   }
 
   // 🆕 Obtener usuario por ID desde el backend
   async getUserById(userId: string): Promise<any> {
     try {
       const response = await this.http.get<any>(`${this.apiUrl}/users/${userId}`).toPromise();
-      
+
       // Mapear la respuesta del backend al formato esperado por el frontend
       return {
         id: response.id,
@@ -495,10 +544,11 @@ export class ApiService {
         email: response.email,
         telefono: response.telefono,
         direccion: response.direccion,
+        fecha_nacimiento: response.fecha_nacimiento, // ✅ AHORA SÍ!
         edad: response.edad,
         genero: response.genero,
         dispositivo_mac: response.dispositivo?.mac_address || null,
-        role: 'user'
+        role: 'user',
       };
     } catch (error) {
       console.error('Error obteniendo usuario del backend:', error);
@@ -512,7 +562,7 @@ export class ApiService {
         edad: null,
         genero: null,
         dispositivo_mac: null,
-        role: 'user'
+        role: 'user',
       };
     }
   }

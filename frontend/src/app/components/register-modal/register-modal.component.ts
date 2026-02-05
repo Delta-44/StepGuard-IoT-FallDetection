@@ -72,7 +72,7 @@ export class RegisterModalComponent {
         email: this.registerData.email,
         password: this.registerData.password,
         name: this.registerData.name,
-        telefono: this.registerData.telefono || null
+        telefono: this.registerData.telefono || null,
       };
 
       // 2. Añadimos campos específicos según el rol
@@ -80,9 +80,11 @@ export class RegisterModalComponent {
 
       if (tipo === 'usuario') {
         payload.direccion = this.registerData.direccion || null;
-        
+
         // Calcular edad desde fecha_nacimiento si está disponible
         if (this.registerData.fecha_nacimiento) {
+          payload.fecha_nacimiento = this.registerData.fecha_nacimiento; // ✅ ENVIAR FECHA REAL!
+
           const birthDate = new Date(this.registerData.fecha_nacimiento);
           const today = new Date();
           let age = today.getFullYear() - birthDate.getFullYear();
@@ -92,9 +94,10 @@ export class RegisterModalComponent {
           }
           payload.edad = age;
         } else {
+          payload.fecha_nacimiento = null;
           payload.edad = null;
         }
-        
+
         payload.dispositivo_mac = null; // Será asignado por un admin después
       } else {
         payload.is_admin = false; // Por defecto cuidador normal
@@ -105,6 +108,14 @@ export class RegisterModalComponent {
         next: (res) => {
           this.isLoading = false;
           this.showSuccessModal = true;
+
+          // Solo refrescar la lista si el que registra es un admin o cuidador logueado
+          // Si es un usuario nuevo registrándose él mismo, no tiene tokens aún (por eso daba 401)
+          const currentUser = this.authService.currentUser();
+          if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'caregiver')) {
+            this.userService.refreshUsers();
+          }
+
           this.cdr.detectChanges(); // Forzar detección de cambios
         },
         error: (err) => {
@@ -112,7 +123,7 @@ export class RegisterModalComponent {
           console.error('Error en registro:', err);
           const errorMsg = err.error?.message || 'Error al registrar. Revisa los datos';
           alert('❌ ' + errorMsg);
-        }
+        },
       });
     } else {
       alert('⚠️ Por favor completa todos los campos obligatorios');
@@ -122,7 +133,7 @@ export class RegisterModalComponent {
   get roleTitle() {
     return this.selectedRole === 'caregiver' ? 'Cuenta de Cuidador 🏥' : 'Cuenta de Paciente 👤';
   }
-  
+
   closeSuccessModal() {
     this.showSuccessModal = false;
     this.switchToLogin.emit();

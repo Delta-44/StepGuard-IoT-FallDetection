@@ -1,4 +1,12 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
@@ -13,10 +21,9 @@ import { LucideAngularModule } from 'lucide-angular';
   imports: [CommonModule, LucideAngularModule, FormsModule],
   templateUrl: './devices.component.html',
   styleUrl: './devices.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DevicesComponent implements OnInit, OnDestroy {
-
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
@@ -28,13 +35,13 @@ export class DevicesComponent implements OnInit, OnDestroy {
   public showTechnicalPanel = signal<boolean>(true);
   public connectionStatus = signal<'Conectado' | 'Desconectado'>('Conectado');
   public criticalState = signal<boolean>(false);
-  
+
   // Búsqueda
   public searchTerm = signal<string>('');
-  
+
   // Filtro de estado
   public statusFilter = signal<'all' | 'online' | 'offline'>('all');
-  
+
   // Variables de paginación
   public currentPage = signal<number>(1);
   public pageSize = signal<number>(6);
@@ -51,7 +58,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadDevices();
-    
+
     // Actualizar datos cada 5 segundos para obtener datos del ESP32 en tiempo real
     this.pollingInterval = setInterval(() => {
       this.loadDevices();
@@ -75,7 +82,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
     this.apiService.getDevices().subscribe({
       next: (data) => {
         this.devices.set(data);
-        const hasCritical = data.some(d => d.esp32Data?.isFallDetected || !d.estado);
+        const hasCritical = data.some((d) => d.esp32Data?.isFallDetected || !d.estado);
         this.criticalState.set(hasCritical);
         this.applyFilters();
         this.isLoading.set(false);
@@ -84,7 +91,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
         console.error('Error cargando dispositivos:', err);
         this.connectionStatus.set('Desconectado');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -96,16 +103,19 @@ export class DevicesComponent implements OnInit, OnDestroy {
   public async rebootDevice(device: Device): Promise<void> {
     // 1. Candado de seguridad (Lógica)
     if (!this.isAdmin()) {
-      this.notificationService.error('Acceso Denegado', 'Solo los administradores pueden reiniciar equipos.');
+      this.notificationService.error(
+        'Acceso Denegado',
+        'Solo los administradores pueden reiniciar equipos.',
+      );
       return;
     }
 
     // 2. Confirmación visual
     const confirmed = await this.notificationService.confirm(
       `¿Reiniciar el sensor "${device.nombre}"?`,
-      'Esta acción reiniciará temporalmente el dispositivo.'
+      'Esta acción reiniciará temporalmente el dispositivo.',
     );
-    
+
     if (!confirmed) return;
 
     // 3. Llamada al servicio (Simulada)
@@ -126,27 +136,36 @@ export class DevicesComponent implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
+  // Método helper para normalizar texto (quitar tildes y minusculas)
+  private normalizeText(text: string): string {
+    return text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  }
+
   public applyFilters(): void {
     let filtered = [...this.devices()];
-    
+
     // Filtrar por estado
     if (this.statusFilter() !== 'all') {
       if (this.statusFilter() === 'online') {
-        filtered = filtered.filter(device => device.estado === true);
+        filtered = filtered.filter((device) => device.estado === true);
       } else {
-        filtered = filtered.filter(device => device.estado === false);
+        filtered = filtered.filter((device) => device.estado === false);
       }
     }
-    
+
     // Filtrar por término de búsqueda
-    const term = this.searchTerm().toLowerCase().trim();
+    const term = this.normalizeText(this.searchTerm());
     if (term) {
-      filtered = filtered.filter(device => 
-        device.nombre.toLowerCase().includes(term) ||
-        device.mac_address.toLowerCase().includes(term)
+      filtered = filtered.filter(
+        (device) =>
+          this.normalizeText(device.nombre).includes(term) ||
+          this.normalizeText(device.mac_address).includes(term),
       );
     }
-    
+
     this.filteredDevices.set(filtered);
     this.updatePaginatedDevices();
   }
@@ -154,16 +173,16 @@ export class DevicesComponent implements OnInit, OnDestroy {
   // Contador de dispositivos por estado
   public getDeviceCountByStatus(status: 'online' | 'offline'): number {
     if (status === 'online') {
-      return this.devices().filter(d => d.estado === true).length;
+      return this.devices().filter((d) => d.estado === true).length;
     } else {
-      return this.devices().filter(d => d.estado === false).length;
+      return this.devices().filter((d) => d.estado === false).length;
     }
   }
 
   // Formatear fecha en hora local
   public formatLocalTime(date: Date | undefined): string {
     if (!date) return 'No disponible';
-    
+
     return new Date(date).toLocaleString('es-ES', {
       year: 'numeric',
       month: '2-digit',
@@ -171,21 +190,21 @@ export class DevicesComponent implements OnInit, OnDestroy {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
-      hour12: false
+      hour12: false,
     });
   }
 
   // Formatear tiempo relativo (hace X minutos)
   public formatRelativeTime(date: Date | undefined): string {
     if (!date) return 'Desconocido';
-    
+
     const now = new Date().getTime();
     const then = new Date(date).getTime();
     const diffMs = now - then;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-    
+
     if (diffMins < 1) return 'Ahora mismo';
     if (diffMins < 60) return `Hace ${diffMins} min`;
     if (diffHours < 24) return `Hace ${diffHours}h`;
@@ -211,14 +230,14 @@ export class DevicesComponent implements OnInit, OnDestroy {
 
   nextPage() {
     if (this.currentPage() < this.totalPages()) {
-      this.currentPage.update(p => p + 1);
+      this.currentPage.update((p) => p + 1);
       this.updatePaginatedDevices();
     }
   }
 
   prevPage() {
     if (this.currentPage() > 1) {
-      this.currentPage.update(p => p - 1);
+      this.currentPage.update((p) => p - 1);
       this.updatePaginatedDevices();
     }
   }

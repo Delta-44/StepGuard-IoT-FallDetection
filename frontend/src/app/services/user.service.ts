@@ -5,7 +5,7 @@ import { User } from '../models/user.model';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private http = inject(HttpClient);
@@ -16,18 +16,26 @@ export class UserService {
   users$ = this.usersSubject.asObservable();
   private loaded = false;
 
-  constructor() { 
+  constructor() {
     // Cargar usuarios al iniciar el servicio
-    this.loadUsers();
+    // this.loadUsers(); // 👈 Eliminado: Evita llamada 401 Unauthorized al inicio. Los componentes llamarán a loadUsers/refreshUsers cuando sea necesario.
   }
 
   private loadUsers() {
     if (this.loaded) return; // Evitar múltiples cargas
-    
+    this.refreshUsers();
+  }
+
+  public clearState() {
+    this.loaded = false;
+    this.usersSubject.next([]);
+  }
+
+  public refreshUsers() {
     this.http.get<any[]>(`${this.apiUrl}/users`).subscribe({
       next: (users) => {
         // Mapear datos del backend al modelo frontend
-        const mappedUsers = users.map(u => ({
+        const mappedUsers = users.map((u) => ({
           id: u.id,
           username: u.email.split('@')[0],
           fullName: u.fullName || u.nombre,
@@ -37,17 +45,20 @@ export class UserService {
           lastLogin: u.lastLogin || u.last_login,
           telefono: u.telefono,
           direccion: u.direccion,
-          fecha_nacimiento: u.fecha_nacimiento
+          fecha_nacimiento: u.fecha_nacimiento,
         }));
         this.usersSubject.next(mappedUsers);
         this.loaded = true;
       },
-      error: (err) => console.error('Error cargando usuarios:', err)
+      error: (err) => console.error('Error cargando usuarios:', err),
     });
   }
 
   getAllUsers(): Observable<User[]> {
-    // Retornar el observable directamente sin recargar
+    // Lazy loading: solo cargar si no se ha cargado antes
+    if (!this.loaded) {
+      this.refreshUsers();
+    }
     return this.users$;
   }
 
@@ -58,21 +69,22 @@ export class UserService {
   createUser(user: User): Observable<boolean> {
     // TODO: Implementar POST al backend cuando esté disponible
     console.log('Crear usuario aún no implementado en el backend');
-    return new Observable(observer => {
+    return new Observable((observer) => {
       observer.next(false);
       observer.complete();
     });
   }
 
-  updateUser(id: string | number, updatedUser: User): Observable<boolean> {
-    // TODO: Implementar PUT al backend cuando esté disponible
-    console.log('Actualizar usuario aún no implementado en el backend');
-    return new Observable(obs => { obs.next(false); obs.complete(); });
+  updateUser(id: string | number, updatedUser: Partial<User>): Observable<any> {
+    return this.http.put(`${this.apiUrl}/users/${id}`, updatedUser);
   }
 
   deleteUser(id: string | number): Observable<boolean> {
     // TODO: Implementar DELETE al backend cuando esté disponible
     console.log('Eliminar usuario aún no implementado en el backend');
-    return new Observable(obs => { obs.next(false); obs.complete(); });
+    return new Observable((obs) => {
+      obs.next(false);
+      obs.complete();
+    });
   }
 }

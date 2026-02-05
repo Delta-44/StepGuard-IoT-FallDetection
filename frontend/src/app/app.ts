@@ -1,7 +1,8 @@
 import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
-import { AlertService, Alert } from './services/alert.service'; 
+import { AlertService } from './services/alert.service';
+import { Alert } from './models/alert.model';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs'; // 👈 Importante
@@ -11,9 +12,16 @@ import { NotificationComponent } from './components/notification/notification.co
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, LucideAngularModule, NotificationComponent],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    CommonModule,
+    LucideAngularModule,
+    NotificationComponent,
+  ],
   styleUrl: './app.css',
-  templateUrl: './app.html'
+  templateUrl: './app.html',
 })
 export class AppComponent implements OnInit, OnDestroy {
   public authService = inject(AuthService); // Público para usar en HTML
@@ -25,7 +33,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Alerta Roja (Crítica)
   public criticalAlert = signal<Alert | null>(null);
-  
+
   // 👇 Alerta Mini (Toast)
   public miniAlert = signal<Alert | null>(null);
   private miniAlertTimeout: any;
@@ -36,35 +44,35 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Suscripción a navegación
-    this.routerSub = this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      const isLanding = event.url === '/';
-      this.showNavbar.set(!isLanding);
-      
-      // Limpiar alertas cuando estás en landing
-      if (isLanding) {
-        this.criticalAlert.set(null);
-        this.miniAlert.set(null);
-      }
-    });
+    this.routerSub = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        const isLanding = event.url === '/';
+        this.showNavbar.set(!isLanding);
+
+        // Limpiar alertas cuando estás en landing
+        if (isLanding) {
+          this.criticalAlert.set(null);
+          this.miniAlert.set(null);
+        }
+      });
 
     // Suscripción a alertas
-    this.alertSub = this.alertService.alertNotification$.subscribe(newAlert => {
+    this.alertSub = this.alertService.alertNotification$.subscribe((newAlert) => {
       this.handleNewAlert(newAlert);
     });
   }
 
   handleNewAlert(alert: Alert) {
     const user = this.currentUser();
-    
+
     // 🔒 SEGURIDAD: Si no hay usuario o es PACIENTE, no mostramos nada
     if (!user || user.role === 'user') return;
 
     // Si es CRÍTICA, dejamos que salte el Overlay Rojo (opcional) o mostramos ambas
     if (alert.severity === 'critical') {
       this.criticalAlert.set(alert);
-      return; 
+      return;
     }
 
     // Si es ALTA/MEDIA/BAJA -> Mini Notificación
@@ -88,9 +96,9 @@ export class AppComponent implements OnInit, OnDestroy {
   // Ir al dashboard desde la Alerta Roja
   goToDashboard() {
     if (this.criticalAlert()) {
-        this.alertService.currentActiveAlert = this.criticalAlert();
-        this.criticalAlert.set(null);
-        this.router.navigate(['/dashboard']);
+      this.alertService.currentActiveAlert = this.criticalAlert();
+      this.criticalAlert.set(null);
+      this.router.navigate(['/dashboard']);
     }
   }
 

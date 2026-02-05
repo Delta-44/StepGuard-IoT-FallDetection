@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of, tap, catchError, delay } from 'rxjs';
 import { User } from '../models/user.model';
+import { UserService } from './user.service'; // 👈 Importamos UserService
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
@@ -26,7 +27,7 @@ export class AuthService {
   // --- LOGIN REAL ---
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
-      tap(res => {
+      tap((res) => {
         // Adaptamos la respuesta del backend a tu modelo de User
         // Res viene como { message, token, user: { id, email, name, role } }
         const backendUser = res.user;
@@ -46,11 +47,11 @@ export class AuthService {
           status: 'active',
           token: res.token,
           telefono: backendUser.telefono,
-          is_admin: backendUser.role === 'admin'
+          is_admin: backendUser.role === 'admin',
         };
 
         this.saveSession(userToSave, res.token);
-      })
+      }),
     );
   }
 
@@ -66,18 +67,24 @@ export class AuthService {
     this.currentUser.set(user);
   }
 
+  private userService = inject(UserService); // 👈 Inyectamos UserService para limpiar estado
+
   logout(): void {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('stepguard_session');
     this.currentUser.set(null);
+    this.userService.clearState(); // 👈 Limpiar cache de usuarios al salir
     this.router.navigate(['/']);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('auth_token');
   }
 
   // Helper para el login con Google
   getGoogleLoginUrl(): string {
     return `${this.apiUrl}/auth/google`;
   }
-
 
   loginWithGoogle(googleToken: string, role?: string): Observable<any> {
     const payload: any = { token: googleToken };
@@ -86,7 +93,7 @@ export class AuthService {
     }
 
     return this.http.post<any>(`${this.apiUrl}/auth/google`, payload).pipe(
-      tap(res => {
+      tap((res) => {
         // Si es un usuario nuevo, el backend devolverá isNewUser: true
         if (res.isNewUser) {
           // El frontend debe manejar esto mostrando un selector de rol
@@ -115,11 +122,11 @@ export class AuthService {
           status: 'active',
           token: res.token,
           telefono: backendUser.telefono,
-          is_admin: backendUser.role === 'admin'
+          is_admin: backendUser.role === 'admin',
         };
 
         this.saveSession(userToSave, res.token);
-      })
+      }),
     );
   }
 
@@ -130,7 +137,7 @@ export class AuthService {
   resetPassword(token: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/reset-password`, { token, password });
   }
-    loginTestAdmin(): void {
+  loginTestAdmin(): void {
     const testAdmin: User = {
       id: 'test-admin-1',
       username: 'admin',
@@ -140,7 +147,7 @@ export class AuthService {
       status: 'active',
       token: 'test-token-' + Date.now(),
       telefono: '000000000',
-      is_admin: true
+      is_admin: true,
     };
 
     this.saveSession(testAdmin, testAdmin.token || 'test-token');

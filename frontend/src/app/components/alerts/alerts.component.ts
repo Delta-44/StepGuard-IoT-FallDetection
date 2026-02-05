@@ -1,7 +1,8 @@
 import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AlertService, Alert } from '../../services/alert.service';
+import { AlertService } from '../../services/alert.service';
+import { Alert } from '../../models/alert.model';
 import { AuthService } from '../../services/auth.service';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -10,25 +11,25 @@ import { LucideAngularModule } from 'lucide-angular';
   standalone: true,
   imports: [CommonModule, DatePipe, FormsModule, LucideAngularModule],
   templateUrl: './alerts.component.html',
-  styleUrls: ['./alerts.component.css']
+  styleUrls: ['./alerts.component.css'],
 })
 export class AlertsComponent implements OnInit {
   private alertService = inject(AlertService);
   private authService = inject(AuthService);
   private cd = inject(ChangeDetectorRef);
-  
+
   alerts: Alert[] = [];
   filteredAlerts: Alert[] = [];
   paginatedAlerts: Alert[] = [];
   expandedAlerts = new Set<string>();
 
   pageTitle = 'Centro de Alertas Global';
-  
+
   // Variables de paginación
   currentPage = 1;
   pageSize = 3;
   totalPages = 1;
-  
+
   // Variables de filtro y ordenamiento
   searchTerm: string = '';
   sortOrder: 'newest' | 'oldest' = 'newest';
@@ -40,14 +41,14 @@ export class AlertsComponent implements OnInit {
 
     if (user.role === 'user') {
       this.pageTitle = 'Mi Historial de Alertas';
-      this.alertService.getAlertsByDeviceId(String(user.id)).subscribe(data => {
+      this.alertService.getAlertsByDeviceId(String(user.id)).subscribe((data) => {
         console.log('Alertas cargadas (user):', data.length);
         this.alerts = data;
         this.applyFilters();
       });
     } else {
       this.pageTitle = 'Centro de Alertas Global';
-      this.alertService.getAllAlerts().subscribe(data => {
+      this.alertService.getAllAlerts().subscribe((data) => {
         console.log('Alertas cargadas (admin/caregiver):', data.length);
         this.alerts = data;
         this.applyFilters();
@@ -89,34 +90,48 @@ export class AlertsComponent implements OnInit {
     this.applyFilters();
   }
 
+  // Método helper para normalizar texto (quitar tildes y minusculas)
+  private normalizeText(text: string): string {
+    return text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  }
+
   applyFilters() {
-    console.log('applyFilters() - alerts.length:', this.alerts.length, 'statusFilter:', this.statusFilter);
+    console.log(
+      'applyFilters() - alerts.length:',
+      this.alerts.length,
+      'statusFilter:',
+      this.statusFilter,
+    );
     let filtered = [...this.alerts];
-    
+
     // Filtrar por estado
     if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(a => a.status === this.statusFilter);
+      filtered = filtered.filter((a) => a.status === this.statusFilter);
     }
-    
+
     // Filtrar por término de búsqueda
     if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase().trim();
-      filtered = filtered.filter(a => 
-        a.message.toLowerCase().includes(term) ||
-        a.location.toLowerCase().includes(term) ||
-        a.macAddress.toLowerCase().includes(term) ||
-        (a.notes && a.notes.toLowerCase().includes(term)) ||
-        (a.attendedBy && a.attendedBy.toLowerCase().includes(term))
+      const term = this.normalizeText(this.searchTerm);
+      filtered = filtered.filter(
+        (a) =>
+          this.normalizeText(a.message).includes(term) ||
+          this.normalizeText(a.location || '').includes(term) ||
+          this.normalizeText(a.macAddress).includes(term) ||
+          (a.resolutionNotes && this.normalizeText(a.resolutionNotes).includes(term)) ||
+          (a.attendedBy && this.normalizeText(a.attendedBy).includes(term)),
       );
     }
-    
+
     // Ordenar por fecha
     filtered.sort((a, b) => {
       const dateA = new Date(a.timestamp).getTime();
       const dateB = new Date(b.timestamp).getTime();
       return this.sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
-    
+
     this.filteredAlerts = filtered;
     console.log('Después de filtrar - filteredAlerts.length:', this.filteredAlerts.length);
     this.updatePaginatedAlerts();
@@ -161,6 +176,6 @@ export class AlertsComponent implements OnInit {
 
   // --- CONTADORES ---
   getAlertCountByStatus(status: 'pendiente' | 'atendida'): number {
-    return this.alerts.filter(a => a.status === status).length;
+    return this.alerts.filter((a) => a.status === status).length;
   }
 }
