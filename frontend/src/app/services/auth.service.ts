@@ -13,6 +13,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private apiUrl = environment.apiUrl;
+  // Force git detect
 
   public currentUser = signal<User | null>(null);
 
