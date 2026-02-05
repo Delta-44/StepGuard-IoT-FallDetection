@@ -30,15 +30,15 @@
       @if (currentUser()) {
         <div style="display: flex; gap: 20px;">
           @if (currentUser()?.role === 'user') {
-            <!-- Navegación para PACIENTES -->
+            <!-- Navegación para Pacientes -->
             <a routerLink="/profile" routerLinkActive="active-link" class="nav-item">
-              <i-lucide name="user-circle" [size]="16"></i-lucide> Mi Perfil
+              <i-lucide name="user" [size]="16"></i-lucide> Mi Perfil
             </a>
             <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
-              <i-lucide name="bell" [size]="16"></i-lucide> Mis Alertas
+              <i-lucide name="bell" [size]="16"></i-lucide> Mis Incidencias
             </a>
           } @else {
-            <!-- Navegación para ADMIN y CUIDADORES -->
+            <!-- Navegación para Admin y Cuidadores -->
             <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">
               <i-lucide name="activity" [size]="16"></i-lucide> Monitorización
             </a>
@@ -53,7 +53,7 @@
               <a routerLink="/users" routerLinkActive="active-link" 
                  [class.nav-item-admin]="isAdmin()" [class.nav-item]="!isAdmin()">
                 <i-lucide name="users" [size]="16"></i-lucide>
-                {{ isAdmin() ? 'Gestión Usuarios' : 'Lista de Usuarios' }}
+                {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
               </a>
             }
           }
