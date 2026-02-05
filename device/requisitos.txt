@@ -3,13 +3,6 @@ Esta extension requiere platformio.ini para que algunas dependencias funcionen b
 
 Librerias: Adafruit MPU6050 o la de Electronic Cats.
 
-El sensor de movimiento es este: HC-SR501 Module
-
-Conexiones fisicas:
-VCC:    Rojo       :VIN
-OUT:    Marron     :D13
-GND:    Negro      :GND
-
 El boton debe tener en diagonal los pines
 
 Conexiones fisicas:
@@ -18,16 +11,24 @@ izquierda abajo: nada
 derecha arriba: nada
 derecha abajo: D14
 
-El sensor de inclinacion es: MAGIC LIGHT CUP KY-027
-
-conexiones fisicas:
+-Sensor de inclinacion: MAGIC LIGHT CUP KY-027
 
 Pin1(G): GND
 pin2: VIN
 pin3(S): D32
 pin4(L): D33
 
-La pantalla debe ser conectada por la zona IN:
+-Acelerometro: MPU6050
+
+VCC a 3.3 (no a VIN)
+GND a GND
+SCL a D22
+SDA a D21
+
+--- Sin usar ---
+
+-Pantalla dot matrix 
+(debe ser conectada por la zona IN)
 
 CLK a D18
 CS a D5
@@ -35,9 +36,10 @@ DIN a D32
 GND a GND
 VCC a VIN
 
-El acelerometro es el: MPU6050
 
-VCC a 3.3 (no a VIN)
-GND a GND
-SCL a D22
-SDA a D21
+-Sensor de movimiento: HC-SR501 Module
+
+Conexiones fisicas:
+VCC:    Rojo       :VIN
+OUT:    Marron     :D13
+GND:    Negro      :GND
