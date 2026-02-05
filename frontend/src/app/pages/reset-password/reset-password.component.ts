@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -23,13 +24,14 @@ export class ResetPasswordComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
     this.token = this.route.snapshot.queryParams['token'] || '';
     if (!this.token) {
-      alert('Token inválido o expirado');
+      this.notificationService.error('Token Inválido', 'El enlace de recuperación es inválido o ha expirado');
       this.router.navigate(['/']);
     }
   }
@@ -68,12 +70,12 @@ export class ResetPasswordComponent implements OnInit {
 
   onSubmit() {
     if (this.newPassword !== this.confirmPassword) {
-      alert('Las contraseñas no coinciden');
+      this.notificationService.warning('Contraseñas no Coinciden', 'Por favor, verifica que ambas contraseñas sean idénticas');
       return;
     }
 
     if (this.newPassword.length < 6) {
-      alert('La contraseña debe tener al menos 6 caracteres');
+      this.notificationService.warning('Contraseña muy Corta', 'La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
@@ -82,12 +84,12 @@ export class ResetPasswordComponent implements OnInit {
     this.authService.resetPassword(this.token, this.newPassword).subscribe({
       next: (response: { message: string }) => {
         this.isLoading = false;
-        alert('✅ Contraseña actualizada con éxito. Ya puedes iniciar sesión.');
-        this.router.navigate(['/']);
+        this.notificationService.success('Contraseña Actualizada', 'Ya puedes iniciar sesión con tu nueva contraseña');
+        setTimeout(() => this.router.navigate(['/']), 2000);
       },
       error: (error: any) => {
         this.isLoading = false;
-        alert('❌ Error al actualizar la contraseña. El token puede haber expirado.');
+        this.notificationService.error('Error al Actualizar', 'El token puede haber expirado. Solicita un nuevo enlace de recuperación');
         console.error('Error:', error);
       }
     });
