@@ -33,30 +33,24 @@ CREATE INDEX idx_cuidadores_email ON cuidadores(email);
 -- ================================================
 -- TABLA: dispositivos
 -- Descripción: Dispositivos ESP32 para detección de caídas
+-- Campos basados en datos ESP32: macAddress, name, impact_count, impact_magnitude, status
 -- ================================================
 CREATE TABLE dispositivos (
-    id SERIAL PRIMARY KEY,
-    device_id VARCHAR(50) UNIQUE NOT NULL, -- Ej: "ESP32-001"
-    mac_address VARCHAR(17) UNIQUE NOT NULL, -- Ej: "AA:BB:CC:DD:EE:FF"
-    nombre VARCHAR(100) NOT NULL,
-    ubicacion VARCHAR(200),
-    estado VARCHAR(20) DEFAULT 'offline' CHECK (estado IN ('online', 'offline', 'maintenance')),
-    firmware_version VARCHAR(20),
+    mac_address VARCHAR(17) PRIMARY KEY, -- Dirección MAC única del ESP32
+    nombre VARCHAR(100) NOT NULL, -- name del ESP32
+    estado BOOLEAN DEFAULT false, -- status del ESP32 (true=activo, false=inactivo)
     
-    -- Configuración del dispositivo
-    sensibilidad_caida VARCHAR(10) DEFAULT 'medium' CHECK (sensibilidad_caida IN ('low', 'medium', 'high')),
-    intervalo_reporte_ms INTEGER DEFAULT 60000,
-    led_habilitado BOOLEAN DEFAULT true,
+    -- Contadores y estadísticas del ESP32
+    total_impactos INTEGER DEFAULT 0, -- impact_count del ESP32
+    ultima_magnitud DECIMAL(10,2), -- Última impact_magnitude detectada
     
     -- Timestamps
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ultima_conexion TIMESTAMP
+    ultima_conexion TIMESTAMP -- Último timestamp recibido
 );
 
 -- Índices para búsquedas frecuentes
-CREATE INDEX idx_dispositivos_device_id ON dispositivos(device_id);
-CREATE INDEX idx_dispositivos_mac_address ON dispositivos(mac_address);
-CREATE INDEX idx_dispositivos_estado ON dispositivos(estado);
+CREATE INDEX idx_dispositivos_estado ON dispositivos(estado) WHERE estado = true;
 
 -- ================================================
 -- TABLA: usuarios
@@ -72,14 +66,14 @@ CREATE TABLE usuarios (
     telefono VARCHAR(20),
     
     -- Relación con dispositivo (un usuario tiene un dispositivo)
-    dispositivo_id INTEGER REFERENCES dispositivos(id) ON DELETE SET NULL,
+    dispositivo_mac VARCHAR(17) REFERENCES dispositivos(mac_address) ON DELETE SET NULL,
     
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Índices para búsquedas frecuentes
 CREATE INDEX idx_usuarios_email ON usuarios(email);
-CREATE INDEX idx_usuarios_dispositivo_id ON usuarios(dispositivo_id);
+CREATE INDEX idx_usuarios_dispositivo_mac ON usuarios(dispositivo_mac);
 
 -- Función para calcular la edad automáticamente
 CREATE OR REPLACE FUNCTION calcular_edad(fecha_nacimiento DATE)
@@ -115,7 +109,7 @@ CREATE INDEX idx_usuario_cuidador_cuidador ON usuario_cuidador(cuidador_id);
 -- ================================================
 CREATE TABLE eventos_caida (
     id SERIAL PRIMARY KEY,
-    dispositivo_id INTEGER NOT NULL REFERENCES dispositivos(id) ON DELETE CASCADE,
+    dispositivo_mac VARCHAR(17) NOT NULL REFERENCES dispositivos(mac_address) ON DELETE CASCADE,
     usuario_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
     fecha_hora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
@@ -143,7 +137,7 @@ CREATE TABLE eventos_caida (
 -- Índices para búsquedas frecuentes
 CREATE INDEX idx_eventos_fecha ON eventos_caida(fecha_hora DESC);
 CREATE INDEX idx_eventos_usuario ON eventos_caida(usuario_id, fecha_hora DESC);
-CREATE INDEX idx_eventos_dispositivo ON eventos_caida(dispositivo_id, fecha_hora DESC);
+CREATE INDEX idx_eventos_dispositivo_mac ON eventos_caida(dispositivo_mac, fecha_hora DESC);
 CREATE INDEX idx_eventos_estado ON eventos_caida(estado);
 CREATE INDEX idx_eventos_severidad ON eventos_caida(severidad);
 
