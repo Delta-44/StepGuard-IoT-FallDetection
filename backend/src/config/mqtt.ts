@@ -1,4 +1,4 @@
-import * as mqtt from 'mqtt';
+import mqtt from 'mqtt';
 import dotenv from 'dotenv';
 import { ESP32Service } from '../services/esp32Service';
 
@@ -27,7 +27,7 @@ export const connectMQTT = () => {
         console.log(`✅ Connected to MQTT Broker: ${brokerUrl}`);
         
         // Subscribe to stepguard/# as requested
-        client.subscribe('stepguard/#', (err: Error | null) => {
+        client.subscribe('stepguard/#', (err) => {
             if (err) {
                 console.error('❌ MQTT Subscribe Error:', err);
             } else {
@@ -36,7 +36,7 @@ export const connectMQTT = () => {
         });
     });
 
-    client.on('message', async (topic: string, message: Buffer) => {
+    client.on('message', async (topic, message) => {
         try {
             const payload = message.toString();
             console.log(`📩 MQTT Message received on ${topic}:`, payload);
@@ -58,7 +58,7 @@ export const connectMQTT = () => {
         }
     });
 
-    client.on('error', (err: Error) => {
+    client.on('error', (err) => {
         console.error('❌ MQTT Connection Error:', err);
     });
 };

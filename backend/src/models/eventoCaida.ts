@@ -2,7 +2,7 @@ import { query } from '../config/database';
 
 export interface EventoCaida {
   id: number;
-  dispositivo_id: number;
+  dispositivo_mac: string;
   usuario_id?: number;
   fecha_hora: Date;
   acc_x?: number;
@@ -22,19 +22,20 @@ export const EventoCaidaModel = {
    * Registrar un nuevo evento de caída
    */
   create: async (
-    dispositivo_id: number,
+    dispositivo_mac: string,
     usuario_id: number | undefined,
     acc_x: number,
     acc_y: number,
     acc_z: number,
     severidad: 'low' | 'medium' | 'high' | 'critical' = 'medium',
-    ubicacion?: string
+    ubicacion?: string,
+    notas?: string
   ): Promise<EventoCaida> => {
     const result = await query(
       `INSERT INTO eventos_caida 
-       (dispositivo_id, usuario_id, acc_x, acc_y, acc_z, severidad, ubicacion) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [dispositivo_id, usuario_id, acc_x, acc_y, acc_z, severidad, ubicacion]
+       (dispositivo_mac, usuario_id, acc_x, acc_y, acc_z, severidad, ubicacion, notas) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      [dispositivo_mac, usuario_id, acc_x, acc_y, acc_z, severidad, ubicacion, notas]
     );
     return result.rows[0];
   },
@@ -46,6 +47,22 @@ export const EventoCaidaModel = {
     const result = await query(
       'SELECT * FROM eventos_caida WHERE id = $1',
       [id]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Marcar evento como resuelto (atendida)
+   */
+  markAsResolved: async (id: number, atendidoPorId: number): Promise<EventoCaida | null> => {
+    const result = await query(
+      `UPDATE eventos_caida 
+       SET estado = 'atendida', 
+           atendido_por = $1, 
+           fecha_atencion = CURRENT_TIMESTAMP 
+       WHERE id = $2 
+       RETURNING *`,
+      [atendidoPorId, id]
     );
     return result.rows[0] || null;
   },
@@ -72,15 +89,15 @@ export const EventoCaidaModel = {
    * Obtener eventos de un dispositivo específico
    */
   findByDispositivo: async (
-    dispositivo_id: number,
+    dispositivo_mac: string,
     limit: number = 50
   ): Promise<EventoCaida[]> => {
     const result = await query(
       `SELECT * FROM eventos_caida 
-       WHERE dispositivo_id = $1 
+       WHERE dispositivo_mac = $1 
        ORDER BY fecha_hora DESC 
        LIMIT $2`,
-      [dispositivo_id, limit]
+      [dispositivo_mac, limit]
     );
     return result.rows;
   },
@@ -93,7 +110,7 @@ export const EventoCaidaModel = {
       `SELECT ec.*, u.nombre as usuario_nombre, d.device_id, d.ubicacion as dispositivo_ubicacion
        FROM eventos_caida ec
        LEFT JOIN usuarios u ON ec.usuario_id = u.id
-       LEFT JOIN dispositivos d ON ec.dispositivo_id = d.id
+       LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
        WHERE ec.estado = 'pendiente'
        ORDER BY ec.severidad DESC, ec.fecha_hora DESC`
     );
@@ -112,7 +129,7 @@ export const EventoCaidaModel = {
       SELECT ec.*, u.nombre as usuario_nombre, d.device_id
       FROM eventos_caida ec
       LEFT JOIN usuarios u ON ec.usuario_id = u.id
-      LEFT JOIN dispositivos d ON ec.dispositivo_id = d.id
+      LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
       WHERE ec.fecha_hora BETWEEN $1 AND $2
     `;
     const params: any[] = [fecha_inicio, fecha_fin];
