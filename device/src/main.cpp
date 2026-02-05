@@ -6,12 +6,14 @@
 #include "acelerometro.h"
 #include "red.h"
 
+// Array para almacenar las magnitudes de los impactos
 std::vector<float> listaImpactos;
 
-// --- Variables para el temporizador ---
+// Variables para el temporizador
 unsigned long tiempoUltimoReporte = 0;
-const unsigned long INTERVALO_REPORTE = 120000; // 120,000 ms = 2 minutos
+const unsigned long INTERVALO_REPORTE = 120000;
 
+// Inicializacion general
 void setup()
 {
     Serial.begin(115200);
@@ -20,24 +22,27 @@ void setup()
     setupInclinacion();
     setupAcelerometro();
     Serial.println("StepGuard: Sistema iniciado.");
-    
-    tiempoUltimoReporte = millis(); // Inicializar el tiempo
+
+    // Guardar el tiempo de inicio
+    tiempoUltimoReporte = millis();
 }
 
+// Loop principal
 void loop()
 {
-    loopRed(); 
+    loopReconnect();
 
-    // 1. SOS MANUAL (Envío inmediato)
+    // Logica de boton SOS
     if (verificarBotonSOS())
     {
         Serial.println("[!] SOS pulsado. Informando...");
         enviarReporteMQTT(true, false, listaImpactos);
         listaImpactos.clear();
-        tiempoUltimoReporte = millis(); // Reiniciamos el cronómetro de 2 min
+
+        tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
     }
 
-    // 2. LÓGICA DE CAÍDA (Envío inmediato si se confirma)
+    // Logica de caida 
     if (detectarCaida())
     {
         float fuerzaImpacto = obtenerMagnitudImpacto();
@@ -52,24 +57,22 @@ void loop()
             Serial.println(">>> ALERTA: CAÍDA CONFIRMADA.");
             enviarReporteMQTT(false, true, listaImpactos);
             listaImpactos.clear();
-            tiempoUltimoReporte = millis(); // Reiniciamos el cronómetro de 2 min
+
+            tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
         }
     }
 
-    // 3. REPORTE AUTOMÁTICO CADA 2 MINUTOS (Heartbeat)
-    // Se envía aunque no haya caídas ni SOS
+    // Reporte automatico, cambiar INTERVALO_REPORTE para ajustar frecuencia 
     if (millis() - tiempoUltimoReporte >= INTERVALO_REPORTE)
     {
         Serial.println("[i] Enviando reporte periódico de estado...");
-        // Enviamos: SOS=false, Caída=false
-        // Si hubo impactos pero no llegaron a ser caída, se enviarán aquí
         enviarReporteMQTT(false, false, listaImpactos);
-        
-        listaImpactos.clear(); // Limpiamos después de enviar el resumen
-        tiempoUltimoReporte = millis(); // Actualizar tiempo
+
+        listaImpactos.clear();          // Limpiamos los impactos
+        tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
     }
 
-    // 4. SEÑALIZACIÓN LOCAL
+    // Activar el led de inclinacion
     if (estaInclinado())
     {
         parpadearLedInclinacion();
