@@ -36,8 +36,8 @@ redis.on('error', (err) => {
 export const ESP32Cache = {
   /**
    * Guardar datos del dispositivo ESP32
-   * @param macAddress - Dirección MAC del dispositivo (ej: "AA:BB:CC:DD:EE:FF")
-   * @param data - Datos del ESP32 (interface ESP32)
+   * @param macAddress - MAC del dispositivo (ej: "FF:FF:FF:FF:FF:FF")
+   * @param data - Datos del sensor
    */
   setDeviceData: async (macAddress: string, data: any) => {
     const key = `device:${macAddress}`;
@@ -47,7 +47,7 @@ export const ESP32Cache = {
 
   /**
    * Obtener datos del dispositivo ESP32
-   * @param macAddress - Dirección MAC del dispositivo
+   * @param macAddress - MAC del dispositivo
    */
   getDeviceData: async (macAddress: string) => {
     const key = `device:${macAddress}`;
@@ -57,7 +57,7 @@ export const ESP32Cache = {
 
   /**
    * Guardar historial de lecturas (últimas N lecturas)
-   * @param macAddress - Dirección MAC del dispositivo
+   * @param macAddress - MAC del dispositivo
    * @param data - Datos del sensor
    * @param maxEntries - Máximo de entradas a mantener (por defecto 100)
    */
@@ -74,7 +74,7 @@ export const ESP32Cache = {
 
   /**
    * Obtener historial de lecturas
-   * @param macAddress - Dirección MAC del dispositivo
+   * @param macAddress - MAC del dispositivo
    * @param count - Número de entradas a obtener (por defecto 10)
    */
   getDeviceHistory: async (macAddress: string, count: number = 10) => {
@@ -85,7 +85,7 @@ export const ESP32Cache = {
 
   /**
    * Guardar alerta de caída detectada
-   * @param macAddress - Dirección MAC del dispositivo
+   * @param macAddress - MAC del dispositivo
    * @param data - Datos de la alerta
    */
   setFallAlert: async (macAddress: string, data: any) => {
@@ -108,28 +108,29 @@ export const ESP32Cache = {
 
   /**
    * Actualizar estado de conexión del dispositivo
-   * @param macAddress - Dirección MAC del dispositivo
-   * @param status - Estado (true=activo, false=inactivo)
+   * @param macAddress - MAC del dispositivo
+   * @param status - Estado (boolean: true=online, false=offline)
    */
   setDeviceStatus: async (macAddress: string, status: boolean) => {
     const key = `status:${macAddress}`;
-    await redis.set(key, status.toString(), 'EX', 300); // Expira en 5 minutos
+    const statusStr = status ? 'online' : 'offline';
+    await redis.set(key, statusStr, 'EX', 300); // Expira en 5 minutos
     return true;
   },
 
   /**
    * Obtener estado de conexión del dispositivo
-   * @param macAddress - Dirección MAC del dispositivo
+   * @param macAddress - MAC del dispositivo
    */
   getDeviceStatus: async (macAddress: string) => {
     const key = `status:${macAddress}`;
     const status = await redis.get(key);
-    return status === 'true';
+    return status === 'online'; // Return boolean
   },
 
   /**
    * Eliminar todos los datos de un dispositivo
-   * @param macAddress - Dirección MAC del dispositivo
+   * @param macAddress - MAC del dispositivo
    */
   clearDeviceData: async (macAddress: string) => {
     const keys = await redis.keys(`*:${macAddress}`);
