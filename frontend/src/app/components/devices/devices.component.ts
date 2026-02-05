@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy } 
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 import { Device } from '../../models/device';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -17,6 +18,7 @@ export class DevicesComponent implements OnInit {
 
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
 
   public devices = signal<Device[]>([]);
   public isLoading = signal<boolean>(true);
@@ -61,19 +63,24 @@ export class DevicesComponent implements OnInit {
   }
 
   // ACCIÓN SOLO PARA ADMINS
-  public rebootDevice(device: Device): void {
+  public async rebootDevice(device: Device): Promise<void> {
     // 1. Candado de seguridad (Lógica)
     if (!this.isAdmin()) {
-      alert('⛔ ACCESO DENEGADO: Solo los administradores pueden reiniciar equipos.');
+      this.notificationService.error('Acceso Denegado', 'Solo los administradores pueden reiniciar equipos.');
       return;
     }
 
     // 2. Confirmación visual
-    if (!confirm(`¿Reiniciar el sensor "${device.name}" en ${device.location}?`)) return;
+    const confirmed = await this.notificationService.confirm(
+      `¿Reiniciar el sensor "${device.name}" en ${device.location}?`,
+      'Esta acción reiniciará temporalmente el dispositivo.'
+    );
+    
+    if (!confirmed) return;
 
     // 3. Llamada al servicio (Simulada)
     this.apiService.toggleDevice(device.id).subscribe(() => {
-      alert(`✅ Comando de reinicio enviado a ${device.name}`);
+      this.notificationService.success('Comando Enviado', `Reinicio enviado a ${device.name}`);
     });
   }
 }

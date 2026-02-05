@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, of, tap, catchError } from 'rxjs';
+import { Observable, of, tap, catchError, delay } from 'rxjs';
 import { User } from '../models/user.model';
 import { environment } from '../../environments/environment';
 
@@ -129,5 +129,20 @@ export class AuthService {
 
   resetPassword(token: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/reset-password`, { token, password });
+  }
+    loginTestAdmin(): void {
+    const testAdmin: User = {
+      id: 'test-admin-1',
+      username: 'admin',
+      fullName: 'Administrador de Prueba',
+      email: 'admin@test.com',
+      role: 'admin',
+      status: 'active',
+      token: 'test-token-' + Date.now(),
+      telefono: '000000000',
+      is_admin: true
+    };
+
+    this.saveSession(testAdmin, testAdmin.token || 'test-token');
   }
 }

@@ -814,6 +814,7 @@ h1 {
   width: 100%;
   gap: 16px;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .member-name {
@@ -826,6 +827,8 @@ h1 {
   line-height: 1.4;
   letter-spacing: 0.3px;
   text-align: center;
+  white-space: normal;
+  flex-shrink: 0;
 }
 
 .team-member .role {

@@ -51,17 +51,17 @@
 
       <div style="display: flex; align-items: center; gap: 15px;">
         @if (currentUser()) {
-          <div style="text-align: right; color: white; line-height: 1.2;">
-            <div style="font-weight: bold; font-size: 0.9em;">{{ currentUser()?.fullName }}</div>
-            <div style="font-size: 0.75em; opacity: 0.8; color: #ccc;">
+          <div style="text-align: right; color: white; line-height: 1.2; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+            <div style="font-weight: bold; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ currentUser()?.fullName }}</div>
+            <div style="font-size: 0.75em; opacity: 0.8; color: #ccc; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
               @switch (currentUser()?.role) {
-                @case ('admin') { <i-lucide name="settings" [size]="12"></i-lucide> Administrador }
-                @case ('caregiver') { <i-lucide name="user-circle" [size]="12"></i-lucide> Cuidador }
-                @case ('user') { <i-lucide name="user-circle" [size]="12"></i-lucide> Paciente }
+                @case ('admin') { <i-lucide name="settings" [size]="12"></i-lucide> <span>Administrador</span> }
+                @case ('caregiver') { <i-lucide name="user-circle" [size]="12"></i-lucide> <span>Cuidador</span> }
+                @case ('user') { <i-lucide name="user-circle" [size]="12"></i-lucide> <span>Paciente</span> }
               }
             </div>
           </div>
-          <button (click)="logout()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+          <button (click)="logout()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
             <i-lucide name="log-out" [size]="16"></i-lucide> Salir
           </button>
         } @else {
@@ -100,5 +100,8 @@
       <div class="progress-bar"></div>
     </div>
   }
+
+  <!-- Componente de Notificaciones -->
+  <app-notification></app-notification>
 
 </div>
