@@ -168,15 +168,90 @@
           <i-lucide name="bar-chart-3" [size]="20"></i-lucide>
           Actividad de Sensores (Última Hora)
         </h3>
-        <div class="flex items-end gap-2 h-48 bg-transparent rounded-lg p-4">
-          <div class="flex-1 bg-chart-zAxis rounded-t transition-all duration-300 hover:bg-primary-dark" style="height: 40%"></div>
-          <div class="flex-1 bg-chart-zAxis rounded-t transition-all duration-300 hover:bg-primary-dark" style="height: 70%"></div>
-          <div class="flex-1 bg-chart-zAxis rounded-t transition-all duration-300 hover:bg-primary-dark" style="height: 50%"></div>
-          <div class="flex-1 bg-chart-zAxis rounded-t transition-all duration-300 hover:bg-primary-dark" style="height: 80%"></div>
-          <div class="flex-1 bg-chart-zAxis rounded-t transition-all duration-300 hover:bg-primary-dark" style="height: 30%"></div>
-          <div class="flex-1 bg-chart-zAxis rounded-t transition-all duration-300 hover:bg-primary-dark" style="height: 60%"></div>
-          <div class="flex-1 bg-chart-zAxis rounded-t transition-all duration-300 hover:bg-primary-dark" style="height: 90%"></div>
-          <div class="flex-1 bg-chart-zAxis rounded-t transition-all duration-300 hover:bg-primary-dark" style="height: 45%"></div>
+        <div class="space-y-3">
+          <!-- Total Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Total Resueltas</span>
+              <span class="text-sm font-bold text-green-600">{{ resolvedStats.totalResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-green-500 to-green-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.totalResolved / (resolvedStats.totalResolved + stats.pendingAlerts)) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Críticas Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Críticas</span>
+              <span class="text-sm font-bold text-red-600">{{ resolvedStats.criticalResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-red-500 to-red-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.criticalResolved / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Altas Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Altas</span>
+              <span class="text-sm font-bold text-orange-600">{{ resolvedStats.highResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-orange-500 to-orange-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.highResolved / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Medias Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Medias</span>
+              <span class="text-sm font-bold text-yellow-600">{{ resolvedStats.mediumResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-yellow-500 to-yellow-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.mediumResolved / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Bajas Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Bajas</span>
+              <span class="text-sm font-bold text-blue-600">{{ resolvedStats.lowResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.lowResolved / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Falsas Alarmas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Falsas Alarmas</span>
+              <span class="text-sm font-bold text-gray-600">{{ resolvedStats.falseAlarms }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-gray-500 to-gray-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.falseAlarms / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
         </div>
       </div>
 

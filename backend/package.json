@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "src/server.js",
   "scripts": {
+    "clean": "npm cache clean --force",
+    "prestart": "npm run clean",
+    "predev": "npm run clean",
     "start": "ts-node src/server.ts",
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
@@ -19,6 +22,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",

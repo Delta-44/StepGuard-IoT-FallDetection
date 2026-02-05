@@ -194,7 +194,7 @@
 
   <!-- Modales -->
   @if (isLoginOpen) {
-    <div class="modal-backdrop" (click)="closeModals()">
+    <div class="modal-backdrop">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <button class="close-btn" (click)="closeModals()">✕</button>
         
@@ -208,7 +208,7 @@
   }
 
   @if (isRegisterOpen) {
-    <div class="modal-backdrop" (click)="closeModals()">
+    <div class="modal-backdrop">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <button class="close-btn" (click)="closeModals()">✕</button>
         

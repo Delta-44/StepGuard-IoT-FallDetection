@@ -2,15 +2,10 @@ import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DevicesComponent } from './components/devices/devices.component';
-// import { LoginPage } ... YA NO LOS NECESITAMOS
-// import { RegisterPage } ... YA NO LOS NECESITAMOS
 import { UsersComponent } from './components/users/users.component';
 import { AuthService } from './services/auth.service';
-import { HomeComponent } from './components/home/home.component';
 import { LandingComponent } from './pages/landing/landing.component';
-import { AlertsComponent } from './components/alerts/alerts.component';
-
-// --- LÓGICA DE GUARDIA (SECURITY GUARD) ---
+import { AlertsComponent } from './components/alerts/alerts.component';import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 const authGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -55,15 +50,16 @@ export const routes: Routes = [
     component: UsersComponent,
     canActivate: [authGuard]
   },
-  { 
-    path: 'home', 
-    component: HomeComponent,
-    canActivate: [authGuard] 
-  },
+
   { path: 'alerts', component: AlertsComponent, canActivate: [authGuard] },
 
   // ==========================================
-  // 3. RUTAS DESCONOCIDAS
+  // 4. RESET PASSWORD (PÚBLICO)
+  // ==========================================
+  { path: 'reset-password', component: ResetPasswordComponent },
+
+  // ==========================================
+  // 5. RUTAS DESCONOCIDAS
   // ==========================================
   // Cualquier cosa rara -> A la portada
   { path: '**', redirectTo: '' } 

@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "vibrador.h"
 
-const int PIN_VIBRADOR = 26;
+const int PIN_VIBRADOR = 25;
 
 void setupVibrador() {
     pinMode(PIN_VIBRADOR, OUTPUT);
