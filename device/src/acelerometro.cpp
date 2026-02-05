@@ -4,34 +4,46 @@
 #include "acelerometro.h"
 
 Adafruit_MPU6050 mpu;
+float impactoMinimo = 50.0;
+bool acelerometroDisponible = false;
 
 void setupAcelerometro() {
     if (!mpu.begin()) {
-        Serial.println("Error: No se encuentra el sensor MPU6050");
-        while (1) yield();
+        Serial.println("[!] ADVERTENCIA: No se encuentra el sensor MPU6050.");
+        Serial.println("[!] El sistema continuará funcionando solo con el botón SOS.");
+        acelerometroDisponible = false; // Marcamos como no disponible
+    } else {
+        // Configuración si el sensor sí existe
+        mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+        mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+        Serial.println("MPU6050 configurado correctamente.");
+        acelerometroDisponible = true; // Marcamos como disponible
     }
-    // Configuración para detección de impactos (rango alto)
-    mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-    mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
-    Serial.println("MPU6050 configurado correctamente.");
 }
 
 bool detectarCaida() {
+    if (!acelerometroDisponible) {
+        return false; 
+    }
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
 
-    // Calcular la magnitud del vector aceleración: sqrt(x^2 + y^2 + z^2)
-    float fuerzaG = sqrt(pow(a.acceleration.x, 2) + 
-                         pow(a.acceleration.y, 2) + 
-                         pow(a.acceleration.z, 2));
+    float magnitudAcc = sqrt(pow(a.acceleration.x, 2) + 
+                             pow(a.acceleration.y, 2) + 
+                             pow(a.acceleration.z, 2));
 
-    // Umbral de impacto: Una caída suele superar los 25-30 m/s^2 (aprox 3G)
-    // 9.8 es el estado de reposo.
-    if (fuerzaG > 30.0) {
-        Serial.print("[!] IMPACTO DETECTADO: ");
-        Serial.print(fuerzaG);
-        Serial.println(" m/s^2");
+    // Umbral de test (Ajustable)
+    if (magnitudAcc > impactoMinimo) { 
         return true;
     }
     return false;
+}
+
+float obtenerMagnitudImpacto() {
+    if (!acelerometroDisponible) {
+        return 0.0; 
+    }
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
+    return sqrt(pow(a.acceleration.x, 2) + pow(a.acceleration.y, 2) + pow(a.acceleration.z, 2));
 }

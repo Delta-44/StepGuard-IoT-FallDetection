@@ -1,4 +1,3 @@
-
 import { Request, Response } from 'express';
 import { ESP32Service } from '../services/esp32Service';
 

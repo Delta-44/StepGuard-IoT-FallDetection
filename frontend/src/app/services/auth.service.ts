@@ -1,9 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http'; // 👈 Necesario
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, of, tap, catchError } from 'rxjs'; // 👈 Añadido tap
+import { Observable, of, tap, catchError } from 'rxjs';
 import { User } from '../models/user.model';
-import { environment } from '../../environments/environment'; // 👈 Tu URL del paso 1
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'

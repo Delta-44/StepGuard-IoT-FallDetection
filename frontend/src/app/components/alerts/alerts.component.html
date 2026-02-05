@@ -126,6 +126,16 @@
                     </div>
                   </div>
                   
+                  @if (alert.attendedBy && alert.status !== 'pendiente') {
+                    <div class="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-200">
+                      <i-lucide name="user-circle" [size]="18" class="text-green-600"></i-lucide>
+                      <div>
+                        <div class="text-xs text-gray-500 font-medium">Atendida por</div>
+                        <div class="text-sm font-semibold text-gray-800">{{ alert.attendedBy }}</div>
+                      </div>
+                    </div>
+                  }
+                  
                   @if (alert.notes) {
                     <button 
                       class="flex items-center justify-center gap-2 p-3 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors border border-primary/20 hover:border-primary/40"
