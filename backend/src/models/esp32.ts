@@ -2,7 +2,9 @@ export interface ESP32 {
     macAddress: string;
     name: string;
     impact_count: number;
+    impact_magnitude: number;
     timestamp: Date;
-    status: 'online' | 'offline' | 'maintenance';
+    status: boolean;
     isFallDetected: boolean;
+    isButtonPressed: boolean;
 }
