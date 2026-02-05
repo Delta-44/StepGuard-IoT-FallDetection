@@ -32,6 +32,11 @@ export class UsersComponent implements OnInit {
   public userHistory: Alert[] = [];
   public selectedHistoryUserName = '';
 
+  // Variables Modal Información del Paciente 🆕
+  public isPatientInfoModalOpen = false;
+  public selectedPatientInfo: any = null;
+  public isLoadingPatientInfo = false;
+
   // 🔐 ROLES
   public isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
   
@@ -101,5 +106,32 @@ export class UsersComponent implements OnInit {
 
   closeHistoryModal() {
     this.isHistoryModalOpen = false;
+  }
+
+  // --- MODAL INFORMACIÓN DEL PACIENTE (NUEVO) 🆕 ---
+  openPatientInfoModal(user: User) {
+    if (user.role !== 'user') return; // Solo para pacientes
+    
+    this.isLoadingPatientInfo = true;
+    this.isPatientInfoModalOpen = true;
+    
+    this.userService.getUserById(user.id).subscribe({
+      next: (data) => {
+        this.selectedPatientInfo = data;
+        this.isLoadingPatientInfo = false;
+        this.cd.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error cargando información del paciente:', err);
+        this.isLoadingPatientInfo = false;
+        this.selectedPatientInfo = user; // Fallback a datos básicos
+        this.cd.detectChanges();
+      }
+    });
+  }
+
+  closePatientInfoModal() {
+    this.isPatientInfoModalOpen = false;
+    this.selectedPatientInfo = null;
   }
 }

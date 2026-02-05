@@ -33,7 +33,8 @@ export class UserService {
           fullName: u.fullName || u.nombre,
           email: u.email,
           role: u.role || 'user',
-          status: u.status || 'active',
+          status: u.status || 'inactive',
+          lastLogin: u.lastLogin || u.last_login,
           telefono: u.telefono,
           direccion: u.direccion,
           fecha_nacimiento: u.fecha_nacimiento
