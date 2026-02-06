@@ -1,12 +1,15 @@
 import { Component, inject, OnInit, ChangeDetectorRef, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Action } from 'rxjs/internal/scheduler/Action';
 import { UserService } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { ApiService } from '../../services/api.service'; // 👈 Importamos ApiService
 import { AlertService } from '../../services/alert.service';
 import { NotificationService } from '../../services/notification.service';
 import { Alert } from '../../models/alert.model';
 import { User } from '../../models/user.model';
+import { Device } from '../../models/device'; // 👈 Importamos Device
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -18,8 +21,9 @@ import { LucideAngularModule } from 'lucide-angular';
 })
 export class UsersComponent implements OnInit {
   private userService = inject(UserService);
+  private apiService = inject(ApiService); // 👈 Inyectamos ApiService
   private authService = inject(AuthService);
-  private alertService = inject(AlertService); // 👈 Inyectamos
+  private alertService = inject(AlertService);
   private cd = inject(ChangeDetectorRef);
   private notificationService = inject(NotificationService); // 👈 Inyectamos NotificationService
 
@@ -51,6 +55,12 @@ export class UsersComponent implements OnInit {
   public isPatientInfoModalOpen = false;
   public selectedPatientInfo: any = null;
   public isLoadingPatientInfo = false;
+
+  // Variables Modal Asignar Dispositivo 🆕
+  public isAssignDeviceModalOpen = false;
+  public availableDevices: Device[] = [];
+  public selectedDeviceMac: string = '';
+  public isLoadingDevices = false;
 
   // 🔐 ROLES
   public isAdmin = computed(() => this.authService.currentUser()?.role === 'admin');
@@ -136,22 +146,15 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  deleteUser(userId: string | number) {
-    if (!confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.')) {
+  deleteUser(user: User) {
+    if (!confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.fullName}? Esta acción no se puede deshacer.`)) {
       return;
     }
 
-    this.userService.deleteUser(userId).subscribe({
-      next: (success) => {
-        if (success) {
-          this.notificationService.success('Éxito', 'Usuario eliminado correctamente');
-          this.userService.refreshUsers();
-        } else {
-          this.notificationService.warning(
-            'Funcionalidad no disponible', 
-            'La eliminación de usuarios aún no está implementada en el backend.'
-          );
-        }
+    this.userService.deleteUser(user.id, user.role).subscribe({
+      next: () => {
+        this.notificationService.success('Éxito', 'Usuario eliminado correctamente');
+        this.userService.refreshUsers();
       },
       error: (err) => {
         console.error('Error eliminando usuario:', err);
@@ -228,6 +231,58 @@ export class UsersComponent implements OnInit {
   closePatientInfoModal() {
     this.isPatientInfoModalOpen = false;
     this.selectedPatientInfo = null;
+  }
+
+  // --- MODAL ASIGNAR DISPOSITIVO (NUEVO) 🆕 ---
+  openAssignDeviceModal(user: User) {
+    if (user.role !== 'user') return;
+    this.selectedUser = { ...user };
+    this.selectedDeviceMac = '';
+    this.isAssignDeviceModalOpen = true;
+    this.isLoadingDevices = true;
+
+    // Cargar dispositivos disponibles
+    this.apiService.getDevices().subscribe({
+      next: (devices) => {
+        // Filtrar dispositivos que NO están asignados (estado false o sin assignedUser)
+        // Ojo: Tu lógica actual de mockDevices tiene assignedUser string, pero el backend real usa dispositivo_mac en usuario.
+        // La mejor forma es filtrar aquellos cuyo estado sea false (offline/disponible) o chequear si ya tienen dueño.
+        // Para simplificar, mostraremos todos los dispositivos por ahora, o filtramos los que no tienen dueño si tuviéramos esa data en el listado.
+        // Asumiremos que todos los listados se pueden reasignar o están libres.
+        // IDEALMENTE: El backend debería dar endpoint de "dispositivos libres".
+        this.availableDevices = devices;
+        this.isLoadingDevices = false;
+      },
+      error: (err) => {
+        console.error('Error cargando dispositivos:', err);
+        this.isLoadingDevices = false;
+      }
+    });
+  }
+
+  closeAssignDeviceModal() {
+    this.isAssignDeviceModalOpen = false;
+    this.availableDevices = [];
+  }
+
+  assignDevice() {
+    if (!this.selectedUser.id || !this.selectedDeviceMac) return;
+
+    this.userService.assignDevice(Number(this.selectedUser.id), this.selectedDeviceMac).subscribe({
+      next: (res) => {
+        this.notificationService.success('Éxito', `Dispositivo asignado a ${this.selectedUser.fullName}`);
+        this.closeAssignDeviceModal();
+        this.userService.refreshUsers(); // Recargar lista para ver cambios (si mostramos icono)
+      },
+      error: (err) => {
+        console.error('Error asignando dispositivo:', err);
+        if (err.status === 409) {
+             this.notificationService.warning('Conflicto', 'El dispositivo ya está asignado a otro usuario.');
+        } else {
+             this.notificationService.error('Error', 'No se pudo asignar el dispositivo.');
+        }
+      }
+    });
   }
 
   // --- MÉTODOS DE FILTRADO ---

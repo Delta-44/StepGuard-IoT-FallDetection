@@ -69,6 +69,12 @@ export class AppComponent implements OnInit, OnDestroy {
     // 🔒 SEGURIDAD: Si no hay usuario o es PACIENTE, no mostramos nada
     if (!user || user.role === 'user') return;
 
+    // 🛑 NUEVO: Si estamos en la landing page ('/'), NO mostrar alertas
+    if (this.router.url === '/') {
+      console.log('🔇 Alerta ignorada en landing page');
+      return;
+    }
+
     // Si es CRÍTICA, dejamos que salte el Overlay Rojo (opcional) o mostramos ambas
     if (alert.severity === 'critical') {
       this.criticalAlert.set(alert);
@@ -114,6 +120,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   logout() {
     this.authService.logout();
+    this.alertService.stopService(); // 👈 Detener alertas
     this.criticalAlert.set(null);
     this.miniAlert.set(null);
   }

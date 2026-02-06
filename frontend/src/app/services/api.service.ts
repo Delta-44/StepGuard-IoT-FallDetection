@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, timer, of, firstValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap, catchError } from 'rxjs/operators';
 import { Alert } from '../models/alert.model';
 import { Device } from '../models/device';
 import { environment } from '../../environments/environment';
@@ -18,36 +18,7 @@ export class ApiService {
   // Ahora coinciden con la estructura de tu nueva Base de Datos
   // ============================================================
 
-  private mockAlerts: Alert[] = [
-    // 🌪️ MODO CAOS: Puedes comentar/descomentar esto para probar
-    {
-      id: 'alert-1',
-      macAddress: 'AA:BB:CC:DD:EE:02',
-      timestamp: new Date(),
-      severity: 'critical',
-      message: '🚨 Caída detectada (Impacto fuerte)',
-      resolved: false,
-      status: 'pendiente',
-    },
-    {
-      id: 'alert-2',
-      macAddress: 'AA:BB:CC:DD:EE:03',
-      timestamp: new Date(Date.now() - 5000),
-      severity: 'critical',
-      message: '🔥 Temperatura crítica (>60ºC) detectada',
-      resolved: false,
-      status: 'pendiente',
-    },
-    {
-      id: 'alert-3',
-      macAddress: 'AA:BB:CC:DD:EE:01',
-      timestamp: new Date(Date.now() - 3600000),
-      severity: 'warning',
-      message: '⚠️ Batería baja (15%)',
-      resolved: false,
-      status: 'pendiente',
-    },
-  ];
+  private mockAlerts: Alert[] = []; // Ya no se usan mocks de alertas, llegan del backend
 
   // 🆕 AHORA LOS DISPOSITIVOS SON PERSISTENTES EN MEMORIA
   // Coinciden con la estructura actualizada del backend
@@ -377,24 +348,59 @@ export class ApiService {
   // ==========================================
 
   getAlertsStream(): Observable<Alert[]> {
-    return timer(0, 2000).pipe(
-      map(() => {
-        // Devolvemos las alertas ordenadas: No resueltas primero
-        return [...this.mockAlerts].sort((a, b) =>
-          a.resolved === b.resolved ? 0 : a.resolved ? 1 : -1,
-        );
+    // Polling cada 3 segundos para obtener alertas reales
+    // Usamos un rango de fecha amplio (ej. 7 días) para obtener tanto pendientes como historial reciente para estadísticas
+    return timer(0, 3000).pipe(
+      switchMap(() => {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - 7); // Últimos 7 días
+
+        const params = {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString()
+        };
+        
+        return this.http.get<any[]>(`${this.apiUrl}/events`, { params });
       }),
+      map((realEvents) => {
+        console.log('🔥 Raw Events from Backend:', realEvents);
+        return realEvents.map((e) => ({
+          id: String(e.id),
+          macAddress: e.dispositivo_mac,
+          userId: e.usuario_id,
+          severity: e.severidad,
+          status: e.estado, // 'pendiente', 'atendida', 'falsa_alarma'
+          message: e.notas || (e.severidad === 'critical' ? 'Caída Detectada' : 'Alerta de Sensor'),
+          location: e.ubicacion || 'Desconocida',
+          timestamp: new Date(e.fecha_hora),
+          attendedBy: e.atendido_por,
+          resolutionNotes: e.notas,
+          resolved: e.estado === 'atendida' || e.estado === 'falsa_alarma',
+
+          // 🛡️ Fallbacks para asegurar que mostramos la MAC o ID
+          deviceName: e.dispositivo_mac || e.device_id || e.dispositivo_id || 'ID Desconocido'
+        }));
+      }),
+      // Si falla la petición, devolver array vacío para no romper el stream
+      catchError((err) => {
+        console.error('Error polling alerts:', err);
+        return of([]);
+      })
     );
   }
 
   markAsResolved(alertId: string, who: string): Observable<boolean> {
-    const alert = this.mockAlerts.find((a) => a.id === alertId);
-    if (alert) {
-      alert.resolved = true;
-      alert.assignedTo = who;
-      console.log(`✅ Alerta ${alertId} atendida por ${who}`);
-    }
-    return of(true);
+    return this.http.put<any>(`${this.apiUrl}/events/${alertId}/resolve`, {}).pipe(
+      map(() => {
+        console.log(`✅ Alerta ${alertId} marcada como atendida en backend`);
+        return true;
+      }),
+      catchError((err) => {
+        console.error('Error resolving alert:', err);
+        return of(false);
+      })
+    );
   }
 
   // ==========================================
@@ -407,6 +413,12 @@ export class ApiService {
       map((devices) => {
         // Para cada dispositivo, intentar obtener datos actualizados del backend
         devices.forEach((device) => {
+          // 🛑 EVITAR 404s: Solo consultar backend para el dispositivo REAL configurado
+          // Los dispositivos con MAC 'AA:BB:...' son mocks visuales y no existen en BD
+          if (device.mac_address !== environment.realESP32Mac) {
+             return; 
+          }
+
           // Hacer una llamada asíncrona para obtener datos reales del ESP32
           this.http.get<any>(`${this.apiUrl}/esp32/data/${device.mac_address}`).subscribe({
             next: (realData) => {
@@ -464,6 +476,10 @@ export class ApiService {
     return of(true);
   }
 
+  updateDevice(macAddress: string, data: { nombre: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/esp32/${macAddress}`, data);
+  }
+
   // 🆕 Obtener historial de alertas (Real + Mock)
   async getEvents(userId?: string): Promise<Alert[]> {
     try {
@@ -486,6 +502,11 @@ export class ApiService {
         attendedBy: e.atendido_por,
         resolutionNotes: e.notas,
         resolved: e.estado === 'atendida' || e.estado === 'falsa_alarma',
+        // Mapeo de nuevos campos
+        acc_x: e.acc_x,
+        acc_y: e.acc_y,
+        acc_z: e.acc_z,
+        userName: e.usuario_nombre,
       })) as Alert[];
 
       console.log(`✅ Successfully fetched ${mappedEvents.length} real events from backend`);

@@ -22,8 +22,12 @@ export class RegisterModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() switchToLogin = new EventEmitter<void>();
 
-  step: 'selection' | 'form' = 'selection';
+  step: 'selection' | 'pin-verification' | 'form' = 'selection';
   selectedRole: 'user' | 'caregiver' = 'user';
+
+  // State for PIN verification
+  pin: string = '';
+  pinError: boolean = false;
 
   // ✅ ACTUALIZADO: Añadimos los campos nuevos de tus interfaces
   registerData = {
@@ -45,11 +49,42 @@ export class RegisterModalComponent {
   chooseRole(role: 'user' | 'caregiver') {
     this.selectedRole = role;
     this.registerData.role = role;
-    this.step = 'form';
+    
+    if (role === 'caregiver') {
+      this.step = 'pin-verification';
+      this.pin = '';
+      this.pinError = false;
+    } else {
+      this.step = 'form';
+    }
   }
 
   goBack() {
-    this.step = 'selection';
+    if (this.step === 'pin-verification') {
+      this.step = 'selection';
+    } else if (this.step === 'form') {
+      // If we are in form and role is caregiver, go back to PIN, else selection
+      if (this.selectedRole === 'caregiver') {
+        this.step = 'pin-verification';
+      } else {
+        this.step = 'selection';
+      }
+    } else {
+      this.step = 'selection';
+    }
+  }
+
+  verifyPin() {
+    if (this.pin === '7777') {
+      this.step = 'form';
+      this.pinError = false;
+    } else {
+      this.pinError = true;
+      // Shake animation effect or focus can be added here if needed
+      setTimeout(() => {
+        this.pinError = false; // Reset error after a brief period to allow retry animation reset if implemented
+      }, 2000);
+    }
   }
 
   // register-modal.component.ts

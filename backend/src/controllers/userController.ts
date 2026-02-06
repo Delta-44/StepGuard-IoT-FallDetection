@@ -250,3 +250,54 @@ export const assignDevice = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error assigning device" });
   }
 };
+
+export const exportUsersCSV = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    if (!user) return res.status(401).json({ message: "Unauthorized" });
+
+    let usersData: any[] = [];
+
+    // 1. Fetch Data based on Role
+    if (user.role === 'admin') {
+      usersData = await UsuarioModel.findAllWithDevices();
+    } else if (user.role === 'caregiver') {
+      // Fetch assigned users
+      const assignedUsers = await CuidadorModel.getUsuariosAsignados(user.id);
+      
+      // Fetch rich data (device info) for each assigned user
+      usersData = await Promise.all(assignedUsers.map(async (u) => {
+          return await UsuarioModel.findByIdWithDevice(u.id);
+      }));
+      // Filter out nulls
+      usersData = usersData.filter(u => u !== null);
+
+    } else {
+      // Patient - fetch own data
+      const ownData = await UsuarioModel.findByIdWithDevice(user.id);
+      if (ownData) usersData = [ownData];
+    }
+
+    // 2. Generate CSV
+    const headers = ['ID,Name,Email,Role,Device MAC,Device Name,Device Status'];
+    const rows = usersData.map(u => {
+        const role = 'user';
+        const devMac = u.dispositivo_mac || '';
+        const devName = u.dispositivo_nombre || '';
+        const devStatus = u.dispositivo_estado ? 'Active' : (u.dispositivo_estado === false ? 'Inactive' : 'Unassigned');
+        
+        return `${u.id},"${u.nombre}","${u.email}",${role},${devMac},"${devName}",${devStatus}`;
+    });
+
+    const csvContent = [headers, ...rows].join('\n');
+
+    // 3. Send Response
+    res.header('Content-Type', 'text/csv');
+    res.attachment('users_export.csv');
+    res.send(csvContent);
+
+  } catch (error) {
+    console.error("Error exporting users CSV:", error);
+    res.status(500).json({ message: "Error exporting users CSV" });
+  }
+};
