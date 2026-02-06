@@ -78,6 +78,7 @@ export const EventoCaidaModel = {
     return result.rows[0] || null;
   },
 
+
   /**
    * Obtener eventos de un usuario específico
    */
