@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs'; // 👈 Añadido Subject
+import { BehaviorSubject, Observable, Subject, tap } from 'rxjs'; // 👈 Añadido Subject
 import { Alert } from '../models/alert.model';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -179,6 +179,10 @@ export class AlertService {
       location: backendEvent.ubicacion || 'Desconocida',
       timestamp: new Date(backendEvent.fecha_hora),
       resolved: false,
+      // Mapeo de datos de acelerómetro si vienen en el evento
+      acc_x: backendEvent.acc_x,
+      acc_y: backendEvent.acc_y,
+      acc_z: backendEvent.acc_z,
     };
 
     // Add to stream
@@ -208,7 +212,7 @@ export class AlertService {
 
   // Genera una alerta aleatoria cada 30 segundos (optimización de rendimiento)
   private startSimulation() {
-    setInterval(() => {
+    this.simulationInterval = setInterval(() => {
       this.generateRandomAlert();
     }, 30000);
   }
@@ -309,12 +313,48 @@ export class AlertService {
       });
     } else {
       // SI es real, llamar al backend
-      // TODO: Implement resolve in ApiService and call from here
-      // For now, simulate local execution to not break UI
-      return new Observable((obs) => {
-        obs.next(true);
-        obs.complete();
-      });
+      return this.apiService.markAsResolved(id, caregiverName).pipe(
+        // Actualizar estado local si la petición tiene éxito
+        tap((success) => {
+          if (success) {
+            const currentAlerts = this.alertsSubject.value;
+            const index = currentAlerts.findIndex((a) => a.id === id);
+            
+            if (index !== -1) {
+              const updatedAlerts = [...currentAlerts];
+              updatedAlerts[index] = {
+                ...updatedAlerts[index],
+                status: status,
+                resolutionNotes: notes,
+                attendedBy: caregiverName,
+                attendedAt: new Date(),
+                severity: newSeverity,
+                resolved: true
+              };
+              this.alertsSubject.next(updatedAlerts);
+            }
+          }
+        })
+      );
     }
   }
+
+  // 👇 Detener servicio al cerrar sesión
+  public stopService() {
+    console.log('🛑 Deteniendo AlertService...');
+    
+    // 1. Cerrar SSE
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+
+    // 2. Limpiar intervalos de simulación
+    if (this.simulationInterval) {
+      clearInterval(this.simulationInterval);
+      this.simulationInterval = null;
+    }
+  }
+
+  private simulationInterval: any = null; // Guardar referencia
 }
