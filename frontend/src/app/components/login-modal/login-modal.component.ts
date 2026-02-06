@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 
 // Declaramos la variable de Google para que TypeScript no se queje
 declare var google: any;
@@ -19,6 +20,7 @@ export class LoginModalComponent implements AfterViewInit {
   private router = inject(Router);
   private ngZone = inject(NgZone); // 👈 Necesario para volver a Angular desde Google
   private cdr = inject(ChangeDetectorRef);
+  private notificationService = inject(NotificationService);
 
   @Output() close = new EventEmitter<void>();
   @Output() switchToRegister = new EventEmitter<void>();
@@ -65,21 +67,22 @@ export class LoginModalComponent implements AfterViewInit {
                 this.isLoading = true;
                 // Reenviar con el rol seleccionado
                 this.authService.loginWithGoogle(response.credential, role).subscribe({
-                  next: () => {
+                  next: (res) => {
                     console.log('✅ Google registro exitoso con rol:', role);
                     this.isLoading = false;
                     this.close.emit();
-                    this.router.navigate(['/dashboard']);
+                    const redirectPath = role === 'usuario' ? '/profile' : '/dashboard';
+                    this.router.navigate([redirectPath]);
                   },
                   error: (err) => {
                     console.error('❌ Error registrando con Google:', err);
                     this.isLoading = false;
-                    alert('Error al registrar con Google');
+                    this.notificationService.error('Error de Registro', 'No se pudo completar el registro con Google');
                   }
                 });
               } else {
                 this.isLoading = false;
-                alert('Rol inválido. Intenta de nuevo.');
+                this.notificationService.warning('Rol Inválido', 'Por favor, selecciona un rol válido');
               }
               return;
             }
@@ -87,12 +90,14 @@ export class LoginModalComponent implements AfterViewInit {
             console.log('✅ Google Login exitoso');
             this.isLoading = false;
             this.close.emit();
-            this.router.navigate(['/dashboard']);
+            const userRole = this.authService.currentUser()?.role;
+            const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';
+            this.router.navigate([redirectPath]);
           },
           error: (err) => {
             console.error('❌ Error Google:', err);
             this.isLoading = false;
-            alert('Error al iniciar sesión con Google');
+            this.notificationService.error('Error de Autenticación', 'No se pudo iniciar sesión con Google');
           }
         });
       });
@@ -102,6 +107,16 @@ export class LoginModalComponent implements AfterViewInit {
   // --- LÓGICA DE EMAIL / PASS (Estaba perfecta, solo añadí logs) ---
   onSubmit() {
     if (this.loginData.email && this.loginData.password) {
+      // Usuario admin de prueba (solo en frontend)
+      if (this.loginData.email === 'admin@test.com' && this.loginData.password === '123456') {
+        console.log('✅ Login con usuario admin de prueba');
+        this.authService.loginTestAdmin();
+        this.isLoading = false;
+        this.close.emit();
+        this.router.navigate(['/dashboard']);
+        return;
+      }
+
       this.isLoading = true;
 
       this.authService.login(this.loginData.email, this.loginData.password).subscribe({
@@ -109,12 +124,14 @@ export class LoginModalComponent implements AfterViewInit {
           console.log('✅ Login exitoso');
           this.isLoading = false;
           this.close.emit();
-          this.router.navigate(['/dashboard']);
+          const userRole = this.authService.currentUser()?.role;
+          const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';
+          this.router.navigate([redirectPath]);
         },
         error: (err) => {
           this.isLoading = false;
           console.error('❌ Error en login:', err);
-          alert('Email o contraseña incorrectos');
+          this.notificationService.error('Credenciales Incorrectas', 'Email o contraseña incorrectos');
         },
       });
     }

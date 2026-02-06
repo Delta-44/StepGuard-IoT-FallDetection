@@ -52,6 +52,14 @@
   background-color: #f8faff;
 }
 
+/* Indicador visual para filas clicables */
+.users-table tr.cursor-pointer:hover {
+  background-color: #e3f2fd;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  transition: all 0.2s ease;
+}
+
 /* INFO USUARIO */
 .user-info {
   display: flex;

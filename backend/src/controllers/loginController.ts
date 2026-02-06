@@ -21,12 +21,12 @@ export const login = async (req: Request, res: Response) => {
 
     // 2. If not user, try to find caregiver
     if (!user) {
-        const caregiver = await CuidadorModel.findByEmail(email);
-        if (caregiver) {
-            dbUser = caregiver;
-            // Determine role based on is_admin field
+      const caregiver = await CuidadorModel.findByEmail(email);
+      if (caregiver) {
+        dbUser = caregiver;
+        // Determine role based on is_admin field
             role = caregiver.is_admin ? 'admin' : 'cuidador';
-        }
+      }
     }
 
     if (!dbUser) {
@@ -43,7 +43,19 @@ export const login = async (req: Request, res: Response) => {
     res.json({
       message: 'Login successful',
       token,
-      user: { id: dbUser.id, email: dbUser.email, name: dbUser.nombre, role }
+      user: {
+        id: dbUser.id,
+        email: dbUser.email,
+        fullName: dbUser.nombre,
+        username: dbUser.nombre,
+        role: role === "usuario" ? "user" : role,
+        fecha_nacimiento: dbUser.fecha_nacimiento,
+        telefono: dbUser.telefono,
+        direccion: dbUser.direccion,
+        dispositivo_mac: dbUser.dispositivo_mac,
+        is_admin: dbUser.is_admin || false,
+        status: "active" as const,
+      },
     });
   } catch (error: any) {
     res.status(500).json({ message: 'Server error', error: error.message });
