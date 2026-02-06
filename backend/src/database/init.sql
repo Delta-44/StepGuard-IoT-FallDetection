@@ -106,6 +106,7 @@ CREATE INDEX idx_usuario_cuidador_cuidador ON usuario_cuidador(cuidador_id);
 -- ================================================
 -- TABLA: eventos_caida
 -- Descripción: Registro histórico de caídas detectadas por los dispositivos
+-- Datos recibidos del ESP32: mac, isButtonPressed, isFallDetected, timestamp, impact_magnitudes[], impact_count
 -- ================================================
 CREATE TABLE eventos_caida (
     id SERIAL PRIMARY KEY,
@@ -113,17 +114,17 @@ CREATE TABLE eventos_caida (
     usuario_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
     fecha_hora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     
-    -- Datos del acelerómetro
-    acc_x DECIMAL(10,2),
-    acc_y DECIMAL(10,2),
-    acc_z DECIMAL(10,2),
+    -- Datos del ESP32
+    is_button_pressed BOOLEAN DEFAULT false, -- isButtonPressed del ESP32 (botón SOS)
+    is_fall_detected BOOLEAN DEFAULT false, -- isFallDetected del ESP32 (caída confirmada)
+    impact_magnitudes DECIMAL(10,2)[], -- Array de magnitudes de impacto del acelerómetro
+    impact_count INTEGER DEFAULT 0, -- Número de impactos detectados
     
-    -- Severidad y estado
+    -- Severidad y estado (manejados por el backend)
     severidad VARCHAR(20) DEFAULT 'medium' CHECK (severidad IN ('low', 'medium', 'high', 'critical')),
     estado VARCHAR(20) DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'atendida', 'falsa_alarma', 'ignorada')),
     
-    -- Información adicional
-    ubicacion VARCHAR(200),
+    -- Información adicional (agregada por cuidadores)
     notas TEXT,
     
     -- Atención de la alerta
@@ -242,7 +243,7 @@ COMMENT ON TABLE cuidadores IS 'Cuidadores que monitorizan el estado de los usua
 COMMENT ON TABLE usuarios IS 'Usuarios del sistema (personas mayores) asociados a dispositivos';
 COMMENT ON TABLE dispositivos IS 'Dispositivos ESP32 para detección de caídas';
 COMMENT ON TABLE usuario_cuidador IS 'Relación muchos-a-muchos entre usuarios y cuidadores';
-COMMENT ON TABLE eventos_caida IS 'Registro histórico de todas las caídas detectadas por los dispositivos';
+COMMENT ON TABLE eventos_caida IS 'Registro histórico de todas las caídas detectadas. Recibe datos del ESP32: mac, isButtonPressed (SOS), isFallDetected (caída confirmada), impact_magnitudes (array de impactos), impact_count';
 COMMENT ON TABLE notificaciones IS 'Registro de notificaciones enviadas a cuidadores sobre eventos de caída';
 COMMENT ON TABLE audit_log IS 'Registro de auditoría de todas las acciones importantes del sistema para trazabilidad y seguridad';
 
