@@ -1,69 +1,82 @@
-﻿<div class="min-h-screen p-8">
+﻿<div class="min-h-screen p-4 sm:p-6 md:p-8">
   <!-- Header -->
-  <div class="mb-8 animate-fade-in">
-    <div class="bg-white rounded-2xl p-6">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="p-4 bg-gradient-to-br from-emergency/10 to-red-500/5 rounded-xl">
-            <i-lucide name="bell" [size]="32" class="text-emergency"></i-lucide>
+  <div class="mb-6 md:mb-8 animate-fade-in">
+    <div class="bg-white rounded-2xl p-4 md:p-6">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3 md:gap-4">
+          <div class="p-3 md:p-4 bg-gradient-to-br from-emergency/10 to-red-500/5 rounded-xl">
+            <i-lucide name="bell" [size]="28" class="md:hidden text-emergency"></i-lucide>
+            <i-lucide name="bell" [size]="32" class="hidden md:block text-emergency"></i-lucide>
           </div>
           <div>
-            <h2 class="text-3xl font-bold text-gray-800">Centro de Alertas</h2>
-            <p class="text-gray-600 mt-1">Monitoreo en tiempo real de eventos críticos</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Centro de Alertas</h2>
+            <p class="text-sm md:text-base text-gray-600 mt-1">Monitoreo en tiempo real de eventos críticos</p>
           </div>
         </div>
-        <div class="text-right">
-          <div class="text-sm text-gray-500">Total de alertas</div>
-          <div class="text-3xl font-bold text-emergency">{{ alerts.length }}</div>
+        <div class="text-left md:text-right">
+          <div class="text-xs md:text-sm text-gray-500">Total de alertas</div>
+          <div class="text-2xl md:text-3xl font-bold text-emergency">{{ alerts.length }}</div>
         </div>
       </div>
     </div>
 
     <!-- Barra de Búsqueda y Ordenamiento -->
-    <div class="flex gap-3 mt-6 items-center">
+    <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6 items-stretch sm:items-center">
       <!-- Input de Búsqueda -->
       <div class="flex-1 relative">
         <i-lucide
           name="search"
+          [size]="18"
+          class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 md:hidden"
+        ></i-lucide>
+        <i-lucide
+          name="search"
           [size]="20"
-          class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hidden md:block"
         ></i-lucide>
         <input
           type="text"
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
-          placeholder="Buscar por mensaje, ubicación, dispositivo o notas..."
-          class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white"
+          placeholder="Buscar alertas..."
+          class="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white text-sm md:text-base"
         />
       </div>
 
       <!-- Botón de Ordenamiento por Fecha -->
       <button
         (click)="toggleSortOrder()"
-        class="px-5 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:shadow-lg"
+        class="px-4 md:px-5 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:shadow-lg text-sm md:text-base whitespace-nowrap"
         [title]="sortOrder === 'newest' ? 'Más recientes primero' : 'Más antiguas primero'"
       >
         <i-lucide
           [name]="sortOrder === 'newest' ? 'arrow-down' : 'arrow-up'"
-          [size]="20"
+          [size]="18"
+          class="md:hidden"
         ></i-lucide>
-        {{ sortOrder === 'newest' ? 'Más nuevas' : 'Más viejas' }}
+        <i-lucide
+          [name]="sortOrder === 'newest' ? 'arrow-down' : 'arrow-up'"
+          [size]="20"
+          class="hidden md:block"
+        ></i-lucide>
+        <span class="hidden sm:inline">{{ sortOrder === 'newest' ? 'Más nuevas' : 'Más viejas' }}</span>
       </button>
     </div>
 
     <!-- Botones de Filtro por Estado -->
-    <div class="flex gap-3 mt-4">
+    <div class="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-4">
       <button
         (click)="setStatusFilter('all')"
-        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
         [ngClass]="
           statusFilter === 'all'
             ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105'
             : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
         "
       >
-        <i-lucide name="list" [size]="20"></i-lucide>
-        Todas
+        <i-lucide name="list" [size]="18" class="md:hidden"></i-lucide>
+        <i-lucide name="list" [size]="20" class="hidden md:block"></i-lucide>
+        <span class="hidden sm:inline">Todas</span>
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
           [ngClass]="statusFilter === 'all' ? 'bg-white/25' : 'bg-gray-200'"
@@ -73,15 +86,16 @@
 
       <button
         (click)="setStatusFilter('pendiente')"
-        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
         [ngClass]="
           statusFilter === 'pendiente'
             ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg scale-105'
             : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
         "
       >
-        <i-lucide name="alert-circle" [size]="20"></i-lucide>
-        Pendientes
+        <i-lucide name="alert-circle" [size]="18" class="md:hidden"></i-lucide>
+        <i-lucide name="alert-circle" [size]="20" class="hidden md:block"></i-lucide>
+        <span class="hidden sm:inline">Pendientes</span>
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
           [ngClass]="
@@ -93,7 +107,7 @@
 
       <button
         (click)="setStatusFilter('atendida')"
-        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
         [ngClass]="
           statusFilter === 'atendida'
             ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-105'

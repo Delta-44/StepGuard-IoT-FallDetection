@@ -58,18 +58,18 @@ async function seedDatabase() {
     console.log('📱 Insertando dispositivos ESP32...');
     
     const dispositivos = [
-      ['ESP32-001', 'AA:BB:CC:DD:EE:01', 'Dispositivo Sala Principal', 'Sala de estar'],
-      ['ESP32-002', 'AA:BB:CC:DD:EE:02', 'Dispositivo Dormitorio', 'Dormitorio principal'],
-      ['ESP32-003', 'AA:BB:CC:DD:EE:03', 'Dispositivo Cocina', 'Cocina'],
-      ['ESP32-004', 'AA:BB:CC:DD:EE:04', 'Dispositivo Baño', 'Baño'],
-      ['ESP32-005', 'AA:BB:CC:DD:EE:05', 'Dispositivo Jardín', 'Jardín exterior'],
+      ['AA:BB:CC:DD:EE:01', 'Dispositivo Sala Principal'],
+      ['AA:BB:CC:DD:EE:02', 'Dispositivo Dormitorio'],
+      ['AA:BB:CC:DD:EE:03', 'Dispositivo Cocina'],
+      ['AA:BB:CC:DD:EE:04', 'Dispositivo Baño'],
+      ['AA:BB:CC:DD:EE:05', 'Dispositivo Jardín'],
     ];
 
-    for (const [device_id, mac_address, nombre, ubicacion] of dispositivos) {
+    for (const [mac_address, nombre] of dispositivos) {
       await query(
-        `INSERT INTO dispositivos (device_id, mac_address, nombre, ubicacion, estado, firmware_version) 
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [device_id, mac_address, nombre, ubicacion, 'offline', '1.0.0']
+        `INSERT INTO dispositivos (mac_address, nombre, estado) 
+         VALUES ($1, $2, $3)`,
+        [mac_address, nombre, false]
       );
     }
     
@@ -81,18 +81,18 @@ async function seedDatabase() {
     const usuarioPassword = await bcrypt.hash('usuario123', 10);
     
     const usuarios = [
-      ['Juan Pérez García', 'juan.perez@example.com', '1949-01-15', 'Calle Mayor 123, Madrid', '+34 600 444 444', 1],
-      ['Carmen Rodríguez López', 'carmen.rodriguez@example.com', '1944-06-20', 'Avenida Libertad 45, Barcelona', '+34 600 555 555', 2],
-      ['Antonio Fernández Ruiz', 'antonio.fernandez@example.com', '1948-03-10', 'Plaza España 8, Valencia', '+34 600 666 666', 3],
-      ['Isabel Martín Sánchez', 'isabel.martin@example.com', '1956-11-25', 'Calle Real 67, Sevilla', '+34 600 777 777', 4],
-      ['Francisco García Torres', 'francisco.garcia@example.com', '1941-08-30', 'Paseo Marítimo 22, Málaga', '+34 600 888 888', 5],
+      ['Juan Pérez García', 'juan.perez@example.com', '1949-01-15', 'Calle Mayor 123, Madrid', '+34 600 444 444', 'AA:BB:CC:DD:EE:01'],
+      ['Carmen Rodríguez López', 'carmen.rodriguez@example.com', '1944-06-20', 'Avenida Libertad 45, Barcelona', '+34 600 555 555', 'AA:BB:CC:DD:EE:02'],
+      ['Antonio Fernández Ruiz', 'antonio.fernandez@example.com', '1948-03-10', 'Plaza España 8, Valencia', '+34 600 666 666', 'AA:BB:CC:DD:EE:03'],
+      ['Isabel Martín Sánchez', 'isabel.martin@example.com', '1956-11-25', 'Calle Real 67, Sevilla', '+34 600 777 777', 'AA:BB:CC:DD:EE:04'],
+      ['Francisco García Torres', 'francisco.garcia@example.com', '1941-08-30', 'Paseo Marítimo 22, Málaga', '+34 600 888 888', 'AA:BB:CC:DD:EE:05'],
     ];
 
-    for (const [nombre, email, fecha_nacimiento, direccion, telefono, dispositivo_id] of usuarios) {
+    for (const [nombre, email, fecha_nacimiento, direccion, telefono, dispositivo_mac] of usuarios) {
       await query(
-        `INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id) 
+        `INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac) 
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [nombre, email, usuarioPassword, fecha_nacimiento, direccion, telefono, dispositivo_id]
+        [nombre, email, usuarioPassword, fecha_nacimiento, direccion, telefono, dispositivo_mac]
       );
     }
     

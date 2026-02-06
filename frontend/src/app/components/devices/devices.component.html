@@ -1,24 +1,29 @@
-﻿<div class="min-h-screen bg-transparent p-8">
+﻿<div class="min-h-screen bg-transparent p-4 sm:p-6 md:p-8">
   
   <!-- Header -->
-  <div class="flex justify-between items-center mb-8 animate-fade-in">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-8 animate-fade-in">
     <div>
-      <h2 class="text-3xl font-bold text-base-text flex items-center gap-3">
-        <i-lucide name="radio" [size]="32"></i-lucide>
+      <h2 class="text-2xl md:text-3xl font-bold text-base-text flex items-center gap-2 md:gap-3">
+        <i-lucide name="radio" [size]="28" class="md:hidden"></i-lucide>
+        <i-lucide name="radio" [size]="32" class="hidden md:block"></i-lucide>
         Sensores Conectados
       </h2>
-      <p class="text-gray-600 mt-2">Monitoreo en tiempo real de dispositivos IoT</p>
+      <p class="text-sm md:text-base text-gray-600 mt-2">Monitoreo en tiempo real de dispositivos IoT</p>
     </div>
     
     <button 
       (click)="loadDevices()" 
       [disabled]="isLoading()" 
-      class="px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 hover: hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+      class="w-full md:w-auto px-5 md:px-6 py-2.5 md:py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 hover: hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base"
     >
       @if (isLoading()) {
-        <i-lucide name="clock" class="animate-spin" [size]="20"></i-lucide> Cargando...
+        <i-lucide name="clock" class="animate-spin" [size]="18" class="md:hidden"></i-lucide>
+        <i-lucide name="clock" class="animate-spin" [size]="20" class="hidden md:block"></i-lucide>
+        <span>Cargando...</span>
       } @else {
-        <i-lucide name="activity" [size]="20"></i-lucide> Recargar
+        <i-lucide name="activity" [size]="18" class="md:hidden"></i-lucide>
+        <i-lucide name="activity" [size]="20" class="hidden md:block"></i-lucide>
+        <span>Recargar</span>
       }
     </button>
   </div>
@@ -26,44 +31,51 @@
   <!-- Barra de Búsqueda -->
   <div class="mb-4 animate-fade-in">
     <div class="relative">
-      <i-lucide name="search" [size]="20" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i-lucide>
+      <i-lucide name="search" [size]="18" class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 md:hidden"></i-lucide>
+      <i-lucide name="search" [size]="20" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hidden md:block"></i-lucide>
       <input 
         type="text" 
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event); onSearchChange()"
-        placeholder="Buscar por nombre o dirección MAC..."
-        class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white"
+        placeholder="Buscar dispositivos..."
+        class="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white text-sm md:text-base"
       >
     </div>
   </div>
 
   <!-- Botones de Filtro por Estado -->
-  <div class="flex gap-3 mb-6 animate-fade-in">
+  <div class="flex flex-wrap gap-2 md:gap-3 mb-4 md:mb-6 animate-fade-in">
     <button 
       (click)="setStatusFilter('all')"
-      class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+      class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
       [ngClass]="statusFilter() === 'all' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
     >
-      <i-lucide name="list" [size]="20"></i-lucide>
-      Todos <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'all' ? 'bg-white/25' : 'bg-gray-200'">{{ devices().length }}</span>
+      <i-lucide name="list" [size]="18" class="md:hidden"></i-lucide>
+      <i-lucide name="list" [size]="20" class="hidden md:block"></i-lucide>
+      <span class="hidden sm:inline">Todos</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'all' ? 'bg-white/25' : 'bg-gray-200'">{{ devices().length }}</span>
     </button>
     
     <button 
       (click)="setStatusFilter('online')"
-      class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+      class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
       [ngClass]="statusFilter() === 'online' ? 'bg-green-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
     >
-      <i-lucide name="check-circle" [size]="20"></i-lucide>
-      Online <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'online' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('online') }}</span>
+      <i-lucide name="check-circle" [size]="18" class="md:hidden"></i-lucide>
+      <i-lucide name="check-circle" [size]="20" class="hidden md:block"></i-lucide>
+      <span class="hidden sm:inline">Online</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'online' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('online') }}</span>
     </button>
     
     <button 
       (click)="setStatusFilter('offline')"
-      class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+      class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
       [ngClass]="statusFilter() === 'offline' ? 'bg-red-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
     >
-      <i-lucide name="x-circle" [size]="20"></i-lucide>
-      Offline <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'offline' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('offline') }}</span>
+      <i-lucide name="x-circle" [size]="18" class="md:hidden"></i-lucide>
+      <i-lucide name="x-circle" [size]="20" class="hidden md:block"></i-lucide>
+      <span class="hidden sm:inline">Offline</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'offline' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('offline') }}</span>
     </button>
   </div>
 
