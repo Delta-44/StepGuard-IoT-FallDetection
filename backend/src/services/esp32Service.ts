@@ -163,7 +163,7 @@ export class ESP32Service {
      * Timeout: 17 seconds.
      */
     static startHeartbeatMonitor() {
-        console.log('💓 Starting Heartbeat Monitor (17s timeout check every 5s)...');
+        console.log('Starting Heartbeat Monitor (17s timeout check every 5s)...');
         
         setInterval(async () => {
             // console.log('[DEBUG] Heartbeat Monitor Tick'); // Verbose
