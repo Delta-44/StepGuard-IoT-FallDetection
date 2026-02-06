@@ -215,7 +215,7 @@
                         </button>
                         <button
                           class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 hover:shadow-lg flex items-center gap-1"
-                          (click)="deleteUser(user.id)"
+                          (click)="$event.stopPropagation(); deleteUser(user)"
                           title="Eliminar Usuario"
                         >
                           <i-lucide name="trash-2" [size]="16"></i-lucide>

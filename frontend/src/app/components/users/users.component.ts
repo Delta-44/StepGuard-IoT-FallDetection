@@ -136,22 +136,15 @@ export class UsersComponent implements OnInit {
     });
   }
 
-  deleteUser(userId: string | number) {
-    if (!confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.')) {
+  deleteUser(user: User) {
+    if (!confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.fullName}? Esta acción no se puede deshacer.`)) {
       return;
     }
 
-    this.userService.deleteUser(userId).subscribe({
-      next: (success) => {
-        if (success) {
-          this.notificationService.success('Éxito', 'Usuario eliminado correctamente');
-          this.userService.refreshUsers();
-        } else {
-          this.notificationService.warning(
-            'Funcionalidad no disponible', 
-            'La eliminación de usuarios aún no está implementada en el backend.'
-          );
-        }
+    this.userService.deleteUser(user.id, user.role).subscribe({
+      next: () => {
+        this.notificationService.success('Éxito', 'Usuario eliminado correctamente');
+        this.userService.refreshUsers();
       },
       error: (err) => {
         console.error('Error eliminando usuario:', err);

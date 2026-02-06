@@ -89,12 +89,7 @@ export class UserService {
     return this.http.put(`${this.apiUrl}/users/${id}`, updatedUser);
   }
 
-  deleteUser(id: string | number): Observable<boolean> {
-    // TODO: Implementar DELETE al backend cuando esté disponible
-    console.log('Eliminar usuario aún no implementado en el backend');
-    return new Observable((obs) => {
-      obs.next(false);
-      obs.complete();
-    });
+  deleteUser(id: string | number, role: string = 'user'): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${id}?role=${role}`);
   }
 }
