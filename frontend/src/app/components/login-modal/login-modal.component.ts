@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 import { NotificationService } from '../../services/notification.service';
 
 // Declaramos la variable de Google para que TypeScript no se queje
@@ -17,6 +18,7 @@ declare var google: any;
 })
 export class LoginModalComponent implements AfterViewInit {
   private authService = inject(AuthService);
+  private alertService = inject(AlertService);
   private router = inject(Router);
   private ngZone = inject(NgZone); // 👈 Necesario para volver a Angular desde Google
   private cdr = inject(ChangeDetectorRef);
@@ -70,6 +72,7 @@ export class LoginModalComponent implements AfterViewInit {
                   next: (res) => {
                     console.log('✅ Google registro exitoso con rol:', role);
                     this.isLoading = false;
+                    this.alertService.initialize(); // Inicializar AlertService después del login
                     this.close.emit();
                     const redirectPath = role === 'usuario' ? '/profile' : '/dashboard';
                     this.router.navigate([redirectPath]);
@@ -89,6 +92,7 @@ export class LoginModalComponent implements AfterViewInit {
 
             console.log('✅ Google Login exitoso');
             this.isLoading = false;
+            this.alertService.initialize(); // Inicializar AlertService después del login
             this.close.emit();
             const userRole = this.authService.currentUser()?.role;
             const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';
@@ -112,6 +116,7 @@ export class LoginModalComponent implements AfterViewInit {
         console.log('✅ Login con usuario admin de prueba');
         this.authService.loginTestAdmin();
         this.isLoading = false;
+        this.alertService.initialize(); // Inicializar AlertService después del login
         this.close.emit();
         this.router.navigate(['/dashboard']);
         return;
@@ -123,6 +128,7 @@ export class LoginModalComponent implements AfterViewInit {
         next: () => {
           console.log('✅ Login exitoso');
           this.isLoading = false;
+          this.alertService.initialize(); // Inicializar AlertService después del login
           this.close.emit();
           const userRole = this.authService.currentUser()?.role;
           const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';

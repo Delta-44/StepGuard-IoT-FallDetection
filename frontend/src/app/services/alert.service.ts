@@ -40,13 +40,44 @@ export class AlertService {
   private eventSource: EventSource | null = null;
 
   constructor() {
-    // 1. Cargar historial inicial (Real + Mock)
+    // Solo inicializar si hay un usuario autenticado
+    // Esto previene que las alertas se muestren en la landing page
+    const token = this.authService.getToken();
+    
+    if (token) {
+      console.log('✅ Usuario autenticado detectado, inicializando AlertService...');
+      
+      // 1. Cargar historial inicial (Real + Mock)
+      this.loadInitialHistory();
+
+      // 2. Conectar a Real-Time SSE
+      this.connectToRealTimeAlerts();
+
+      // 3. Mantener simulación (Hybrid Mode)
+      setTimeout(() => this.startSimulation(), 5000);
+    } else {
+      console.log('ℹ️ No hay usuario autenticado, AlertService en espera...');
+    }
+  }
+
+  // Método público para inicializar manualmente después del login
+  public initialize() {
+    const token = this.authService.getToken();
+    
+    if (!token) {
+      console.warn('⚠️ No se puede inicializar AlertService sin token');
+      return;
+    }
+
+    console.log('🔄 Inicializando AlertService después del login...');
+    
+    // Cargar historial
     this.loadInitialHistory();
-
-    // 2. Conectar a Real-Time SSE
+    
+    // Conectar SSE
     this.connectToRealTimeAlerts();
-
-    // 3. Mantener simulación (Hybrid Mode)
+    
+    // Iniciar simulación
     setTimeout(() => this.startSimulation(), 5000);
   }
 
@@ -69,7 +100,20 @@ export class AlertService {
 
   private connectToRealTimeAlerts() {
     const token = this.authService.getToken(); // Assuming AuthService has this method or similar
-    if (!token) return;
+    
+    if (!token) {
+      console.warn('⚠️ No auth token found, skipping SSE connection');
+      return;
+    }
+
+    // Validate token format (basic check)
+    const tokenParts = token.split('.');
+    if (tokenParts.length !== 3) {
+      console.error('❌ Invalid JWT token format (expected 3 parts, got ' + tokenParts.length + ')');
+      return;
+    }
+
+    console.log('🔐 Token validated, connecting to SSE with token:', token.substring(0, 20) + '...');
 
     // Close existing connection if any
     if (this.eventSource) {
@@ -77,7 +121,7 @@ export class AlertService {
     }
 
     const streamUrl = `${environment.apiUrl}/alerts/stream?token=${token}`;
-    console.log('📡 Connecting to SSE:', streamUrl);
+    console.log('📡 Connecting to SSE:', streamUrl.replace(token, 'TOKEN_HIDDEN'));
 
     this.eventSource = new EventSource(streamUrl);
 
@@ -97,9 +141,30 @@ export class AlertService {
     };
 
     this.eventSource.onerror = (err) => {
-      console.error('SSE Error:', err);
-      // Optional: Reconnect logic
+      console.error('❌ SSE Error:', err);
+      console.error('SSE ReadyState:', this.eventSource?.readyState);
+      
+      // ReadyState: 0 = CONNECTING, 1 = OPEN, 2 = CLOSED
+      if (this.eventSource?.readyState === 2) {
+        console.log('SSE connection closed.');
+        console.warn('⚠️ Si ves error 401, tu token expiró. Cierra sesión y vuelve a iniciar sesión.');
+      }
+      
+      // Cerrar conexión
       this.eventSource?.close();
+      
+      // RECONEXIÓN DESHABILITADA TEMPORALMENTE
+      // Para evitar spam de errores cuando el token está expirado
+      // Descomenta las siguientes líneas cuando el token esté actualizado:
+      
+      // setTimeout(() => {
+      //   console.log('🔄 Attempting to reconnect to SSE...');
+      //   this.connectToRealTimeAlerts();
+      // }, 5000);
+    };
+
+    this.eventSource.onopen = () => {
+      console.log('✅ SSE connection established successfully');
     };
   }
 

@@ -69,8 +69,8 @@ export const EventoCaidaModel = {
     const result = await query(
       `UPDATE eventos_caida 
        SET estado = 'atendida', 
-           atendido_por = $1, 
-           fecha_atencion = CURRENT_TIMESTAMP 
+       atendido_por = $1, 
+       fecha_atencion = CURRENT_TIMESTAMP 
        WHERE id = $2 
        RETURNING *`,
       [atendidoPorId, id],
@@ -168,9 +168,9 @@ export const EventoCaidaModel = {
     const result = await query(
       `UPDATE eventos_caida 
        SET estado = 'atendida', 
-           atendido_por = $1, 
-           fecha_atencion = CURRENT_TIMESTAMP,
-           notas = COALESCE($2, notas)
+       atendido_por = $1, 
+       fecha_atencion = CURRENT_TIMESTAMP,
+       notas = COALESCE($2, notas)
        WHERE id = $3 
        RETURNING *`,
       [cuidador_id, notas, id],
@@ -189,9 +189,9 @@ export const EventoCaidaModel = {
     const result = await query(
       `UPDATE eventos_caida 
        SET estado = 'falsa_alarma', 
-           atendido_por = $1, 
-           fecha_atencion = CURRENT_TIMESTAMP,
-           notas = COALESCE($2, notas)
+       atendido_por = $1, 
+       fecha_atencion = CURRENT_TIMESTAMP,
+       notas = COALESCE($2, notas)
        WHERE id = $3 
        RETURNING *`,
       [cuidador_id, notas, id],
