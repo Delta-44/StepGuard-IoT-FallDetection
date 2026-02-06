@@ -1,51 +1,84 @@
 #include <Arduino.h>
+#include <WiFi.h>
+#include <vector>
 #include "boton.h"
 #include "inclinacion.h"
 #include "acelerometro.h"
 #include "red.h"
-#include <WiFi.h> 
 
-int totalImpactos = 0;
+// Array para almacenar las magnitudes de los impactos
+std::vector<float> listaImpactos;
 
-void setup() {
+// Variables para el temporizador
+unsigned long tiempoUltimoReporte = 0;
+const unsigned long INTERVALO_REPORTE = 120000;
+
+// Inicializacion general
+void setup()
+{
     Serial.begin(115200);
-    
-    setupRed();         // Iniciar WiFi y NTP
-    setupBoton();       // D14
-    setupInclinacion(); // D32, D33
-    setupAcelerometro(); // D21, D22 (I2C)
+    setupRed();
+    setupBoton();
+    setupInclinacion();
+    setupAcelerometro();
+    Serial.println("StepGuard: Sistema iniciado.");
 
-    Serial.println("StepGuard: Sistema iniciado y conectado.");
-    Serial.print("ID Dispositivo (MAC): ");
-    Serial.println(WiFi.macAddress());
+    // Guardar el tiempo de inicio
+    tiempoUltimoReporte = millis();
 }
 
-void loop() {
-    // 1. SOS MANUAL (Envía reporte con fuerza 0)
-    if (verificarBotonSOS()) {
+// Loop principal
+void loop()
+{
+    loopReconnect();
+
+    // Logica de boton SOS
+    if (verificarBotonSOS())
+    {
         Serial.println("[!] SOS pulsado. Informando...");
-        enviarReporteMQTT(totalImpactos, 0.0);
+        enviarReporteMQTT(true, false, listaImpactos);
+        listaImpactos.clear();
+
+        tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
     }
 
-    // 2. LÓGICA DE CAÍDA (Acelerómetro + Inclinación)
-    if (detectarCaida()) {
-        float magnitud = obtenerMagnitudImpacto(); // Necesitas crear esta función en tu módulo acelerometro
-        totalImpactos++;
-        
-        Serial.printf("Impacto detectado: %.2f m/s2. Total: %d\n", magnitud, totalImpactos);
-        
-        delay(1500); // Pequeña espera para confirmar posición final
+    // Logica de caida 
+    if (detectarCaida())
+    {
+        float fuerzaImpacto = obtenerMagnitudImpacto();
+        listaImpactos.push_back(fuerzaImpacto);
 
-        if (estaInclinado()) {
-            Serial.println(">>> ALERTA: CAÍDA CONFIRMADA. Enviando JSON...");
-            enviarReporteMQTT(totalImpactos, magnitud);
+        Serial.printf("Impacto registrado: %.2f m/s2. Acumulados: %d\n", fuerzaImpacto, listaImpactos.size());
+
+        delay(1500); // Pequeña espera para confirmar inclinación
+
+        if (estaInclinado())
+        {
+            Serial.println(">>> ALERTA: CAÍDA CONFIRMADA.");
+            enviarReporteMQTT(false, true, listaImpactos);
+            listaImpactos.clear();
+
+            tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
         }
     }
 
-    // 3. SEÑALIZACIÓN LOCAL
-    if (estaInclinado()) {
+    // Reporte automatico, cambiar INTERVALO_REPORTE para ajustar frecuencia 
+    if (millis() - tiempoUltimoReporte >= INTERVALO_REPORTE)
+    {
+        Serial.println("[i] Enviando reporte periódico de estado...");
+        enviarReporteMQTT(false, false, listaImpactos);
+
+        listaImpactos.clear();          // Limpiamos los impactos
+        tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
+    }
+
+    // Activar el led de inclinacion
+    if (estaInclinado())
+    {
         parpadearLedInclinacion();
-    } else {
+    }
+    else
+    {
         controlarLedInclinacion(false);
     }
 

@@ -79,6 +79,22 @@ export const EventoCaidaModel = {
   },
 
   /**
+   * Marcar evento como resuelto (atendida)
+   */
+  markAsResolved: async (id: number, atendidoPorId: number): Promise<EventoCaida | null> => {
+    const result = await query(
+      `UPDATE eventos_caida 
+       SET estado = 'atendida', 
+           atendido_por = $1, 
+           fecha_atencion = CURRENT_TIMESTAMP 
+       WHERE id = $2 
+       RETURNING *`,
+      [atendidoPorId, id]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
    * Obtener eventos de un usuario específico
    */
   findByUsuario: async (
@@ -101,14 +117,14 @@ export const EventoCaidaModel = {
    */
   findByDispositivo: async (
     dispositivo_mac: string,
-    limit: number = 50,
+    limit: number = 50
   ): Promise<EventoCaida[]> => {
     const result = await query(
       `SELECT * FROM eventos_caida 
        WHERE dispositivo_mac = $1 
        ORDER BY fecha_hora DESC 
        LIMIT $2`,
-      [dispositivo_mac, limit],
+      [dispositivo_mac, limit]
     );
     return result.rows;
   },

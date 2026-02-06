@@ -1,6 +1,7 @@
-import express from "express";
-import { resolveEvent } from "../controllers/eventsController";
-import authMiddleware from "../middleware/auth";
+
+import express from 'express';
+import { resolveEvent } from '../controllers/eventsController';
+import authMiddleware from '../middleware/auth';
 
 const router = express.Router();
 

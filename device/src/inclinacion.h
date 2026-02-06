@@ -4,6 +4,6 @@
 void setupInclinacion();
 bool estaInclinado();
 void controlarLedInclinacion(bool encender);
-void parpadearLedInclinacion(); // Nueva función para el parpadeo rápido
+void parpadearLedInclinacion(); 
 
 #endif

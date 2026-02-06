@@ -1,11 +1,12 @@
 #ifndef RED_H
 #define RED_H
-
+#include <vector>
 #include <Arduino.h>
+#include <vector>
 
 void setupRed();
-void loopRed(); // Necesario para mantener la conexión viva
-void enviarReporteMQTT(int contador, float fuerza);
+void loopReconnect(); 
+void enviarReporteMQTT(bool sos_presionado, bool caida_detectada, const std::vector<float>& impactos);
 String obtenerHoraNTP();
 
 #endif
