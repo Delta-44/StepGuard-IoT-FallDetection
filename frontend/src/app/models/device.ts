@@ -1,28 +1,26 @@
-export interface DeviceSensorData {
-  accX: number;
-  accY: number;
-  accZ: number;
-  fallDetected: boolean;
-  temperature: number;
+// Interfaz ESP32 según el backend
+export interface ESP32Data {
+  macAddress: string;
+  name: string;
+  impact_count: number;
+  impact_magnitude: number;
+  timestamp: Date;
+  status: boolean; // true=online, false=offline
+  isFallDetected: boolean;
+  isButtonPressed: boolean;
 }
 
+// Interfaz del dispositivo almacenado en BD
 export interface Device {
-  id: string;            // ID interno de la BD (ej: 1, 2)
-  deviceId: string;      // ID físico (ej: "ESP32-001")
-  name: string;          // Nombre amigable (ej: "Sensor Salón")
-  location: string;      // Ubicación en la casa
+  mac_address: string;     // PK - Dirección MAC del ESP32
+  nombre: string;          // Nombre del dispositivo
+  estado: boolean;         // true=activo, false=inactivo
+  total_impactos: number;  // Contador de impactos
+  ultima_magnitud?: number; // Última magnitud detectada
+  fecha_registro?: Date;
+  ultima_conexion?: Date;
   
-  // Estado y Batería
-  status: 'online' | 'offline' | 'maintenance';
-  batteryLevel?: number; // (Ojo: En tu SQL no vi batería, pero el ESP32 suele mandarla. La mantengo por si acaso)
-  
-  // ✨ NUEVOS CAMPOS TÉCNICOS
-  macAddress?: string;
-  firmwareVersion?: string;
-  sensitivity?: 'low' | 'medium' | 'high';
-  lastSeen?: Date;
-
-  // Datos en tiempo real (No se guardan en BD siempre, pero el socket te los manda)
-  sensorData?: DeviceSensorData;
-  assignedUser?: string; // Nombre del paciente asignado
+  // Datos en tiempo real del ESP32 (vienen de Redis)
+  esp32Data?: ESP32Data;
+  assignedUser?: string;   // Nombre del paciente asignado
 }

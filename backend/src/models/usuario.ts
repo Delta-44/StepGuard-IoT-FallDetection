@@ -8,10 +8,9 @@ export interface Usuario {
   fecha_nacimiento?: Date;
   direccion?: string;
   telefono?: string;
-  dispositivo_id?: number;
+  dispositivo_mac?: string; // MAC address del dispositivo asignado
   fecha_creacion?: Date;
-  reset_password_token?: string;
-  reset_password_expires?: Date;
+  password_last_changed_at?: Date;
 }
 
 export const UsuarioModel = {
@@ -25,11 +24,11 @@ export const UsuarioModel = {
     fecha_nacimiento?: Date,
     direccion?: string,
     telefono?: string,
-    dispositivo_id?: number
+    dispositivo_mac?: string
   ): Promise<Usuario> => {
     const result = await query(
-      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_id]
+      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac]
     );
     return result.rows[0];
   },
@@ -57,12 +56,12 @@ export const UsuarioModel = {
   },
 
   /**
-   * Buscar usuario por dispositivo
+   * Buscar usuario por MAC del dispositivo
    */
-  findByDispositivo: async (dispositivoId: number): Promise<Usuario | null> => {
+  findByDispositivo: async (macAddress: string): Promise<Usuario | null> => {
     const result = await query(
-      'SELECT * FROM usuarios WHERE dispositivo_id = $1',
-      [dispositivoId]
+      'SELECT * FROM usuarios WHERE dispositivo_mac = $1',
+      [macAddress]
     );
     return result.rows[0] || null;
   },
@@ -91,10 +90,10 @@ export const UsuarioModel = {
   /**
    * Asignar dispositivo a usuario
    */
-  asignarDispositivo: async (usuarioId: number, dispositivoId: number): Promise<Usuario | null> => {
+  asignarDispositivo: async (usuarioId: number, macAddress: string): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET dispositivo_id = $1 WHERE id = $2 RETURNING *',
-      [dispositivoId, usuarioId]
+      'UPDATE usuarios SET dispositivo_mac = $1 WHERE id = $2 RETURNING *',
+      [macAddress, usuarioId]
     );
     return result.rows[0] || null;
   },
@@ -104,7 +103,7 @@ export const UsuarioModel = {
    */
   desasignarDispositivo: async (usuarioId: number): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET dispositivo_id = NULL WHERE id = $1 RETURNING *',
+      'UPDATE usuarios SET dispositivo_mac = NULL WHERE id = $1 RETURNING *',
       [usuarioId]
     );
     return result.rows[0] || null;
@@ -136,35 +135,33 @@ export const UsuarioModel = {
     return (result.rowCount ?? 0) > 0;
   },
 
-  /**
-   * Guardar token de recuperación de contraseña
-   */
-  saveResetToken: async (id: number, token: string, expires: Date): Promise<Usuario | null> => {
-    const result = await query(
-      'UPDATE usuarios SET reset_password_token = $1, reset_password_expires = $2 WHERE id = $3 RETURNING *',
-      [token, expires, id]
-    );
-    return result.rows[0] || null;
-  },
 
-  /**
-   * Buscar usuario por token de recuperación
-   */
-  findByResetToken: async (token: string): Promise<Usuario | null> => {
-    const result = await query(
-      'SELECT * FROM usuarios WHERE reset_password_token = $1 AND reset_password_expires > NOW()',
-      [token]
-    );
-    return result.rows[0] || null;
-  },
 
   /**
    * Actualizar contraseña
    */
   updatePassword: async (id: number, passwordHash: string): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET password_hash = $1, reset_password_token = NULL, reset_password_expires = NULL WHERE id = $2 RETURNING *',
+      'UPDATE usuarios SET password_hash = $1, password_last_changed_at = NOW() WHERE id = $2 RETURNING *',
       [passwordHash, id]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Buscar usuario por ID con información del dispositivo
+   */
+  findByIdWithDevice: async (id: number): Promise<any | null> => {
+    const result = await query(
+      `SELECT u.*, 
+              d.mac_address as dispositivo_mac,
+              d.nombre as dispositivo_nombre,
+              d.estado as dispositivo_estado,
+              d.total_impactos as dispositivo_total_impactos
+       FROM usuarios u
+       LEFT JOIN dispositivos d ON u.dispositivo_mac = d.mac_address
+       WHERE u.id = $1`,
+      [id]
     );
     return result.rows[0] || null;
   },

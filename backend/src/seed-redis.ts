@@ -23,67 +23,69 @@ async function seedRedis() {
     console.log('');
 
     // ===== DISPOSITIVOS DE PRUEBA =====
+    // Usando direcciones MAC reales para coincidir con la interfaz ESP32
     const dispositivos = [
-      { id: 'ESP32-001', nombre: 'Sala de estar' },
-      { id: 'ESP32-002', nombre: 'Dormitorio' },
-      { id: 'ESP32-003', nombre: 'Cocina' },
-      { id: 'ESP32-004', nombre: 'Baño' },
-      { id: 'ESP32-005', nombre: 'Jardín' },
+      { macAddress: 'AA:BB:CC:DD:EE:01', name: 'ESP32-Sala' },
+      { macAddress: 'AA:BB:CC:DD:EE:02', name: 'ESP32-Dormitorio' },
+      { macAddress: 'AA:BB:CC:DD:EE:03', name: 'ESP32-Cocina' },
     ];
 
     console.log('📱 Insertando datos de dispositivos ESP32...\n');
 
     for (const dispositivo of dispositivos) {
-      // Generar datos aleatorios del sensor
-      const accX = (Math.random() * 2 - 1).toFixed(2); // -1 a 1
-      const accY = (Math.random() * 2 - 1).toFixed(2);
-      const accZ = (9.5 + Math.random() * 1).toFixed(2); // ~9.8 (gravedad)
-      const fallDetected = Math.random() < 0.2; // 20% de probabilidad de caída simulada
+      // Generar datos según interfaz ESP32
+      const impact_magnitude = parseFloat((Math.random() * 15).toFixed(2)); // 0-15 m/s²
+      const isFallDetected = Math.random() < 0.2; // 20% de probabilidad de caída
+      const isButtonPressed = Math.random() < 0.05; // 5% de probabilidad de botón SOS
 
-      const sensorData = {
-        deviceId: dispositivo.id,
-        accX: parseFloat(accX),
-        accY: parseFloat(accY),
-        accZ: parseFloat(accZ),
-        fallDetected: fallDetected,
-        timestamp: Date.now(),
+      const esp32Data = {
+        macAddress: dispositivo.macAddress,
+        name: dispositivo.name,
+        impact_count: Math.floor(Math.random() * 10), // 0-10 impactos
+        impact_magnitude,
+        timestamp: new Date(),
+        status: true, // online
+        isFallDetected,
+        isButtonPressed,
       };
 
       // Guardar datos actuales del dispositivo
-      await ESP32Cache.setDeviceData(dispositivo.id, sensorData);
-      console.log(`   ${fallDetected ? '🚨' : '✅'} ${dispositivo.id} (${dispositivo.nombre})`);
-      console.log(`      Aceleración: X=${accX}, Y=${accY}, Z=${accZ}`);
-      console.log(`      Caída detectada: ${fallDetected ? '¡SÍ! ⚠️' : 'No'}`);
+      await ESP32Cache.setDeviceData(dispositivo.macAddress, esp32Data);
+      console.log(`   ${isFallDetected ? '🚨' : '✅'} ${dispositivo.name} (${dispositivo.macAddress})`);
+      console.log(`      Impactos: ${esp32Data.impact_count}, Magnitud: ${impact_magnitude} m/s²`);
+      console.log(`      Caída detectada: ${isFallDetected ? '¡SÍ! ⚠️' : 'No'}`);
+      console.log(`      Botón SOS: ${isButtonPressed ? '¡PRESIONADO! 🆘' : 'No'}`);
 
       // Guardar estado de conexión
-      await ESP32Cache.setDeviceStatus(dispositivo.id, 'online');
+      await ESP32Cache.setDeviceStatus(dispositivo.macAddress, true);
       console.log(`      Estado: online\n`);
 
       // Agregar historial de lecturas (últimas 10 lecturas simuladas)
       console.log(`      📊 Generando historial de 10 lecturas...`);
       for (let i = 0; i < 10; i++) {
         const historyData = {
-          deviceId: dispositivo.id,
-          accX: parseFloat((Math.random() * 2 - 1).toFixed(2)),
-          accY: parseFloat((Math.random() * 2 - 1).toFixed(2)),
-          accZ: parseFloat((9.5 + Math.random() * 1).toFixed(2)),
-          fallDetected: Math.random() < 0.1, // 10% probabilidad en historial
+          macAddress: dispositivo.macAddress,
+          name: dispositivo.name,
+          impact_count: Math.floor(Math.random() * 10),
+          impact_magnitude: parseFloat((Math.random() * 15).toFixed(2)),
+          status: true,
+          isFallDetected: Math.random() < 0.1,
+          isButtonPressed: false,
         };
-        await ESP32Cache.addDeviceHistory(dispositivo.id, historyData);
+        await ESP32Cache.addDeviceHistory(dispositivo.macAddress, historyData);
       }
       console.log(`      ✓ Historial guardado\n`);
 
-      // Si hay caída, registrar alerta
-      if (fallDetected) {
-        await ESP32Cache.setFallAlert(dispositivo.id, {
-          deviceId: dispositivo.id,
-          accX: parseFloat(accX),
-          accY: parseFloat(accY),
-          accZ: parseFloat(accZ),
-          severity: 'high',
-          location: dispositivo.nombre,
+      // Si hay caída o botón SOS, registrar alerta
+      if (isFallDetected || isButtonPressed) {
+        await ESP32Cache.setFallAlert(dispositivo.macAddress, {
+          macAddress: dispositivo.macAddress,
+          name: dispositivo.name,
+          impact_magnitude,
+          severity: isButtonPressed ? 'critical' : 'high',
+          type: isButtonPressed ? 'SOS_BUTTON' : 'FALL_DETECTED',
         });
-        console.log(`      🚨 ALERTA DE CAÍDA REGISTRADA\n`);
+        console.log(`      🚨 ALERTA REGISTRADA: ${isButtonPressed ? 'SOS MANUAL' : 'CAÍDA'}\n`);
       }
     }
 
@@ -110,8 +112,9 @@ async function seedRedis() {
       console.log('🚨 Alertas de caída detectadas:\n');
       recentAlerts.forEach((alert) => {
         const date = new Date(alert.timestamp).toLocaleString('es-ES');
-        console.log(`   ⚠️  ${alert.deviceId} - ${alert.location}`);
+        console.log(`   ⚠️  ${alert.macAddress} - ${alert.name}`);
         console.log(`      Fecha: ${date}`);
+        console.log(`      Tipo: ${alert.type}`);
         console.log(`      Severidad: ${alert.severity}`);
         console.log('');
       });
@@ -122,16 +125,15 @@ async function seedRedis() {
     // Ejemplo de cómo leer los datos
     console.log('─'.repeat(60));
     console.log('\n💡 Ejemplo de lectura de datos:\n');
-    const ejemploData = await ESP32Cache.getDeviceData('ESP32-001');
-    console.log('   Datos de ESP32-001:');
+    const ejemploData = await ESP32Cache.getDeviceData('AA:BB:CC:DD:EE:01');
+    console.log('   Datos de AA:BB:CC:DD:EE:01:');
     console.log(JSON.stringify(ejemploData, null, 2));
     console.log('');
 
-    const ejemploHistory = await ESP32Cache.getDeviceHistory('ESP32-001', 3);
-    console.log('   Últimas 3 lecturas de ESP32-001:');
+    const ejemploHistory = await ESP32Cache.getDeviceHistory('AA:BB:CC:DD:EE:01', 3);
+    console.log('   Últimas 3 lecturas de AA:BB:CC:DD:EE:01:');
     ejemploHistory.forEach((reading, i) => {
-      const date = new Date(reading.timestamp).toLocaleTimeString('es-ES');
-      console.log(`   ${i + 1}. [${date}] X=${reading.accX}, Y=${reading.accY}, Z=${reading.accZ}`);
+      console.log(`   ${i + 1}. Impactos=${reading.impact_count}, Magnitud=${reading.impact_magnitude} m/s²`);
     });
     console.log('');
 

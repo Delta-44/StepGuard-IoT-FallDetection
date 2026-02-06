@@ -89,7 +89,7 @@ export const googleAuthCallback = async (req: Request, res: Response) => {
 
 export const googleLogin = async (req: Request, res: Response) => {
   try {
-    const { token } = req.body;
+    const { token, role: requestedRole } = req.body;
 
     if (!token) {
       return res.status(400).json({ message: 'Google token is required' });
@@ -109,44 +109,79 @@ export const googleLogin = async (req: Request, res: Response) => {
     const { email, name, sub: googleId } = payload;
 
     // 1. Try to find user
-    let user = await UsuarioModel.findByEmail(email);
-    let role = 'usuario';
-    let dbUser: any = user;
-
-    // 2. If not user, try to find caregiver
-    if (!user) {
-        const caregiver = await CuidadorModel.findByEmail(email);
-        if (caregiver) {
-            dbUser = caregiver;
-            role = 'cuidador';
-        }
+    const user = await UsuarioModel.findByEmail(email);
+    
+    if (user) {
+        const jwtToken = jwt.sign({ id: user.id, email: user.email, role: 'usuario' }, JWT_SECRET, { expiresIn: '1h' });
+        return res.json({
+            message: 'Google login successful',
+            token: jwtToken,
+            user: { id: user.id, email: user.email, name: user.nombre, role: 'usuario' }
+        });
     }
 
-    // 3. If user doesn't exist, create a new Usuario (default behavior)
-    if (!dbUser) {
-        // Generate a random password since they login with Google
-        const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-        const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(randomPassword, salt);
+    // 2. If not user, try to find caregiver
+    const caregiver = await CuidadorModel.findByEmail(email);
+    if (caregiver) {
+        const jwtToken = jwt.sign({ id: caregiver.id, email: caregiver.email, role: 'cuidador' }, JWT_SECRET, { expiresIn: '1h' });
+        return res.json({
+            message: 'Google login successful',
+            token: jwtToken,
+            user: { id: caregiver.id, email: caregiver.email, name: caregiver.nombre, role: 'cuidador' }
+        });
+    }
 
-        dbUser = await UsuarioModel.create(
+    // 3. If user/caregiver doesn't exist, check if role is provided
+    if (!requestedRole) {
+        // Return 200/202 with isNewUser flag to prompt frontend
+        return res.status(200).json({
+            isNewUser: true,
+            email,
+            name,
+            googleToken: token, // Return token so frontend can send it back with role
+            message: 'User not registered. Please select a role.'
+        });
+    }
+
+    // 4. Create new account based on requestedRole
+    let newUser: any;
+    let finalRole = '';
+
+    // Generate a random password since they login with Google
+    const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(randomPassword, salt);
+
+    if (requestedRole === 'usuario') {
+        newUser = await UsuarioModel.create(
             name || 'Google User',
             email,
             passwordHash,
-            undefined, // age
-            undefined, // address
-            undefined, // phone
-            undefined  // device_id
+            undefined, // fecha_nacimiento
+            undefined, // direccion
+            undefined, // telefono
+            undefined  // dispositivo_mac
         );
-        role = 'usuario'; // Default role
+        finalRole = 'usuario';
+    } else if (requestedRole === 'cuidador') {
+        newUser = await CuidadorModel.create(
+            name || 'Google Caregiver',
+            email,
+            passwordHash,
+            undefined, // phone
+            false // is_admin
+        );
+        finalRole = 'cuidador';
+    } else {
+        return res.status(400).json({ message: 'Invalid role selected. Must be "usuario" or "cuidador".' });
     }
 
-    const jwtToken = jwt.sign({ id: dbUser.id, email: dbUser.email, role }, JWT_SECRET, { expiresIn: '1h' });
+    const jwtToken = jwt.sign({ id: newUser.id, email: newUser.email, role: finalRole }, JWT_SECRET, { expiresIn: '1h' });
 
-    res.json({
-      message: 'Google login successful',
+    res.status(201).json({
+      message: 'Google registration successful',
       token: jwtToken,
-      user: { id: dbUser.id, email: dbUser.email, name: dbUser.nombre, role }
+      user: { id: newUser.id, email: newUser.email, name: newUser.nombre, role: finalRole }
     });
 
   } catch (error: any) {

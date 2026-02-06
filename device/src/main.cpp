@@ -1,40 +1,86 @@
 #include <Arduino.h>
+#include <WiFi.h>
+#include <vector>
 #include "boton.h"
-#include "sensor_movimiento.h"
-#include "vibrador.h"
 #include "inclinacion.h"
+#include "acelerometro.h"
+#include "red.h"
 
-void setup() {
+// Array para almacenar las magnitudes de los impactos
+std::vector<float> listaImpactos;
+
+// Variables para el temporizador
+unsigned long tiempoUltimoReporte = 0;
+const unsigned long INTERVALO_REPORTE = 120000;
+
+// Inicializacion general
+void setup()
+{
     Serial.begin(115200);
-    
-    setupBoton();       
-    setupPIR();         
-    setupVibrador();    
-    setupInclinacion(); 
+    setupRed();
+    setupBoton();
+    setupInclinacion();
+    setupAcelerometro();
+    Serial.println("StepGuard: Sistema iniciado.");
 
-    Serial.println("StepGuard: Sistema con Sensor de Inclinación Listo.");
+    // Guardar el tiempo de inicio
+    tiempoUltimoReporte = millis();
 }
 
-void loop() {
-    // 1. SOS
-    if (verificarBotonSOS()) {
-        Serial.println("[ALERTA] SOS!");
-        activarVibrador(500);
+// Loop principal
+void loop()
+{
+    loopReconnect();
+
+    // Logica de boton SOS
+    if (verificarBotonSOS())
+    {
+        Serial.println("[!] SOS pulsado. Informando...");
+        enviarReporteMQTT(true, false, listaImpactos);
+        listaImpactos.clear();
+
+        tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
     }
 
-    // 2. INCLINACIÓN (Detección de posición)
-    if (estaInclinado()) {
-        Serial.println("[!] AVISO: Dispositivo inclinado / Usuario en el suelo");
-        controlarLedInclinacion(true); // Enciende el LED del propio sensor
-        activarVibrador(200);          // Vibra para avisar
-    } else {
+    // Logica de caida 
+    if (detectarCaida())
+    {
+        float fuerzaImpacto = obtenerMagnitudImpacto();
+        listaImpactos.push_back(fuerzaImpacto);
+
+        Serial.printf("Impacto registrado: %.2f m/s2. Acumulados: %d\n", fuerzaImpacto, listaImpactos.size());
+
+        delay(1500); // Pequeña espera para confirmar inclinación
+
+        if (estaInclinado())
+        {
+            Serial.println(">>> ALERTA: CAÍDA CONFIRMADA.");
+            enviarReporteMQTT(false, true, listaImpactos);
+            listaImpactos.clear();
+
+            tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
+        }
+    }
+
+    // Reporte automatico, cambiar INTERVALO_REPORTE para ajustar frecuencia 
+    if (millis() - tiempoUltimoReporte >= INTERVALO_REPORTE)
+    {
+        Serial.println("[i] Enviando reporte periódico de estado...");
+        enviarReporteMQTT(false, false, listaImpactos);
+
+        listaImpactos.clear();          // Limpiamos los impactos
+        tiempoUltimoReporte = millis(); // Guardamos el tiempo del ultimo reporte
+    }
+
+    // Activar el led de inclinacion
+    if (estaInclinado())
+    {
+        parpadearLedInclinacion();
+    }
+    else
+    {
         controlarLedInclinacion(false);
     }
 
-    // 3. MOVIMIENTO
-    if (hayMovimiento()) {
-        Serial.println("Movimiento detectado.");
-    }
-
-    delay(200);
+    delay(10);
 }

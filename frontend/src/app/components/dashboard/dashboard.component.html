@@ -1,159 +1,454 @@
-<div class="dashboard-container">
+﻿<div class="min-h-screen bg-gray-100">
   
-  <header class="dashboard-header">
-    <div>
-      <h1>Panel de Control</h1>
-      <p class="subtitle">Resumen en tiempo real del sistema StepGuard IoT</p>
+  <!-- Header Premium -->
+  <header class="bg-blue-600 text-white px-8 py-8">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <div class="p-4 rounded-2xl">
+          <i-lucide name="layout-dashboard" [size]="40"></i-lucide>
+        </div>
+        <div>
+          <h1 class="text-4xl font-black tracking-tight">Panel de Control</h1>
+          <p class="text-blue-50 mt-1 font-medium">Monitor en tiempo real - StepGuard IoT</p>
+        </div>
+      </div>
+      <div class="px-6 py-3 rounded-2xl">
+        <div class="text-xs text-blue-100 font-semibold">Fecha</div>
+        <span class="font-bold text-lg">{{ today | date:'dd MMM yyyy' }}</span>
+      </div>
     </div>
-    <div class="date-badge">{{ today | date:'fullDate' }}</div>
   </header>
 
-  <div class="stats-grid">
-    <div class="stat-card blue">
-      <div class="icon">👥</div>
-      <div class="info">
-        <h3>Pacientes</h3>
-        <p class="number">{{ stats.activePatients }}</p>
-        <small>Monitoreados</small>
-      </div>
-    </div>
-
-    <div class="stat-card red" [class.pulse]="stats.pendingAlerts > 0">
-      <div class="icon">🚨</div>
-      <div class="info">
-        <h3>Pendientes</h3>
-        <p class="number">{{ stats.pendingAlerts }}</p>
-        <small>Alertas activas</small>
-      </div>
-    </div>
-
-    <div class="stat-card green">
-      <div class="icon">📱</div>
-      <div class="info">
-        <h3>Dispositivos</h3>
-        <p class="number">{{ stats.onlineDevices }}</p>
-        <small>En línea</small>
-      </div>
-    </div>
-
-    <div class="stat-card orange">
-      <div class="icon">⚡</div>
-      <div class="info">
-        <h3>Batería</h3>
-        <p class="number">{{ stats.lowBattery }}</p>
-        <small>Nivel bajo</small>
-      </div>
-    </div>
-  </div>
-
-  <div class="charts-section">
-    <div class="chart-card">
-      <h3>📈 Actividad de Sensores (Última Hora)</h3>
-      <div class="fake-chart">
-        <div class="bar" style="height: 40%"></div>
-        <div class="bar" style="height: 70%"></div>
-        <div class="bar" style="height: 50%"></div>
-        <div class="bar" style="height: 80%"></div>
-        <div class="bar" style="height: 30%"></div>
-        <div class="bar" style="height: 60%"></div>
-        <div class="bar" style="height: 90%"></div>
-        <div class="bar" style="height: 45%"></div>
-      </div>
-    </div>
-
-    <div class="chart-card">
-      <h3>🚨 Alertas Pendientes de Atención</h3>
+  <!-- Grid de Estadísticas Premium -->
+  <div class="px-8 py-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       
-      @if (activeAlerts.length === 0) {
-        <div class="empty-list">
-          <p>✅ Todo tranquilo. No hay alertas pendientes.</p>
-        </div>
-      } @else {
-        <ul class="alert-list">
-          @for (alert of activeAlerts; track alert.id) {
-            <li class="alert-item" [ngClass]="alert.severity">
-              <div class="alert-content">
-                <strong>{{ alert.message }}</strong>
-                <small>📍 {{ alert.location }} • 🕒 {{ alert.timestamp | date:'shortTime' }}</small>
+      <!-- Pacientes -->
+      <div class="bg-white rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
+        <div class="h-2 bg-gradient-to-r from-operational via-green-500 to-emerald-500"></div>
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-4 bg-operational/10 rounded-xl group-hover:scale-110 transition-transform">
+              <i-lucide name="users" class="text-operational" [size]="32"></i-lucide>
+            </div>
+            <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Pacientes</span>
+          </div>
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="text-5xl font-black text-gray-900">{{ stats.activePatients }}</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="w-2 h-2 bg-operational rounded-full animate-glow"></span>
+                <small class="text-sm text-gray-700 font-semibold">Monitoreados</small>
               </div>
-              <button class="btn-attend" (click)="openResolutionModal(alert)">
-                Atender
-              </button>
-            </li>
-          }
-        </ul>
-      }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertas Pendientes -->
+      <div class="bg-white rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
+        <div class="h-2"
+          [ngClass]="stats.pendingAlerts > 0 ? 'bg-gradient-to-r from-emergency via-red-600 to-red-700 animate-pulse' : 'bg-gradient-to-r from-gray-300 to-gray-400'"
+        ></div>
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-4 rounded-xl group-hover:scale-110 transition-transform"
+              [ngClass]="stats.pendingAlerts > 0 ? 'bg-emergency/10' : ''"
+            >
+              <i-lucide 
+                name="alert-triangle" 
+                [class]="stats.pendingAlerts > 0 ? 'text-emergency' : 'text-gray-400'"
+                [size]="32"
+              ></i-lucide>
+            </div>
+            <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Alertas</span>
+          </div>
+          <div class="flex items-end justify-between">
+            <div>
+              <p 
+                class="text-5xl font-black"
+                [ngClass]="stats.pendingAlerts > 0 ? 'text-emergency' : 'text-gray-900'"
+              >
+                {{ stats.pendingAlerts }}
+              </p>
+              <div class="mt-2">
+                @if (stats.pendingAlerts > 0) {
+                  <small class="text-sm text-emergency font-bold flex items-center gap-1">
+                    <i-lucide name="alert-circle" [size]="14"></i-lucide>
+                    ¡Requiere atención!
+                  </small>
+                } @else {
+                  <small class="text-sm text-gray-700 font-semibold">Todo bajo control</small>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dispositivos -->
+      <div class="bg-white rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
+        <div class="h-2 bg-gradient-to-r from-primary via-blue-500 to-indigo-500"></div>
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-4 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
+              <i-lucide name="smartphone" class="text-primary" [size]="32"></i-lucide>
+            </div>
+            <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Dispositivos</span>
+          </div>
+          <div class="flex items-end justify-between">
+            <div>
+              <p class="text-5xl font-black text-gray-900">{{ stats.onlineDevices }}</p>
+              <div class="flex items-center gap-2 mt-2">
+                <span class="w-2 h-2 bg-operational rounded-full animate-breathe"></span>
+                <small class="text-sm text-gray-700 font-semibold">Conectados</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Batería Baja -->
+      <div class="bg-white rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg animate-fade-in">
+        <div class="h-2"
+          [ngClass]="stats.lowBattery > 0 ? 'bg-gradient-to-r from-preventive via-yellow-500 to-amber-500' : 'bg-gradient-to-r from-gray-300 to-gray-400'"
+        ></div>
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div class="p-4 rounded-xl group-hover:scale-110 transition-transform"
+              [ngClass]="stats.lowBattery > 0 ? 'bg-preventive/10' : ''"
+            >
+              <i-lucide 
+                name="battery-warning" 
+                [class]="stats.lowBattery > 0 ? 'text-preventive' : 'text-gray-400'"
+                [size]="32"
+              ></i-lucide>
+            </div>
+            <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Batería</span>
+          </div>
+          <div class="flex items-end justify-between">
+            <div>
+              <p 
+                class="text-5xl font-black"
+                [ngClass]="stats.lowBattery > 0 ? 'text-preventive' : 'text-gray-900'"
+              >
+                {{ stats.lowBattery }}
+              </p>
+              <div class="mt-2">
+                <small 
+                  class="text-sm font-semibold"
+                  [ngClass]="stats.lowBattery > 0 ? 'text-preventive font-bold flex items-center gap-1' : 'text-gray-700'"
+                >
+                  @if (stats.lowBattery > 0) {
+                    <i-lucide name="zap" [size]="14"></i-lucide>
+                    Nivel bajo
+                  } @else {
+                    Todo correcto
+                  }
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Gráficas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      
+      <!-- Gráfica de Actividad -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6 animate-fade-in">
+        <h3 class="text-lg font-bold text-base-text mb-4 flex items-center gap-2">
+          <i-lucide name="bar-chart-3" [size]="20"></i-lucide>
+          Actividad de Sensores (Última Hora)
+        </h3>
+        <div class="space-y-3">
+          <!-- Total Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Total Resueltas</span>
+              <span class="text-sm font-bold text-green-600">{{ resolvedStats.totalResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-green-500 to-green-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.totalResolved / (resolvedStats.totalResolved + stats.pendingAlerts)) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Críticas Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Críticas</span>
+              <span class="text-sm font-bold text-red-600">{{ resolvedStats.criticalResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-red-500 to-red-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.criticalResolved / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Altas Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Altas</span>
+              <span class="text-sm font-bold text-orange-600">{{ resolvedStats.highResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-orange-500 to-orange-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.highResolved / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Medias Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Medias</span>
+              <span class="text-sm font-bold text-yellow-600">{{ resolvedStats.mediumResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-yellow-500 to-yellow-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.mediumResolved / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Bajas Resueltas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Bajas</span>
+              <span class="text-sm font-bold text-blue-600">{{ resolvedStats.lowResolved }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.lowResolved / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Falsas Alarmas -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-sm font-semibold text-gray-700">Falsas Alarmas</span>
+              <span class="text-sm font-bold text-gray-600">{{ resolvedStats.falseAlarms }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div 
+                class="bg-gradient-to-r from-gray-500 to-gray-600 h-full rounded-full transition-all duration-1000"
+                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.falseAlarms / resolvedStats.totalResolved) * 100 : 0"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de Alertas -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6 animate-fade-in">
+        <h3 class="text-lg font-bold text-base-text mb-4 flex items-center gap-2">
+          <i-lucide name="bell" [size]="20"></i-lucide>
+          Alertas Pendientes de Atención
+        </h3>
+        
+        @if (activeAlerts.length === 0) {
+          <div class="flex flex-col items-center justify-center h-48 text-gray-400">
+            <i-lucide name="check-circle" [size]="64" class="text-operational mb-3"></i-lucide>
+            <p class="text-lg">Todo tranquilo. No hay alertas pendientes.</p>
+          </div>
+        } @else {
+          <ul class="space-y-3 max-h-96 overflow-y-auto">
+            @for (alert of activeAlerts; track alert.id) {
+              <li 
+                class="p-4 rounded-lg border-l-4 transition-all duration-300 hover: animate-slide-down"
+                [ngClass]="{
+                  'bg-emergency/5 border-emergency': alert.severity === 'critical',
+                  'bg-red-50 border-red-400': alert.severity === 'high',
+                  'bg-preventive/10 border-preventive': alert.severity === 'medium',
+                  'bg-blue-50 border-primary': alert.severity === 'low'
+                }"
+              >
+                <div class="flex justify-between items-start gap-3">
+                  <div class="flex-1">
+                    <strong 
+                      class="block mb-1"
+                      [ngClass]="{
+                        'text-emergency': alert.severity === 'critical',
+                        'text-red-600': alert.severity === 'high',
+                        'text-preventive': alert.severity === 'medium',
+                        'text-primary': alert.severity === 'low'
+                      }"
+                    >
+                      {{ alert.message }}
+                    </strong>
+                    <small class="text-gray-600 flex items-center gap-2 flex-wrap">
+                      <span class="flex items-center gap-1">
+                        <i-lucide name="map-pin" [size]="14"></i-lucide>
+                        {{ alert.location }}
+                      </span>
+                      <span>•</span>
+                      <span class="flex items-center gap-1">
+                        <i-lucide name="clock" [size]="14"></i-lucide>
+                        {{ alert.timestamp | date:'shortTime' }}
+                      </span>
+                    </small>
+                  </div>
+                  <button 
+                    class="px-5 py-2.5 rounded-lg font-bold text-white transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 border-2"
+                    [ngClass]="{
+                      'bg-red-600 hover:bg-red-700 border-red-700': alert.severity === 'critical' || alert.severity === 'high',
+                      'bg-orange-600 hover:bg-orange-700 border-orange-700': alert.severity === 'medium',
+                      'bg-blue-600 hover:bg-blue-700 border-blue-700': alert.severity === 'low'
+                    }"
+                    (click)="openResolutionModal(alert)"
+                  >
+                    Atender
+                  </button>
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </div>
     </div>
   </div>
 
 </div>
 
 
+<!-- Modal de Atención con Diseño Profesional -->
 @if (processingAlert) {
-  <div class="modal-backdrop">
-    <div class="modal-content attention-modal">
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in">
+    <div class="bg-white rounded-xl w-full max-w-2xl mx-4 shadow-2xl">
       
-      <div class="modal-header warning-header">
-        <h2>⚠️ Atendiendo Incidencia #{{ processingAlert.id }}</h2>
+      <!-- Header Minimalista -->
+      <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div 
+            class="w-2 h-2 rounded-full"
+            [ngClass]="{
+              'bg-red-500': processingAlert.severity === 'critical' || processingAlert.severity === 'high',
+              'bg-orange-500': processingAlert.severity === 'medium',
+              'bg-blue-500': processingAlert.severity === 'low'
+            }"
+          ></div>
+          <h2 class="text-sm font-semibold text-slate-700">Procesando Incidencia #{{ processingAlert.id }}</h2>
+        </div>
+        <button 
+          (click)="cancelResolution()" 
+          class="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <i-lucide name="x" [size]="18"></i-lucide>
+        </button>
       </div>
 
-      <div class="modal-body">
+      <!-- Body -->
+      <div class="p-5 space-y-4">
         
-        <div class="auto-data">
-          <div class="data-row">
-            <strong>📍 Ubicación:</strong> <span>{{ processingAlert.location }}</span>
+        <!-- Info Cards Compactas -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+              <i-lucide name="map-pin" [size]="12"></i-lucide>
+              <span class="text-[9px] font-semibold uppercase tracking-wide">Ubicación</span>
+            </div>
+            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.location }}</p>
           </div>
-          <div class="data-row">
-            <strong>🕒 Hora:</strong> <span>{{ processingAlert.timestamp | date:'medium' }}</span>
+          
+          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+              <i-lucide name="clock" [size]="12"></i-lucide>
+              <span class="text-[9px] font-semibold uppercase tracking-wide">Hora</span>
+            </div>
+            <p class="text-slate-900 font-medium text-xs">{{ processingAlert.timestamp | date:'short' }}</p>
           </div>
-          <div class="data-row">
-             <strong>🤖 Detección:</strong> <span>{{ processingAlert.message }}</span>
+          
+          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+              <i-lucide name="activity" [size]="12"></i-lucide>
+              <span class="text-[9px] font-semibold uppercase tracking-wide">Tipo</span>
+            </div>
+            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.message }}</p>
           </div>
         </div>
 
-        <hr>
-
-        <div class="form-row" style="display: flex; gap: 20px; margin-bottom: 15px;">
-          
-          <div class="form-group" style="flex: 1;">
-            <label style="font-weight:bold; display:block; margin-bottom:5px;">📊 Nivel de Gravedad Final:</label>
-            <select [(ngModel)]="selectedSeverity" class="severity-select">
-              <option value="low">🟢 Baja (Low)</option>
-              <option value="medium">🟠 Media (Medium)</option>
-              <option value="high">🔴 Alta (High)</option>
-              <option value="critical">🚨 Crítica (Critical)</option>
+        <!-- Selector de Gravedad -->
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
+            <i-lucide name="thermometer" [size]="14"></i-lucide>
+            Nivel de Gravedad
+          </label>
+          <div class="relative">
+            <select 
+              [(ngModel)]="selectedSeverity" 
+              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white appearance-none cursor-pointer"
+            >
+              <option value="low">🟢 Baja</option>
+              <option value="medium">🟡 Media</option>
+              <option value="high">🟠 Alta</option>
+              <option value="critical">🔴 Crítica</option>
             </select>
+            <i-lucide name="chevron-down" [size]="16" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i-lucide>
           </div>
-          
         </div>
 
-        <div class="form-group">
-          <label style="font-weight:bold; display:block; margin-bottom:5px;">📝 Documentación / Notas:</label>
+        <!-- Notas -->
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
+            <i-lucide name="clipboard-list" [size]="14"></i-lucide>
+            Notas de Atención
+          </label>
           <textarea 
             [(ngModel)]="resolutionNotes" 
-            placeholder="Describe qué ha pasado y cómo se ha solucionado..."
-            rows="5"
+            placeholder="Describe las acciones realizadas y el estado del paciente..."
+            rows="3"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none text-sm placeholder:text-slate-400"
           ></textarea>
         </div>
 
       </div>
 
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="cancelResolution()" [disabled]="isSubmitting">
+      <!-- Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-2">
+        <button 
+          class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-white transition-colors disabled:opacity-50"
+          (click)="cancelResolution()" 
+          [disabled]="isSubmitting"
+        >
           Cancelar
         </button>
         
-        <div class="action-buttons">
-          <button class="btn-false" (click)="submitResolution('falsa_alarma')" [disabled]="isSubmitting">
-            🚫 Falsa Alarma
-          </button>
-          
-          <button class="btn-success" (click)="submitResolution('atendida')" [disabled]="isSubmitting">
-            ✅ Finalizar y Guardar
-          </button>
-        </div>
+        <button 
+          class="px-3 py-1.5 bg-slate-600 text-white rounded-lg text-xs font-medium hover:bg-slate-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          (click)="submitResolution('falsa_alarma')" 
+          [disabled]="isSubmitting"
+        >
+          <i-lucide name="x-circle" [size]="14"></i-lucide>
+          Falsa Alarma
+        </button>
+        
+        <button 
+          class="px-4 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          (click)="submitResolution('atendida')" 
+          [disabled]="isSubmitting"
+        >
+          <i-lucide name="check" [size]="14"></i-lucide>
+          Atendida
+        </button>
       </div>
 
     </div>
   </div>
 }
+
+
+
+
+
+
+

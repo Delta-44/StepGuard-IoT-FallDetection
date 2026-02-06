@@ -4,5 +4,6 @@
 void setupInclinacion();
 bool estaInclinado();
 void controlarLedInclinacion(bool encender);
+void parpadearLedInclinacion(); 
 
 #endif

@@ -1,29 +1,37 @@
-@if (step === 'selection') {
-  <div class="modal-header">
-    <h2>¿Quién eres? 🤔</h2>
-    <p>Selecciona tu perfil para comenzar</p>
+﻿@if (step === 'selection') {
+  <div class="p-8 text-center">
+    <h2 class="text-3xl font-bold text-gray-800 mb-3">¿Quién eres?</h2>
+    <p class="text-gray-600 mb-8">Selecciona tu perfil para comenzar</p>
   </div>
 
-  <div class="role-selection">
-    <div class="role-card" (click)="chooseRole('user')">
-      <div class="role-icon">👤</div>
-      <div>
-        <h3>Paciente / Familiar</h3>
-        <p>Monitorización personal y seguridad en el hogar.</p>
+  <div class="px-8 pb-8 space-y-4">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-6 cursor-pointer hover:border-blue-400 hover:-translate-y-1 transition-all duration-300" (click)="chooseRole('user')">
+      <div class="flex items-center gap-4">
+        <div class="p-4 bg-blue-500 text-white rounded-xl text-4xl">
+          <i-lucide name="user" [size]="32"></i-lucide>
+        </div>
+        <div class="flex-1 text-left">
+          <h3 class="text-xl font-bold text-gray-800 mb-1">Paciente / Familiar</h3>
+          <p class="text-gray-600 text-sm">Monitorización personal y seguridad en el hogar.</p>
+        </div>
       </div>
     </div>
 
-    <div class="role-card caregiver" (click)="chooseRole('caregiver')">
-      <div class="role-icon">🏥</div>
-      <div>
-        <h3>Cuidador / Enfermero</h3>
-        <p>Gestión de múltiples pacientes y recepción de alertas.</p>
+    <div class="bg-gradient-to-r from-pink-50 to-purple-50 border-2 border-pink-200 rounded-2xl p-6 cursor-pointer hover:border-pink-400 hover:-translate-y-1 transition-all duration-300" (click)="chooseRole('caregiver')">
+      <div class="flex items-center gap-4">
+        <div class="p-4 bg-pink-500 text-white rounded-xl text-4xl">
+          <i-lucide name="activity" [size]="32"></i-lucide>
+        </div>
+        <div class="flex-1 text-left">
+          <h3 class="text-xl font-bold text-gray-800 mb-1">Cuidador / Enfermero</h3>
+          <p class="text-gray-600 text-sm">Gestión de múltiples pacientes y recepción de alertas.</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="modal-footer">
-    ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()">Inicia Sesión</a>
+  <div class="px-8 pb-8 text-center text-sm text-gray-600">
+    ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()" class="text-blue-600 font-semibold hover:underline cursor-pointer">Inicia Sesión</a>
   </div>
 }
 
@@ -55,7 +63,19 @@
       <div class="row-2-col">
         <div class="input-group">
           <label>Fecha Nacimiento <span class="required">*</span></label>
-          <input type="date" [(ngModel)]="registerData.fecha_nacimiento" name="fecha_nacimiento" required>
+          <input 
+            type="date" 
+            [(ngModel)]="registerData.fecha_nacimiento" 
+            name="fecha_nacimiento" 
+            (change)="validateAge()"
+            required
+          >
+          @if (ageError) {
+            <small class="text-red-600 text-xs mt-1 flex items-center gap-1">
+              <i-lucide name="alert-circle" [size]="14"></i-lucide>
+              Debes ser mayor de 18 años para registrarte
+            </small>
+          }
         </div>
       </div>
 
@@ -70,12 +90,49 @@
       <input type="password" [(ngModel)]="registerData.password" name="password" placeholder="Mínimo 6 caracteres" required minlength="6">
     </div>
 
-    <button type="submit" class="btn-full black-btn" [disabled]="!regForm.valid || isLoading">
+    <button type="submit" class="btn-full black-btn" [disabled]="!regForm.valid || isLoading || ageError">
       {{ isLoading ? 'Creando cuenta...' : 'Confirmar Registro' }}
     </button>
   </form>
 
   <div class="modal-footer">
     ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()">Inicia Sesión</a>
+  </div>
+}
+
+<!-- Modal de Éxito (FUERA del formulario) -->
+@if (showSuccessModal) {
+  <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
+    <div class="bg-white rounded-3xl w-full max-w-md mx-4 animate-slide-down shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+      
+      <!-- Header con gradiente verde -->
+      <div class="bg-gradient-to-br from-green-600 to-emerald-700 text-white px-8 py-8 text-center relative overflow-hidden">
+        <div class="relative z-10">
+          <div class="flex justify-center mb-4">
+            <div class="p-4 bg-white/20 rounded-full backdrop-blur-sm">
+              <i-lucide name="check-circle" [size]="48"></i-lucide>
+            </div>
+          </div>
+          <h3 class="text-3xl font-black mb-2">¡Registro Exitoso!</h3>
+          <p class="text-green-100 font-medium">Tu cuenta ha sido creada correctamente</p>
+        </div>
+        <!-- Decoración de fondo -->
+        <div class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24"></div>
+      </div>
+
+      <div class="p-8 text-center">
+        <p class="text-gray-700 mb-6 text-lg">
+          Ahora puedes <strong class="text-blue-600">iniciar sesión</strong> con tus credenciales
+        </p>
+        
+        <button 
+          (click)="closeSuccessModal(); $event.stopPropagation()"
+          class="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex items-center justify-center gap-2"
+        >
+          <i-lucide name="log-in" [size]="20"></i-lucide>
+          Ir a Iniciar Sesión
+        </button>
+      </div>
+    </div>
   </div>
 }

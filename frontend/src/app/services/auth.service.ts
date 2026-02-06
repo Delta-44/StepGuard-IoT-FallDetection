@@ -1,17 +1,19 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http'; // 👈 Necesario
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, of, tap, catchError } from 'rxjs'; // 👈 Añadido tap
+import { Observable, of, tap, catchError, delay } from 'rxjs';
 import { User } from '../models/user.model';
-import { environment } from '../../environments/environment'; // 👈 Tu URL del paso 1
+import { UserService } from './user.service'; // 👈 Importamos UserService
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private apiUrl = environment.apiUrl;
+  // Force git detect
 
   public currentUser = signal<User | null>(null);
 
@@ -26,7 +28,7 @@ export class AuthService {
   // --- LOGIN REAL ---
   login(email: string, password: string): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/login`, { email, password }).pipe(
-      tap(res => {
+      tap((res) => {
         // Adaptamos la respuesta del backend a tu modelo de User
         // Res viene como { message, token, user: { id, email, name, role } }
         const backendUser = res.user;
@@ -46,11 +48,11 @@ export class AuthService {
           status: 'active',
           token: res.token,
           telefono: backendUser.telefono,
-          is_admin: backendUser.role === 'admin'
+          is_admin: backendUser.role === 'admin',
         };
 
         this.saveSession(userToSave, res.token);
-      })
+      }),
     );
   }
 
@@ -66,11 +68,18 @@ export class AuthService {
     this.currentUser.set(user);
   }
 
+  private userService = inject(UserService); // 👈 Inyectamos UserService para limpiar estado
+
   logout(): void {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('stepguard_session');
     this.currentUser.set(null);
+    this.userService.clearState(); // 👈 Limpiar cache de usuarios al salir
     this.router.navigate(['/']);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('auth_token');
   }
 
   // Helper para el login con Google
@@ -78,33 +87,70 @@ export class AuthService {
     return `${this.apiUrl}/auth/google`;
   }
 
+  loginWithGoogle(googleToken: string, role?: string): Observable<any> {
+    const payload: any = { token: googleToken };
+    if (role) {
+      payload.role = role;
+    }
 
-  loginWithGoogle(googleToken: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/auth/google`, { token: googleToken }).pipe(
-      tap(res => {
+    return this.http.post<any>(`${this.apiUrl}/auth/google`, payload).pipe(
+      tap((res) => {
+        // Si es un usuario nuevo, el backend devolverá isNewUser: true
+        if (res.isNewUser) {
+          // El frontend debe manejar esto mostrando un selector de rol
+          return;
+        }
+
         // El backend validará el token de Google y te devolverá SU propio token
         const backendUser = res.user;
 
+        if (!backendUser) {
+          throw new Error('No user data received from backend');
+        }
+
         // Mapear el rol correctamente
-        let role: 'admin' | 'caregiver' | 'user' = 'user';
-        if (backendUser.role === 'admin') role = 'admin';
-        else if (backendUser.role === 'cuidador') role = 'caregiver';
-        else if (backendUser.role === 'usuario') role = 'user';
+        let userRole: 'admin' | 'caregiver' | 'user' = 'user';
+        if (backendUser.role === 'admin') userRole = 'admin';
+        else if (backendUser.role === 'cuidador') userRole = 'caregiver';
+        else if (backendUser.role === 'usuario') userRole = 'user';
 
         const userToSave: User = {
           id: backendUser.id,
           username: backendUser.email.split('@')[0],
           fullName: backendUser.name || backendUser.nombre,
           email: backendUser.email,
-          role: role,
+          role: userRole,
           status: 'active',
           token: res.token,
           telefono: backendUser.telefono,
-          is_admin: backendUser.role === 'admin'
+          is_admin: backendUser.role === 'admin',
         };
 
         this.saveSession(userToSave, res.token);
-      })
+      }),
     );
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/forgot-password`, { email });
+  }
+
+  resetPassword(token: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/reset-password`, { token, password });
+  }
+  loginTestAdmin(): void {
+    const testAdmin: User = {
+      id: 'test-admin-1',
+      username: 'admin',
+      fullName: 'Administrador de Prueba',
+      email: 'admin@test.com',
+      role: 'admin',
+      status: 'active',
+      token: 'test-token-' + Date.now(),
+      telefono: '000000000',
+      is_admin: true,
+    };
+
+    this.saveSession(testAdmin, testAdmin.token || 'test-token');
   }
 }

@@ -2,15 +2,12 @@ import { Routes, Router } from '@angular/router';
 import { inject } from '@angular/core';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DevicesComponent } from './components/devices/devices.component';
-// import { LoginPage } ... YA NO LOS NECESITAMOS
-// import { RegisterPage } ... YA NO LOS NECESITAMOS
 import { UsersComponent } from './components/users/users.component';
 import { AuthService } from './services/auth.service';
-import { HomeComponent } from './components/home/home.component';
 import { LandingComponent } from './pages/landing/landing.component';
 import { AlertsComponent } from './components/alerts/alerts.component';
-
-// --- LÓGICA DE GUARDIA (SECURITY GUARD) ---
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { PatientProfileComponent } from './pages/patient-profile/patient-profile.component';
 const authGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -30,6 +27,34 @@ const authGuard = () => {
   }
 };
 
+// Guard para solo admin y cuidadores
+const staffOnlyGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  const user = auth.currentUser();
+  
+  if (user && (user.role === 'admin' || user.role === 'caregiver')) {
+    return true;
+  } else {
+    router.navigate(['/profile']);
+    return false;
+  }
+};
+
+// Guard para solo pacientes
+const patientOnlyGuard = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  const user = auth.currentUser();
+  
+  if (user && user.role === 'user') {
+    return true;
+  } else {
+    router.navigate(['/dashboard']);
+    return false;
+  }
+};
+
 export const routes: Routes = [
   // ==========================================
   // 1. LA PUERTA DE ENTRADA (LANDING + MODALES)
@@ -43,27 +68,33 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, staffOnlyGuard]
+  },
+  {
+    path: 'profile',
+    component: PatientProfileComponent,
+    canActivate: [authGuard, patientOnlyGuard]
   },
   {
     path: 'devices',
     component: DevicesComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, staffOnlyGuard]
   },
   { 
     path: 'users', 
     component: UsersComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard, staffOnlyGuard]
   },
-  { 
-    path: 'home', 
-    component: HomeComponent,
-    canActivate: [authGuard] 
-  },
+
   { path: 'alerts', component: AlertsComponent, canActivate: [authGuard] },
 
   // ==========================================
-  // 3. RUTAS DESCONOCIDAS
+  // 3. RESET PASSWORD (PÚBLICO)
+  // ==========================================
+  { path: 'reset-password', component: ResetPasswordComponent },
+
+  // ==========================================
+  // 4. RUTAS DESCONOCIDAS
   // ==========================================
   // Cualquier cosa rara -> A la portada
   { path: '**', redirectTo: '' } 

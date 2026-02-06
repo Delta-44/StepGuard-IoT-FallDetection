@@ -1,79 +1,414 @@
-<div class="page-container">
-  <h2>🚨 Centro de Alertas Global</h2>
-  
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>HORA</th>
-          <th>SEVERIDAD</th>
-          <th style="width: 40%;">MENSAJE / DETALLES</th>
-          <th>LUGAR</th> 
-          <th>DISPOSITIVO</th>
-          <th>ESTADO</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (alert of alerts; track alert.id) {
-          <tr [ngClass]="{'row-critical': alert.severity === 'critical' && alert.status === 'pendiente'}">
-            
-            <td style="white-space: nowrap;">{{ alert.timestamp | date:'dd/MM HH:mm' }}</td>
-            
-            <td>
-              <span class="badge" [ngClass]="alert.severity">
-                {{ alert.severity | uppercase }}
-              </span>
-            </td>
-            
-            <td>
-              <div class="message-row">
-                <span class="message-text">{{ alert.message }}</span>
-                
-                @if (alert.notes) {
-                  <button class="btn-toggle" (click)="toggleNotes(alert.id)">
-                    {{ isExpanded(alert.id) ? '🔼 Ocultar' : '🔽 Ver Notas' }}
-                  </button>
-                }
-              </div>
-              
-              @if (isExpanded(alert.id) && alert.notes) {
-                <div class="resolution-box">
-                  <div class="note-content">
-                    <span class="icon">📝</span> 
-                    <em>"{{ alert.notes }}"</em>
+﻿<div class="min-h-screen p-8">
+  <!-- Header -->
+  <div class="mb-8 animate-fade-in">
+    <div class="bg-white rounded-2xl p-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="p-4 bg-gradient-to-br from-emergency/10 to-red-500/5 rounded-xl">
+            <i-lucide name="bell" [size]="32" class="text-emergency"></i-lucide>
+          </div>
+          <div>
+            <h2 class="text-3xl font-bold text-gray-800">Centro de Alertas</h2>
+            <p class="text-gray-600 mt-1">Monitoreo en tiempo real de eventos críticos</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-sm text-gray-500">Total de alertas</div>
+          <div class="text-3xl font-bold text-emergency">{{ alerts.length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de Búsqueda y Ordenamiento -->
+    <div class="flex gap-3 mt-6 items-center">
+      <!-- Input de Búsqueda -->
+      <div class="flex-1 relative">
+        <i-lucide
+          name="search"
+          [size]="20"
+          class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+        ></i-lucide>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Buscar por mensaje, ubicación, dispositivo o notas..."
+          class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white"
+        />
+      </div>
+
+      <!-- Botón de Ordenamiento por Fecha -->
+      <button
+        (click)="toggleSortOrder()"
+        class="px-5 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:shadow-lg"
+        [title]="sortOrder === 'newest' ? 'Más recientes primero' : 'Más antiguas primero'"
+      >
+        <i-lucide
+          [name]="sortOrder === 'newest' ? 'arrow-down' : 'arrow-up'"
+          [size]="20"
+        ></i-lucide>
+        {{ sortOrder === 'newest' ? 'Más nuevas' : 'Más viejas' }}
+      </button>
+    </div>
+
+    <!-- Botones de Filtro por Estado -->
+    <div class="flex gap-3 mt-4">
+      <button
+        (click)="setStatusFilter('all')"
+        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        [ngClass]="
+          statusFilter === 'all'
+            ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105'
+            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+        "
+      >
+        <i-lucide name="list" [size]="20"></i-lucide>
+        Todas
+        <span
+          class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
+          [ngClass]="statusFilter === 'all' ? 'bg-white/25' : 'bg-gray-200'"
+          >{{ alerts.length }}</span
+        >
+      </button>
+
+      <button
+        (click)="setStatusFilter('pendiente')"
+        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        [ngClass]="
+          statusFilter === 'pendiente'
+            ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg scale-105'
+            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+        "
+      >
+        <i-lucide name="alert-circle" [size]="20"></i-lucide>
+        Pendientes
+        <span
+          class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
+          [ngClass]="
+            statusFilter === 'pendiente' ? 'bg-white text-yellow-700' : 'bg-gray-200 text-gray-700'
+          "
+          >{{ getAlertCountByStatus('pendiente') }}</span
+        >
+      </button>
+
+      <button
+        (click)="setStatusFilter('atendida')"
+        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        [ngClass]="
+          statusFilter === 'atendida'
+            ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-105'
+            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+        "
+      >
+        <i-lucide name="check-circle" [size]="20"></i-lucide>
+        Atendidas
+        <span
+          class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
+          [ngClass]="statusFilter === 'atendida' ? 'bg-white/25' : 'bg-gray-200'"
+          >{{ getAlertCountByStatus('atendida') }}</span
+        >
+      </button>
+    </div>
+  </div>
+
+  <!-- Grid de Alertas -->
+  @if (filteredAlerts.length === 0) {
+    <div class="bg-white rounded-2xl p-12 text-center animate-fade-in">
+      <div class="text-6xl mb-4">🔍</div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">No se encontraron resultados</h3>
+      <p class="text-gray-500">
+        @if (searchTerm.trim()) {
+          No hay
+          @if (statusFilter === 'pendiente') {
+            alertas pendientes
+          } @else if (statusFilter === 'atendida') {
+            alertas atendidas
+          } @else {
+            alertas
+          }
+          que coincidan con "{{ searchTerm }}"
+        } @else {
+          No hay
+          @if (statusFilter === 'pendiente') {
+            alertas pendientes
+          } @else if (statusFilter === 'atendida') {
+            alertas atendidas
+          } @else {
+            alertas registradas
+          }
+        }
+      </p>
+    </div>
+  } @else {
+    <div class="space-y-4 animate-fade-in">
+      @for (alert of paginatedAlerts; track alert.id) {
+        <div
+          class="bg-white rounded-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1"
+          [ngClass]="{
+            'ring-2 ring-emergency animate-pulse-emergency':
+              alert.severity === 'critical' && alert.status === 'pendiente',
+            'ring-2 ring-red-400': alert.severity === 'high' && alert.status === 'pendiente',
+            'ring-2 ring-preventive': alert.severity === 'medium' && alert.status === 'pendiente',
+          }"
+        >
+          <!-- Indicador superior de severidad -->
+          <div
+            class="h-2"
+            [ngClass]="{
+              'bg-gradient-to-r from-emergency via-red-600 to-emergency':
+                alert.severity === 'critical',
+              'bg-gradient-to-r from-red-500 to-red-600': alert.severity === 'high',
+              'bg-gradient-to-r from-preventive to-yellow-500': alert.severity === 'medium',
+              'bg-gradient-to-r from-primary to-blue-600': alert.severity === 'low',
+            }"
+          ></div>
+
+          <div class="p-6">
+            <!-- Header de la alerta -->
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-4 flex-1">
+                <div
+                  class="p-3 rounded-xl"
+                  [ngClass]="{
+                    'bg-emergency/10': alert.severity === 'critical',
+                    'bg-red-500/10': alert.severity === 'high',
+                    'bg-preventive/10': alert.severity === 'medium',
+                    'bg-primary/10': alert.severity === 'low',
+                  }"
+                >
+                  <i-lucide
+                    [name]="
+                      alert.severity === 'critical'
+                        ? 'alert-triangle'
+                        : alert.severity === 'high'
+                          ? 'alert-circle'
+                          : alert.severity === 'medium'
+                            ? 'bell'
+                            : 'info'
+                    "
+                    [size]="28"
+                    [ngClass]="{
+                      'text-emergency': alert.severity === 'critical',
+                      'text-red-500': alert.severity === 'high',
+                      'text-preventive': alert.severity === 'medium',
+                      'text-primary': alert.severity === 'low',
+                    }"
+                  ></i-lucide>
+                </div>
+
+                <div class="flex-1">
+                  <div class="flex items-center gap-3 mb-2">
+                    <span
+                      class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider"
+                      [ngClass]="{
+                        'bg-emergency/20 text-emergency border border-emergency/30':
+                          alert.severity === 'critical',
+                        'bg-red-500/20 text-red-700 border border-red-300':
+                          alert.severity === 'high',
+                        'bg-preventive/20 text-preventive border border-preventive/30':
+                          alert.severity === 'medium',
+                        'bg-primary/20 text-primary border border-primary/30':
+                          alert.severity === 'low',
+                      }"
+                    >
+                      {{ alert.severity }}
+                    </span>
+
+                    <span class="text-sm text-gray-500 flex items-center gap-1.5">
+                      <i-lucide name="clock" [size]="14"></i-lucide>
+                      {{ alert.timestamp | date: 'dd/MM/yyyy HH:mm' }}
+                    </span>
                   </div>
-                  <div class="note-footer">
-                    — Atendido por: <strong>{{ alert.attendedBy }}</strong>
-                    <span class="note-date">({{ alert.attendedAt | date:'short' }})</span>
+                  <p class="text-gray-800 font-semibold text-lg">{{ alert.message }}</p>
+                </div>
+              </div>
+
+              <!-- Badges de estado y acciones -->
+              <div class="flex items-center gap-2">
+                <span
+                  class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold"
+                  [ngClass]="{
+                    'bg-operational text-white': alert.status === 'atendida',
+                    'bg-transparent0 text-white':
+                      alert.status === 'falsa_alarma' || alert.status === 'ignorada',
+                    'bg-yellow-100 text-yellow-800 border-2 border-yellow-300':
+                      alert.status === 'pendiente',
+                  }"
+                >
+                  <i-lucide
+                    [name]="
+                      alert.status === 'atendida'
+                        ? 'check-circle'
+                        : alert.status === 'pendiente'
+                          ? 'alert-circle'
+                          : 'x-circle'
+                    "
+                    [size]="16"
+                  ></i-lucide>
+                  {{
+                    alert.status === 'atendida'
+                      ? 'Resuelta'
+                      : alert.status === 'falsa_alarma'
+                        ? 'Falsa'
+                        : alert.status === 'ignorada'
+                          ? 'Ignorada'
+                          : 'Pendiente'
+                  }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+              <div class="flex items-center gap-3 p-3 bg-transparent rounded-xl">
+                <i-lucide name="map-pin" [size]="18" class="text-primary"></i-lucide>
+                <div>
+                  <div class="text-xs text-gray-500 font-medium">Ubicación</div>
+                  <div class="text-sm font-semibold text-gray-800">{{ alert.location }}</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 p-3 bg-transparent rounded-xl">
+                <i-lucide name="radio" [size]="18" class="text-gray-600"></i-lucide>
+                <div>
+                  <div class="text-xs text-gray-500 font-medium">Dispositivo</div>
+                  <div class="text-sm font-semibold text-gray-800">MAC: {{ alert.macAddress }}</div>
+                </div>
+              </div>
+
+              @if (alert.attendedBy && alert.status !== 'pendiente') {
+                <div
+                  class="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-200"
+                >
+                  <i-lucide name="user-circle" [size]="18" class="text-green-600"></i-lucide>
+                  <div>
+                    <div class="text-xs text-gray-500 font-medium">Atendida por</div>
+                    <div class="text-sm font-semibold text-gray-800">{{ alert.attendedBy }}</div>
                   </div>
                 </div>
               }
-            </td>
-            
-            <td style="font-weight: 500; color: #555;">📍 {{ alert.location }}</td>
 
-            <td><small>ID: {{ alert.deviceId }}</small></td>
-            
-            <td>
-              <span class="status" 
-                    [class.done]="alert.status === 'atendida'"
-                    [class.ignored]="alert.status === 'falsa_alarma' || alert.status === 'ignorada'">
-                
-                @if (alert.status === 'atendida') {
-                  ✅ Resuelto
-                } @else if (alert.status === 'falsa_alarma') {
-                  🚫 Falsa Alarma
-                } @else if (alert.status === 'ignorada') {
-                  👁️ Ignorada
-                } @else {
-                  ⚠️ Pendiente
-                }
+              @if (alert.resolutionNotes) {
+                <button
+                  class="flex items-center justify-center gap-2 p-3 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors border border-primary/20 hover:border-primary/40"
+                  (click)="toggleNotes(alert.id)"
+                >
+                  <i-lucide
+                    [name]="isExpanded(alert.id) ? 'chevron-up' : 'chevron-down'"
+                    [size]="18"
+                    class="text-primary"
+                  ></i-lucide>
+                  <span class="text-sm font-semibold text-primary">
+                    {{ isExpanded(alert.id) ? 'Ocultar' : 'Ver' }} Notas
+                  </span>
+                </button>
+              }
+            </div>
 
-              </span>
-            </td>
-          </tr>
+            @if (isExpanded(alert.id) && alert.resolutionNotes) {
+              <div
+                class="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-r-xl p-5 animate-slide-down"
+              >
+                <div class="flex items-start gap-3">
+                  <i-lucide name="message-square" [size]="20" class="text-primary mt-1"></i-lucide>
+                  <div class="flex-1">
+                    <p class="text-gray-700 italic mb-3">"{{ alert.resolutionNotes }}"</p>
+                    <div class="flex items-center gap-3 text-sm">
+                      <div class="flex items-center gap-2 text-gray-600">
+                        <i-lucide name="user" [size]="14"></i-lucide>
+                        <strong class="text-gray-800">{{ alert.attendedBy }}</strong>
+                      </div>
+                      <span class="text-gray-400">•</span>
+                      <div class="flex items-center gap-1.5 text-gray-500">
+                        <i-lucide name="calendar" [size]="14"></i-lucide>
+                        {{ alert.attendedAt | date: 'short' }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Controles de Paginación -->
+  @if (filteredAlerts.length > pageSize) {
+    <div
+      class="bg-white rounded-2xl mt-6 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in"
+    >
+      <!-- Info de páginas -->
+      <div class="text-sm text-gray-700 font-medium">
+        Mostrando
+        <span class="font-bold text-blue-600">{{ (currentPage - 1) * pageSize + 1 }}</span> a
+        <span class="font-bold text-blue-600">{{
+          currentPage * pageSize > filteredAlerts.length
+            ? filteredAlerts.length
+            : currentPage * pageSize
+        }}</span>
+        de
+        <span class="font-bold text-blue-600">{{ filteredAlerts.length }}</span>
+        @if (statusFilter === 'pendiente') {
+          <span>alertas pendientes</span>
+        } @else if (statusFilter === 'atendida') {
+          <span>alertas atendidas</span>
+        } @else {
+          <span>alertas</span>
         }
-      </tbody>
-    </table>
-  </div>
+        @if (searchTerm.trim()) {
+          <span class="text-gray-500 italic">(filtradas)</span>
+        }
+      </div>
+
+      <!-- Botones de paginación -->
+      <div class="flex items-center gap-2">
+        <button
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+          class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          [ngClass]="
+            currentPage === 1
+              ? 'bg-gray-200 text-gray-500'
+              : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
+          "
+        >
+          <i-lucide name="chevron-left" [size]="18"></i-lucide>
+          Anterior
+        </button>
+
+        <!-- Números de página -->
+        <div class="flex gap-1">
+          @for (page of pages; track page) {
+            <button
+              (click)="changePage(page)"
+              class="w-10 h-10 rounded-lg font-bold transition-all duration-300"
+              [ngClass]="
+                currentPage === page
+                  ? 'bg-blue-600 text-white shadow-lg scale-110'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              "
+            >
+              {{ page }}
+            </button>
+          }
+        </div>
+
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+          class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          [ngClass]="
+            currentPage === totalPages
+              ? 'bg-gray-200 text-gray-500'
+              : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
+          "
+        >
+          Siguiente
+          <i-lucide name="chevron-right" [size]="18"></i-lucide>
+        </button>
+      </div>
+    </div>
+  }
 </div>

@@ -1,34 +1,30 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs'; // 👈 Añadido Subject
-
-export interface Alert {
-  id: string; 
-  deviceId: string;
-  userId?: number;
-  acc_x?: number; acc_y?: number; acc_z?: number;
-  severity: 'low' | 'medium' | 'high' | 'critical'; 
-  status: 'pendiente' | 'atendida' | 'falsa_alarma' | 'ignorada';
-  message: string;
-  location: string;
-  timestamp: Date;
-  notes?: string;
-  attendedBy?: string;
-  attendedAt?: Date;
-}
+import { Alert } from '../models/alert.model';
+import { ApiService } from './api.service';
+import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AlertService {
-
   // MOCK DATA INICIAL
   private mockAlerts: Alert[] = [
-    { 
-      id: '201', severity: 'critical', status: 'pendiente',
-      message: 'Caída detectada (Alto Impacto)', location: 'Dormitorio', 
-      deviceId: 'Device-101', userId: 1, timestamp: new Date(), 
-      acc_x: 2.5, acc_y: -0.1, acc_z: 0.3 
-    }
+    {
+      id: '201',
+      severity: 'critical',
+      status: 'pendiente',
+      message: 'Caída detectada (Alto Impacto)',
+      location: 'Dormitorio',
+      macAddress: 'AA:BB:CC:DD:EE:01',
+      userId: 1,
+      timestamp: new Date(),
+      acc_x: 2.5,
+      acc_y: -0.1,
+      acc_z: 0.3,
+      resolved: false,
+    },
   ];
 
   // ESTRUCTURA REACTIVA
@@ -39,50 +35,158 @@ export class AlertService {
   public alertNotification$ = new Subject<Alert>();
 
   public currentActiveAlert: Alert | null = null;
+  private apiService = inject(ApiService);
+  private authService = inject(AuthService); // Inject AuthService if needed for token
+  private eventSource: EventSource | null = null;
 
   constructor() {
-    this.startSimulation();
+    // 1. Cargar historial inicial (Real + Mock)
+    this.loadInitialHistory();
+
+    // 2. Conectar a Real-Time SSE
+    this.connectToRealTimeAlerts();
+
+    // 3. Mantener simulación (Hybrid Mode)
+    setTimeout(() => this.startSimulation(), 5000);
   }
 
-  // Genera una alerta aleatoria cada 15 segundos
+  private async loadInitialHistory() {
+    console.log('🔄 Loading alert history...');
+    try {
+      const realHistory = await this.apiService.getEvents(); // Fetch real events
+
+      // Merge with mocks (optional: prioritize real)
+      const merged = [...realHistory, ...this.mockAlerts];
+
+      // Sort by date desc
+      merged.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+      this.alertsSubject.next(merged);
+    } catch (e) {
+      console.error('Failed to load history', e);
+    }
+  }
+
+  private connectToRealTimeAlerts() {
+    const token = this.authService.getToken(); // Assuming AuthService has this method or similar
+    if (!token) return;
+
+    // Close existing connection if any
+    if (this.eventSource) {
+      this.eventSource.close();
+    }
+
+    const streamUrl = `${environment.apiUrl}/alerts/stream?token=${token}`;
+    console.log('📡 Connecting to SSE:', streamUrl);
+
+    this.eventSource = new EventSource(streamUrl);
+
+    this.eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('⚡ Real-time alert received:', data);
+
+        if (data.type === 'FALL_DETECTED' || data.type === 'sos_button') {
+          this.handleRealAlert(data.data);
+        } else if (data.type === 'EVENT_RESOLVED') {
+          this.handleEventResolved(data.data);
+        }
+      } catch (err) {
+        console.error('Error parsing SSE event', err);
+      }
+    };
+
+    this.eventSource.onerror = (err) => {
+      console.error('SSE Error:', err);
+      // Optional: Reconnect logic
+      this.eventSource?.close();
+    };
+  }
+
+  private handleRealAlert(backendEvent: any) {
+    const newAlert: Alert = {
+      id: String(backendEvent.id),
+      macAddress: backendEvent.dispositivo_mac,
+      userId: backendEvent.usuario_id,
+      severity: backendEvent.severidad,
+      status: backendEvent.estado,
+      message: backendEvent.notas || 'Nueva Alerta Detectada',
+      location: backendEvent.ubicacion || 'Desconocida',
+      timestamp: new Date(backendEvent.fecha_hora),
+      resolved: false,
+    };
+
+    // Add to stream
+    const current = this.alertsSubject.value;
+    this.alertsSubject.next([newAlert, ...current]);
+
+    // Notify Toast
+    this.alertNotification$.next(newAlert);
+  }
+
+  private handleEventResolved(backendEvent: any) {
+    const current = this.alertsSubject.value;
+    const index = current.findIndex((a) => a.id === String(backendEvent.id));
+
+    if (index !== -1) {
+      const updated = [...current];
+      updated[index] = {
+        ...updated[index],
+        status: backendEvent.estado as any,
+        attendedBy: String(backendEvent.atendido_por), // ID to string for simplicity
+        resolved: true,
+        resolutionNotes: backendEvent.notas,
+      };
+      this.alertsSubject.next(updated);
+    }
+  }
+
+  // Genera una alerta aleatoria cada 30 segundos (optimización de rendimiento)
   private startSimulation() {
     setInterval(() => {
       this.generateRandomAlert();
-    }, 15000); 
+    }, 30000);
   }
 
   private generateRandomAlert() {
     const locations = ['Baño', 'Cocina', 'Salón', 'Jardín', 'Dormitorio'];
-    const messages = ['Caída detectada', 'Ritmo cardíaco alto', 'Batería baja', 'Inactividad'];
-    const severities: Alert['severity'][] = ['low', 'medium', 'high', 'critical'];
+    // Solo permitimos Golpes y Caídas por limitación del hardware del dispositivo
+    const messages = ['Caída detectada', 'Golpe fuerte detectado', 'Batería baja'];
 
-    const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
+    // Seleccionar tipo de evento
     const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-    
-    // Solo generamos alerta crítica si es caída
-    const finalSeverity = randomMsg.includes('Caída') ? 'critical' : randomSeverity;
+
+    // Lógica de severidad basada en el tipo de evento
+    let finalSeverity: Alert['severity'] = 'medium';
+
+    if (randomMsg === 'Caída detectada') {
+      finalSeverity = 'critical'; // Las caídas siempre son críticas
+    } else {
+      finalSeverity = 'high'; // Los golpes fuertes son de severidad alta
+    }
 
     const newAlert: Alert = {
-      id: Date.now().toString(),
-      deviceId: `Device-${Math.floor(Math.random() * 5) + 1}`,
+      id: 'mock-' + Date.now().toString(),
+      macAddress: `AA:BB:CC:DD:EE:0${Math.floor(Math.random() * 3) + 1}`,
       userId: Math.floor(Math.random() * 3) + 1,
       severity: finalSeverity,
       status: 'pendiente',
       message: randomMsg,
       location: locations[Math.floor(Math.random() * locations.length)],
       timestamp: new Date(),
-      acc_x: Math.random(),
-      acc_y: Math.random(),
-      acc_z: 9.8
+      acc_x: Math.random() * 2, // Simulamos valores un poco más altos
+      acc_y: Math.random() * 2,
+      acc_z: 9.8 + Math.random() * 5, // Impacto en eje Z
+      resolved: false,
     };
 
     // Añadir al principio de la lista
     const currentAlerts = this.alertsSubject.value;
     this.alertsSubject.next([newAlert, ...currentAlerts]);
-    
+
     // 👇 DISPARAR LA NOTIFICACIÓN
     this.alertNotification$.next(newAlert);
-    
+
     console.log('🤖 Simulación: Nueva alerta generada', newAlert.message);
   }
 
@@ -94,26 +198,58 @@ export class AlertService {
 
   getAlertsByDeviceId(id: string): Observable<Alert[]> {
     const current = this.alertsSubject.value;
-    const filtered = current.filter(a => a.deviceId === id || (a.userId && String(a.userId) === id));
-    return new Observable(obs => obs.next(filtered));
+    const filtered = current.filter(
+      (a) => a.macAddress === id || (a.userId && String(a.userId) === id),
+    );
+    return new Observable((obs) => obs.next(filtered));
   }
 
-  resolveAlert(id: string, notes: string, status: 'atendida' | 'falsa_alarma', caregiverName: string, newSeverity: any) {
-    const currentAlerts = this.alertsSubject.value;
-    const index = currentAlerts.findIndex(a => a.id === id);
+  getAlertsByCaregiver(caregiverName: string): Observable<Alert[]> {
+    const current = this.alertsSubject.value;
+    const filtered = current.filter(
+      (a) =>
+        a.attendedBy === caregiverName && (a.status === 'atendida' || a.status === 'falsa_alarma'),
+    );
+    return new Observable((obs) => obs.next(filtered));
+  }
 
-    if (index !== -1) {
-      const updatedAlerts = [...currentAlerts];
-      updatedAlerts[index] = {
-        ...updatedAlerts[index],
-        status: status,
-        notes: notes,
-        attendedBy: caregiverName,
-        attendedAt: new Date(),
-        severity: newSeverity
-      };
-      this.alertsSubject.next(updatedAlerts);
+  resolveAlert(
+    id: string,
+    notes: string,
+    status: 'atendida' | 'falsa_alarma',
+    caregiverName: string,
+    newSeverity: any,
+  ) {
+    // Si es mock, resolver local
+    if (id.startsWith('mock-') || id.startsWith('alert-')) {
+      const currentAlerts = this.alertsSubject.value;
+      const index = currentAlerts.findIndex((a) => a.id === id);
+
+      if (index !== -1) {
+        const updatedAlerts = [...currentAlerts];
+        updatedAlerts[index] = {
+          ...updatedAlerts[index],
+          status: status,
+          resolutionNotes: notes,
+          attendedBy: caregiverName,
+          attendedAt: new Date(),
+          severity: newSeverity,
+          resolved: true,
+        };
+        this.alertsSubject.next(updatedAlerts);
+      }
+      return new Observable((obs) => {
+        obs.next(true);
+        obs.complete();
+      });
+    } else {
+      // SI es real, llamar al backend
+      // TODO: Implement resolve in ApiService and call from here
+      // For now, simulate local execution to not break UI
+      return new Observable((obs) => {
+        obs.next(true);
+        obs.complete();
+      });
     }
-    return new Observable(obs => { obs.next(true); obs.complete(); });
   }
 }

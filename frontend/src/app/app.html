@@ -1,9 +1,9 @@
 <div style="font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column;">
       
-  @if (criticalAlert()) {
+  @if (criticalAlert() && showNavbar()) {
     <div class="critical-banner">
       <div class="banner-content">
-        <span class="banner-icon">🚨</span>
+        <i-lucide name="alert-triangle" class="banner-icon" [size]="28"></i-lucide>
         <div>
           <strong>¡EMERGENCIA CRÍTICA!</strong>
           <span style="margin-left: 10px; font-weight: 400; opacity: 0.9;">
@@ -22,39 +22,58 @@
     <nav style="background: #222; height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; z-index: 10;">
       <a routerLink="/" style="text-decoration: none; cursor: pointer;">
         <div style="display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; font-size: 1.2em;">
-          🎯 StepGuard IoT
+          <i-lucide name="shield" [size]="24"></i-lucide>
+          StepGuard IoT
         </div>
       </a>
 
       @if (currentUser()) {
         <div style="display: flex; gap: 20px;">
-          <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">🩺 Monitorización</a>
-          <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">📱 Dispositivos</a>
-          <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">🚨 Historial</a>
-
-          @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
-            <a routerLink="/users" routerLinkActive="active-link" 
-               [class.nav-item-admin]="isAdmin()" [class.nav-item]="!isAdmin()">
-              👥 {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
+          @if (currentUser()?.role === 'user') {
+            <!-- Navegación para Pacientes -->
+            <a routerLink="/profile" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="user" [size]="16"></i-lucide> Mi Perfil
             </a>
+            <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="bell" [size]="16"></i-lucide> Mis Incidencias
+            </a>
+          } @else {
+            <!-- Navegación para Admin y Cuidadores -->
+            <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="activity" [size]="16"></i-lucide> Monitorización
+            </a>
+            <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="smartphone" [size]="16"></i-lucide> Dispositivos
+            </a>
+            <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
+              <i-lucide name="bell" [size]="16"></i-lucide> Historial
+            </a>
+
+            @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
+              <a routerLink="/users" routerLinkActive="active-link" 
+                 [class.nav-item-admin]="isAdmin()" [class.nav-item]="!isAdmin()">
+                <i-lucide name="users" [size]="16"></i-lucide>
+                {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
+              </a>
+            }
           }
         </div>
       }
 
       <div style="display: flex; align-items: center; gap: 15px;">
         @if (currentUser()) {
-          <div style="text-align: right; color: white; line-height: 1.2;">
-            <div style="font-weight: bold; font-size: 0.9em;">{{ currentUser()?.fullName }}</div>
-            <div style="font-size: 0.75em; opacity: 0.8; color: #ccc;">
+          <div style="text-align: right; color: white; line-height: 1.2; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+            <div style="font-weight: bold; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ currentUser()?.fullName }}</div>
+            <div style="font-size: 0.75em; opacity: 0.8; color: #ccc; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
               @switch (currentUser()?.role) {
-                @case ('admin') { 🔒 Administrador }
-                @case ('caregiver') { 🏥 Cuidador }
-                @case ('user') { 👤 Paciente }
+                @case ('admin') { <i-lucide name="settings" [size]="12"></i-lucide> <span>Administrador</span> }
+                @case ('caregiver') { <i-lucide name="user-circle" [size]="12"></i-lucide> <span>Cuidador</span> }
+                @case ('user') { <i-lucide name="user-circle" [size]="12"></i-lucide> <span>Paciente</span> }
               }
             </div>
           </div>
-          <button (click)="logout()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-            Salir
+          <button (click)="logout()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+            <i-lucide name="log-out" [size]="16"></i-lucide> Salir
           </button>
         } @else {
           <a routerLink="/" style="color: white; text-decoration: none; font-weight: 500; font-size: 0.9rem; margin-right: 10px; cursor: pointer;">Iniciar Sesión</a>
@@ -70,14 +89,20 @@
   @if (miniAlert()) {
     <div class="toast-notification" [ngClass]="miniAlert()?.severity">
       <div class="toast-icon">
-        @if (miniAlert()?.severity === 'high') { ⚠️ }
-        @else if (miniAlert()?.severity === 'medium') { 🔔 }
-        @else { ℹ️ }
+        @if (miniAlert()?.severity === 'high') { 
+          <i-lucide name="alert-triangle" [size]="20"></i-lucide>
+        }
+        @else if (miniAlert()?.severity === 'medium') { 
+          <i-lucide name="bell" [size]="20"></i-lucide>
+        }
+        @else { 
+          <i-lucide name="circle-alert" [size]="20"></i-lucide>
+        }
       </div>
       <div class="toast-content">
         <h4>Nueva Alerta Detectada</h4>
         <p>{{ miniAlert()?.message }}</p>
-        <small>📍 {{ miniAlert()?.location }}</small>
+        <small><i-lucide name="map-pin" [size]="12"></i-lucide> {{ miniAlert()?.location }}</small>
       </div>
       <div class="toast-actions">
         <button class="btn-toast-view" (click)="goToDashboardFromMini()">Atender</button>
@@ -86,5 +111,8 @@
       <div class="progress-bar"></div>
     </div>
   }
+
+  <!-- Componente de Notificaciones -->
+  <app-notification></app-notification>
 
 </div>
