@@ -78,21 +78,6 @@ export const EventoCaidaModel = {
     return result.rows[0] || null;
   },
 
-  /**
-   * Marcar evento como resuelto (atendida)
-   */
-  markAsResolved: async (id: number, atendidoPorId: number): Promise<EventoCaida | null> => {
-    const result = await query(
-      `UPDATE eventos_caida 
-       SET estado = 'atendida', 
-           atendido_por = $1, 
-           fecha_atencion = CURRENT_TIMESTAMP 
-       WHERE id = $2 
-       RETURNING *`,
-      [atendidoPorId, id]
-    );
-    return result.rows[0] || null;
-  },
 
   /**
    * Obtener eventos de un usuario específico
