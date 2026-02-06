@@ -40,6 +40,16 @@ export const updateDevice = async (req: Request, res: Response) => {
   try {
     const { macAddress } = req.params;
     const { nombre } = req.body;
+    
+    // Auth check
+    // Assuming req.user is populated by middleware. Need to handle 'any' or AuthRequest logic if TS complains.
+    // Ideally we should import AuthRequest from middleware/auth but for now let's cast or access safely.
+    // The middleware defines req.user.
+    const user = (req as any).user;
+
+    if (!user) {
+         return res.status(401).json({ message: 'Unauthorized' });
+    }
 
     if (!macAddress) {
       return res.status(400).json({ message: 'MAC address is required' });
@@ -47,6 +57,21 @@ export const updateDevice = async (req: Request, res: Response) => {
 
     if (!nombre) {
         return res.status(400).json({ message: 'Name is required' });
+    }
+    
+    // Check Authorization
+    if (user.role !== 'admin') {
+         // If not admin, must be the owner
+         const assignedUser = await DispositivoModel.getUsuarioAsignado(macAddress as string);
+         
+         if (!assignedUser) {
+             // Device has no owner, non-admins cannot edit
+             return res.status(403).json({ message: 'Forbidden. Device not assigned to you.' });
+         }
+
+         if (assignedUser.id !== user.id) {
+             return res.status(403).json({ message: 'Forbidden. Device not assigned to you.' });
+         }
     }
 
     const updatedDevice = await DispositivoModel.update(macAddress as string, nombre);
