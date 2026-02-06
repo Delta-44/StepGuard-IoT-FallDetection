@@ -35,6 +35,46 @@
   </div>
 }
 
+@else if (step === 'pin-verification') {
+  <div class="modal-header">
+    <button class="back-btn" (click)="goBack()">← Volver</button>
+    <h2>Acceso Restringido 🔒</h2>
+    <p>Introduce el código de seguridad para registrarte como cuidador</p>
+  </div>
+
+  <div class="p-8">
+    <div class="max-w-xs mx-auto">
+      <div class="mb-6 text-center">
+        <label class="block text-gray-700 font-semibold mb-2">Código de Acceso</label>
+        <input 
+          type="password" 
+          [(ngModel)]="pin" 
+          (keyup.enter)="verifyPin()"
+          class="w-full text-center text-3xl tracking-[1em] font-bold p-3 border-2 rounded-xl focus:border-blue-500 focus:outline-none transition-colors uppercase"
+          [class.border-red-500]="pinError"
+          [class.text-red-600]="pinError"
+          placeholder="••••" 
+          maxlength="4"
+          autofocus
+        >
+        @if (pinError) {
+          <p class="text-red-500 text-sm mt-2 font-medium animate-pulse">
+            Código incorrecto. Inténtalo de nuevo.
+          </p>
+        }
+      </div>
+
+      <button 
+        (click)="verifyPin()" 
+        class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+      >
+        <i-lucide name="lock" [size]="20"></i-lucide>
+        Verificar Código
+      </button>
+    </div>
+  </div>
+}
+
 @else {
   <div class="modal-header">
     <button class="back-btn" (click)="goBack()">← Volver</button>

@@ -47,6 +47,11 @@ export class DevicesComponent implements OnInit, OnDestroy {
   public pageSize = signal<number>(6);
   public totalPages = signal<number>(1);
 
+  // Variables Modal Edición
+  public isEditModalOpen = signal<boolean>(false);
+  public selectedDevice = signal<Device | null>(null);
+  public editedDeviceName = signal<string>('');
+
   // Polling para actualización automática
   private pollingInterval: any;
 
@@ -142,6 +147,38 @@ export class DevicesComponent implements OnInit, OnDestroy {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase();
+  }
+
+  // --- MÉTODOS DE EDICIÓN ---
+  public openEditDeviceModal(device: Device): void {
+    this.selectedDevice.set(device);
+    this.editedDeviceName.set(device.nombre);
+    this.isEditModalOpen.set(true);
+  }
+
+  public closeEditDeviceModal(): void {
+    this.isEditModalOpen.set(false);
+    this.selectedDevice.set(null);
+    this.editedDeviceName.set('');
+  }
+
+  public saveDeviceChanges(): void {
+    const device = this.selectedDevice();
+    const newName = this.editedDeviceName();
+
+    if (!device || !newName.trim()) return;
+
+    this.apiService.updateDevice(device.mac_address, { nombre: newName }).subscribe({
+      next: () => {
+        this.notificationService.success('Éxito', 'Dispositivo actualizado correctamente');
+        this.closeEditDeviceModal();
+        this.loadDevices(); // Recargar para ver cambios
+      },
+      error: (err) => {
+        console.error('Error actualizando dispositivo:', err);
+        this.notificationService.error('Error', 'No se pudo actualizar el dispositivo');
+      }
+    });
   }
 
   public applyFilters(): void {

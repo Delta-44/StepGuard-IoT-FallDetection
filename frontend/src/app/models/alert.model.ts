@@ -18,4 +18,6 @@ export interface Alert {
   acc_x?: number;
   acc_y?: number;
   acc_z?: number;
+  userName?: string; // Nombre del usuario (mapeado desde el backend)
+  deviceName?: string; // Nombre del dispositivo o MAC
 }
