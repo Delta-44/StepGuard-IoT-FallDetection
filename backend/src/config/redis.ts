@@ -139,6 +139,29 @@ export const ESP32Cache = {
     }
     return true;
   },
+
+  // --- Heartbeat Helpers ---
+
+  /**
+   * Update heartbeat timestamp
+   */
+  updateHeartbeat: async (macAddress: string) => {
+    await redis.zadd('device_heartbeats', Date.now(), macAddress);
+  },
+
+  /**
+   * Get devices that haven't sent heartbeat since before threshold
+   */
+  getExpiredHeartbeats: async (thresholdTimestamp: number) => {
+    return await redis.zrangebyscore('device_heartbeats', '-inf', thresholdTimestamp);
+  },
+
+  /**
+   * Remove device from heartbeat monitoring (e.g. after marking offline)
+   */
+  removeHeartbeat: async (macAddress: string) => {
+    await redis.zrem('device_heartbeats', macAddress);
+  },
 };
 
 export default redis;
