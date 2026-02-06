@@ -407,6 +407,12 @@ export class ApiService {
       map((devices) => {
         // Para cada dispositivo, intentar obtener datos actualizados del backend
         devices.forEach((device) => {
+          // 🛑 EVITAR 404s: Solo consultar backend para el dispositivo REAL configurado
+          // Los dispositivos con MAC 'AA:BB:...' son mocks visuales y no existen en BD
+          if (device.mac_address !== environment.realESP32Mac) {
+             return; 
+          }
+
           // Hacer una llamada asíncrona para obtener datos reales del ESP32
           this.http.get<any>(`${this.apiUrl}/esp32/data/${device.mac_address}`).subscribe({
             next: (realData) => {
@@ -462,6 +468,10 @@ export class ApiService {
       }
     }
     return of(true);
+  }
+
+  updateDevice(macAddress: string, data: { nombre: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/esp32/${macAddress}`, data);
   }
 
   // 🆕 Obtener historial de alertas (Real + Mock)

@@ -92,4 +92,8 @@ export class UserService {
   deleteUser(id: string | number, role: string = 'user'): Observable<any> {
     return this.http.delete(`${this.apiUrl}/users/${id}?role=${role}`);
   }
+
+  assignDevice(userId: number, macAddress: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/${userId}/device`, { macAddress });
+  }
 }
