@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ESP32Service } from '../services/esp32Service';
+import { DispositivoModel } from '../models/dispositivo';
 
 export const receiveData = async (req: Request, res: Response) => {
   try {
@@ -31,6 +32,36 @@ export const getData = async (req: Request, res: Response) => {
     res.status(200).json(data);
   } catch (error: any) {
     console.error('Error getting ESP32 data:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+export const updateDevice = async (req: Request, res: Response) => {
+  try {
+    const { macAddress } = req.params;
+    const { nombre } = req.body;
+
+    if (!macAddress) {
+      return res.status(400).json({ message: 'MAC address is required' });
+    }
+
+    if (!nombre) {
+        return res.status(400).json({ message: 'Name is required' });
+    }
+
+    const updatedDevice = await DispositivoModel.update(macAddress as string, nombre);
+
+    if (!updatedDevice) {
+      return res.status(404).json({ message: 'Device not found' });
+    }
+
+    res.status(200).json({
+        message: "Device updated successfully",
+        device: updatedDevice
+    });
+
+  } catch (error: any) {
+    console.error('Error updating ESP32 data:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };

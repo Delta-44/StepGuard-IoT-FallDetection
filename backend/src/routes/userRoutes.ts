@@ -4,6 +4,8 @@ import {
   getUserById,
   updateUser,
   updateUserByAdmin,
+  deleteUser,
+  assignDevice
 } from "../controllers/userController";
 import authMiddleware from "../middleware/auth";
 import adminAuthMiddleware from "../middleware/adminAuth";
@@ -21,5 +23,11 @@ router.put("/:id", authMiddleware, updateUser);
 
 // Update user by Admin (Role, Name, Email)
 router.put("/:id/admin", authMiddleware, adminAuthMiddleware, updateUserByAdmin);
+
+// Delete user by ID (Admin only)
+router.delete("/:id", authMiddleware, adminAuthMiddleware, deleteUser);
+
+// Assign device to user (Protected)
+router.post("/:id/device", authMiddleware, assignDevice);
 
 export default router;

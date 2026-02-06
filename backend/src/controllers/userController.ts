@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { UsuarioModel } from "../models/usuario";
 import { CuidadorModel } from "../models/cuidador";
+import { DispositivoModel } from "../models/dispositivo";
 
 export const getUsers = async (req: Request, res: Response) => {
   try {
@@ -177,4 +178,75 @@ export const updateUserByAdmin = async (req: Request, res: Response) => {
         console.error("Error updating user by admin:", error);
         res.status(500).json({ message: "Error updating user" });
     }
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const role = (req.query.role as string) || "user"; // 'user' or 'caregiver'
+
+    if (role === "admin") {
+      // Prevent deleting admins via this generic endpoint for safety, although logic allows it
+      return res.status(403).json({ message: "Cannot delete admin via this generic endpoint." });
+    }
+
+    let result = false;
+
+    if (role === "caregiver") {
+      result = await CuidadorModel.delete(Number(id));
+      if (!result) return res.status(404).json({ message: "Cuidador no encontrado" });
+      return res.json({ message: "Cuidador eliminado correctamente" });
+    } else {
+      // Default to deleting a patient (user)
+      result = await UsuarioModel.delete(Number(id));
+      if (!result) return res.status(404).json({ message: "Usuario no encontrado" });
+      return res.json({ message: "Usuario eliminado correctamente" });
+    }
+
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Error deleting user" });
+  }
+};
+
+export const assignDevice = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { macAddress } = req.body;
+
+    if (!macAddress) {
+      return res.status(400).json({ message: "MAC address is required" });
+    }
+
+    // 1. Check if device exists
+    const device = await DispositivoModel.findByMac(macAddress);
+    if (!device) {
+      return res.status(404).json({ message: "Dispositivo no encontrado" });
+    }
+
+    // 2. Check if device is already assigned
+    const assignedUser = await DispositivoModel.getUsuarioAsignado(macAddress);
+    if (assignedUser && assignedUser.id !== Number(id)) {
+      return res.status(409).json({ 
+        message: "El dispositivo ya está asignado a otro usuario",
+        assignedTo: assignedUser.nombre
+      });
+    }
+
+    // 3. Assign device to user
+    const updatedUser = await UsuarioModel.asignarDispositivo(Number(id), macAddress);
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json({
+        message: "Dispositivo asignado correctamente",
+        user: updatedUser
+    });
+
+  } catch (error) {
+    console.error("Error assigning device:", error);
+    res.status(500).json({ message: "Error assigning device" });
+  }
 };
