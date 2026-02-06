@@ -165,4 +165,21 @@ export const UsuarioModel = {
     );
     return result.rows[0] || null;
   },
+  /**
+   * Listar todos los usuarios con información de dispositivo
+   */
+  findAllWithDevices: async (): Promise<any[]> => {
+    const result = await query(
+      `SELECT u.*,
+              d.mac_address as dispositivo_mac,
+              d.nombre as dispositivo_nombre,
+              d.estado as dispositivo_estado,
+              d.total_impactos as dispositivo_total_impactos
+       FROM usuarios u
+       LEFT JOIN dispositivos d ON u.dispositivo_mac = d.mac_address
+       ORDER BY u.fecha_creacion DESC`
+    );
+    return result.rows;
+  },
+
 };
