@@ -5,7 +5,8 @@ import {
   updateUser,
   updateUserByAdmin,
   deleteUser,
-  assignDevice
+  assignDevice,
+  exportUsersCSV
 } from "../controllers/userController";
 import authMiddleware from "../middleware/auth";
 import adminAuthMiddleware from "../middleware/adminAuth";
@@ -14,6 +15,9 @@ const router = Router();
 
 // Get all users (Protected)
 router.get("/", authMiddleware, getUsers);
+
+// Export users as CSV (Protected)
+router.get("/export/csv", authMiddleware, exportUsersCSV);
 
 // Get user by ID with device info (Protected)
 router.get("/:id", authMiddleware, getUserById);
