@@ -1,49 +1,304 @@
+<div align="center">
+
+<!-- Cabecera con gradiente -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=200&section=header&text=Fall%20Detection%20System&fontSize=45&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20Inteligente%20de%20Detección%20de%20Caídas&descSize=16&descAlignY=55" width="100%"/>
+
+<!-- Badges con colores personalizados -->
+<p>
+  <img src="https://img.shields.io/badge/ESP32-IoT-1a4d7a?style=for-the-badge&logo=espressif&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Node.js-Backend-2d5a7b?style=for-the-badge&logo=node.js&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Angular-Frontend-3d6a8c?style=for-the-badge&logo=angular&logoColor=white"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-1a4d7a?style=for-the-badge&logo=postgresql&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Redis-Cache-ff8c42?style=for-the-badge&logo=redis&logoColor=white"/>
+</p>
+
+<p>
+  <img src="https://img.shields.io/badge/Estado-En%20Desarrollo-ff8c42?style=flat-square&labelColor=1a4d7a"/>
+  <img src="https://img.shields.io/badge/Equipo-7%20Desarrolladores-ff8c42?style=flat-square&labelColor=1a4d7a"/>
+
+</p>
+
+</div>
 
 ---
 
-## 📂 Estructura del Proyecto
+<div align="center">
 
-El repositorio está organizado de la siguiente manera para facilitar el desarrollo colaborativo:
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,14&height=4" width="80%"/>
 
-```text
+### **ESTRUCTURA DEL PROYECTO**
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,14&height=4" width="80%"/>
+
+</div>
+
+```plaintext
 fall-detection-system/
-├── device/                # Trabajo del Dev 1: Firmware ESP32 y sensores
-│   ├── src/               # Código fuente (.ino / .cpp)
-│   └── lib/               # Librerías del sensor MPU6050
-├── backend/               # Trabajo de Dev 2 y 3: API REST y Base de Datos
+│
+├── 📡 device/                          # IoT & Hardware Layer
 │   ├── src/
-│   │   ├── controllers/   # Lógica de endpoints y gestión de datos
-│   │   ├── models/        # Definición de tablas SQL (ER)
-│   │   └── middleware/    # Protección JWT y gestión de Roles
-│   └── tests/             # Pruebas de funcionamiento de la API
-├── frontend/              # Trabajo de Dev 4 y 5: Aplicación Web
+│   │   ├── main.cpp                    # Programa principal ESP32
+│   │   ├── acelerometro.cpp/.h         # Sensor MPU6050
+│   │   ├── boton.cpp/.h                # Botón de pánico
+│   │   ├── inclinacion.cpp/.h          # Detección de caídas
+│   │   └── red.cpp/.h                  # Conectividad WiFi/MQTT
+│   ├── platformio.ini                  # Configuración PlatformIO
+│   └── README.md
+│   │
+│   └── 👤 Responsable: Diego Argüelles
+│       Stack: ESP32, MPU6050, C++, MQTT
+├── ⚙️ backend/                         # API & Business Logic Layer
 │   ├── src/
-│   │   ├── components/    # Elementos visuales (Botones, gráficas)
-│   │   ├── services/      # Conexión con el backend (API Fetch/Axios)
-│   │   └── views/         # Pantallas: Dashboard, Login, Alertas
-├── docs/                  # Trabajo de Dev 6 y 7: Documentación y Extras
-│   ├── diagrams/          # Arquitectura, ER y Flujo de caídas
-│   └── manuals/           # Guías de usuario y técnica
-└── README.md              # Guía principal del proyecto
+│   │   ├── controllers/                # Lógica de endpoints
+│   │   ├── models/                     # Modelos de datos (PostgreSQL)
+│   │   ├── middleware/                 # Autenticación JWT, validación
+│   │   ├── routes/                     # Definición de rutas API
+│   │   ├── services/                   # Servicios (email, alertas, scheduler)
+│   │   └── config/                     # Configuración (DB, Redis, MQTT)
+│   ├── test/                           # Pruebas unitarias
+│   ├── package.json
+│   └── docker-compose.yml              # PostgreSQL + Redis
+│   │
+│   └── 👥 Responsables: Javier Gonzales, Diego Alonso
+│       Stack: Node.js, Express, PostgreSQL, Redis, MQTT
+├── 🎨 frontend/                        # Web Application Layer
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/             # Componentes reutilizables
+│   │   │   ├── services/               # Servicios HTTP y WebSocket
+│   │   │   └── views/                  # Páginas (Dashboard, Login, Alertas)
+│   │   ├── environments/               # Variables de entorno
+│   │   └── styles/                     # Estilos globales
+│   ├── angular.json
+│   ├── tailwind.config.js
+│   └── package.json
+│   │
+│   └── 👥 Responsables: Juan Carlos, Javier Sio
+│       Stack: Angular, TypeScript, Tailwind CSS, Material Design
+└── 📚 docs/                            # Documentation Layer
+    ├── diagrams/
+    │   ├── arquitectura.md             # Arquitectura del sistema
+    │   └── flujo-caidas.md             # Flujo de detección de caídas
+    └── manuals/
+        ├── tecnico.md                  # Manual técnico
+        └── usuario.md                  # Manual de usuario
+    │
+    └── 👥 Responsables: Marta de Castro, Pedro Lourido
+        Stack: Markdown, Mermaid, Draw.io
 ```
 
-## 🔄 Normas de Git
-Para trabajar en este equipo de 7 personas, seguimos estas reglas:
-1. **Ramas Principales:** `main` (solo estable) y `develop` (desarrollo).
-2. **Ramas de Tarea:** Crear ramas tipo `feature/nombre-tarea` desde `develop`.
-3. **Pull Requests:** Obligatorio que otro compañero revise el código antes del Merge.
-4. **Commits:** Deben ser claros (ej: "feat: añadir endpoint de login").
+---
 
-## 👥 Equipo
-* **Dev 1:** IoT & Sensores.
-* **Dev 2:** Backend & API.
-* **Dev 3:** Base de Datos.
-* **Dev 4:** Lógica de Frontend.
-* **Dev 5:** UI/UX & Visualización.
-* **Dev 6:** Documentación & Calidad.
-* **Dev 7:** Funcionalidades Extra.
+<div align="center">
 
-## 🚀 Instalación Rápida
-* **Hardware:** Carga el código de `/device` en tu ESP32 configurando el Wi-Fi.
-* **Servidor:** Instala dependencias en `/backend` e inicia con `npm start`.
-* **Web:** Ejecuta `npm install` en `/frontend` y lanza el entorno de desarrollo.
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=16,18&height=4" width="80%"/>
+
+### **FLUJO DE TRABAJO GIT**
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=16,18&height=4" width="80%"/>
+
+</div>
+
+<table align="center">
+<tr>
+<td align="center" width="25%">
+
+**🔵 Ramas Principales**
+
+`main`  
+*Producción estable*
+
+`develop`  
+*Desarrollo activo*
+
+</td>
+<td align="center" width="25%">
+
+**🟠 Ramas de Tarea**
+
+`feature/nombre-tarea`
+
+Crear desde `develop`
+
+</td>
+<td align="center" width="25%">
+
+**🔵 Pull Requests**
+
+Revisión obligatoria
+
+Aprobación del equipo
+
+</td>
+<td align="center" width="25%">
+
+**🟠 Commits**
+
+```
+feat: nueva funcionalidad
+fix: corrección de bug
+docs: documentación
+```
+
+</td>
+</tr>
+</table>
+
+> **Regla de Oro:** Todo cambio debe pasar por revisión de código antes de integrarse en `develop`
+
+---
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,20&height=4" width="80%"/>
+
+### **EQUIPO DE DESARROLLO**
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,20&height=4" width="80%"/>
+
+</div>
+
+<table align="center">
+<tr>
+<td align="center" width="33%">
+<br>
+
+**Diego Argüelles Fernández**  
+`IoT & Sensores`  
+<sub>ESP32 | Hardware | Firmware</sub>
+
+</td>
+<td align="center" width="33%">
+<br>
+
+**Javier Gonzales Rodríguez**  
+`Backend | Deploy`  
+<sub>API REST | Infraestructura</sub>
+
+</td>
+<td align="center" width="33%">
+<br>
+
+**Pedro Lourido**  
+`Extra Features | Emotional Support :)`  
+<sub>Funcionalidades Adicionales | Apoyo</sub>
+
+</td>
+</tr>
+<tr>
+<td align="center" width="33%">
+<br>
+
+**Juan Carlos Lorenzo Villaar**  
+`Frontend Logic`  
+<sub>Angular | TypeScript</sub>
+
+</td>
+<td align="center" width="33%">
+<br>
+
+**Javier Sio**  
+`UI/UX Design`  
+<sub>Diseño | Experiencia Usuario</sub>
+
+</td>
+<td align="center" width="33%">
+<br>
+
+**Marta de Castro Vázquez**  
+`Documentation | QA`  
+<sub>Calidad | Testing</sub>
+
+</td>
+</tr>
+<tr>
+<td align="center" colspan="3">
+<br>
+
+**Diego Alonso Loureiro**  
+`Scrum Master | Database Enginieer`  
+<sub>PostgreSQL | Redis | Team Gestion</sub>
+
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=14,16&height=4" width="80%"/>
+
+### **INSTALACIÓN Y DESPLIEGUE**
+
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=14,16&height=4" width="80%"/>
+
+</div>
+
+<table align="center">
+<tr>
+<td width="33%" align="center">
+
+### **Hardware Setup**
+
+**ESP32 Configuration**
+
+1. Abrir proyecto en `/device`
+2. Configurar credenciales WiFi
+3. Compilar y subir firmware
+4. Verificar conexión MQTT
+
+```bash
+pio run --target upload
+```
+
+</td>
+<td width="33%" align="center">
+
+### **Backend Setup**
+
+**API Server**
+
+1. Navegar a `/backend`
+2. Instalar dependencias
+3. Configurar variables `.env`
+4. Iniciar servidor
+
+```bash
+npm install
+npm run dev
+```
+
+</td>
+<td width="33%" align="center">
+
+### **Frontend Setup**
+
+**Web Application**
+
+1. Abrir carpeta `/frontend`
+2. Instalar paquetes
+3. Configurar environment
+4. Ejecutar aplicación
+
+```bash
+npm install
+ng serve
+```
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=100&section=footer" width="100%"/>
+
+---
+
+**Desarrollado con dedicación por el equipo Fall Detection System**  
+*Tecnología al servicio de la seguridad y el cuidado*
+
+</div>
