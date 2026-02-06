@@ -76,6 +76,16 @@ export class UserService {
   }
 
   updateUser(id: string | number, updatedUser: Partial<User>): Observable<any> {
+    // Si se está actualizando el rol, usar el endpoint de admin
+    if (updatedUser.role) {
+      return this.http.put(`${this.apiUrl}/users/${id}/admin`, {
+        name: updatedUser.fullName,
+        email: updatedUser.email,
+        role: updatedUser.role
+      });
+    }
+    
+    // Para otras actualizaciones, usar el endpoint normal
     return this.http.put(`${this.apiUrl}/users/${id}`, updatedUser);
   }
 
