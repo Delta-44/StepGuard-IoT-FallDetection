@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, timer, of } from 'rxjs';
+import { Observable, timer, of, firstValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Alert } from '../models/alert.model';
 import { Device } from '../models/device';
@@ -471,7 +471,8 @@ export class ApiService {
       let url = `${this.apiUrl}/events`;
       if (userId) url += `?userId=${userId}`;
 
-      const realEvents: any[] = (await this.http.get<any[]>(url).toPromise()) || [];
+      // Usar firstValueFrom en lugar de toPromise() para mejor compatibilidad con interceptores
+      const realEvents: any[] = await firstValueFrom(this.http.get<any[]>(url));
 
       const mappedEvents = realEvents.map((e) => ({
         id: String(e.id),
@@ -487,9 +488,15 @@ export class ApiService {
         resolved: e.estado === 'atendida' || e.estado === 'falsa_alarma',
       })) as Alert[];
 
+      console.log(`✅ Successfully fetched ${mappedEvents.length} real events from backend`);
       return mappedEvents;
-    } catch (error) {
-      console.error('Error fetching real events, falling back to mocks:', error);
+    } catch (error: any) {
+      console.error('❌ Error fetching real events from backend:', error);
+      if (error.status) {
+        console.error(`HTTP Error ${error.status}: ${error.statusText}`);
+        console.error('URL:', error.url);
+      }
+      console.log('Falling back to empty array (no mock data)');
       return [];
     }
   }
@@ -498,9 +505,9 @@ export class ApiService {
   async getDeviceByMac(macAddress: string): Promise<Device | null> {
     try {
       // 1. Intentar endpoint de telemetría primero
-      const telemetry = await this.http
-        .get<any>(`${this.apiUrl}/esp32/data/${macAddress}`)
-        .toPromise();
+      const telemetry = await firstValueFrom(
+        this.http.get<any>(`${this.apiUrl}/esp32/data/${macAddress}`)
+      );
 
       if (telemetry) {
         return {
@@ -535,7 +542,9 @@ export class ApiService {
   // 🆕 Obtener usuario por ID desde el backend
   async getUserById(userId: string): Promise<any> {
     try {
-      const response = await this.http.get<any>(`${this.apiUrl}/users/${userId}`).toPromise();
+      const response = await firstValueFrom(
+        this.http.get<any>(`${this.apiUrl}/users/${userId}`)
+      );
 
       // Mapear la respuesta del backend al formato esperado por el frontend
       return {
