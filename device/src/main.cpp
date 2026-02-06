@@ -32,6 +32,8 @@ void loop()
 {
     loopReconnect();
 
+    enviarHeartbeat();
+
     // Logica de boton SOS
     if (verificarBotonSOS())
     {
