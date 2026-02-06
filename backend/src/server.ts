@@ -56,24 +56,24 @@ app.get('/api/alerts/stream', (req: Request, res: Response) => {
   try {
     // Manually verify token since browsers don't send headers for EventSource
     const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
-    
-  
+
+
 
     // Assuming decoded token has structure: { id: number, role: 'usuario' | 'cuidador' | 'admin', ... }
     const decoded: any = jwt.verify(token, jwtSecret);
-    
+
     // Pass user info to AlertService
     AlertService.addClient(res, decoded.id, decoded.role);
-    
+
   } catch (error) {
-      res.status(401).json({ message: 'Invalid token.' });
-    }
+    res.status(401).json({ message: 'Invalid token.' });
   }
+}
 );
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
+  console.error("Application error:", err.message);
   res.status(500).json({ message: 'Something went wrong!' });
 });
 

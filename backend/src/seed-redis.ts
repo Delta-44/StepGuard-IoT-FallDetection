@@ -8,17 +8,17 @@ dotenv.config();
  * Simula datos de sensores ESP32 en tiempo real
  */
 async function seedRedis() {
-  console.log('🔴 Insertando datos de prueba en Redis...\n');
+  console.log('Insertando datos de prueba en Redis...\n');
 
   try {
     // ===== LIMPIAR DATOS EXISTENTES =====
-    console.log('🧹 Limpiando datos existentes de Redis...');
+    console.log('Limpiando datos existentes de Redis...');
     const keys = await redis.keys('*');
     if (keys.length > 0) {
       await redis.del(...keys);
-      console.log(`   ✓ ${keys.length} claves eliminadas`);
+      console.log(`   ${keys.length} claves eliminadas`);
     } else {
-      console.log('   ✓ Redis ya estaba vacío');
+      console.log('   Redis ya estaba vacío');
     }
     console.log('');
 
@@ -30,7 +30,7 @@ async function seedRedis() {
       { macAddress: 'AA:BB:CC:DD:EE:03', name: 'ESP32-Cocina' },
     ];
 
-    console.log('📱 Insertando datos de dispositivos ESP32...\n');
+    console.log('Insertando datos de dispositivos ESP32...\n');
 
     for (const dispositivo of dispositivos) {
       // Generar datos según interfaz ESP32
@@ -51,17 +51,17 @@ async function seedRedis() {
 
       // Guardar datos actuales del dispositivo
       await ESP32Cache.setDeviceData(dispositivo.macAddress, esp32Data);
-      console.log(`   ${isFallDetected ? '🚨' : '✅'} ${dispositivo.name} (${dispositivo.macAddress})`);
+      console.log(`   ${isFallDetected ? 'ALERTA' : 'OK'} ${dispositivo.name} (${dispositivo.macAddress})`);
       console.log(`      Impactos: ${esp32Data.impact_count}, Magnitud: ${impact_magnitude} m/s²`);
-      console.log(`      Caída detectada: ${isFallDetected ? '¡SÍ! ⚠️' : 'No'}`);
-      console.log(`      Botón SOS: ${isButtonPressed ? '¡PRESIONADO! 🆘' : 'No'}`);
+      console.log(`      Caída detectada: ${isFallDetected ? 'SI' : 'No'}`);
+      console.log(`      Botón SOS: ${isButtonPressed ? 'PRESIONADO' : 'No'}`);
 
       // Guardar estado de conexión
       await ESP32Cache.setDeviceStatus(dispositivo.macAddress, true);
       console.log(`      Estado: online\n`);
 
       // Agregar historial de lecturas (últimas 10 lecturas simuladas)
-      console.log(`      📊 Generando historial de 10 lecturas...`);
+      console.log(`      Generando historial de 10 lecturas...`);
       for (let i = 0; i < 10; i++) {
         const historyData = {
           macAddress: dispositivo.macAddress,
@@ -74,7 +74,7 @@ async function seedRedis() {
         };
         await ESP32Cache.addDeviceHistory(dispositivo.macAddress, historyData);
       }
-      console.log(`      ✓ Historial guardado\n`);
+      console.log(`      Historial guardado\n`);
 
       // Si hay caída o botón SOS, registrar alerta
       if (isFallDetected || isButtonPressed) {
@@ -85,13 +85,13 @@ async function seedRedis() {
           severity: isButtonPressed ? 'critical' : 'high',
           type: isButtonPressed ? 'SOS_BUTTON' : 'FALL_DETECTED',
         });
-        console.log(`      🚨 ALERTA REGISTRADA: ${isButtonPressed ? 'SOS MANUAL' : 'CAÍDA'}\n`);
+        console.log(`      ALERTA REGISTRADA: ${isButtonPressed ? 'SOS MANUAL' : 'CAÍDA'}\n`);
       }
     }
 
     // ===== RESUMEN =====
     console.log('─'.repeat(60));
-    console.log('\n📊 Resumen de datos en Redis:\n');
+    console.log('\nResumen de datos en Redis:\n');
 
     // Contar claves por tipo
     const allKeys = await redis.keys('*');
@@ -100,31 +100,31 @@ async function seedRedis() {
     const statusKeys = allKeys.filter(k => k.startsWith('status:'));
     const alertKeys = allKeys.filter(k => k.startsWith('alert:'));
 
-    console.log(`   📱 Datos de dispositivos: ${deviceKeys.length}`);
-    console.log(`   📊 Historiales: ${historyKeys.length}`);
-    console.log(`   🔌 Estados de conexión: ${statusKeys.length}`);
-    console.log(`   🚨 Alertas de caída: ${alertKeys.length}`);
-    console.log(`   📦 Total de claves: ${allKeys.length}\n`);
+    console.log(`   Datos de dispositivos: ${deviceKeys.length}`);
+    console.log(`   Historiales: ${historyKeys.length}`);
+    console.log(`   Estados de conexión: ${statusKeys.length}`);
+    console.log(`   Alertas de caída: ${alertKeys.length}`);
+    console.log(`   Total de claves: ${allKeys.length}\n`);
 
     // Mostrar alertas recientes
     const recentAlerts = await ESP32Cache.getRecentAlerts();
     if (recentAlerts.length > 0) {
-      console.log('🚨 Alertas de caída detectadas:\n');
+      console.log('Alertas de caída detectadas:\n');
       recentAlerts.forEach((alert) => {
         const date = new Date(alert.timestamp).toLocaleString('es-ES');
-        console.log(`   ⚠️  ${alert.macAddress} - ${alert.name}`);
+        console.log(`   ${alert.macAddress} - ${alert.name}`);
         console.log(`      Fecha: ${date}`);
         console.log(`      Tipo: ${alert.type}`);
         console.log(`      Severidad: ${alert.severity}`);
         console.log('');
       });
     } else {
-      console.log('✅ No hay alertas de caída recientes\n');
+      console.log('No hay alertas de caída recientes\n');
     }
 
     // Ejemplo de cómo leer los datos
     console.log('─'.repeat(60));
-    console.log('\n💡 Ejemplo de lectura de datos:\n');
+    console.log('\nEjemplo de lectura de datos:\n');
     const ejemploData = await ESP32Cache.getDeviceData('AA:BB:CC:DD:EE:01');
     console.log('   Datos de AA:BB:CC:DD:EE:01:');
     console.log(JSON.stringify(ejemploData, null, 2));
@@ -137,12 +137,12 @@ async function seedRedis() {
     });
     console.log('');
 
-    console.log('✨ ¡Datos de prueba de Redis insertados correctamente!\n');
-    console.log('🔍 Puedes verificar los datos en Redis Commander:');
+    console.log('Datos de prueba de Redis insertados correctamente!\n');
+    console.log('Puedes verificar los datos en Redis Commander:');
     console.log('   http://localhost:8081\n');
 
   } catch (error: any) {
-    console.error('\n❌ Error insertando datos en Redis:', error.message);
+    console.error('\nError insertando datos en Redis:', error.message);
     process.exit(1);
   }
 

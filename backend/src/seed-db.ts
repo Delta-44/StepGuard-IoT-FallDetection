@@ -8,36 +8,36 @@ dotenv.config();
  * Script para insertar datos de prueba en la base de datos
  */
 async function seedDatabase() {
-  console.log('🌱 Insertando datos de prueba en la base de datos...\n');
+  console.log('Insertando datos de prueba en la base de datos...\n');
 
   try {
     // ===== LIMPIAR DATOS EXISTENTES =====
-    console.log('🧹 Limpiando datos existentes...');
+    console.log('Limpiando datos existentes...');
     await query('TRUNCATE TABLE usuario_cuidador, usuarios, cuidadores, dispositivos RESTART IDENTITY CASCADE');
-    console.log('✅ Datos limpiados\n');
+    console.log('Datos limpiados\n');
 
     // ===== CREAR ADMINISTRADORES (Cuidadores con is_admin=true) =====
-    console.log('👤 Insertando administradores...');
+    console.log('Insertando administradores...');
     const adminPassword = await bcrypt.hash('admin123', 10);
-    
+
     await query(
       'INSERT INTO cuidadores (nombre, email, password_hash, telefono, is_admin) VALUES ($1, $2, $3, $4, $5)',
       ['Admin Principal', 'admin@stepguard.com', adminPassword, '+34 600 000 000', true]
     );
-    
+
     await query(
       'INSERT INTO cuidadores (nombre, email, password_hash, telefono, is_admin) VALUES ($1, $2, $3, $4, $5)',
       ['María González Admin', 'maria.gonzalez@stepguard.com', adminPassword, '+34 600 000 001', true]
     );
-    
+
     console.log('   ✓ 2 administradores creados');
     console.log('   📧 admin@stepguard.com - password: admin123 (Admin)');
     console.log('   📧 maria.gonzalez@stepguard.com - password: admin123 (Admin)\n');
 
     // ===== CREAR CUIDADORES =====
-    console.log('👨‍⚕️ Insertando cuidadores...');
+    console.log('Insertando cuidadores...');
     const cuidadorPassword = await bcrypt.hash('cuidador123', 10);
-    
+
     const cuidadores = [
       ['Ana Martínez', 'ana.martinez@stepguard.com', '+34 600 111 111'],
       ['Carlos López', 'carlos.lopez@stepguard.com', '+34 600 222 222'],
@@ -50,13 +50,13 @@ async function seedDatabase() {
         [nombre, email, cuidadorPassword, telefono, false]
       );
     }
-    
+
     console.log(`   ✓ ${cuidadores.length} cuidadores creados`);
-    console.log('   🔑 Todos con password: cuidador123\n');
+    console.log('   Todos con password: cuidador123\n');
 
     // ===== CREAR DISPOSITIVOS =====
-    console.log('📱 Insertando dispositivos ESP32...');
-    
+    console.log('Insertando dispositivos ESP32...');
+
     const dispositivos = [
       ['ESP32-001', 'AA:BB:CC:DD:EE:01', 'Dispositivo Sala Principal', 'Sala de estar'],
       ['ESP32-002', 'AA:BB:CC:DD:EE:02', 'Dispositivo Dormitorio', 'Dormitorio principal'],
@@ -72,14 +72,14 @@ async function seedDatabase() {
         [device_id, mac_address, nombre, ubicacion, 'offline', '1.0.0']
       );
     }
-    
+
     console.log(`   ✓ ${dispositivos.length} dispositivos creados`);
-    console.log('   📟 Estados: offline (se actualizan cuando se conectan)\n');
+    console.log('   Estados: offline (se actualizan cuando se conectan)\n');
 
     // ===== CREAR USUARIOS =====
-    console.log('👴 Insertando usuarios (personas mayores)...');
+    console.log('Insertando usuarios (personas mayores)...');
     const usuarioPassword = await bcrypt.hash('usuario123', 10);
-    
+
     const usuarios = [
       ['Juan Pérez García', 'juan.perez@example.com', '1949-01-15', 'Calle Mayor 123, Madrid', '+34 600 444 444', 1],
       ['Carmen Rodríguez López', 'carmen.rodriguez@example.com', '1944-06-20', 'Avenida Libertad 45, Barcelona', '+34 600 555 555', 2],
@@ -95,13 +95,13 @@ async function seedDatabase() {
         [nombre, email, usuarioPassword, fecha_nacimiento, direccion, telefono, dispositivo_id]
       );
     }
-    
+
     console.log(`   ✓ ${usuarios.length} usuarios creados`);
-    console.log('   🔑 Todos con password: usuario123\n');
+    console.log('   Todos con password: usuario123\n');
 
     // ===== ASIGNAR CUIDADORES A USUARIOS =====
-    console.log('🔗 Asignando cuidadores a usuarios...');
-    
+    console.log('Asignando cuidadores a usuarios...');
+
     const asignaciones = [
       // Ana (cuidador 1) cuida a Juan, Carmen e Isabel (usuarios 1, 2, 4)
       [1, 1], [2, 1], [4, 1],
@@ -117,11 +117,11 @@ async function seedDatabase() {
         [usuario_id, cuidador_id]
       );
     }
-    
+
     console.log(`   ✓ ${asignaciones.length} relaciones cuidador-usuario creadas\n`);
 
     // ===== RESUMEN FINAL =====
-    console.log('📊 Resumen de datos insertados:');
+    console.log('Resumen de datos insertados:');
     const stats = await query(`
       SELECT 
         (SELECT COUNT(*) FROM cuidadores WHERE is_admin = true) as admins,
@@ -130,21 +130,21 @@ async function seedDatabase() {
         (SELECT COUNT(*) FROM dispositivos) as dispositivos,
         (SELECT COUNT(*) FROM usuario_cuidador) as relaciones
     `);
-    
+
     console.log(`   • Administradores: ${stats.rows[0].admins}`);
     console.log(`   • Cuidadores: ${stats.rows[0].cuidadores}`);
     console.log(`   • Usuarios: ${stats.rows[0].usuarios}`);
     console.log(`   • Dispositivos: ${stats.rows[0].dispositivos}`);
     console.log(`   • Relaciones cuidador-usuario: ${stats.rows[0].relaciones}\n`);
 
-    console.log('✨ ¡Datos de prueba insertados correctamente!\n');
-    console.log('🔐 Credenciales de acceso:');
+    console.log('Datos de prueba insertados correctamente!\n');
+    console.log('Credenciales de acceso:');
     console.log('   Admin:    admin@stepguard.com / admin123 (is_admin=true)');
     console.log('   Cuidador: ana.martinez@stepguard.com / cuidador123 (is_admin=false)');
     console.log('   Usuario:  juan.perez@example.com / usuario123\n');
 
   } catch (error: any) {
-    console.error('\n❌ Error insertando datos:', error.message);
+    console.error('\nError insertando datos:', error.message);
     if (error.detail) {
       console.error('Detalles:', error.detail);
     }
