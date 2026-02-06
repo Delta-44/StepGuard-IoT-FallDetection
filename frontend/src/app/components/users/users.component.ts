@@ -71,29 +71,29 @@ export class UsersComponent implements OnInit {
 
     this.userService.getAllUsers().subscribe({
       next: (data) => {
-        // Deferir actualización para evitar error NG0100 (ExpressionChangedAfterItHasBeenCheckedError)
-        // ya que esto puede ocurrir mientras se cierra el modal de edición
-        setTimeout(() => {
-          // Filtrar usuarios según el rol del usuario actual
-          if (currentUserRole === 'admin') {
-            // Los admins ven a todos
-            this.users = data;
-          } else if (currentUserRole === 'caregiver') {
-            // Los cuidadores ven solo pacientes y cuidadores
-            this.users = data.filter((u) => u.role !== 'admin');
-          } else {
-            this.users = [];
-          }
-          this.calculateCounts(); // 👈 Recalcular contadores aquí
-          this.applyFilter();
-          this.isLoading = false;
-          this.cd.detectChanges();
-        }, 0);
+        // Filtrar usuarios según el rol del usuario actual
+        if (currentUserRole === 'admin') {
+          // Los admins ven a todos
+          this.users = data;
+        } else if (currentUserRole === 'caregiver') {
+          // Los cuidadores ven solo pacientes y cuidadores
+          this.users = data.filter((u) => u.role !== 'admin');
+        } else {
+          this.users = [];
+        }
+        
+        // Recalcular contadores de forma segura
+        this.calculateCounts();
+        this.applyFilter();
+        this.isLoading = false;
+        
+        // Marcar para verificación en lugar de forzar detección inmediata
+        this.cd.markForCheck();
       },
       error: (err) => {
         console.error('Error cargando usuarios:', err);
         this.isLoading = false;
-        this.cd.detectChanges();
+        this.cd.markForCheck();
       },
     });
   }
@@ -110,13 +110,20 @@ export class UsersComponent implements OnInit {
   saveUserChanges() {
     if (!this.selectedUser.id) return;
 
-    this.isLoading = true;
     this.userService.updateUser(this.selectedUser.id, this.selectedUser).subscribe({
       next: () => {
         console.log('Usuario actualizado correctamente');
-        this.closeEditModal();
-        this.userService.refreshUsers(); // 👈 Actualización manual controlada (despues de cerrar modal)
-        this.notificationService.success('Éxito', 'Usuario actualizado correctamente');
+        
+        // Diferir al siguiente ciclo para evitar NG0100
+        setTimeout(() => {
+          // Cerrar modal
+          this.isEditModalOpen = false;
+          
+          // Forzar recarga desde el servidor
+          this.userService.refreshUsers();
+          
+          this.notificationService.success('Éxito', 'Usuario actualizado correctamente');
+        }, 0);
       },
       error: (err) => {
         console.error('Error actualizando usuario:', err);
@@ -128,8 +135,42 @@ export class UsersComponent implements OnInit {
       },
     });
   }
-  deleteUser(id: any) {
-    /* ... tu código de borrar ... */
+
+  deleteUser(userId: string | number) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    this.userService.deleteUser(userId).subscribe({
+      next: (success) => {
+        if (success) {
+          this.notificationService.success('Éxito', 'Usuario eliminado correctamente');
+          this.userService.refreshUsers();
+        } else {
+          this.notificationService.warning(
+            'Funcionalidad no disponible', 
+            'La eliminación de usuarios aún no está implementada en el backend.'
+          );
+        }
+      },
+      error: (err) => {
+        console.error('Error eliminando usuario:', err);
+        this.notificationService.error('Error', 'Error al eliminar el usuario.');
+      },
+    });
+  }
+
+  // Verificar si un rol está disponible para el usuario actual
+  isRoleAvailable(role: 'admin' | 'caregiver' | 'user'): boolean {
+    if (!this.selectedUser) return false;
+    
+    // Si es paciente, solo puede ser paciente
+    if (this.selectedUser.role === 'user') {
+      return role === 'user';
+    }
+    
+    // Si es cuidador o admin, solo puede ser cuidador o admin
+    return role === 'admin' || role === 'caregiver';
   }
 
   // --- MODAL HISTORIAL (NUEVO) 🆕 ---
@@ -280,6 +321,14 @@ export class UsersComponent implements OnInit {
   public adminCount = 0;
 
   private calculateCounts() {
+    // Asegurar que this.users existe y es un array antes de calcular
+    if (!this.users || !Array.isArray(this.users)) {
+      this.userCount = 0;
+      this.caregiverCount = 0;
+      this.adminCount = 0;
+      return;
+    }
+    
     this.userCount = this.users.filter((u) => u.role === 'user').length;
     this.caregiverCount = this.users.filter((u) => u.role === 'caregiver').length;
     this.adminCount = this.users.filter((u) => u.role === 'admin').length;
