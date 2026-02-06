@@ -8,14 +8,15 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
+import { ESP32Service } from './services/esp32Service';
 import authRoutes from './routes/authRoutes';
 import esp32Routes from './routes/esp32Routes';
 import userRoutes from './routes/userRoutes';
 import eventRoutes from './routes/eventRoutes';
 import authMiddleware, { AuthRequest } from './middleware/auth';
 import { connectMQTT } from './config/mqtt';
-import { SchedulerService } from './services/schedulerService';
 import { AlertService } from './services/alertService';
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -80,5 +81,5 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   connectMQTT();
-  SchedulerService.start();
+  ESP32Service.startHeartbeatMonitor();
 });

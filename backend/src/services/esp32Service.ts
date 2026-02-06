@@ -22,10 +22,8 @@ export class ESP32Service {
         // 2. Add to history in Redis
         await ESP32Cache.addDeviceHistory(macAddress, telemetry);
 
-        // 3. Update status in Redis
-        // If the device sends 'status' in body, use it. Otherwise assume online (true).
-        const status = telemetry.status !== undefined ? telemetry.status : true;
-        await ESP32Cache.setDeviceStatus(macAddress, status);
+        // 3. Update status in Redis -> MOVED to separate method
+        // processTelemetry no longer handles status updates based on payload
 
         // 4. Persistence to PostgreSQL
         try {
@@ -113,5 +111,86 @@ export class ESP32Service {
      */
     static async getDeviceData(macAddress: string) {
         return await ESP32Cache.getDeviceData(macAddress);
+    }
+
+    /**
+     * Update device status (online/offline)
+     */
+    static async updateDeviceStatus(macAddress: string, status: string | boolean) {
+        // Normalize status to boolean if it's a string 'online'/'offline' or similar
+        let isOnline = false;
+        if (typeof status === 'string') {
+            isOnline = status.toLowerCase() === 'online';
+        } else {
+            isOnline = !!status;
+        }
+
+        // Check previous status BEFORE updating Redis to detect transitions
+        const previousStatus = await ESP32Cache.getDeviceStatus(macAddress);
+        console.log(`[DEBUG] Transition Check: Previous=${previousStatus}, New=${isOnline}`);
+
+        await ESP32Cache.setDeviceStatus(macAddress, isOnline);
+        console.log(`device ${macAddress} is ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+
+        // Sync with PostgreSQL IF:
+        // 1. New status is OFFLINE
+        // 2. OR New status is ONLINE but previous was OFFLINE/UNKNOWN (Transition)
+        if (!isOnline || (isOnline && !previousStatus)) {
+            try {
+                await DispositivoModel.updateEstado(macAddress, isOnline);
+                console.log(`✅ Postgres updated: device ${macAddress} transitioned to ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+            } catch (error) {
+                console.error(`❌ Error syncing status to Postgres for ${macAddress}:`, error);
+            }
+        }
+    }
+
+    /**
+     * Register a heartbeat from a device.
+     * Updates the ZSET score and ensures status is online.
+     */
+    static async registerHeartbeat(macAddress: string) {
+        await ESP32Cache.updateHeartbeat(macAddress);
+        
+        // Ensure it is marked as online (logic inside handles transition if needed)
+        // Optimization: We could check if it's already online to save calls, 
+        // but updateDeviceStatus handles transition checks efficiently enough.
+        await this.updateDeviceStatus(macAddress, 'online');
+    }
+
+    /**
+     * Start the background monitor to check for expired heartbeats.
+     * Timeout: 17 seconds.
+     */
+    static startHeartbeatMonitor() {
+        console.log('Starting Heartbeat Monitor (17s timeout check every 5s)...');
+        
+        setInterval(async () => {
+            // console.log('[DEBUG] Heartbeat Monitor Tick'); // Verbose
+            try {
+                const threshold = Date.now() - 17000; // 17 seconds ago
+                const expiredDevices = await ESP32Cache.getExpiredHeartbeats(threshold);
+                // console.log(`[DEBUG] Check expired < ${threshold}. Found: ${expiredDevices.length}`);
+
+                if (expiredDevices.length > 0) {
+                    console.log(`⚠️  Found ${expiredDevices.length} expired devices (No heartbeat > 17s). Marking offline...`);
+                    
+                    for (const mac of expiredDevices) {
+                        try {
+                           console.log(`🔻 Device ${mac} timed out. Marking OFFLINE.`);
+                           await this.updateDeviceStatus(mac, 'offline');
+                           
+                           // Remove from heartbeat list so we don't keep processing it
+                           // (It will be re-added when next 'online' msg comes)
+                           await ESP32Cache.removeHeartbeat(mac);
+                        } catch (err) {
+                            console.error(`❌ Error marking device ${mac} offline:`, err);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Heartbeat Monitor Error:', error);
+            }
+        }, 5000); // Check every 5 seconds
     }
 }
