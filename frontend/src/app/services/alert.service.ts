@@ -202,7 +202,8 @@ export class AlertService {
       updated[index] = {
         ...updated[index],
         status: backendEvent.estado as any,
-        attendedBy: String(backendEvent.atendido_por), // ID to string for simplicity
+        attendedBy: backendEvent.atendido_por_nombre || String(backendEvent.atendido_por), 
+        caregiverName: backendEvent.atendido_por_nombre,
         resolved: true,
         resolutionNotes: backendEvent.notas,
       };

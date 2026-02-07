@@ -36,6 +36,16 @@ export const getData = async (req: Request, res: Response) => {
   }
 };
 
+export const getAllDevices = async (req: Request, res: Response) => {
+  try {
+    const devices = await DispositivoModel.findAllWithUser();
+    res.json(devices);
+  } catch (error: any) {
+    console.error('Error fetching all devices:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 export const updateDevice = async (req: Request, res: Response) => {
   try {
     const { macAddress } = req.params;

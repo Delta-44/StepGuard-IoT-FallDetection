@@ -156,7 +156,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   submitResolution(type: 'atendida' | 'falsa_alarma') {
     if (!this.processingAlert) return;
     this.isSubmitting = true;
-    const caregiver = this.authService.currentUser()?.fullName || 'Desconocido';
+    const currentUser = this.authService.currentUser();
+    console.log('[Dashboard] Resolving alert. Current User:', currentUser);
+    const caregiver = currentUser?.fullName || currentUser?.username || 'Desconocido';
 
     this.alertService
       .resolveAlert(
