@@ -467,7 +467,34 @@ section:hover {
   transform: translateY(-2px);
 }
 
-/* Responsive mejorado */
+/* ================================================
+   RESPONSIVE DESIGN COMPLETO
+   ================================================ */
+
+/* Tablets y escritorios pequeños (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .info-item {
+    padding: 18px;
+  }
+
+  .info-label {
+    font-size: 0.8rem;
+  }
+
+  .info-value {
+    font-size: 1.05rem;
+  }
+
+  .stat-number {
+    font-size: 2.8rem;
+  }
+
+  section {
+    padding: 1.5rem;
+  }
+}
+
+/* Tablets (max-width: 768px) */
 @media (max-width: 768px) {
   .alert-item {
     flex-direction: column;
@@ -484,5 +511,95 @@ section:hover {
   
   .info-item {
     padding: 16px;
+  }
+
+  .info-label {
+    font-size: 0.75rem;
+  }
+
+  .info-value {
+    font-size: 1rem;
+  }
+
+  section {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+}
+
+/* Móviles (max-width: 480px) */
+@media (max-width: 480px) {
+  .info-item {
+    padding: 14px;
+    border-radius: 12px;
+    gap: 8px;
+  }
+
+  .info-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.8px;
+  }
+
+  .info-value {
+    font-size: 0.95rem;
+  }
+
+  .stat-number {
+    font-size: 2.2rem;
+  }
+
+  .alert-item {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  section {
+    padding: 1rem;
+    border-radius: 12px;
+  }
+
+  section:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Móviles muy pequeños (max-width: 359px) */
+@media (max-width: 359px) {
+  .info-item {
+    padding: 12px;
+    border-radius: 10px;
+    gap: 6px;
+  }
+
+  .info-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+  }
+
+  .info-value {
+    font-size: 0.9rem;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .alert-item {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  section {
+    padding: 0.875rem;
+    border-radius: 10px;
+  }
+
+  /* Reducir animaciones en móviles pequeños */
+  .animate-glow {
+    animation: none;
+  }
+
+  section:hover {
+    transform: none;
   }
 }

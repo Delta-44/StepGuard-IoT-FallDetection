@@ -126,3 +126,220 @@ td {
 .row-critical {
   background-color: #fff0f0;
 }
+
+/* ================================================
+   RESPONSIVE DESIGN
+   ================================================ */
+
+/* Tablets y escritorios pequeños (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .page-container {
+    padding: 1.5rem;
+  }
+
+  .card {
+    padding: 0.9rem;
+  }
+
+  th, td {
+    padding: 12px;
+    font-size: 0.85rem;
+  }
+
+  .btn-toggle {
+    font-size: 0.7rem;
+    padding: 2px 7px;
+  }
+
+  .resolution-box {
+    padding: 9px;
+  }
+
+  .note-content {
+    font-size: 0.85rem;
+  }
+
+  .badge {
+    padding: 4px 9px;
+    font-size: 0.7rem;
+  }
+}
+
+/* Tablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1.25rem;
+  }
+
+  .card {
+    padding: 0.8rem;
+    border-radius: 8px;
+  }
+
+  /* Ocultar tabla en tablets pequeños - mostrar tarjetas */
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  th, td {
+    padding: 10px;
+    font-size: 0.8rem;
+  }
+
+  th {
+    font-size: 0.75rem;
+  }
+
+  .message-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .btn-toggle {
+    align-self: flex-end;
+    font-size: 0.7rem;
+  }
+
+  .resolution-box {
+    padding: 8px;
+    margin-top: 8px;
+  }
+
+  .note-content {
+    font-size: 0.8rem;
+  }
+
+  .note-footer {
+    font-size: 0.75rem;
+  }
+
+  .badge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+
+  .status {
+    font-size: 0.8rem;
+  }
+}
+
+/* Móviles (max-width: 480px) */
+@media (max-width: 480px) {
+  .page-container {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 0.7rem;
+    border-radius: 8px;
+  }
+
+  /* Modo tarjeta en móvil */
+  table {
+    font-size: 0.75rem;
+  }
+
+  th {
+    padding: 8px;
+    font-size: 0.7rem;
+  }
+
+  td {
+    padding: 8px;
+    font-size: 0.75rem;
+  }
+
+  .message-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .message-text {
+    font-size: 0.8rem;
+  }
+
+  .btn-toggle {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  .resolution-box {
+    padding: 7px;
+    margin-top: 6px;
+    border-left-width: 2px;
+  }
+
+  .note-content {
+    font-size: 0.75rem;
+  }
+
+  .note-footer {
+    font-size: 0.7rem;
+  }
+
+  .note-date {
+    font-size: 0.65rem;
+  }
+
+  .badge {
+    padding: 3px 7px;
+    font-size: 0.65rem;
+  }
+
+  .status {
+    font-size: 0.75rem;
+  }
+}
+
+/* Móviles muy pequeños (max-width: 359px) */
+@media (max-width: 359px) {
+  .page-container {
+    padding: 0.75rem;
+  }
+
+  .card {
+    padding: 0.6rem;
+  }
+
+  table {
+    font-size: 0.7rem;
+  }
+
+  th {
+    padding: 6px;
+    font-size: 0.65rem;
+  }
+
+  td {
+    padding: 6px;
+    font-size: 0.7rem;
+  }
+
+  .message-text {
+    font-size: 0.75rem;
+  }
+
+  .btn-toggle {
+    font-size: 0.6rem;
+    padding: 2px 5px;
+  }
+
+  .resolution-box {
+    padding: 6px;
+  }
+
+  .note-content {
+    font-size: 0.7rem;
+  }
+
+  .note-footer {
+    font-size: 0.65rem;
+  }
+
+  .badge {
+    padding: 2px 6px;
+    font-size: 0.6rem;
+  }
+}

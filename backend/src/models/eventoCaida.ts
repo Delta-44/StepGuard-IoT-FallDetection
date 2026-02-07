@@ -5,12 +5,18 @@ export interface EventoCaida {
   dispositivo_mac: string;
   usuario_id?: number;
   fecha_hora: Date;
-  acc_x?: number;
-  acc_y?: number;
-  acc_z?: number;
+  
+  // Datos del ESP32 (coinciden con init.sql)
+  is_button_pressed?: boolean;
+  is_fall_detected?: boolean;
+  impact_magnitudes?: number[];
+  impact_count?: number;
+  
+  // Severidad y estado
   severidad: "low" | "medium" | "high" | "critical";
   estado: "pendiente" | "atendida" | "falsa_alarma" | "ignorada";
-  ubicacion?: string;
+  
+  // Información adicional
   notas?: string;
   atendido_por?: number;
   fecha_atencion?: Date;
@@ -24,25 +30,25 @@ export const EventoCaidaModel = {
   create: async (
     dispositivo_mac: string,
     usuario_id: number | undefined,
-    acc_x: number,
-    acc_y: number,
-    acc_z: number,
+    is_button_pressed: boolean = false,
+    is_fall_detected: boolean = false,
+    impact_magnitudes: number[] = [],
+    impact_count: number = 0,
     severidad: "low" | "medium" | "high" | "critical" = "medium",
-    ubicacion?: string,
     notas?: string,
   ): Promise<EventoCaida> => {
     const result = await query(
       `INSERT INTO eventos_caida 
-       (dispositivo_mac, usuario_id, acc_x, acc_y, acc_z, severidad, ubicacion, notas) 
+       (dispositivo_mac, usuario_id, is_button_pressed, is_fall_detected, impact_magnitudes, impact_count, severidad, notas) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [
         dispositivo_mac,
         usuario_id,
-        acc_x,
-        acc_y,
-        acc_z,
+        is_button_pressed,
+        is_fall_detected,
+        impact_magnitudes,
+        impact_count,
         severidad,
-        ubicacion,
         notas,
       ],
     );
