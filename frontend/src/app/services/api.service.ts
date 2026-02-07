@@ -390,10 +390,22 @@ export class ApiService {
     );
   }
 
-  markAsResolved(alertId: string, who: string): Observable<boolean> {
-    return this.http.put<any>(`${this.apiUrl}/events/${alertId}/resolve`, {}).pipe(
+  markAsResolved(
+    alertId: string, 
+    who: string, 
+    status: 'atendida' | 'falsa_alarma', 
+    notes?: string, 
+    severity?: string
+  ): Observable<boolean> {
+    const payload = {
+      status,
+      notes,
+      severity,
+      attendedBy: who
+    };
+    return this.http.put<any>(`${this.apiUrl}/events/${alertId}/resolve`, payload).pipe(
       map(() => {
-        console.log(`✅ Alerta ${alertId} marcada como atendida en backend`);
+        console.log(`✅ Alerta ${alertId} resuelta como ${status} en backend`);
         return true;
       }),
       catchError((err) => {

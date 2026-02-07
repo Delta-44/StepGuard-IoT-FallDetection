@@ -12,7 +12,7 @@ export class AlertService {
   // MOCK DATA INICIAL
   private mockAlerts: Alert[] = [
     {
-      id: '201',
+      id: 'mock-201',
       severity: 'critical',
       status: 'pendiente',
       message: 'Caída detectada (Alto Impacto)',
@@ -313,7 +313,7 @@ export class AlertService {
       });
     } else {
       // SI es real, llamar al backend
-      return this.apiService.markAsResolved(id, caregiverName).pipe(
+      return this.apiService.markAsResolved(id, caregiverName, status, notes, newSeverity).pipe(
         // Actualizar estado local si la petición tiene éxito
         tap((success) => {
           if (success) {

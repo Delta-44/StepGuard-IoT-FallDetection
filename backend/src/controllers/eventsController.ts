@@ -7,6 +7,8 @@ import { AlertService } from '../services/alertService';
 export const resolveEvent = async (req: AuthRequest, res: Response) => {
   try {
     const eventId = parseInt(req.params.id as string);
+    console.log(`[RESOLVE] Attempting to resolve event ${eventId} by user ${req.user?.id}`);
+
     const atendidoPorId = req.user?.id; // Assumes AuthRequest has user populated (caregiver/admin)
     const userRole = req.user?.role;
 
@@ -21,7 +23,19 @@ export const resolveEvent = async (req: AuthRequest, res: Response) => {
     // TODO: Optional - Check if user has permission to resolve THIS specific event?
     // For now, any authorized caregiver/admin can resolve it.
 
-        const updatedEvent = await EventoCaidaModel.markAsResolved(eventId, atendidoPorId);
+    const { status, notes, severity } = req.body;
+    const finalStatus = status === 'falsa_alarma' ? 'falsa_alarma' : 'atendida';
+
+    console.log(`[RESOLVE] Details: status=${finalStatus}, notes=${notes}, severity=${severity}`);
+
+    const updatedEvent = await EventoCaidaModel.resolveWithDetails(
+      eventId, 
+      atendidoPorId, 
+      finalStatus, 
+      notes, 
+      severity
+    );
+    console.log(`[RESOLVE] Result for event ${eventId}:`, updatedEvent);
 
     if (!updatedEvent) {
             return res.status(404).json({ message: 'Event not found' });
