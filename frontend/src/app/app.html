@@ -19,7 +19,7 @@
   }
 
   @if (showNavbar()) {
-    <nav style="background: #222; height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; z-index: 10;">
+    <nav style="background: #222; min-height: 60px; height: auto; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; z-index: 10;">
       <a routerLink="/" style="text-decoration: none; cursor: pointer;">
         <div style="display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; font-size: 1.2em;">
           <i-lucide name="shield" [size]="24"></i-lucide>

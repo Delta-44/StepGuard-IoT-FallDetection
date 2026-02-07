@@ -244,13 +244,17 @@ export class UsersComponent implements OnInit {
     // Cargar dispositivos disponibles
     this.apiService.getDevices().subscribe({
       next: (devices) => {
-        // Filtrar dispositivos que NO están asignados (estado false o sin assignedUser)
-        // Ojo: Tu lógica actual de mockDevices tiene assignedUser string, pero el backend real usa dispositivo_mac en usuario.
-        // La mejor forma es filtrar aquellos cuyo estado sea false (offline/disponible) o chequear si ya tienen dueño.
-        // Para simplificar, mostraremos todos los dispositivos por ahora, o filtramos los que no tienen dueño si tuviéramos esa data en el listado.
-        // Asumiremos que todos los listados se pueden reasignar o están libres.
-        // IDEALMENTE: El backend debería dar endpoint de "dispositivos libres".
-        this.availableDevices = devices;
+        // Filtrar dispositivos que NO están asignados verificando contra la lista de usuarios cargada
+        // Obtenemos un Set de las MACs que ya están asignadas a algún dispositivo
+        const assignedMacs = new Set(
+          this.users
+            .map(u => u.dispositivo_mac)
+            .filter(mac => !!mac) // Solo MACs válidas
+        );
+
+        // Filtramos solo los dispositivos cuya MAC no esté en el set de asignados
+        this.availableDevices = devices.filter(d => !assignedMacs.has(d.mac_address));
+        
         this.isLoadingDevices = false;
       },
       error: (err) => {

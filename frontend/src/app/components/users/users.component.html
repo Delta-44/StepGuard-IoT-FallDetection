@@ -27,7 +27,7 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
           placeholder="Buscar usuarios..."
-          class="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium text-sm md:text-base"
+          class="w-full pl-11 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium text-sm md:text-base"
         />
       </div>
 
@@ -131,8 +131,112 @@
         </p>
       </div>
     } @else {
-      <!-- Tabla de Usuarios -->
-      <div class="bg-transparent/50 rounded-xl overflow-hidden animate-fade-in">
+      <!-- Vista de Tarjetas (Móvil) -->
+      <div class="md:hidden space-y-4 animate-fade-in">
+        @for (user of paginatedUsers; track user.email) {
+          <div 
+            class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300"
+            [ngClass]="{ 'cursor-pointer active:scale-[0.98]': user.role === 'user' }"
+            (click)="user.role === 'user' && openPatientInfoModal(user)"
+          >
+            <!-- Header: Nombre y Rol -->
+            <div class="flex justify-between items-start mb-1">
+              <h3 class="font-bold text-gray-900 text-lg leading-tight">{{ user.fullName }}</h3>
+              <span
+                class="flex-shrink-0 px-3 py-1 rounded-full text-xs font-bold uppercase text-white tracking-wide ml-2"
+                [ngClass]="{
+                  'bg-red-600': user.role === 'admin',
+                  'bg-green-600': user.role === 'caregiver',
+                  'bg-blue-600': user.role === 'user',
+                }"
+              >
+                {{
+                  user.role === 'user'
+                    ? 'PACIENTE'
+                    : user.role === 'caregiver'
+                      ? 'CUIDADOR'
+                      : (user.role | uppercase)
+                }}
+              </span>
+            </div>
+
+            <!-- Email -->
+            <div class="text-sm text-gray-500 mb-4">{{ user.email }}</div>
+
+            <!-- Estado y Username -->
+            <div class="flex justify-between items-center mb-3">
+              <!-- Estado -->
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-3 h-3 rounded-full"
+                  [ngClass]="
+                    user.status === 'active' ? 'bg-green-500' : 'bg-gray-400'
+                  "
+                ></span>
+                <span class="text-sm font-medium text-gray-600 capitalize">
+                  {{ user.status === 'active' ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+              
+              <!-- Username -->
+              <div class="text-sm text-gray-400 font-normal">
+                {{ user.username }}
+              </div>
+            </div>
+
+            <!-- Separador -->
+            <div class="border-t border-gray-200 my-3"></div>
+
+            <!-- Botones de Acción (Alineados a la derecha) -->
+            <div class="flex justify-end gap-3 mt-3">
+              <!-- Botón Historial -->
+              @if (canViewHistory()) {
+                <button
+                  class="p-2.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+                  (click)="$event.stopPropagation(); openHistoryModal(user)"
+                  title="Ver Historial"
+                >
+                  <i-lucide name="clipboard-list" [size]="20"></i-lucide>
+                </button>
+              }
+
+              @if (isAdmin()) {
+                <!-- Editar -->
+                <button
+                  class="p-2.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+                  (click)="$event.stopPropagation(); openEditModal(user)"
+                  title="Editar"
+                >
+                  <i-lucide name="square-pen" [size]="20"></i-lucide>
+                </button>
+
+                <!-- Asignar Dispositivo -->
+                @if (user.role === 'user') {
+                  <button
+                    class="p-2.5 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors duration-200"
+                    (click)="$event.stopPropagation(); openAssignDeviceModal(user)"
+                    title="Asignar Dispositivo"
+                  >
+                    <i-lucide name="watch" [size]="20"></i-lucide>
+                  </button>
+                }
+
+                <!-- Eliminar -->
+                <button
+                  class="p-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
+                  (click)="$event.stopPropagation(); deleteUser(user)"
+                  title="Eliminar"
+                >
+                  <i-lucide name="trash-2" [size]="20"></i-lucide>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Tabla de Usuarios (Desktop) -->
+      <div class="hidden md:block bg-transparent/50 rounded-xl overflow-hidden animate-fade-in">
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead class="bg-blue-600 text-white">
@@ -247,14 +351,15 @@
             </tbody>
           </table>
         </div>
+      </div>
 
-        <!-- Controles de Paginación Moderna -->
-        @if (filteredUsers.length > pageSize) {
+      <!-- Controles de Paginación Moderna (Visible en móvil y desktop) -->
+      @if (filteredUsers.length > pageSize) {
           <div
-            class="bg-white/80 backdrop-blur-sm px-6 py-5 border-t border-gray-200 flex items-center justify-between"
+            class="bg-white/80 backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl mt-4 shadow-sm"
           >
             <!-- Info de páginas -->
-            <div class="text-sm text-gray-700 font-medium">
+            <div class="text-sm text-gray-700 font-medium text-center sm:text-left">
               Mostrando
               <span class="font-bold text-blue-600">{{ (currentPage - 1) * pageSize + 1 }}</span> a
               <span class="font-bold text-blue-600">{{
@@ -319,7 +424,6 @@
             </div>
           </div>
         }
-      </div>
     }
   }
 
