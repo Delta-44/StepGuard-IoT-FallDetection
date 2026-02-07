@@ -17,19 +17,19 @@ const redisConfig: any = {
 
 // TLS automático solo para servicios que lo requieren (puerto 6380 o URLs específicas)
 // Redis Cloud con puertos estándar (no 6380) NO usa TLS
-if (process.env.REDIS_PORT === '6380' || 
-    (process.env.REDIS_HOST?.includes('upstash.io') && process.env.REDIS_PORT === '6380')) {
+if (process.env.REDIS_PORT === '6380' ||
+  (process.env.REDIS_HOST?.includes('upstash.io') && process.env.REDIS_PORT === '6380')) {
   redisConfig.tls = { rejectUnauthorized: false };
 }
 
 const redis = new Redis(redisConfig);
 
 redis.on('connect', () => {
-  console.log('✅ Conectado a Redis');
+  console.log('Conectado a Redis');
 });
 
 redis.on('error', (err) => {
-  console.error('❌ Error en Redis:', err);
+  console.error('Error en Redis:', err);
 });
 
 // Funciones helper para gestionar datos de ESP32
@@ -65,7 +65,7 @@ export const ESP32Cache = {
     const key = `history:${macAddress}`;
     const timestamp = Date.now();
     const entry = JSON.stringify({ ...data, timestamp });
-    
+
     await redis.lpush(key, entry);
     await redis.ltrim(key, 0, maxEntries - 1); // Mantener solo las últimas N entradas
     await redis.expire(key, 86400); // Expira en 24 horas

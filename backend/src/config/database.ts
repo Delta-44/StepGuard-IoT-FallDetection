@@ -14,28 +14,25 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
   // SSL requerido para Neon y otros servicios cloud
-  ssl: process.env.DB_HOST?.includes('neon.tech') || process.env.DB_HOST?.includes('supabase') 
-    ? { rejectUnauthorized: false } 
+  ssl: process.env.DB_HOST?.includes('neon.tech') || process.env.DB_HOST?.includes('supabase')
+    ? { rejectUnauthorized: false }
     : false,
   options: '-c timezone=Europe/Madrid',
 });
 
 // Test de conexión
 pool.on('connect', () => {
-  console.log('✅ Conectado a PostgreSQL');
+  console.log('Conectado a PostgreSQL');
 });
 
 pool.on('error', (err: any) => {
-  console.error('❌ Error inesperado en PostgreSQL:', err);
+  console.error('Error inesperado en PostgreSQL:', err);
   process.exit(-1);
 });
 
 export const query = async (text: string, params?: any[]) => {
-  const start = Date.now();
   try {
     const res = await pool.query(text, params);
-    const duration = Date.now() - start;
-    console.log('Ejecutada query', { text, duration, rows: res.rowCount });
     return res;
   } catch (error) {
     console.error('Error en query:', error);
@@ -47,17 +44,17 @@ export const getClient = async () => {
   const client = await pool.connect();
   const query = client.query.bind(client);
   const release = client.release.bind(client);
-  
+
   // Timeout para evitar que un cliente se quede bloqueado
   const timeout = setTimeout(() => {
     console.error('Cliente de base de datos no liberado después de 5 segundos');
   }, 5000);
-  
+
   client.release = () => {
     clearTimeout(timeout);
     return release();
   };
-  
+
   return client;
 };
 

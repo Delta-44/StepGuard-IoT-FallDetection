@@ -10,10 +10,8 @@ import { DispositivoModel } from "../models/dispositivo";
 
 export const registerUsuario = async (req: Request, res: Response) => {
   try {
-    console.log(
-      "📝 Registro de usuario - Body recibido:",
-      JSON.stringify(req.body, null, 2),
-    );
+    // Log removed for privacy
+
 
     const {
       email,
@@ -44,15 +42,9 @@ export const registerUsuario = async (req: Request, res: Response) => {
     let fecha_nacimiento: Date | undefined = undefined;
     if (fechaNacimientoParam) {
       fecha_nacimiento = new Date(fechaNacimientoParam);
-      console.log(
-        `📅 Fecha nacimiento recibida: ${fecha_nacimiento.toISOString()}`,
-      );
     } else if (edad && typeof edad === "number" && edad > 0) {
       const currentYear = new Date().getFullYear();
       fecha_nacimiento = new Date(currentYear - edad, 0, 1);
-      console.log(
-        `📅 Edad ${edad} años -> Fecha nacimiento aproximada: ${fecha_nacimiento.toISOString()}`,
-      );
     }
 
     // 🆕 GENERAR DISPOSITIVO RANDOM AUTOMÁTICO
@@ -67,8 +59,6 @@ export const registerUsuario = async (req: Request, res: Response) => {
           .toUpperCase();
       const randomMac = `00:1A:2B:${randomByte()}:${randomByte()}:${randomByte()}`;
 
-      console.log(`🎲 Generando dispositivo automático: ${randomMac}`);
-
       // Crear el dispositivo en BD
       try {
         await DispositivoModel.create(
@@ -82,7 +72,6 @@ export const registerUsuario = async (req: Request, res: Response) => {
       }
     }
 
-    console.log("💾 Creando usuario en BD...");
     const newUser = await UsuarioModel.create(
       name,
       email,
@@ -93,7 +82,7 @@ export const registerUsuario = async (req: Request, res: Response) => {
       macAddressAssigned || undefined, // Usar la MAC generada
     );
 
-    console.log("✅ Usuario creado con ID:", newUser.id);
+
 
     const token = jwt.sign(
       { id: newUser.id, email: newUser.email, role: "usuario" },
@@ -118,18 +107,15 @@ export const registerUsuario = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("❌ Error registering user:", error);
-    console.error("Stack trace:", error.stack);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Error registering user:", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 export const registerCuidador = async (req: Request, res: Response) => {
   try {
-    console.log(
-      "📝 Registro de cuidador - Body recibido:",
-      JSON.stringify(req.body, null, 2),
-    );
+    // Log removed for privacy
+
 
     const { email, password, name, telefono, is_admin } = req.body;
 
@@ -147,7 +133,6 @@ export const registerCuidador = async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    console.log("💾 Creando cuidador en BD...");
     const newCuidador = await CuidadorModel.create(
       name,
       email,
@@ -156,7 +141,6 @@ export const registerCuidador = async (req: Request, res: Response) => {
       is_admin || false,
     );
 
-    console.log("✅ Cuidador creado con ID:", newCuidador.id);
 
     const token = jwt.sign(
       { id: newCuidador.id, email: newCuidador.email, role: "cuidador" },
@@ -175,8 +159,7 @@ export const registerCuidador = async (req: Request, res: Response) => {
       },
     });
   } catch (error: any) {
-    console.error("❌ Error registering caregiver:", error);
-    console.error("Stack trace:", error.stack);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Error registering caregiver:", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };

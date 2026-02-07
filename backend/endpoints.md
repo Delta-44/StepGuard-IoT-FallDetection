@@ -59,6 +59,18 @@ Base URL: `http://localhost:3000`
   }
   ```
 
+### Google Auth Redirect
+
+- **URL:** `/api/auth/google`
+- **Method:** `GET`
+- **Description:** Initiates Google OAuth flow.
+
+### Google Auth Callback
+
+- **URL:** `/api/auth/google/callback`
+- **Method:** `GET`
+- **Description:** Callback URL for Google OAuth.
+
 ### Forgot Password
 
 - **URL:** `/api/auth/forgot-password`
@@ -82,6 +94,8 @@ Base URL: `http://localhost:3000`
   }
   ```
 
+## ESP32 Device (`/api/esp32`)
+
 ### Receive Device Data
 
 - **URL:** `/api/esp32/data`
@@ -100,10 +114,110 @@ Base URL: `http://localhost:3000`
 
 ### Get Device Data
 
-- **URL:** `/api/esp32/data/:deviceId`
+- **URL:** `/api/esp32/data/:macAddress`
 - **Method:** `GET`
-- **Params:** `deviceId` (string)
+- **Params:** `macAddress` (string)
 - **Response:** JSON object with latest device data.
+
+### Update Device Info
+
+- **URL:** `/api/esp32/:macAddress`
+- **Method:** `PUT`
+- **Headers:** `Authorization: Bearer <token>`
+- **Params:** `macAddress` (string)
+- **Body:** (Device update fields)
+
+## Users (`/api/users`)
+
+### Get All Users
+
+- **URL:** `/api/users`
+- **Method:** `GET`
+- **Headers:** `Authorization: Bearer <token>`
+- **Response:** Array of users.
+
+### Export Users CSV
+
+- **URL:** `/api/users/export/csv`
+- **Method:** `GET`
+- **Headers:** `Authorization: Bearer <token>`
+- **Description:** Downloads a CSV file of users.
+
+### Get User by ID
+
+- **URL:** `/api/users/:id`
+- **Method:** `GET`
+- **Headers:** `Authorization: Bearer <token>`
+- **Params:** `id` (string)
+- **Response:** User object with device info.
+
+### Update User
+
+- **URL:** `/api/users/:id`
+- **Method:** `PUT`
+- **Headers:** `Authorization: Bearer <token>`
+- **Params:** `id` (string)
+- **Body:** (User fields to update)
+
+### Admin Update User
+
+- **URL:** `/api/users/:id/admin`
+- **Method:** `PUT`
+- **Headers:** `Authorization: Bearer <token>` (Admin only)
+- **Params:** `id` (string)
+- **Body:**
+  ```json
+  {
+    "role": "admin",
+    "name": "New Name",
+    "email": "newemail@example.com"
+  }
+  ```
+
+### Delete User
+
+- **URL:** `/api/users/:id`
+- **Method:** `DELETE`
+- **Headers:** `Authorization: Bearer <token>` (Admin only)
+- **Params:** `id` (string)
+
+### Assign Device to User
+
+- **URL:** `/api/users/:id/device`
+- **Method:** `POST`
+- **Headers:** `Authorization: Bearer <token>`
+- **Params:** `id` (string)
+- **Body:**
+  ```json
+  {
+    "deviceId": "ESP32_MAC_ADDRESS"
+  }
+  ```
+
+## Events (`/api/events`)
+
+### Get Events
+
+- **URL:** `/api/events`
+- **Method:** `GET`
+- **Headers:** `Authorization: Bearer <token>`
+- **Query Params:** (Optional filters)
+
+### Resolve Event
+
+- **URL:** `/api/events/:id/resolve`
+- **Method:** `PUT`
+- **Headers:** `Authorization: Bearer <token>`
+- **Params:** `id` (string)
+
+## Alerts
+
+### Alert Stream (SSE)
+
+- **URL:** `/api/alerts/stream`
+- **Method:** `GET`
+- **Query Params:** `token` (JWT Token)
+- **Description:** Server-Sent Events stream for real-time alerts.
 
 ## System
 

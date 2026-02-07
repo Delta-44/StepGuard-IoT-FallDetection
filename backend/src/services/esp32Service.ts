@@ -29,40 +29,40 @@ export class ESP32Service {
         try {
             // Try to update existing device
             const updatedDevice = await DispositivoModel.actualizarDatosESP32(
-                macAddress, 
-                telemetry.impact_count || 0, 
+                macAddress,
+                telemetry.impact_count || 0,
                 telemetry.impact_magnitude
             );
 
             if (!updatedDevice) {
-                console.log(`🆕 New device detected: ${macAddress}. Auto-creating...`);
+                console.log(`New device detected: ${macAddress}. Auto-creating...`);
                 // Auto-create device if it doesn't exist
                 const defaultName = `ESP32 Device ${macAddress}`;
                 await DispositivoModel.create(macAddress, defaultName);
-                
+
                 // Update with the fresh data
                 await DispositivoModel.actualizarDatosESP32(
-                    macAddress, 
-                    telemetry.impact_count || 0, 
+                    macAddress,
+                    telemetry.impact_count || 0,
                     telemetry.impact_magnitude
                 );
             }
         } catch (dbError) {
-            console.error('❌ Error persisting to PostgreSQL:', dbError);
+            console.error('Error persisting to PostgreSQL:', dbError);
             // Non-blocking error: we continue even if DB write fails (Redis is primary for realtime)
         }
 
         // 5. Check for fall detection and button press
         if (telemetry.isFallDetected || telemetry.isButtonPressed) {
-            
+
             // Get user associated with this device
             const usuario = await DispositivoModel.getUsuarioAsignado(macAddress);
             const usuarioId = usuario ? usuario.id : undefined;
 
             if (telemetry.isFallDetected) {
                 await ESP32Cache.setFallAlert(macAddress, telemetry);
-                console.log(`⚠️ FALL DETECTED for device ${macAddress} (Magnitude: ${telemetry.impact_magnitude})`);
-                
+                console.log(`FALL DETECTED for device ${macAddress} (Magnitude: ${telemetry.impact_magnitude})`);
+
                 // Persist fall event
                 const fallEvent = await EventoCaidaModel.create(
                     macAddress,
@@ -72,8 +72,8 @@ export class ESP32Service {
                     undefined,
                     'Caída detectada automáticamente'
                 );
-                console.log('✅ Evento de caída guardado en Postgres');
-                
+                console.log('Evento de caída guardado en Postgres');
+
                 // Broadcast to frontend
                 AlertService.broadcast({
                     type: 'FALL_DETECTED',
@@ -82,8 +82,8 @@ export class ESP32Service {
             }
 
             if (telemetry.isButtonPressed) {
-                console.log(`🔘 SOS BUTTON PRESSED for device ${macAddress}`);
-                
+                console.log(`SOS BUTTON PRESSED for device ${macAddress}`);
+
                 // Persist SOS event
                 const sosEvent = await EventoCaidaModel.create(
                     macAddress,
@@ -93,7 +93,7 @@ export class ESP32Service {
                     undefined,
                     'Botón SOS presionado'
                 );
-                console.log('✅ Evento SOS guardado en Postgres');
+                console.log('Evento SOS guardado en Postgres');
 
                 // Broadcast to frontend
                 AlertService.broadcast({
@@ -138,9 +138,9 @@ export class ESP32Service {
         if (!isOnline || (isOnline && !previousStatus)) {
             try {
                 await DispositivoModel.updateEstado(macAddress, isOnline);
-                console.log(`✅ Postgres updated: device ${macAddress} transitioned to ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+                console.log(`Postgres updated: device ${macAddress} transitioned to ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
             } catch (error) {
-                console.error(`❌ Error syncing status to Postgres for ${macAddress}:`, error);
+                console.error(`Error syncing status to Postgres for ${macAddress}:`, error);
             }
         }
     }
@@ -151,7 +151,7 @@ export class ESP32Service {
      */
     static async registerHeartbeat(macAddress: string) {
         await ESP32Cache.updateHeartbeat(macAddress);
-        
+
         // Ensure it is marked as online (logic inside handles transition if needed)
         // Optimization: We could check if it's already online to save calls, 
         // but updateDeviceStatus handles transition checks efficiently enough.
@@ -164,7 +164,7 @@ export class ESP32Service {
      */
     static startHeartbeatMonitor() {
         console.log('Starting Heartbeat Monitor (17s timeout check every 5s)...');
-        
+
         setInterval(async () => {
             // console.log('[DEBUG] Heartbeat Monitor Tick'); // Verbose
             try {
@@ -173,23 +173,23 @@ export class ESP32Service {
                 // console.log(`[DEBUG] Check expired < ${threshold}. Found: ${expiredDevices.length}`);
 
                 if (expiredDevices.length > 0) {
-                    console.log(`⚠️  Found ${expiredDevices.length} expired devices (No heartbeat > 17s). Marking offline...`);
-                    
+                    console.log(`Found ${expiredDevices.length} expired devices (No heartbeat > 17s). Marking offline...`);
+
                     for (const mac of expiredDevices) {
                         try {
-                           console.log(`🔻 Device ${mac} timed out. Marking OFFLINE.`);
-                           await this.updateDeviceStatus(mac, 'offline');
-                           
-                           // Remove from heartbeat list so we don't keep processing it
-                           // (It will be re-added when next 'online' msg comes)
-                           await ESP32Cache.removeHeartbeat(mac);
+                            console.log(`Device ${mac} timed out. Marking OFFLINE.`);
+                            await this.updateDeviceStatus(mac, 'offline');
+
+                            // Remove from heartbeat list so we don't keep processing it
+                            // (It will be re-added when next 'online' msg comes)
+                            await ESP32Cache.removeHeartbeat(mac);
                         } catch (err) {
-                            console.error(`❌ Error marking device ${mac} offline:`, err);
+                            console.error(`Error marking device ${mac} offline:`, err);
                         }
                     }
                 }
             } catch (error) {
-                console.error('❌ Heartbeat Monitor Error:', error);
+                console.error('Heartbeat Monitor Error:', error);
             }
         }, 5000); // Check every 5 seconds
     }

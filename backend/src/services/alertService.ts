@@ -29,12 +29,12 @@ export class AlertService {
 
         const newClient: ConnectedClient = { res, userId, role };
         this.clients.push(newClient);
-        console.log(`📡 New SSE Client connected (ID: ${userId}, Role: ${role}). Total: ${this.clients.length}`);
+        console.log(`New SSE Client connected (ID: ${userId}, Role: ${role}). Total: ${this.clients.length}`);
 
         // Remove client on close
         res.on('close', () => {
             this.clients = this.clients.filter(c => c.res !== res);
-            console.log(`❌ SSE Client disconnected (ID: ${userId}). Total: ${this.clients.length}`);
+            console.log(`SSE Client disconnected (ID: ${userId}). Total: ${this.clients.length}`);
         });
     }
 
@@ -47,19 +47,19 @@ export class AlertService {
 
         const macAddress = alert.data.dispositivo_mac;
         if (!macAddress) {
-            console.warn('⚠️ Alert has no MAC address, cannot target recipients. Broadcasting to Admins only.');
-            return; 
+            console.warn('Alert has no MAC address, cannot target recipients. Broadcasting to Admins only.');
+            return;
         }
 
-        console.log(`📢 Processing alert for device ${macAddress}...`);
+        console.log(`Processing alert for device ${macAddress}...`);
 
         try {
             // 1. Find the User who owns this device
             const deviceOwner = await UsuarioModel.findByDispositivo(macAddress);
-            
+
             const allowedUserIds = new Set<number>();
             const allowedCaregiverIds = new Set<number>();
-            
+
             if (deviceOwner) {
                 // Owner (User) can see it
                 allowedUserIds.add(deviceOwner.id);
@@ -67,10 +67,10 @@ export class AlertService {
                 // 2. Find Caregivers assigned to this User
                 const caregivers = await UsuarioModel.getCuidadoresAsignados(deviceOwner.id);
                 caregivers.forEach(c => allowedCaregiverIds.add(c.id));
-                
-                console.log(`🎯 Target Audience: User ${deviceOwner.id} and ${caregivers.length} Caregivers`);
+
+                console.log(`Target Audience: User ${deviceOwner.id} and ${caregivers.length} Caregivers`);
             } else {
-                console.log(`⚠️ No owner found for device ${macAddress}. Only Admins will see this.`);
+                console.log(`No owner found for device ${macAddress}. Only Admins will see this.`);
             }
 
             // 3. Send to matching clients
@@ -87,19 +87,19 @@ export class AlertService {
                 } else if (client.role === 'cuidador' && allowedCaregiverIds.has(client.userId)) {
                     shouldSend = true;
                 }
-                
+
                 if (shouldSend) {
                     client.res.write(`data: ${data}\n\n`);
                     sentCount++;
                 }
             });
-            
+
             if (sentCount > 0) {
-                console.log(`✅ Alert sent to ${sentCount} relevant clients.`);
+                console.log(`Alert sent to ${sentCount} relevant clients.`);
             }
-            
+
         } catch (err) {
-            console.error('❌ Error broadcasting alert:', err);
+            console.error('Error broadcasting alert:', err);
         }
     }
 }

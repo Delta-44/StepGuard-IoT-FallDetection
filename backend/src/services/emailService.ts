@@ -44,7 +44,7 @@ class EmailService {
       console.error('Error sending email:', error);
       // Fallback for development: Log the URL so we can still test
       if (process.env.NODE_ENV !== 'production') {
-        console.log('⚠️  [DEV MODE] Email delivery failed. Here is the reset link:');
+        console.log('[DEV MODE] Email delivery failed. Here is the reset link:');
         console.log(resetUrl);
         return; // Don't throw, treat as "sent" for dev flow
       }
