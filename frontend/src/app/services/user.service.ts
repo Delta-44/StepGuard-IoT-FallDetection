@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map } from 'rxjs';
 import { User } from '../models/user.model';
 import { environment } from '../../environments/environment';
 
@@ -47,7 +47,9 @@ export class UserService {
           direccion: u.direccion,
           fecha_nacimiento: u.fecha_nacimiento,
           dispositivo_mac: u.dispositivo_mac,
-          dispositivo_nombre: u.dispositivo_nombre // Optional but good to have
+          dispositivo_nombre: u.dispositivo_nombre,
+          created_at: u.fecha_creacion, // 👈 Mapeamos fecha de creación
+          updated_at: u.fecha_actualizacion // 👈 Si existe, sino undefined
         }));
         this.usersSubject.next(mappedUsers);
         this.loaded = true;
@@ -65,7 +67,23 @@ export class UserService {
   }
 
   getUserById(id: string | number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/users/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/users/${id}`).pipe(
+      map((u) => ({
+        id: u.id,
+        username: u.username || u.email.split('@')[0],
+        fullName: u.fullName || u.nombre,
+        email: u.email,
+        role: u.role || 'user', // Asegurar rol
+        status: u.status || 'active',
+        telefono: u.telefono,
+        direccion: u.direccion,
+        fecha_nacimiento: u.fecha_nacimiento,
+        dispositivo_mac: u.dispositivo?.mac_address || u.dispositivo_mac,
+        lastLogin: u.lastLogin || u.last_login,
+        created_at: u.createdAt || u.created_at || u.fecha_creacion,
+        updated_at: u.updatedAt || u.updated_at || u.fecha_actualizacion,
+      }))
+    );
   }
 
   createUser(user: User): Observable<boolean> {

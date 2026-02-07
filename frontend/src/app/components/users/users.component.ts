@@ -51,10 +51,10 @@ export class UsersComponent implements OnInit {
   public userHistory: Alert[] = [];
   public selectedHistoryUserName = '';
 
-  // Variables Modal Información del Paciente 🆕
-  public isPatientInfoModalOpen = false;
-  public selectedPatientInfo: any = null;
-  public isLoadingPatientInfo = false;
+  // Variables Modal Información del Usuario (Antes Paciente) 🆕
+  public isUserInfoModalOpen = false;
+  public selectedUserInfo: any = null;
+  public isLoadingUserInfo = false;
 
   // Variables Modal Asignar Dispositivo 🆕
   public isAssignDeviceModalOpen = false;
@@ -200,37 +200,61 @@ export class UsersComponent implements OnInit {
     this.isHistoryModalOpen = false;
   }
 
-  // --- MODAL INFORMACIÓN DEL PACIENTE (NUEVO) 🆕 ---
-  openPatientInfoModal(user: User) {
-    if (user.role !== 'user') return; // Solo para pacientes
-
-    // Inicializar inmediatamente para evitar ExpressionChangedAfterItHasBeenCheckedError
-    this.selectedPatientInfo = user;
-    this.isLoadingPatientInfo = true;
-    this.isPatientInfoModalOpen = true;
-
-    // Forzar detección de cambios para que el modal se abra inmediatamente
-    this.cd.detectChanges();
-
-    // Luego cargar datos completos del backend
-    this.userService.getUserById(user.id).subscribe({
-      next: (data) => {
-        this.selectedPatientInfo = data;
-        this.isLoadingPatientInfo = false;
-        this.cd.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error cargando información del paciente:', err);
-        this.isLoadingPatientInfo = false;
-        this.cd.detectChanges();
-        // selectedPatientInfo ya tiene los datos básicos del user
-      },
-    });
+  // --- MODAL INFORMACIÓN DEL USUARIO (NUEVO) 🆕 ---
+  getModalHeaderClass(role: string): string {
+    // Default safe class
+    const baseClass = 'relative overflow-hidden px-8 py-8 transition-colors duration-300 ';
+    
+    switch (role) {
+      case 'user':
+        return baseClass + 'bg-gradient-to-br from-blue-600 to-blue-800';
+      case 'caregiver':
+        return baseClass + 'bg-gradient-to-br from-green-600 to-green-800';
+      case 'admin':
+        return baseClass + 'bg-gradient-to-br from-red-600 to-red-800';
+      default:
+        // Fallback para debug (Gris oscuro)
+        console.warn('Role not recognized or empty:', role);
+        return baseClass + 'bg-gray-800'; 
+    }
   }
 
-  closePatientInfoModal() {
-    this.isPatientInfoModalOpen = false;
-    this.selectedPatientInfo = null;
+  openUserInfoModal(user: User) {
+    // Definir estado inicial antes de abrir el modal para evitar parpadeos/errores
+    this.selectedUserInfo = { ...user };
+    this.isUserInfoModalOpen = true;
+
+    // Si es un paciente (USER), pedimos detalles adicionales al backend
+    // Usamos setTimeout para evitar ExpressionChangedAfterItHasBeenCheckedError si la respuesta es sincrónica/rápida
+    if (user.role === 'user') {
+      this.isLoadingUserInfo = true;
+      
+      this.userService.getUserById(user.id).subscribe({
+        next: (data) => {
+          // Fusionamos los datos con un pequeño delay para asegurar ciclo de digestión limpio
+          setTimeout(() => {
+            this.selectedUserInfo = { ...this.selectedUserInfo, ...data };
+            this.isLoadingUserInfo = false;
+            this.cd.markForCheck(); // Usar markForCheck en lugar de detectChanges
+          });
+        },
+        error: (err) => {
+          console.error('Error cargando información del usuario:', err);
+          setTimeout(() => {
+            this.isLoadingUserInfo = false;
+            this.cd.markForCheck();
+          });
+        },
+      });
+    } else {
+      // Para admin/caregiver no hay carga extra
+      this.isLoadingUserInfo = false;
+    }
+  }
+
+  closeUserInfoModal() {
+    this.isUserInfoModalOpen = false;
+    this.selectedUserInfo = null;
   }
 
   // --- MODAL ASIGNAR DISPOSITIVO (NUEVO) 🆕 ---
