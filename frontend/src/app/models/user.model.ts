@@ -15,4 +15,6 @@ export interface User {
   // Campos adicionales para perfil de paciente
   edad?: number;
   genero?: string;
+  created_at?: string | Date;
+  updated_at?: string | Date;
 }

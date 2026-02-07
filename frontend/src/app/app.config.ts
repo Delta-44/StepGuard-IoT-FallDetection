@@ -66,6 +66,9 @@ import {
   Watch,
   Eye,
   EyeOff,
+  HeartHandshake,
+  IdCard,
+  BatteryMedium,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -135,6 +138,9 @@ const icons = {
   Gift,
   CalendarDays,
   Watch,
+  HeartHandshake,
+  IdCard,
+  BatteryMedium,
 };
 
 export const appConfig: ApplicationConfig = {

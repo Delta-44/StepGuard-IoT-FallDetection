@@ -257,7 +257,9 @@ export class ApiService {
         edad: response.edad,
         genero: response.genero,
         dispositivo_mac: response.dispositivo?.mac_address || null,
-        role: 'user',
+        created_at: response.createdAt || response.created_at, // 👈 Mapeamos fechas
+        updated_at: response.updatedAt || response.updated_at, // 👈 Mapeamos fechas
+        role: response.role || 'user', // Asegurar que el rol venga del backend o default a user
       };
     } catch (error) {
       console.error('Error obteniendo usuario del backend:', error);
