@@ -75,6 +75,32 @@ export const EventoCaidaModel = {
        RETURNING *`,
       [atendidoPorId, id],
     );
+    console.log(`[DB] markAsResolved result rowCount: ${result.rowCount}`);
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Resolver evento con detalles completos (status, notas, severidad)
+   */
+  resolveWithDetails: async (
+    id: number,
+    atendidoPorId: number,
+    status: 'atendida' | 'falsa_alarma',
+    notes?: string,
+    severity?: string
+  ): Promise<EventoCaida | null> => {
+    const result = await query(
+      `UPDATE eventos_caida 
+       SET estado = $1, 
+       atendido_por = $2, 
+       fecha_atencion = CURRENT_TIMESTAMP,
+       notas = COALESCE($3, notas),
+       severidad = COALESCE($4, severidad)
+       WHERE id = $5 
+       RETURNING *`,
+      [status, atendidoPorId, notes, severity, id],
+    );
+    console.log(`[DB] resolveWithDetails result rowCount: ${result.rowCount}`);
     return result.rows[0] || null;
   },
 
@@ -118,8 +144,9 @@ export const EventoCaidaModel = {
    * Obtener eventos pendientes
    */
   findPendientes: async (): Promise<EventoCaida[]> => {
-    const result = await query(
-      `SELECT ec.*, u.nombre as usuario_nombre, d.mac_address as device_id, ec.ubicacion as dispositivo_ubicacion
+    try {
+      const result = await query(
+      `SELECT ec.*, u.nombre as usuario_nombre, d.mac_address as device_id
        FROM eventos_caida ec
        LEFT JOIN usuarios u ON ec.usuario_id = u.id
        LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
@@ -127,6 +154,10 @@ export const EventoCaidaModel = {
        ORDER BY ec.severidad DESC, ec.fecha_hora DESC`,
     );
     return result.rows;
+    } catch (error) {
+      console.error('Error en findPendientes:', error);
+      throw error;
+    }
   },
 
   /**
@@ -138,7 +169,7 @@ export const EventoCaidaModel = {
     usuario_id?: number,
   ): Promise<EventoCaida[]> => {
     let queryText = `
-      SELECT ec.*, u.nombre as usuario_nombre, d.device_id
+      SELECT ec.*, u.nombre as usuario_nombre, d.mac_address as device_id
       FROM eventos_caida ec
       LEFT JOIN usuarios u ON ec.usuario_id = u.id
       LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
