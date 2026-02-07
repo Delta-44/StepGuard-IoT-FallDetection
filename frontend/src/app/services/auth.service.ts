@@ -42,7 +42,7 @@ export class AuthService {
         const userToSave: User = {
           id: backendUser.id,
           username: backendUser.email.split('@')[0],
-          fullName: backendUser.name, // Mapeamos name -> fullName
+          fullName: backendUser.fullName || backendUser.nombre || backendUser.name, 
           email: backendUser.email,
           role: role,
           status: 'active',

@@ -374,7 +374,8 @@ export class ApiService {
           message: e.notas || (e.severidad === 'critical' ? 'Caída Detectada' : 'Alerta de Sensor'),
           location: e.ubicacion || 'Desconocida',
           timestamp: new Date(e.fecha_hora),
-          attendedBy: e.atendido_por,
+          attendedBy: e.atendido_por_nombre || e.atendido_por,
+          caregiverName: e.atendido_por_nombre,
           resolutionNotes: e.notas,
           resolved: e.estado === 'atendida' || e.estado === 'falsa_alarma',
 
@@ -511,7 +512,8 @@ export class ApiService {
         message: e.notas || (e.severidad === 'critical' ? 'Caída Detectada' : 'Alerta de Sensor'),
         location: e.ubicacion || 'Desconocida',
         timestamp: new Date(e.fecha_hora),
-        attendedBy: e.atendido_por,
+        attendedBy: e.atendido_por_nombre || e.atendido_por,
+        caregiverName: e.atendido_por_nombre,
         resolutionNotes: e.notas,
         resolved: e.estado === 'atendida' || e.estado === 'falsa_alarma',
         // Mapeo de nuevos campos

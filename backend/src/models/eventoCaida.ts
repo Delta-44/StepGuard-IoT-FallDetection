@@ -19,8 +19,10 @@ export interface EventoCaida {
   // Información adicional
   notas?: string;
   atendido_por?: number;
+  atendido_por_nombre?: string; // Nuevo campo para el nombre del cuidador
   fecha_atencion?: Date;
   creado_en?: Date;
+  usuario_nombre?: string; // Nombre del usuario siniestrado
 }
 
 export const EventoCaidaModel = {
@@ -59,9 +61,14 @@ export const EventoCaidaModel = {
    * Buscar evento por ID
    */
   findById: async (id: number): Promise<EventoCaida | null> => {
-    const result = await query("SELECT * FROM eventos_caida WHERE id = $1", [
-      id,
-    ]);
+    const result = await query(
+      `SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre
+       FROM eventos_caida ec
+       LEFT JOIN usuarios u ON ec.usuario_id = u.id
+       LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
+       WHERE ec.id = $1`,
+      [id]
+    );
     return result.rows[0] || null;
   },
 
@@ -120,9 +127,12 @@ export const EventoCaidaModel = {
     offset: number = 0,
   ): Promise<EventoCaida[]> => {
     const result = await query(
-      `SELECT * FROM eventos_caida 
-       WHERE usuario_id = $1 
-       ORDER BY fecha_hora DESC 
+      `SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre
+       FROM eventos_caida ec
+       LEFT JOIN usuarios u ON ec.usuario_id = u.id
+       LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
+       WHERE ec.usuario_id = $1 
+       ORDER BY ec.fecha_hora DESC 
        LIMIT $2 OFFSET $3`,
       [usuario_id, limit, offset],
     );
@@ -152,9 +162,10 @@ export const EventoCaidaModel = {
   findPendientes: async (): Promise<EventoCaida[]> => {
     try {
       const result = await query(
-      `SELECT ec.*, u.nombre as usuario_nombre, d.mac_address as device_id
+      `SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre, d.mac_address as device_id
        FROM eventos_caida ec
        LEFT JOIN usuarios u ON ec.usuario_id = u.id
+       LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
        LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
        WHERE ec.estado = 'pendiente'
        ORDER BY ec.severidad DESC, ec.fecha_hora DESC`,
@@ -175,9 +186,10 @@ export const EventoCaidaModel = {
     usuario_id?: number,
   ): Promise<EventoCaida[]> => {
     let queryText = `
-      SELECT ec.*, u.nombre as usuario_nombre, d.mac_address as device_id
+      SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre, d.mac_address as device_id
       FROM eventos_caida ec
       LEFT JOIN usuarios u ON ec.usuario_id = u.id
+      LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
       LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
       WHERE ec.fecha_hora BETWEEN $1 AND $2
     `;

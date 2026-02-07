@@ -41,13 +41,21 @@ export const resolveEvent = async (req: AuthRequest, res: Response) => {
             return res.status(404).json({ message: 'Event not found' });
     }
 
+    // NEW: Fetch populated event to have atendido_por_nombre for the broadcast
+    const populatedEvent = await EventoCaidaModel.findById(eventId);
+    console.log(`[RESOLVE] Populated event for broadcast:`, JSON.stringify(populatedEvent, null, 2));
+
+    if (populatedEvent && !populatedEvent.atendido_por_nombre) {
+        console.warn(`[RESOLVE] WARNING: atendido_por_nombre is missing. Check JOIN with cuidadores table. atendido_por ID: ${populatedEvent.atendido_por}`);
+    }
+
     // Broadcast the resolution so all clients update their UI
     AlertService.broadcast({
             type: 'EVENT_RESOLVED',
-            data: updatedEvent
+            data: populatedEvent || updatedEvent
     });
 
-        res.json({ message: 'Event mark as resolved', event: updatedEvent });
+    res.json({ message: 'Event mark as resolved', event: populatedEvent || updatedEvent });
 
   } catch (error) {
     console.error('Error resolving event:', error);
