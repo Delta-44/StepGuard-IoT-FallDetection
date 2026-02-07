@@ -46,6 +46,8 @@ export class UserService {
           telefono: u.telefono,
           direccion: u.direccion,
           fecha_nacimiento: u.fecha_nacimiento,
+          dispositivo_mac: u.dispositivo_mac,
+          dispositivo_nombre: u.dispositivo_nombre // Optional but good to have
         }));
         this.usersSubject.next(mappedUsers);
         this.loaded = true;
