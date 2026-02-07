@@ -68,3 +68,256 @@ form {
 .modal-footer { margin-top: 15px; text-align: center; font-size: 0.85rem; color: #666; }
 .modal-footer a { color: #007bff; font-weight: 700; cursor: pointer; text-decoration: none; }
 .required { color: #dc3545; font-weight: bold; margin-left: 2px; }
+
+/* ================================================
+   RESPONSIVE DESIGN
+   ================================================ */
+
+/* Tablets y escritorios pequeños (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .modal-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .modal-header p {
+    font-size: 0.85rem;
+  }
+
+  .role-card {
+    padding: 14px;
+  }
+
+  .role-card h3 {
+    font-size: 0.95rem;
+  }
+
+  .role-card p {
+    font-size: 0.75rem;
+  }
+
+  .input-group input {
+    padding: 9px;
+    font-size: 0.9rem;
+  }
+
+  .btn-full {
+    padding: 11px;
+    font-size: 0.95rem;
+  }
+}
+
+/* Tablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .modal-header {
+    padding-top: 25px;
+    margin-bottom: 18px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.35rem;
+  }
+
+  .modal-header p {
+    font-size: 0.8rem;
+  }
+
+  .back-btn {
+    font-size: 0.8rem;
+  }
+
+  .role-selection {
+    gap: 12px;
+  }
+
+  .role-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .role-icon {
+    font-size: 1.6rem;
+  }
+
+  .role-card h3 {
+    font-size: 0.9rem;
+  }
+
+  .role-card p {
+    font-size: 0.75rem;
+  }
+
+  form {
+    max-height: 55vh;
+  }
+
+  .input-group {
+    margin-bottom: 11px;
+  }
+
+  .input-group label {
+    font-size: 0.8rem;
+  }
+
+  .input-group input {
+    padding: 9px;
+    font-size: 0.85rem;
+  }
+
+  .btn-full {
+    padding: 11px;
+    font-size: 0.9rem;
+  }
+
+  .modal-footer {
+    margin-top: 12px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Móviles (max-width: 480px) */
+@media (max-width: 480px) {
+  .modal-header {
+    padding-top: 22px;
+    margin-bottom: 16px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .modal-header p {
+    font-size: 0.75rem;
+  }
+
+  .back-btn {
+    font-size: 0.75rem;
+    padding: 4px 0;
+  }
+
+  .role-selection {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .role-card {
+    padding: 10px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+
+  .role-icon {
+    font-size: 1.5rem;
+  }
+
+  .role-card h3 {
+    font-size: 0.85rem;
+  }
+
+  .role-card p {
+    font-size: 0.7rem;
+  }
+
+  form {
+    max-height: 50vh;
+    padding: 0 3px;
+  }
+
+  .input-group {
+    margin-bottom: 10px;
+  }
+
+  .input-group label {
+    font-size: 0.75rem;
+    margin-bottom: 3px;
+  }
+
+  .input-group input {
+    padding: 8px;
+    font-size: 0.8rem;
+    border-radius: 7px;
+  }
+
+  .row-2-col {
+    gap: 8px;
+  }
+
+  .btn-full {
+    padding: 10px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+
+  .modal-footer {
+    margin-top: 10px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Móviles muy pequeños (max-width: 359px) */
+@media (max-width: 359px) {
+  .modal-header {
+    padding-top: 20px;
+    margin-bottom: 14px;
+  }
+
+  .modal-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .modal-header p {
+    font-size: 0.7rem;
+  }
+
+  .back-btn {
+    font-size: 0.7rem;
+  }
+
+  .role-selection {
+    gap: 8px;
+  }
+
+  .role-card {
+    padding: 8px;
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  .role-icon {
+    font-size: 1.3rem;
+  }
+
+  .role-card h3 {
+    font-size: 0.8rem;
+  }
+
+  .role-card p {
+    font-size: 0.65rem;
+  }
+
+  form {
+    max-height: 45vh;
+  }
+
+  .input-group {
+    margin-bottom: 8px;
+  }
+
+  .input-group label {
+    font-size: 0.7rem;
+  }
+
+  .input-group input {
+    padding: 7px;
+    font-size: 0.75rem;
+  }
+
+  .btn-full {
+    padding: 9px;
+    font-size: 0.8rem;
+  }
+
+  .modal-footer {
+    font-size: 0.7rem;
+  }
+}

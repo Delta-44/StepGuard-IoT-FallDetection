@@ -63,13 +63,16 @@ export class ESP32Service {
                 await ESP32Cache.setFallAlert(macAddress, telemetry);
                 console.log(`FALL DETECTED for device ${macAddress} (Magnitude: ${telemetry.impact_magnitude})`);
 
-                // Persist fall event
+                // Persist fall event con datos reales del ESP32
+                const impactMagnitudes = telemetry.impact_magnitude ? [telemetry.impact_magnitude] : [];
                 const fallEvent = await EventoCaidaModel.create(
                     macAddress,
                     usuarioId,
-                    0, 0, 0, // TODO: Add real acc data if available in telemetry
-                    'high',
-                    undefined,
+                    false, // is_button_pressed
+                    true, // is_fall_detected
+                    impactMagnitudes, // impact_magnitudes array
+                    telemetry.impact_count || 1, // impact_count
+                    'high', // severidad
                     'Caída detectada automáticamente'
                 );
                 console.log('Evento de caída guardado en Postgres');
@@ -84,13 +87,16 @@ export class ESP32Service {
             if (telemetry.isButtonPressed) {
                 console.log(`SOS BUTTON PRESSED for device ${macAddress}`);
 
-                // Persist SOS event
+                // Persist SOS event con datos reales del ESP32
+                const impactMagnitudes = telemetry.impact_magnitude ? [telemetry.impact_magnitude] : [];
                 const sosEvent = await EventoCaidaModel.create(
                     macAddress,
                     usuarioId,
-                    0, 0, 0,
-                    'critical',
-                    undefined,
+                    true, // is_button_pressed
+                    telemetry.isFallDetected || false, // is_fall_detected
+                    impactMagnitudes, // impact_magnitudes array
+                    telemetry.impact_count || 0, // impact_count
+                    'critical', // severidad
                     'Botón SOS presionado'
                 );
                 console.log('Evento SOS guardado en Postgres');

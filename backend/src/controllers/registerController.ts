@@ -21,7 +21,7 @@ export const registerUsuario = async (req: Request, res: Response) => {
       fecha_nacimiento: fechaNacimientoParam,
       direccion,
       telefono,
-      dispositivo_id,
+      dispositivo_mac, // Usar dispositivo_mac en lugar de dispositivo_id
     } = req.body;
 
     if (!email || !password || !name) {
@@ -48,7 +48,7 @@ export const registerUsuario = async (req: Request, res: Response) => {
     }
 
     // 🆕 GENERAR DISPOSITIVO RANDOM AUTOMÁTICO
-    let macAddressAssigned = dispositivo_id;
+    let macAddressAssigned = dispositivo_mac;
 
     if (!macAddressAssigned) {
       // Generar MAC aleatoria para demo

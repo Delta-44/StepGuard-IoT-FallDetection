@@ -182,3 +182,232 @@
 
 .alert-meta { display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; }
 .badge-severity { font-weight: bold; opacity: 0.7; }
+
+/* ================================================
+   RESPONSIVE DESIGN
+   ================================================ */
+
+/* Tablets y escritorios pequeños (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .users-container {
+    padding: 1.5rem;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 12px;
+    font-size: 0.85rem;
+  }
+
+  .modal-content {
+    max-width: 380px;
+  }
+
+  .history-modal-content {
+    max-width: 480px;
+  }
+}
+
+/* Tablets (max-width: 768px) */
+@media (max-width: 768px) {
+  .users-container {
+    padding: 1.25rem;
+  }
+
+  .header-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  /* Ocultar tabla y mostrar solo las tarjetas móviles */
+  .table-responsive {
+    display: none !important;
+  }
+
+  .users-table {
+    display: none !important;
+  }
+
+  /* Modal adaptado a tablet */
+  .modal-content,
+  .history-modal-content {
+    width: 90%;
+    padding: 22px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 9px;
+    font-size: 0.95rem;
+  }
+
+  .alert-card {
+    padding: 10px;
+    gap: 12px;
+  }
+
+  .timeline-container {
+    max-height: 350px;
+  }
+}
+
+/* Móviles (max-width: 480px) */
+@media (max-width: 480px) {
+  .users-container {
+    padding: 1rem;
+  }
+
+  .header-section h2 {
+    font-size: 1.35rem;
+    margin-bottom: 12px;
+  }
+
+  /* Modales en móvil */
+  .modal-content,
+  .history-modal-content {
+    width: 95%;
+    max-width: 340px;
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .modal-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 8px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .btn-save,
+  .btn-cancel {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+
+  /* Timeline de alertas */
+  .timeline-container {
+    max-height: 300px;
+    gap: 8px;
+  }
+
+  .alert-card {
+    flex-direction: column;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .alert-time {
+    min-width: auto;
+    font-size: 0.8rem;
+  }
+
+  .alert-info strong {
+    font-size: 0.9rem;
+  }
+
+  .alert-meta {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.75rem;
+  }
+
+  .close-btn-simple {
+    font-size: 1.1rem;
+  }
+
+  /* Reducir espacios en badges */
+  .badge {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+}
+
+/* Móviles muy pequeños (max-width: 359px) */
+@media (max-width: 359px) {
+  .users-container {
+    padding: 0.75rem;
+  }
+
+  .header-section h2 {
+    font-size: 1.25rem;
+    padding-bottom: 4px;
+  }
+
+  .modal-content,
+  .history-modal-content {
+    width: 96%;
+    max-width: 310px;
+    padding: 18px;
+    border-radius: 10px;
+  }
+
+  .modal-content h3 {
+    font-size: 1.1rem;
+  }
+
+  .form-group label {
+    font-size: 0.8rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 7px;
+    font-size: 0.85rem;
+  }
+
+  .btn-save,
+  .btn-cancel {
+    padding: 9px 12px;
+    font-size: 0.85rem;
+  }
+
+  .timeline-container {
+    max-height: 250px;
+  }
+
+  .alert-card {
+    padding: 8px;
+    border-radius: 6px;
+  }
+
+  .alert-time {
+    font-size: 0.75rem;
+  }
+
+  .alert-info strong {
+    font-size: 0.85rem;
+  }
+
+  .badge {
+    padding: 3px 8px;
+    font-size: 0.65rem;
+  }
+}
+
+/* Ocultar el contenedor principal de la tabla en móviles */
+@media (max-width: 767px) {
+  .table-responsive {
+    display: none !important;
+  }
+}

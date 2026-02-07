@@ -84,12 +84,16 @@ async function insertDemoData() {
     // 5. Insertar algunos eventos de caída de ejemplo
     console.log('\n🚨 Insertando eventos de caída de ejemplo...');
     const eventosResult = await client.query(`
-      INSERT INTO eventos_caida (dispositivo_mac, usuario_id, fecha_hora, acc_x, acc_y, acc_z, severidad, estado, ubicacion) 
+      INSERT INTO eventos_caida (
+        dispositivo_mac, usuario_id, fecha_hora, 
+        is_button_pressed, is_fall_detected, impact_magnitudes, impact_count,
+        severidad, estado, notas
+      ) 
       VALUES 
-        ('AA:BB:CC:DD:EE:01', 1, NOW() - INTERVAL '2 hours', 12.5, -3.2, 8.7, 'high', 'atendida', 'Sala de estar'),
-        ('AA:BB:CC:DD:EE:01', 1, NOW() - INTERVAL '1 day', 8.3, -2.1, 5.4, 'medium', 'atendida', 'Sala de estar'),
-        ('AA:BB:CC:DD:EE:02', 2, NOW() - INTERVAL '3 hours', 15.2, -4.8, 10.3, 'critical', 'pendiente', 'Habitación'),
-        ('AA:BB:CC:DD:EE:03', 3, NOW() - INTERVAL '5 days', 6.7, -1.8, 4.2, 'low', 'falsa_alarma', 'Cocina')
+        ('AA:BB:CC:DD:EE:01', 1, NOW() - INTERVAL '2 hours', false, true, ARRAY[12.5, 8.7, 10.2], 3, 'high', 'atendida', 'Caída en sala de estar'),
+        ('AA:BB:CC:DD:EE:01', 1, NOW() - INTERVAL '1 day', false, true, ARRAY[8.3, 5.4, 6.1], 2, 'medium', 'atendida', 'Caída menor'),
+        ('AA:BB:CC:DD:EE:02', 2, NOW() - INTERVAL '3 hours', true, true, ARRAY[15.2, 10.3, 13.8], 4, 'critical', 'pendiente', 'Botón SOS presionado + Caída crítica'),
+        ('AA:BB:CC:DD:EE:03', 3, NOW() - INTERVAL '5 days', false, false, ARRAY[6.7, 4.2], 1, 'low', 'falsa_alarma', 'Falsa alarma en cocina')
       RETURNING id, usuario_id, severidad, estado
     `);
     console.log(`✅ ${eventosResult.rowCount} eventos de caída insertados`);
