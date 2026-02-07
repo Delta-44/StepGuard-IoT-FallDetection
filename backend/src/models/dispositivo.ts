@@ -60,6 +60,19 @@ export const DispositivoModel = {
   },
 
   /**
+   * Listar todos los dispositivos con usuario asignado
+   */
+  findAllWithUser: async (): Promise<any[]> => {
+    const result = await query(`
+      SELECT d.*, u.nombre as assignedUser 
+      FROM dispositivos d
+      LEFT JOIN usuarios u ON d.mac_address = u.dispositivo_mac
+      ORDER BY d.fecha_registro DESC
+    `);
+    return result.rows;
+  },
+
+  /**
    * Listar dispositivos activos o inactivos
    */
   findByEstado: async (estado: boolean): Promise<Dispositivo[]> => {

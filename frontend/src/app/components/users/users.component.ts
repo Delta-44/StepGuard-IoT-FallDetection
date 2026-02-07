@@ -256,10 +256,12 @@ export class UsersComponent implements OnInit {
         this.availableDevices = devices.filter(d => !assignedMacs.has(d.mac_address));
         
         this.isLoadingDevices = false;
+        this.cd.detectChanges(); // 👈 Forzar actualización de vista
       },
       error: (err) => {
         console.error('Error cargando dispositivos:', err);
         this.isLoadingDevices = false;
+        this.cd.detectChanges(); // 👈 Forzar actualización de vista en error
       }
     });
   }
