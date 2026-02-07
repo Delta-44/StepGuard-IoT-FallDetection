@@ -5,13 +5,13 @@ export interface EventoCaida {
   dispositivo_mac: string;
   usuario_id?: number;
   fecha_hora: Date;
-  acc_x?: number;
-  acc_y?: number;
-  acc_z?: number;
   severidad: "low" | "medium" | "high" | "critical";
   estado: "pendiente" | "atendida" | "falsa_alarma" | "ignorada";
-  ubicacion?: string;
   notas?: string;
+  is_fall_detected?: boolean;
+  is_button_pressed?: boolean;
+  impact_count?: number;
+  impact_magnitudes?: number[];
   atendido_por?: number;
   fecha_atencion?: Date;
   creado_en?: Date;
@@ -24,26 +24,26 @@ export const EventoCaidaModel = {
   create: async (
     dispositivo_mac: string,
     usuario_id: number | undefined,
-    acc_x: number,
-    acc_y: number,
-    acc_z: number,
     severidad: "low" | "medium" | "high" | "critical" = "medium",
-    ubicacion?: string,
     notas?: string,
+    is_fall_detected: boolean = false,
+    is_button_pressed: boolean = false,
+    impact_count: number = 0,
+    impact_magnitudes: number[] = [],
   ): Promise<EventoCaida> => {
     const result = await query(
       `INSERT INTO eventos_caida 
-       (dispositivo_mac, usuario_id, acc_x, acc_y, acc_z, severidad, ubicacion, notas) 
+       (dispositivo_mac, usuario_id, severidad, notas, is_fall_detected, is_button_pressed, impact_count, impact_magnitudes) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [
         dispositivo_mac,
         usuario_id,
-        acc_x,
-        acc_y,
-        acc_z,
         severidad,
-        ubicacion,
         notas,
+        is_fall_detected,
+        is_button_pressed,
+        impact_count,
+        impact_magnitudes
       ],
     );
     return result.rows[0];

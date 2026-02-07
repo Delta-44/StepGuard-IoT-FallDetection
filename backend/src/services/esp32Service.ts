@@ -67,10 +67,12 @@ export class ESP32Service {
                 const fallEvent = await EventoCaidaModel.create(
                     macAddress,
                     usuarioId,
-                    0, 0, 0, // TODO: Add real acc data if available in telemetry
                     'high',
-                    undefined,
-                    'Caída detectada automáticamente'
+                    'Caída detectada automáticamente',
+                    true, // is_fall_detected
+                    false, // is_button_pressed
+                    telemetry.impact_count || 0,
+                    telemetry.impact_magnitudes || []
                 );
                 console.log('Evento de caída guardado en Postgres');
 
@@ -88,10 +90,12 @@ export class ESP32Service {
                 const sosEvent = await EventoCaidaModel.create(
                     macAddress,
                     usuarioId,
-                    0, 0, 0,
                     'critical',
-                    undefined,
-                    'Botón SOS presionado'
+                    'Botón SOS presionado',
+                    false, // is_fall_detected
+                    true, // is_button_pressed
+                    telemetry.impact_count || 0,
+                    telemetry.impact_magnitudes || []
                 );
                 console.log('Evento SOS guardado en Postgres');
 
