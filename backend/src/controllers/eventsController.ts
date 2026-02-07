@@ -57,7 +57,16 @@ export const resolveEvent = async (req: AuthRequest, res: Response) => {
 
 export const getEvents = async (req: AuthRequest, res: Response) => {
   try {
-    const { userId, startDate, endDate, limit } = req.query;
+    const { userId, deviceId, startDate, endDate, limit } = req.query;
+
+    // Si se proporciona deviceId, filtrar por él (Priority over user if both present, or handle logic)
+    if (deviceId) {
+      const events = await EventoCaidaModel.findByDispositivo(
+        String(deviceId),
+        Number(limit) || 50
+      );
+      return res.json(events);
+    }
 
     // Si se proporciona usuario, filtrar por él
     if (userId) {
