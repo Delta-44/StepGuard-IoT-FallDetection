@@ -161,6 +161,13 @@
     <router-outlet></router-outlet>
   </div>
 
+  @if (currentUser() && showNavbar()) {
+    <button class="fab-analytics" routerLink="/analytics">
+      <i-lucide name="layout-dashboard" [size]="18"></i-lucide>
+      <span>Analítica</span>
+    </button>
+  }
+
   @if (miniAlert()) {
     <div class="toast-notification" [ngClass]="miniAlert()?.severity">
       <div class="toast-icon">
