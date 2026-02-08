@@ -72,6 +72,7 @@ export class UsersComponent implements OnInit {
   });
 
   ngOnInit() {
+    console.log('UsersComponent initialized - Debugging Device Assignment Fix v2');
     this.loadUsers();
   }
 
@@ -342,8 +343,16 @@ export class UsersComponent implements OnInit {
   }
 
   // --- MODAL ASIGNAR DISPOSITIVO (NUEVO) 🆕 ---
-  openAssignDeviceModal(user: User) {
-    if (user.role !== 'user') return;
+  openAssignDeviceModalV2(user: User | null) {
+    console.log('openAssignDeviceModalV2 called with:', user);
+    if (!user) {
+      console.error('openAssignDeviceModalV2 called with null user - Aborting');
+      return;
+    }
+    if (user.role !== 'user') {
+      console.warn('User is not a patient:', user.role);
+      return;
+    }
     this.selectedUser = { ...user };
     this.selectedDeviceMac = '';
     this.isAssignDeviceModalOpen = true;
@@ -385,8 +394,11 @@ export class UsersComponent implements OnInit {
     this.userService.assignDevice(Number(this.selectedUser.id), this.selectedDeviceMac).subscribe({
       next: (res) => {
         this.notificationService.success('Éxito', `Dispositivo asignado a ${this.selectedUser.fullName}`);
-        this.closeAssignDeviceModal();
-        this.userService.refreshUsers(); // Recargar lista para ver cambios (si mostramos icono)
+        // Defer UI updates to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.closeAssignDeviceModal();
+          this.userService.refreshUsers(); 
+        }, 0);
       },
       error: (err) => {
         console.error('Error asignando dispositivo:', err);

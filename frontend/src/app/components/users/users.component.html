@@ -224,7 +224,7 @@
                 @if (user.role === 'user') {
                   <button
                     class="p-2.5 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors duration-200"
-                    (click)="$event.stopPropagation(); openAssignDeviceModal(user)"
+                    (click)="$event.stopPropagation(); openAssignDeviceModalV2(user)"
                     title="Asignar Dispositivo"
                   >
                     <i-lucide name="watch" [size]="20"></i-lucide>
@@ -377,7 +377,7 @@
                         
                         @if (user.role === 'user') {
                            <button
-                             (click)="openAssignDeviceModal(user)"
+                             (click)="$event.stopPropagation(); openAssignDeviceModalV2(user)"
                              class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                              title="Dispositivo IoT"
                            >
@@ -879,7 +879,7 @@
                           } @else {
                              <button 
                                 class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg transition-colors"
-                                (click)="closeUserInfoModal(); openAssignDeviceModal(selectedUserInfo)"
+                                (click)="$event.stopPropagation(); selectedUserInfo && openAssignDeviceModalV2(selectedUserInfo); closeUserInfoModal()"
                              >
                                 Asignar
                              </button>

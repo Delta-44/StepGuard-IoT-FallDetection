@@ -112,7 +112,8 @@ export class UserService {
   }
 
   assignDevice(userId: number, deviceMac: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/${userId}/device`, { deviceId: deviceMac });
+    console.log(`[UserService] Assigning device ${deviceMac} to user ${userId}`);
+    return this.http.post(`${this.apiUrl}/users/${userId}/device`, { macAddress: deviceMac });
   }
 
   exportUsersCSV(): Observable<Blob> {
