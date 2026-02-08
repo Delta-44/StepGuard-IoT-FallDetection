@@ -69,6 +69,8 @@ import {
   HeartHandshake,
   IdCard,
   BatteryMedium,
+  FileSpreadsheet,
+  Download,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -141,6 +143,8 @@ const icons = {
   HeartHandshake,
   IdCard,
   BatteryMedium,
+  FileSpreadsheet,
+  Download,
 };
 
 export const appConfig: ApplicationConfig = {

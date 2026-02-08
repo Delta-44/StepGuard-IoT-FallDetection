@@ -104,8 +104,6 @@ export class UserService {
         role: updatedUser.role
       });
     }
-    
-    // Para otras actualizaciones, usar el endpoint normal
     return this.http.put(`${this.apiUrl}/users/${id}`, updatedUser);
   }
 
@@ -113,7 +111,11 @@ export class UserService {
     return this.http.delete(`${this.apiUrl}/users/${id}?role=${role}`);
   }
 
-  assignDevice(userId: number, macAddress: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/users/${userId}/device`, { macAddress });
+  assignDevice(userId: number, deviceMac: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/${userId}/device`, { deviceId: deviceMac });
+  }
+
+  exportUsersCSV(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/users/export/csv`, { responseType: 'blob' });
   }
 }

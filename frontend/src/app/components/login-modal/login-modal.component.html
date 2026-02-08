@@ -41,6 +41,59 @@
   ¿No tienes cuenta? <a (click)="switchToRegister.emit()" style="cursor: pointer;">Regístrate aquí</a>
 </div>
 
+<!-- Modal de Selección de Rol (Google Login) -->
+@if (showRoleSelectionModal) {
+  <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in" (click)="cancelRoleSelection()">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all scale-100 p-8 text-center relative" (click)="$event.stopPropagation()">
+      
+      <!-- Botón Cerrar -->
+      <button (click)="cancelRoleSelection()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="mb-6">
+        <div class="inline-flex p-3 bg-blue-50 rounded-full mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Bienvenido a StepGuard</h2>
+        <p class="text-gray-500 mt-2">Para terminar de configurar tu cuenta, por favor dinos cómo vas a usar la aplicación.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Tarjeta Paciente -->
+        <button (click)="selectRole('user')" class="group relative p-6 bg-white border-2 border-gray-100 rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 text-left">
+          <div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-gray-200 group-hover:border-blue-500 group-hover:bg-blue-500 transition-colors"></div>
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mb-4 group-hover:scale-110 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-gray-900 mb-1">Usuario</h3>
+          <p class="text-xs text-gray-500">Soy una persona mayor y quiero usar el dispositivo.</p>
+        </button>
+
+        <!-- Tarjeta Cuidador -->
+        <button (click)="selectRole('caregiver')" class="group relative p-6 bg-white border-2 border-gray-100 rounded-2xl hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-300 text-left">
+          <div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-gray-200 group-hover:border-emerald-500 group-hover:bg-emerald-500 transition-colors"></div>
+          <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-110 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-gray-900 mb-1">Cuidador</h3>
+          <p class="text-xs text-gray-500">Quiero monitorizar a mis familiares o pacientes.</p>
+        </button>
+      </div>
+
+      <p class="text-xs text-gray-400 mt-6">Podrás cambiar esto más tarde contactando a soporte.</p>
+    </div>
+  </div>
+}
+
 <!-- Modal de Éxito - Recuperación de Contraseña -->
 @if (showSuccessModal) {
   <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] flex items-center justify-center animate-fade-in">

@@ -1,7 +1,21 @@
 <div class="profile-container">
   
+  <!-- Botón Exportar (NIVEL SUPERIOR - VISIBILIDAD GARANTIZADA) -->
+  <div style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; justify-content: flex-end; pointer-events: none;">
+    <button
+      (click)="exportData()"
+      class="pointer-events-auto bg-emerald-500 text-white hover:bg-emerald-600 shadow-xl transform hover:-translate-y-1 transition-all duration-300 py-3 px-6 rounded-full font-bold flex items-center gap-2 border-2 border-white"
+      title="Exportar mis datos"
+      style="box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);"
+    >
+      <i-lucide name="download" [size]="20"></i-lucide>
+      <span>Exportar Datos</span>
+    </button>
+  </div>
+
   <!-- Header con Información del Paciente -->
-  <div class="profile-header">
+  <div class="profile-header" style="position: relative;">
+
     <div class="avatar-section">
       <div class="avatar">
         {{ currentUser()?.fullName?.charAt(0) || 'P' }}
