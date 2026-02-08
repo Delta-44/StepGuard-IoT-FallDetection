@@ -212,7 +212,7 @@ export class ApiService {
       if (telemetry) {
         return {
           mac_address: macAddress,
-          nombre: `ESP32-${macAddress.slice(-4)}`, // Nombre fallback
+          nombre: telemetry.name || `ESP32-${macAddress.slice(-4)}`,
           estado: telemetry.status !== undefined ? telemetry.status : false,
           total_impactos: telemetry.impact_count || 0,
           ultima_magnitud: telemetry.impact_magnitude || 0,
@@ -220,7 +220,7 @@ export class ApiService {
           ultima_conexion: telemetry.timestamp ? new Date(telemetry.timestamp) : new Date(),
           esp32Data: {
             macAddress: macAddress,
-            name: `ESP32-${macAddress.slice(-4)}`,
+            name: telemetry.name || `ESP32-${macAddress.slice(-4)}`,
             impact_count: telemetry.impact_count || 0,
             impact_magnitude: telemetry.impact_magnitude || 0,
             timestamp: telemetry.timestamp ? new Date(telemetry.timestamp) : new Date(),
@@ -230,13 +230,20 @@ export class ApiService {
           },
         };
       }
-    } catch (error) {
-      // Silent fail to fallback
+    } catch (error: any) {
+      console.warn(`📡 Telemetry not found for ${macAddress}, falling back to registry...`);
     }
 
-    // 2. Fallback a mocks si no se encuentra (para demo)
-    const mock = this.mockDevices.find((d) => d.mac_address === macAddress);
-    return mock || null;
+    // 2. Fallback: Buscar en la lista general de dispositivos si no hay telemetría (dispositivos nuevos)
+    try {
+      const allDevices = await firstValueFrom(this.getDevices());
+      const device = allDevices.find(d => d.mac_address === macAddress);
+      if (device) return device;
+    } catch (e) {
+      console.error('❌ Error fetching devices list as fallback:', e);
+    }
+
+    return null;
   }
 
   // 🆕 Obtener usuario por ID desde el backend
@@ -245,6 +252,7 @@ export class ApiService {
       const response = await firstValueFrom(
         this.http.get<any>(`${this.apiUrl}/users/${userId}`)
       );
+      console.log('📦 getUserById RAW response:', response);
 
       // Mapear la respuesta del backend al formato esperado por el frontend
       return {

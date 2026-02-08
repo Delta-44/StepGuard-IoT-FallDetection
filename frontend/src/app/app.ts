@@ -39,8 +39,17 @@ export class AppComponent implements OnInit, OnDestroy {
   private miniAlertTimeout: any;
 
   public showNavbar = signal<boolean>(true);
+  public isMobileMenuOpen = signal<boolean>(false); // 👈 Estado del menú móvil
   private alertSub: Subscription | null = null;
   private routerSub: Subscription | null = null;
+
+  toggleMenu() {
+    this.isMobileMenuOpen.update(value => !value);
+  }
+
+  closeMenu() {
+    this.isMobileMenuOpen.set(false);
+  }
 
   ngOnInit() {
     // Suscripción a navegación
@@ -49,6 +58,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((event: any) => {
         const isLanding = event.url === '/';
         this.showNavbar.set(!isLanding);
+        this.closeMenu(); // 👈 Cerrar menú al navegar
 
         // Limpiar alertas cuando estás en landing
         if (isLanding) {

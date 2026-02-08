@@ -72,6 +72,7 @@ export class UsersComponent implements OnInit {
   });
 
   ngOnInit() {
+    console.log('UsersComponent initialized - Debugging Device Assignment Fix v2');
     this.loadUsers();
   }
 
@@ -144,6 +145,90 @@ export class UsersComponent implements OnInit {
         );
       },
     });
+  }
+
+  exportUsers() {
+    // 🟢 EXPORTACIÓN CLIENT-SIDE (Lo que ves es lo que exportas)
+    // Esto evita problemas con el backend devolviendo archivos vacíos para ciertos roles.
+    
+    if (this.filteredUsers.length === 0) {
+      this.notificationService.warning('Aviso', 'No hay usuarios para exportar en la vista actual.');
+      return;
+    }
+
+    const headers = ['ID', 'Nombre', 'Email', 'Usuario', 'Rol', 'Estado', 'Teléfono', 'Dirección', 'Fecha Nacimiento', 'Dispositivo MAC', 'Último Login'];
+    
+    const safe = (val: any) => `"${(val || '').toString().replace(/"/g, '""')}"`;
+
+    const csvRows = this.filteredUsers.map(user => [
+      safe(user.id),
+      safe(user.fullName),
+      safe(user.email),
+      safe(user.username),
+      safe(user.role === 'user' ? 'Paciente' : user.role === 'caregiver' ? 'Cuidador' : 'Admin'),
+      safe(user.status === 'active' ? 'Activo' : 'Inactivo'),
+      safe(user.telefono),
+      safe(user.direccion),
+      safe(user.fecha_nacimiento ? new Date(user.fecha_nacimiento).toLocaleDateString() : ''),
+      safe(user.dispositivo_mac),
+      safe(user.lastLogin ? new Date(user.lastLogin).toLocaleString() : '')
+    ].join(','));
+
+    const csvContent = [headers.join(','), ...csvRows].join('\n');
+    
+    // Crear Blob y descargar
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `usuarios_export_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.notificationService.success('Éxito', `${this.filteredUsers.length} usuarios exportados correctamente.`);
+  }
+
+  exportSingleUserCSV() {
+    if (!this.selectedUserInfo) return;
+
+    const user = this.selectedUserInfo;
+    // Definir cabeceras y datos
+    const headers = ['ID', 'Nombre', 'Email', 'Usuario', 'Rol', 'Estado', 'Teléfono', 'Dirección', 'Fecha Nacimiento', 'Dispositivo MAC', 'Fecha Creación'];
+    
+    // Función auxiliar para escapar comillas y manejar nulos
+    const safe = (val: any) => `"${(val || '').toString().replace(/"/g, '""')}"`;
+
+    const row = [
+      safe(user.id),
+      safe(user.fullName),
+      safe(user.email),
+      safe(user.username),
+      safe(user.role),
+      safe(user.status),
+      safe(user.telefono),
+      safe(user.direccion),
+      safe(user.fecha_nacimiento),
+      safe(user.dispositivo_mac),
+      safe(user.created_at)
+    ];
+
+    const csvContent = [
+      headers.join(','),
+      row.join(',')
+    ].join('\n');
+
+    // Crear Blob y descargar
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `paciente_${user.username}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.notificationService.success('Éxito', `Datos de ${user.fullName} exportados.`);
   }
 
   deleteUser(user: User) {
@@ -258,8 +343,16 @@ export class UsersComponent implements OnInit {
   }
 
   // --- MODAL ASIGNAR DISPOSITIVO (NUEVO) 🆕 ---
-  openAssignDeviceModal(user: User) {
-    if (user.role !== 'user') return;
+  openAssignDeviceModalV2(user: User | null) {
+    console.log('openAssignDeviceModalV2 called with:', user);
+    if (!user) {
+      console.error('openAssignDeviceModalV2 called with null user - Aborting');
+      return;
+    }
+    if (user.role !== 'user') {
+      console.warn('User is not a patient:', user.role);
+      return;
+    }
     this.selectedUser = { ...user };
     this.selectedDeviceMac = '';
     this.isAssignDeviceModalOpen = true;
@@ -301,8 +394,11 @@ export class UsersComponent implements OnInit {
     this.userService.assignDevice(Number(this.selectedUser.id), this.selectedDeviceMac).subscribe({
       next: (res) => {
         this.notificationService.success('Éxito', `Dispositivo asignado a ${this.selectedUser.fullName}`);
-        this.closeAssignDeviceModal();
-        this.userService.refreshUsers(); // Recargar lista para ver cambios (si mostramos icono)
+        // Defer UI updates to next tick to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.closeAssignDeviceModal();
+          this.userService.refreshUsers(); 
+        }, 0);
       },
       error: (err) => {
         console.error('Error asignando dispositivo:', err);

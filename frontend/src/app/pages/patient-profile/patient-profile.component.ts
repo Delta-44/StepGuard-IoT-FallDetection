@@ -8,6 +8,8 @@ import { Alert } from '../../models/alert.model';
 import { User } from '../../models/user.model';
 import { Device } from '../../models/device';
 import { Router } from '@angular/router';
+import { UserService } from '../../services/user.service'; // 🆕
+import { NotificationService } from '../../services/notification.service'; // 🆕
 
 @Component({
   selector: 'app-patient-profile',
@@ -20,6 +22,8 @@ export class PatientProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private apiService = inject(ApiService);
   private alertService = inject(AlertService);
+  private userService = inject(UserService); // 🆕
+  private notificationService = inject(NotificationService); // 🆕
   private router = inject(Router);
 
   public currentUser = signal<User | null>(null);
@@ -60,6 +64,7 @@ export class PatientProfileComponent implements OnInit {
 
       // Cargar información completa del paciente
       const patientData = await this.apiService.getUserById(String(userId));
+      console.log('👤 Patient Data loaded:', patientData);
       this.currentUser.set(patientData);
 
       // Cargar dispositivo asignado
@@ -241,5 +246,25 @@ export class PatientProfileComponent implements OnInit {
     }
 
     return calendar;
+  }
+
+  exportData() {
+    this.userService.exportUsersCSV().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `mis_datos_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.notificationService.success('Éxito', 'Tus datos han sido descargados correctamente');
+      },
+      error: (err) => {
+        console.error('Error exportando datos:', err);
+        this.notificationService.error('Error', 'No se pudo descargar el archivo');
+      }
+    });
   }
 }

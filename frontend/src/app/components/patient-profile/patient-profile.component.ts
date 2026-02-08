@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { AlertService } from '../../services/alert.service';
+import { UserService } from '../../services/user.service';
+import { NotificationService } from '../../services/notification.service';
 import { Alert } from '../../models/alert.model';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -15,6 +17,8 @@ import { LucideAngularModule } from 'lucide-angular';
 export class PatientProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private alertService = inject(AlertService);
+  private userService = inject(UserService);
+  private notificationService = inject(NotificationService);
 
   public currentUser = this.authService.currentUser;
   public myAlerts = signal<Alert[]>([]);
@@ -119,5 +123,25 @@ export class PatientProfileComponent implements OnInit {
         ),
       }))
       .sort((a, b) => b.year - a.year);
+  }
+
+  exportData() {
+    this.userService.exportUsersCSV().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `mis_datos_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.notificationService.success('Éxito', 'Tus datos han sido descargados correctamente');
+      },
+      error: (err) => {
+        console.error('Error exportando datos:', err);
+        this.notificationService.error('Error', 'No se pudo descargar el archivo');
+      }
+    });
   }
 }
