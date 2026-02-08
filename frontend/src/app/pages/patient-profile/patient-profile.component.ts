@@ -64,6 +64,7 @@ export class PatientProfileComponent implements OnInit {
 
       // Cargar información completa del paciente
       const patientData = await this.apiService.getUserById(String(userId));
+      console.log('👤 Patient Data loaded:', patientData);
       this.currentUser.set(patientData);
 
       // Cargar dispositivo asignado

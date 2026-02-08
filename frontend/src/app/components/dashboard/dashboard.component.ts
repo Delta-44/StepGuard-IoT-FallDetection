@@ -14,6 +14,8 @@ import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
 import { Subscription } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
+import { ApiService } from '../../services/api.service'; // 🆕
+import { Device } from '../../models/device'; // 🆕
 
 @Component({
   selector: 'app-dashboard',
@@ -27,11 +29,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private alertService = inject(AlertService);
   public authService = inject(AuthService);
   private userService = inject(UserService);
+  private apiService = inject(ApiService); // 🆕
   private cdr = inject(ChangeDetectorRef);
 
   // Guardamos la suscripción para limpiarla al salir
   private alertSub: Subscription | null = null;
   private userSub: Subscription | null = null;
+  private deviceSub: Subscription | null = null; // 🆕
 
   today = new Date();
   // Inicializar con 0 hasta obtener datos reales
@@ -63,18 +67,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     const user = this.authService.currentUser();
 
-    // 🆕 Suscripción a usuarios para obtener datos reales
+    // 🆕 Suscripción a usuarios para obtener datos reales de pacientes
     this.userSub = this.userService.getAllUsers().subscribe((users) => {
       const patients = users.filter((u) => u.role === 'user');
 
       if (user?.role === 'user') {
         // Pacientes solo ven sus propios datos
         this.stats.activePatients = 1;
-        this.stats.onlineDevices = 1; // Hardcodeado hasta implementar funcionalidad
       } else {
         // Admins y cuidadores ven todos los datos
         this.stats.activePatients = patients.length;
-        this.stats.onlineDevices = 10; // Hardcodeado hasta implementar funcionalidad
+      }
+      this.cdr.markForCheck();
+    });
+
+    // 🆕 Suscripción a dispositivos para obtener el número real
+    this.deviceSub = this.apiService.getDevices().subscribe((devices: Device[]) => {
+      if (user?.role === 'user') {
+        // Un paciente solo cuenta su propio dispositivo si lo tiene
+        this.stats.onlineDevices = user.dispositivo_mac ? 1 : 0;
+      } else {
+        // Admin y cuidadores ven el total de dispositivos registrados
+        this.stats.onlineDevices = devices.length;
       }
       this.cdr.markForCheck();
     });
@@ -135,6 +149,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // Evitar fugas de memoria
     if (this.alertSub) this.alertSub.unsubscribe();
     if (this.userSub) this.userSub.unsubscribe();
+    if (this.deviceSub) this.deviceSub.unsubscribe(); // 🆕
   }
 
   // --- FUNCIONES DEL MODAL (Igual que antes) ---

@@ -71,6 +71,7 @@ import {
   BatteryMedium,
   FileSpreadsheet,
   Download,
+  Menu,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -145,6 +146,7 @@ const icons = {
   BatteryMedium,
   FileSpreadsheet,
   Download,
+  Menu,
 };
 
 export const appConfig: ApplicationConfig = {
