@@ -15,7 +15,8 @@
     "db:diagnose": "ts-node src/diagnose-connection.ts",
     "db:seed": "ts-node src/seed-db.ts",
     "redis:seed": "ts-node src/seed-redis.ts",
-    "redis:view": "ts-node src/view-redis.ts"
+    "redis:view": "ts-node src/view-redis.ts",
+    "grafana:check": "node scripts/check-grafana.js"
   },
   "keywords": [],
   "author": "",

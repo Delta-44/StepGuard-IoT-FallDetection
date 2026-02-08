@@ -84,6 +84,46 @@ services:
     networks:
       - stepguard-network
 
+  # ================================================
+  # Grafana - Visualización y Monitoreo
+  # ================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: stepguard-grafana
+    restart: unless-stopped
+    environment:
+      # Configuración básica
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      
+      # Configuración de zona horaria
+      - GF_DEFAULT_TIMEZONE=Europe/Madrid
+      
+      # Habilitar modo de desarrollo (opcional)
+      - GF_LOG_LEVEL=info
+      
+      # Configuración de plugins
+      - GF_INSTALL_PLUGINS=
+    ports:
+      - "3000:3000"
+    volumes:
+      # Persistencia de datos de Grafana
+      - grafana_data:/var/lib/grafana
+      
+      # Provisioning - Configuración automática de datasources y dashboards
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      
+      # Dashboards predefinidos
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - stepguard-network
+
 # ================================================
 # Volúmenes para persistencia de datos
 # ================================================
@@ -93,6 +133,8 @@ volumes:
   redis_data:
     driver: local
   pgadmin_data:
+    driver: local
+  grafana_data:
     driver: local
 
 # ================================================

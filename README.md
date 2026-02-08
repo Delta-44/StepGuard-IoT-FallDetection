@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/Angular-Frontend-3d6a8c?style=for-the-badge&logo=angular&logoColor=white"/>
   <img src="https://img.shields.io/badge/PostgreSQL-Database-1a4d7a?style=for-the-badge&logo=postgresql&logoColor=white"/>
   <img src="https://img.shields.io/badge/Redis-Cache-ff8c42?style=for-the-badge&logo=redis&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Grafana-Monitoring-F46800?style=for-the-badge&logo=grafana&logoColor=white"/>
 </p>
 
 <p>
@@ -285,6 +286,29 @@ npm run dev
 npm install
 ng serve
 ```
+
+</td>
+</tr>
+<tr>
+<td colspan="3" align="center">
+
+### **📊 Grafana - Monitoreo y Visualización**
+
+**Dashboard Integrado de Análisis**
+
+Grafana está integrado para proporcionar visualización en tiempo real de:
+- 📈 Eventos de caídas y patrones
+- 🔌 Estado de dispositivos ESP32
+- 📧 Notificaciones y alertas
+- 👥 Análisis de usuarios y cuidadores
+
+**Inicio rápido:**
+1. Levantar servicios: `cd backend && docker-compose up -d`
+2. Acceder a: http://localhost:3000
+3. Login: `admin` / `admin123`
+4. Ver 4 dashboards preconfigurados
+
+📖 **Documentación completa:** [GRAFANA.md](./GRAFANA.md)
 
 </td>
 </tr>

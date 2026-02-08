@@ -1,0 +1,20 @@
+# ================================================
+# StepGuard - Configuración de Dashboards
+# ================================================
+# Este archivo indica a Grafana dónde encontrar los dashboards
+# para cargarlos automáticamente durante el inicio
+
+apiVersion: 1
+
+providers:
+  # Provider para dashboards de StepGuard
+  - name: 'StepGuard Dashboards'
+    orgId: 1
+    folder: 'StepGuard'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true

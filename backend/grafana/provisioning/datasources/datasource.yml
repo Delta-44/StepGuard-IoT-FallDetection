@@ -1,0 +1,37 @@
+# ================================================
+# StepGuard - Configuración de Datasource PostgreSQL
+# ================================================
+# Este archivo configura automáticamente la conexión a PostgreSQL
+# durante el inicio de Grafana (provisioning automático)
+
+apiVersion: 1
+
+datasources:
+  - name: StepGuard PostgreSQL
+    type: postgres
+    access: proxy
+    
+    # Configuración de conexión a PostgreSQL en Docker
+    url: postgres:5432
+    database: stepguard
+    user: postgres
+    
+    # Configuración segura de password
+    secureJsonData:
+      password: postgres
+    
+    # Configuración adicional
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1600  # PostgreSQL 16
+      timescaledb: false
+      maxOpenConns: 10
+      maxIdleConns: 10
+      connMaxLifetime: 14400
+    
+    # Opciones de datasource
+    isDefault: true
+    editable: true
+    
+    # Versión del datasource
+    version: 1
