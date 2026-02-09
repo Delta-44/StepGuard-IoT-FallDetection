@@ -174,12 +174,12 @@ export class ESP32Service {
         setInterval(async () => {
             // console.log('[DEBUG] Heartbeat Monitor Tick'); // Verbose
             try {
-                const threshold = Date.now() - 17000; // 17 seconds ago
+                const threshold = Date.now() - 3000; // 3 seconds ago
                 const expiredDevices = await ESP32Cache.getExpiredHeartbeats(threshold);
                 // console.log(`[DEBUG] Check expired < ${threshold}. Found: ${expiredDevices.length}`);
 
                 if (expiredDevices.length > 0) {
-                    console.log(`Found ${expiredDevices.length} expired devices (No heartbeat > 17s). Marking offline...`);
+                    console.log(`Found ${expiredDevices.length} expired devices (No heartbeat > 3s). Marking offline...`);
 
                     for (const mac of expiredDevices) {
                         try {
@@ -197,6 +197,6 @@ export class ESP32Service {
             } catch (error) {
                 console.error('Heartbeat Monitor Error:', error);
             }
-        }, 5000); // Check every 5 seconds
+        }, 1000); // Check every 1 seconds
     }
 }
