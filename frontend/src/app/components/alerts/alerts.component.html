@@ -154,10 +154,10 @@
       </p>
     </div>
   } @else {
-    <div class="space-y-4 animate-fade-in">
+    <div class="space-y-3 md:space-y-4 animate-fade-in">
       @for (alert of paginatedAlerts; track alert.id) {
         <div
-          class="bg-white rounded-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1"
+          class="bg-white rounded-xl md:rounded-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1 shadow-sm"
           [ngClass]="{
             'ring-2 ring-emergency animate-pulse-emergency':
               alert.severity === 'critical' && alert.status === 'pendiente',
@@ -167,7 +167,7 @@
         >
           <!-- Indicador superior de severidad -->
           <div
-            class="h-2"
+            class="h-1.5 md:h-2"
             [ngClass]="{
               'bg-gradient-to-r from-emergency via-red-600 to-emergency':
                 alert.severity === 'critical',
@@ -177,12 +177,12 @@
             }"
           ></div>
 
-          <div class="p-6">
+          <div class="p-3 sm:p-4 md:p-6">
             <!-- Header de la alerta -->
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex items-center gap-4 flex-1">
+            <div class="flex flex-col sm:flex-row items-start justify-between gap-3 mb-3 md:mb-4">
+              <div class="flex items-start gap-2 sm:gap-3 md:gap-4 flex-1 w-full sm:w-auto">
                 <div
-                  class="p-3 rounded-xl"
+                  class="p-2 sm:p-2.5 md:p-3 rounded-lg md:rounded-xl flex-shrink-0"
                   [ngClass]="{
                     'bg-emergency/10': alert.severity === 'critical',
                     'bg-red-500/10': alert.severity === 'high',
@@ -200,7 +200,46 @@
                             ? 'bell'
                             : 'info'
                     "
+                    [size]="20"
+                    class="sm:hidden"
+                    [ngClass]="{
+                      'text-emergency': alert.severity === 'critical',
+                      'text-red-500': alert.severity === 'high',
+                      'text-preventive': alert.severity === 'medium',
+                      'text-primary': alert.severity === 'low',
+                    }"
+                  ></i-lucide>
+                  <i-lucide
+                    [name]="
+                      alert.severity === 'critical'
+                        ? 'alert-triangle'
+                        : alert.severity === 'high'
+                          ? 'alert-circle'
+                          : alert.severity === 'medium'
+                            ? 'bell'
+                            : 'info'
+                    "
+                    [size]="24"
+                    class="hidden sm:block md:hidden"
+                    [ngClass]="{
+                      'text-emergency': alert.severity === 'critical',
+                      'text-red-500': alert.severity === 'high',
+                      'text-preventive': alert.severity === 'medium',
+                      'text-primary': alert.severity === 'low',
+                    }"
+                  ></i-lucide>
+                  <i-lucide
+                    [name]="
+                      alert.severity === 'critical'
+                        ? 'alert-triangle'
+                        : alert.severity === 'high'
+                          ? 'alert-circle'
+                          : alert.severity === 'medium'
+                            ? 'bell'
+                            : 'info'
+                    "
                     [size]="28"
+                    class="hidden md:block"
                     [ngClass]="{
                       'text-emergency': alert.severity === 'critical',
                       'text-red-500': alert.severity === 'high',
@@ -210,10 +249,10 @@
                   ></i-lucide>
                 </div>
 
-                <div class="flex-1">
-                  <div class="flex items-center gap-3 mb-2">
+                <div class="flex-1 min-w-0">
+                  <div class="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
                     <span
-                      class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider"
+                      class="inline-flex items-center gap-1 px-2 sm:px-3 md:px-4 py-1 md:py-1.5 rounded-lg md:rounded-xl text-[10px] sm:text-xs font-semibold uppercase tracking-wide whitespace-nowrap"
                       [ngClass]="{
                         'bg-emergency/20 text-emergency border border-emergency/30':
                           alert.severity === 'critical',
@@ -228,19 +267,20 @@
                       {{ alert.severity }}
                     </span>
 
-                    <span class="text-sm text-gray-500 flex items-center gap-1.5">
-                      <i-lucide name="clock" [size]="14"></i-lucide>
-                      {{ alert.timestamp | date: 'dd/MM/yyyy HH:mm' }}
+                    <span class="text-[11px] sm:text-xs md:text-sm text-gray-500 flex items-center gap-1">
+                      <i-lucide name="clock" [size]="12" class="sm:hidden flex-shrink-0"></i-lucide>
+                      <i-lucide name="clock" [size]="14" class="hidden sm:block flex-shrink-0"></i-lucide>
+                      <span class="truncate">{{ alert.timestamp | date: 'dd/MM/yyyy HH:mm' }}</span>
                     </span>
                   </div>
-                  <p class="text-gray-800 font-semibold text-lg">{{ alert.message }}</p>
+                  <p class="text-gray-800 font-semibold text-sm sm:text-base md:text-lg break-words">{{ alert.message }}</p>
                 </div>
               </div>
 
               <!-- Badges de estado y acciones -->
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 w-full sm:w-auto sm:flex-shrink-0">
                 <span
-                  class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold"
+                  class="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap"
                   [ngClass]="{
                     'bg-operational text-white': alert.status === 'atendida',
                     'bg-transparent0 text-white':
@@ -273,38 +313,41 @@
             </div>
 
             <!-- Información adicional -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <div class="flex items-center gap-3 p-3 bg-transparent rounded-xl">
-                <i-lucide name="map-pin" [size]="18" class="text-primary"></i-lucide>
-                <div>
-                  <div class="text-xs text-gray-500 font-medium">Ubicación</div>
-                  <div class="text-sm font-semibold text-gray-800">{{ alert.location }}</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4 mt-3 md:mt-4">
+              <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 md:p-3 bg-transparent rounded-lg md:rounded-xl">
+                <i-lucide name="map-pin" [size]="16" class="text-primary sm:hidden flex-shrink-0"></i-lucide>
+                <i-lucide name="map-pin" [size]="18" class="text-primary hidden sm:block flex-shrink-0"></i-lucide>
+                <div class="min-w-0 flex-1">
+                  <div class="text-[10px] sm:text-xs text-gray-500 font-medium">Ubicación</div>
+                  <div class="text-xs sm:text-sm font-semibold text-gray-800 truncate">{{ alert.location }}</div>
                 </div>
               </div>
 
-              <div class="flex items-center gap-3 p-3 bg-transparent rounded-xl">
-                <i-lucide name="radio" [size]="18" class="text-gray-600"></i-lucide>
-                <div>
-                  <div class="text-xs text-gray-500 font-medium">Dispositivo</div>
-                  <div class="text-sm font-semibold text-gray-800">MAC: {{ alert.macAddress }}</div>
+              <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 md:p-3 bg-transparent rounded-lg md:rounded-xl">
+                <i-lucide name="radio" [size]="16" class="text-gray-600 sm:hidden flex-shrink-0"></i-lucide>
+                <i-lucide name="radio" [size]="18" class="text-gray-600 hidden sm:block flex-shrink-0"></i-lucide>
+                <div class="min-w-0 flex-1">
+                  <div class="text-[10px] sm:text-xs text-gray-500 font-medium">Dispositivo</div>
+                  <div class="text-xs sm:text-sm font-semibold text-gray-800 truncate">MAC: {{ alert.macAddress }}</div>
                 </div>
               </div>
 
               @if (alert.attendedBy && alert.status !== 'pendiente') {
                 <div
-                  class="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-200"
+                  class="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 md:p-3 bg-green-50 rounded-lg md:rounded-xl border border-green-200"
                 >
-                  <i-lucide name="user-circle" [size]="18" class="text-green-600"></i-lucide>
-                  <div>
-                    <div class="text-xs text-gray-500 font-medium">Atendida por</div>
-                    <div class="text-sm font-semibold text-gray-800">{{ alert.attendedBy }}</div>
+                  <i-lucide name="user-circle" [size]="16" class="text-green-600 sm:hidden flex-shrink-0"></i-lucide>
+                  <i-lucide name="user-circle" [size]="18" class="text-green-600 hidden sm:block flex-shrink-0"></i-lucide>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-[10px] sm:text-xs text-gray-500 font-medium">Atendida por</div>
+                    <div class="text-xs sm:text-sm font-semibold text-gray-800 truncate">{{ alert.attendedBy }}</div>
                   </div>
                 </div>
               }
 
               @if (alert.resolutionNotes) {
                 <button
-                  class="flex items-center justify-center gap-2 p-3 bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors border border-primary/20 hover:border-primary/40"
+                  class="flex items-center justify-center gap-2 p-2 sm:p-2.5 md:p-3 bg-primary/10 hover:bg-primary/20 rounded-lg md:rounded-xl transition-colors border border-primary/20 hover:border-primary/40"
                   (click)="toggleNotes(alert.id)"
                 >
                   <i-lucide
