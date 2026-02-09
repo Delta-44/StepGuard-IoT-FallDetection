@@ -1,5 +1,5 @@
-import { query } from './config/database';
-import pool from './config/database';
+import { query } from '../config/database';
+import pool from '../config/database';
 
 async function updateSchema() {
   console.log('Running schema update...');

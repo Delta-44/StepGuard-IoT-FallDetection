@@ -1,4 +1,4 @@
-import { query } from './config/database';
+import { query } from '../config/database';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 
