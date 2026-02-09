@@ -161,8 +161,8 @@
     <router-outlet></router-outlet>
   </div>
 
-  @if (currentUser() && showNavbar()) {
-    <button class="fab-analytics" routerLink="/analytics">
+  @if (currentUser() && showNavbar() && canViewAnalytics()) {
+    <button class="fab-analytics" (click)="openGrafanaDashboard()">
       <i-lucide name="layout-dashboard" [size]="18"></i-lucide>
       <span>Analítica</span>
     </button>

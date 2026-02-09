@@ -30,6 +30,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public currentUser = this.authService.currentUser;
   public isAdmin = computed(() => this.currentUser()?.role === 'admin');
+  public canViewAnalytics = computed(() => {
+    const role = this.currentUser()?.role;
+    return role === 'admin' || role === 'caregiver';
+  });
 
   // Alerta Roja (Crítica)
   public criticalAlert = signal<Alert | null>(null);
@@ -126,6 +130,17 @@ export class AppComponent implements OnInit, OnDestroy {
       this.miniAlert.set(null);
       this.router.navigate(['/dashboard']);
     }
+  }
+
+  // Abrir Grafana Dashboard en nueva pestaña
+  openGrafanaDashboard() {
+    const snapshotUrl = 'https://delta44.grafana.net/dashboard/snapshot/GmA9TpUGTdSe1JVDUNpZ2efyuVLgGvb8';
+    const params = new URLSearchParams();
+    params.set('theme', 'dark');
+    params.set('from', 'now-7d');
+    params.set('to', 'now');
+    const fullUrl = `${snapshotUrl}?${params.toString()}`;
+    window.open(fullUrl, '_blank', 'noopener,noreferrer');
   }
 
   logout() {

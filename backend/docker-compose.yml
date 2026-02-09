@@ -84,32 +84,6 @@ services:
     networks:
       - stepguard-network
 
-  # ================================================
-  # Grafana - Observabilidad (conecta a Postgres Neon)
-  # ================================================
-  grafana:
-    image: grafana/grafana:11.2.2
-    container_name: stepguard-grafana
-    restart: unless-stopped
-    ports:
-      - "3001:3001"
-    environment:
-      GF_SERVER_HTTP_PORT: 3001
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin123}
-      GF_SECURITY_ALLOW_EMBEDDING: "true"
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
-      GF_INSTALL_PLUGINS: grafana-piechart-panel
-    env_file:
-      - .env
-    volumes:
-      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
-      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - grafana_data:/var/lib/grafana
-    networks:
-      - stepguard-network
-
 # ================================================
 # Volúmenes para persistencia de datos
 # ================================================
@@ -119,8 +93,6 @@ volumes:
   redis_data:
     driver: local
   pgadmin_data:
-    driver: local
-  grafana_data:
     driver: local
 
 # ================================================

@@ -11,7 +11,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "neon_postgres"
+        "uid": "afcpkxn6ownpca"
       },
       "fieldConfig": {
         "defaults": {
@@ -64,7 +64,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "neon_postgres"
+            "uid": "afcpkxn6ownpca"
           },
           "editorMode": "code",
           "format": "table",
@@ -79,7 +79,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "neon_postgres"
+        "uid": "afcpkxn6ownpca"
       },
       "fieldConfig": {
         "defaults": {
@@ -128,7 +128,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "neon_postgres"
+            "uid": "afcpkxn6ownpca"
           },
           "editorMode": "code",
           "format": "table",
@@ -143,7 +143,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "neon_postgres"
+        "uid": "afcpkxn6ownpca"
       },
       "fieldConfig": {
         "defaults": {
@@ -192,7 +192,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "neon_postgres"
+            "uid": "afcpkxn6ownpca"
           },
           "editorMode": "code",
           "format": "table",
@@ -207,7 +207,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "neon_postgres"
+        "uid": "afcpkxn6ownpca"
       },
       "fieldConfig": {
         "defaults": {
@@ -256,7 +256,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "neon_postgres"
+            "uid": "afcpkxn6ownpca"
           },
           "editorMode": "code",
           "format": "table",
@@ -271,7 +271,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "neon_postgres"
+        "uid": "afcpkxn6ownpca"
       },
       "fieldConfig": {
         "defaults": {
@@ -354,7 +354,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "neon_postgres"
+            "uid": "afcpkxn6ownpca"
           },
           "editorMode": "code",
           "format": "time_series",
@@ -369,7 +369,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "neon_postgres"
+        "uid": "afcpkxn6ownpca"
       },
       "fieldConfig": {
         "defaults": {
@@ -464,7 +464,7 @@
                       "atendida": {
                         "color": "green",
                         "index": 1,
-                        "text": "✓ Atendida"
+                        "text": "✅ Atendida"
                       },
                       "falsa_alarma": {
                         "color": "blue",
@@ -474,7 +474,7 @@
                       "ignorada": {
                         "color": "dark-gray",
                         "index": 3,
-                        "text": "✗ Ignorada"
+                        "text": "❌ Ignorada"
                       }
                     },
                     "type": "value"
@@ -549,7 +549,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "neon_postgres"
+            "uid": "afcpkxn6ownpca"
           },
           "editorMode": "code",
           "format": "table",
@@ -564,7 +564,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "neon_postgres"
+        "uid": "afcpkxn6ownpca"
       },
       "fieldConfig": {
         "defaults": {
@@ -638,7 +638,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "neon_postgres"
+            "uid": "afcpkxn6ownpca"
           },
           "editorMode": "code",
           "format": "table",
@@ -653,7 +653,7 @@
     {
       "datasource": {
         "type": "postgres",
-        "uid": "neon_postgres"
+        "uid": "afcpkxn6ownpca"
       },
       "fieldConfig": {
         "defaults": {
@@ -699,12 +699,12 @@
                       "true": {
                         "color": "green",
                         "index": 0,
-                        "text": "✓ Activo"
+                        "text": "✅ Activo"
                       },
                       "false": {
                         "color": "red",
                         "index": 1,
-                        "text": "✗ Inactivo"
+                        "text": "❌ Inactivo"
                       }
                     },
                     "type": "value"
@@ -739,7 +739,7 @@
         {
           "datasource": {
             "type": "postgres",
-            "uid": "neon_postgres"
+            "uid": "afcpkxn6ownpca"
           },
           "editorMode": "code",
           "format": "table",
@@ -845,3 +845,4 @@
   "version": 1,
   "weekStart": ""
 }
+
