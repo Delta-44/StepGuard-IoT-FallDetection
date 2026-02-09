@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { CuidadorModel } from './models/cuidador';
-import pool from './config/database';
+import { CuidadorModel } from '../models/cuidador';
+import pool from '../config/database';
 
 const nombres = [
   'Ana García', 'Carlos Rodríguez', 'María López', 'Juan Martínez', 'Laura Sánchez',

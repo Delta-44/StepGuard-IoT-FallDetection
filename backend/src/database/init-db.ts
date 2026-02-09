@@ -1,4 +1,4 @@
-import pool, { query } from './config/database';
+import pool, { query } from '../config/database';
 import * as fs from 'fs';
 import * as path from 'path';
 import dotenv from 'dotenv';

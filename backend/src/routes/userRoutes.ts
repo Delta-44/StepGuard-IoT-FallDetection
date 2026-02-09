@@ -6,10 +6,12 @@ import {
   updateUserByAdmin,
   deleteUser,
   assignDevice,
-  exportUsersCSV
+  exportUsersCSV,
+  uploadProfilePhoto
 } from "../controllers/userController";
 import authMiddleware from "../middleware/auth";
 import adminAuthMiddleware from "../middleware/adminAuth";
+import upload from "../middleware/upload";
 
 const router = Router();
 
@@ -33,5 +35,8 @@ router.delete("/:id", authMiddleware, adminAuthMiddleware, deleteUser);
 
 // Assign device to user (Protected)
 router.post("/:id/device", authMiddleware, assignDevice);
+
+// Upload profile photo
+router.post("/:id/photo", authMiddleware, upload.single('photo'), uploadProfilePhoto);
 
 export default router;
