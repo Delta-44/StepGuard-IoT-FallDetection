@@ -174,6 +174,97 @@ export class AlertsComponent implements OnInit {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
+  // Variables Modal
+  public processingAlert: Alert | null = null;
+  public resolutionNotes: string = '';
+  public selectedSeverity: 'low' | 'medium' | 'high' | 'critical' = 'medium';
+  public isSubmitting = false;
+
+  get canAttend() {
+    const role = this.authService.currentUser()?.role;
+    return role === 'admin' || role === 'caregiver';
+  }
+
+  // --- FUNCIONES DEL MODAL ---
+  openResolutionModal(alert: Alert) {
+    if (!this.canAttend) return;
+    this.processingAlert = alert;
+    this.resolutionNotes = '';
+    this.selectedSeverity = alert.severity as any;
+  }
+
+  cancelResolution() {
+    this.processingAlert = null;
+  }
+
+  submitResolution(type: 'atendida' | 'falsa_alarma') {
+    if (!this.processingAlert) return;
+    this.isSubmitting = true;
+    const currentUser = this.authService.currentUser();
+    const caregiver = currentUser?.fullName || currentUser?.username || 'Desconocido';
+
+    this.alertService
+      .resolveAlert(
+        this.processingAlert.id,
+        this.resolutionNotes,
+        type,
+        caregiver,
+        this.selectedSeverity,
+      )
+      .subscribe(() => {
+        this.isSubmitting = false;
+        
+        // Optimistic Update: Actualizar estado local sin recargar todo
+        const index = this.alerts.findIndex(a => a.id === this.processingAlert?.id);
+        if (index !== -1) {
+            this.alerts[index] = {
+                ...this.alerts[index],
+                status: type,
+                resolutionNotes: this.resolutionNotes,
+                attendedBy: caregiver,
+                attendedAt: new Date(),
+                severity: this.selectedSeverity,
+                resolved: true
+            };
+            // Re-aplicar filtros para actualizar la vista (paginación, orden, etc)
+            this.applyFilters();
+        }
+
+        this.processingAlert = null;
+      });
+  }
+
+  // --- PAGINACIÓN RESPONSIVE ---
+  get visiblePages(): (number | string)[] {
+    const total = this.totalPages;
+    const current = this.currentPage;
+    const delta = 2; // Cantidad de páginas a mostrar a cada lado de la actual
+    const range: number[] = [];
+    const rangeWithDots: (number | string)[] = [];
+    let l: number | undefined;
+
+    for (let i = 1; i <= total; i++) {
+        // Mostrar primera, última, actual y vecinas
+        if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+            range.push(i);
+        }
+    }
+
+    for (const i of range) {
+        if (l) {
+            if (i - l === 2) {
+                rangeWithDots.push(l + 1);
+            } else if (i - l !== 1) {
+                rangeWithDots.push('...');
+            }
+        }
+        rangeWithDots.push(i);
+        l = i;
+    }
+
+    return rangeWithDots;
+  }
+
   // --- CONTADORES ---
   getAlertCountByStatus(status: 'pendiente' | 'atendida'): number {
     return this.alerts.filter((a) => a.status === status).length;

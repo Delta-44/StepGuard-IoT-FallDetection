@@ -39,7 +39,7 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
           placeholder="Buscar alertas..."
-          class="w-full pl-10 md:pl-12 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white text-sm md:text-base"
+          class="w-full pl-12 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white text-sm md:text-base"
         />
       </div>
 
@@ -278,7 +278,7 @@
               </div>
 
               <!-- Badges de estado y acciones -->
-              <div class="flex items-center gap-2 w-full sm:w-auto sm:flex-shrink-0">
+              <div class="flex flex-col sm:flex-row items-end sm:items-center gap-2 w-full sm:w-auto sm:flex-shrink-0">
                 <span
                   class="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap"
                   [ngClass]="{
@@ -309,6 +309,20 @@
                           : 'Pendiente'
                   }}
                 </span>
+
+                @if (canAttend && alert.status === 'pendiente') {
+                  <button 
+                    class="px-4 py-1.5 md:py-2 rounded-lg font-bold text-white text-xs sm:text-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 border-2 whitespace-nowrap"
+                    [ngClass]="{
+                      'bg-red-600 hover:bg-red-700 border-red-700': alert.severity === 'critical' || alert.severity === 'high',
+                      'bg-orange-600 hover:bg-orange-700 border-orange-700': alert.severity === 'medium',
+                      'bg-blue-600 hover:bg-blue-700 border-blue-700': alert.severity === 'low'
+                    }"
+                    (click)="openResolutionModal(alert)"
+                  >
+                    Atender
+                  </button>
+                }
               </div>
             </div>
 
@@ -436,22 +450,27 @@
         </button>
 
         <!-- Números de página -->
-        <div class="flex gap-1">
-          @for (page of pages; track page) {
-            <button
-              (click)="changePage(page)"
-              class="w-10 h-10 rounded-lg font-bold transition-all duration-300"
-              [ngClass]="
-                currentPage === page
-                  ? 'bg-blue-600 text-white shadow-lg scale-110'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              "
-            >
-              {{ page }}
-            </button>
+        <div class="flex gap-1 overflow-x-auto max-w-full pb-1">
+          @for (page of visiblePages; track $index) {
+            @if (page === '...') {
+              <span class="w-10 h-10 flex items-center justify-center text-gray-500 font-bold">...</span>
+            } @else {
+              <button
+                (click)="changePage(+$any(page))"
+                class="w-10 h-10 rounded-lg font-bold transition-all duration-300 flex-shrink-0"
+                [ngClass]="
+                  currentPage === page
+                    ? 'bg-blue-600 text-white shadow-lg scale-110'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                "
+              >
+                {{ page }}
+              </button>
+            }
           }
         </div>
 
+<!-- Modal de Atención con Diseño Profesional -->
         <button
           (click)="nextPage()"
           [disabled]="currentPage === totalPages"
@@ -469,3 +488,142 @@
     </div>
   }
 </div>
+
+<!-- Modal de Atención con Diseño Profesional -->
+@if (processingAlert) {
+  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in p-4">
+    <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden">
+      
+      <!-- Header Minimalista -->
+      <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div 
+            class="w-2 h-2 rounded-full"
+            [ngClass]="{
+              'bg-red-500': processingAlert.severity === 'critical' || processingAlert.severity === 'high',
+              'bg-orange-500': processingAlert.severity === 'medium',
+              'bg-blue-500': processingAlert.severity === 'low'
+            }"
+          ></div>
+          <h2 class="text-sm font-semibold text-slate-700">Procesando Incidencia #{{ processingAlert.id }} - {{ processingAlert.macAddress }}</h2>
+        </div>
+        <button 
+          (click)="cancelResolution()" 
+          class="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <i-lucide name="x" [size]="18"></i-lucide>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 space-y-4">
+        
+        <!-- Info Cards Compactas -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3 sm:col-span-1">
+            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+              <i-lucide name="map-pin" [size]="12"></i-lucide>
+              <span class="text-[9px] font-semibold uppercase tracking-wide">Ubicación</span>
+            </div>
+            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.location }}</p>
+          </div>
+          
+          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3 sm:col-span-1">
+            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+              <i-lucide name="clock" [size]="12"></i-lucide>
+              <span class="text-[9px] font-semibold uppercase tracking-wide">Hora</span>
+            </div>
+            <p class="text-slate-900 font-medium text-xs">{{ processingAlert.timestamp | date:'short' }}</p>
+          </div>
+          
+          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3 sm:col-span-1">
+            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+              <i-lucide name="activity" [size]="12"></i-lucide>
+              <span class="text-[9px] font-semibold uppercase tracking-wide">Tipo</span>
+            </div>
+            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.message }}</p>
+          </div>
+
+          @if (processingAlert.acc_x !== undefined) {
+             <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3">
+              <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+                <i-lucide name="activity-square" [size]="12"></i-lucide>
+                <span class="text-[9px] font-semibold uppercase tracking-wide">Impacto (G-Force)</span>
+              </div>
+              <div class="flex gap-4">
+                 <span class="text-xs font-mono">X: <span class="font-bold">{{ processingAlert.acc_x | number:'1.1-2' }}</span></span>
+                 <span class="text-xs font-mono">Y: <span class="font-bold">{{ processingAlert.acc_y | number:'1.1-2' }}</span></span>
+                 <span class="text-xs font-mono">Z: <span class="font-bold">{{ processingAlert.acc_z | number:'1.1-2' }}</span></span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Selector de Gravedad -->
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
+            <i-lucide name="thermometer" [size]="14"></i-lucide>
+            Nivel de Gravedad
+          </label>
+          <div class="relative">
+            <select 
+              [(ngModel)]="selectedSeverity" 
+              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white appearance-none cursor-pointer"
+            >
+              <option value="low">🟢 Baja</option>
+              <option value="medium">🟡 Media</option>
+              <option value="high">🟠 Alta</option>
+              <option value="critical">🔴 Crítica</option>
+            </select>
+            <i-lucide name="chevron-down" [size]="16" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i-lucide>
+          </div>
+        </div>
+
+        <!-- Notas -->
+        <div>
+          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
+            <i-lucide name="clipboard-list" [size]="14"></i-lucide>
+            Notas de Atención
+          </label>
+          <textarea 
+            [(ngModel)]="resolutionNotes" 
+            placeholder="Describe las acciones realizadas y el estado del paciente..."
+            rows="3"
+            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none text-sm placeholder:text-slate-400"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-2">
+        <button 
+          class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-white transition-colors disabled:opacity-50"
+          (click)="cancelResolution()" 
+          [disabled]="isSubmitting"
+        >
+          Cancelar
+        </button>
+        
+        <button 
+          class="px-3 py-1.5 bg-slate-600 text-white rounded-lg text-xs font-medium hover:bg-slate-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          (click)="submitResolution('falsa_alarma')" 
+          [disabled]="isSubmitting"
+        >
+          <i-lucide name="x-circle" [size]="14"></i-lucide>
+          Falsa Alarma
+        </button>
+        
+        <button 
+          class="px-4 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          (click)="submitResolution('atendida')" 
+          [disabled]="isSubmitting"
+        >
+          <i-lucide name="check" [size]="14"></i-lucide>
+          Atendida
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

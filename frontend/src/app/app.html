@@ -25,12 +25,12 @@
           
           <!-- Logo -->
           <div class="flex-shrink-0">
-            <a routerLink="/" class="flex items-center gap-2 group">
-              <div class="bg-blue-600 p-1.5 rounded-lg group-hover:bg-blue-500 transition-colors">
+            <div class="flex items-center gap-2 select-none">
+              <div class="bg-blue-600 p-1.5 rounded-lg">
                 <i-lucide name="shield" [size]="24" class="text-white"></i-lucide>
               </div>
-              <span class="font-bold text-xl tracking-tight">StepGuard IoT</span>
-            </a>
+              <span class="font-bold text-xl tracking-tight cursor-default">StepGuard IoT</span>
+            </div>
           </div>
 
           <!-- Desktop Navigation -->
@@ -71,7 +71,7 @@
             <div class="flex items-center gap-4">
               @if (currentUser()) {
                 <div class="text-right">
-                  <div class="text-sm font-bold text-white">{{ currentUser()?.fullName }}</div>
+                  <div class="text-sm font-bold text-white max-w-[150px] truncate whitespace-nowrap" [title]="currentUser()?.fullName">{{ currentUser()?.fullName }}</div>
                   <div class="text-xs text-gray-400 flex items-center justify-end gap-1">
                     @switch (currentUser()?.role) {
                       @case ('admin') { <i-lucide name="settings" [size]="12"></i-lucide> <span>Administrador</span> }
