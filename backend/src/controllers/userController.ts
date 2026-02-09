@@ -36,35 +36,72 @@ export const getUsers = async (req: Request, res: Response) => {
 export const getUserById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const user = await UsuarioModel.findByIdWithDevice(Number(id));
+    const requestedId = Number(id);
+    const authUser = (req as any).user; // From authMiddleware
 
-    if (!user) {
-      return res.status(404).json({ message: "Usuario no encontrado" });
+    // 1. Si el usuario pide SU PROPIO perfil, usamos su rol para saber qué tabla consultar.
+    // Esto resuelve el conflicto de IDs superpuestos entre pacientes y cuidadores.
+    if (authUser && Number(authUser.id) === requestedId) {
+       if (authUser.role === 'admin' || authUser.role === 'caregiver') {
+          const cuidador = await CuidadorModel.findById(requestedId);
+          if (cuidador) {
+             const { password_hash, is_admin, ...safeCuidador } = cuidador;
+             return res.json({
+                ...safeCuidador,
+                role: is_admin ? 'admin' : 'caregiver',
+                fullName: cuidador.nombre,
+                dispositivo: null // Admins/Cuidadores no suelen tener dispositivo_mac en este sistema
+             });
+          }
+       } else {
+          // Es un paciente
+          const user = await UsuarioModel.findByIdWithDevice(requestedId);
+          if (user) {
+             const { password_hash, dispositivo_mac, dispositivo_nombre, dispositivo_estado, dispositivo_total_impactos, ...userData } = user;
+             return res.json({
+               ...userData,
+               dispositivo: user.dispositivo_mac ? {
+                   mac_address: dispositivo_mac,
+                   nombre: dispositivo_nombre,
+                   estado: dispositivo_estado,
+                   total_impactos: dispositivo_total_impactos,
+               } : null
+             });
+          }
+       }
+       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    // Estructurar la respuesta
-    const {
-      password_hash,
-      dispositivo_mac,
-      dispositivo_nombre,
-      dispositivo_estado,
-      dispositivo_total_impactos,
-      ...userData
-    } = user;
-
-    const response = {
-      ...userData,
-      dispositivo: user.dispositivo_mac
-        ? {
+    // 2. Si un Admin/Cuidador busca OTRO usuario (generalmente busca Pacientes)
+    // Primero buscamos en Pacientes (caso más común)
+    const user = await UsuarioModel.findByIdWithDevice(requestedId);
+    if (user) {
+      const { password_hash, dispositivo_mac, dispositivo_nombre, dispositivo_estado, dispositivo_total_impactos, ...userData } = user;
+      return res.json({
+        ...userData,
+        dispositivo: user.dispositivo_mac ? {
             mac_address: dispositivo_mac,
             nombre: dispositivo_nombre,
             estado: dispositivo_estado,
             total_impactos: dispositivo_total_impactos,
-          }
-        : null,
-    };
+        } : null
+      });
+    }
 
-    res.json(response);
+    // 3. Si no es paciente, buscamos en Cuidadores (menos común buscar otro admin por ID exacto sin saberlo)
+    const cuidador = await CuidadorModel.findById(requestedId);
+    if (cuidador) {
+        const { password_hash, is_admin, ...safeCuidador } = cuidador;
+        return res.json({
+        ...safeCuidador,
+        role: is_admin ? 'admin' : 'caregiver',
+        fullName: cuidador.nombre,
+        dispositivo: null
+        });
+    }
+
+    return res.status(404).json({ message: "Usuario no encontrado" });
+
   } catch (error) {
     console.error("Error fetching user details:", error);
     res.status(500).json({ message: "Error fetching user details" });
@@ -259,8 +296,32 @@ export const exportUsersCSV = async (req: Request, res: Response) => {
 
     let usersData: any[] = [];
 
-    // 1. Fetch Data based on Role
-    if (user.role === 'admin') {
+    // 1. Fetch Data based on Role & Scope
+    const scope = req.query.scope as string;
+    
+    // Si se pide scope='me', solo exportamos al usuario que hace la petición (sea admin, cuidador o paciente)
+    if (scope === 'me') {
+       if (user.role === 'admin' || user.role === 'caregiver') {
+          // Buscamos en cuidadores
+          const selfData = await CuidadorModel.findById(user.id);
+          if (selfData) {
+             // Adaptamos formato para que coincida con la estructura general
+             usersData = [{
+                 ...selfData,
+                 dispositivo_mac: null,
+                 dispositivo_nombre: null,
+                 dispositivo_estado: null,
+                 role: user.role
+             }];
+          }
+       } else {
+          // Buscamos en pacientes
+          const selfData = await UsuarioModel.findByIdWithDevice(user.id);
+          if (selfData) usersData = [selfData];
+       }
+    } 
+    // Si NO es scope='me', mantenemos la lógica original de exportación masiva para Admins/Cuidadores
+    else if (user.role === 'admin') {
       usersData = await UsuarioModel.findAllWithDevices();
     } else if (user.role === 'caregiver') {
       // Fetch assigned users
@@ -274,7 +335,7 @@ export const exportUsersCSV = async (req: Request, res: Response) => {
       usersData = usersData.filter(u => u !== null);
 
     } else {
-      // Patient - fetch own data
+      // Patient - fetch own data (default fallback)
       const ownData = await UsuarioModel.findByIdWithDevice(user.id);
       if (ownData) usersData = [ownData];
     }
@@ -306,7 +367,10 @@ export const exportUsersCSV = async (req: Request, res: Response) => {
 export const uploadProfilePhoto = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    console.log(`[Upload] Request received for user ${id}`);
+    const requestedId = Number(id);
+    const authUser = (req as any).user; 
+
+    // console.log(`[Upload] Request received for user ${id} by ${authUser?.email}`);
 
     if (!req.file) {
       console.log('[Upload] No file in request');
@@ -314,10 +378,35 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
     }
 
     const photoUrl = req.file.path;
-    console.log(`[Upload] File uploaded to Cloudinary: ${photoUrl}`);
+    // console.log(`[Upload] File uploaded to Cloudinary: ${photoUrl}`);
 
-    const updatedUser = await UsuarioModel.updateProfilePhoto(Number(id), photoUrl);
-    console.log(`[Upload] Database updated for user ${id}`);
+    let updatedUser = null;
+
+    // Lógica para actualizar la tabla correcta según el rol del usuario logueado
+    // (Asumimos que uno solo sube su propia foto o un admin sube la de otro)
+    // Para simplificar, si el ID coincide con el del token, usamos el rol del token.
+    if (authUser && authUser.id === requestedId) {
+        if (authUser.role === 'admin' || authUser.role === 'caregiver') {
+            updatedUser = await CuidadorModel.updateProfilePhoto(requestedId, photoUrl);
+            // Mapeo para respuesta uniforme
+            if (updatedUser) {
+                updatedUser = {
+                    ...updatedUser,
+                    role: authUser.role
+                };
+            }
+        } else {
+            updatedUser = await UsuarioModel.updateProfilePhoto(requestedId, photoUrl);
+        }
+    } else {
+        // Fallback: Si un admin sube la foto de otro, primero intentamos paciente, luego cuidador
+        // O podríamos pasar el rol en el body/query para ser más precisos.
+        // Por defecto intentamos paciente primero.
+        updatedUser = await UsuarioModel.updateProfilePhoto(requestedId, photoUrl);
+        if (!updatedUser) {
+             updatedUser = await CuidadorModel.updateProfilePhoto(requestedId, photoUrl);
+        }
+    }
 
     if (!updatedUser) {
       console.log('[Upload] User not found during update');

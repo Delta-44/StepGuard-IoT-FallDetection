@@ -27,6 +27,17 @@ export class ApiService {
   constructor() {}
 
   // ==========================================
+  // 📸 PERFIL DE USUARIO
+  // ==========================================
+
+  uploadProfilePhoto(userId: number | string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    return this.http.post(`${this.apiUrl}/users/${userId}/photo`, formData);
+  }
+
+  // ==========================================
   // 🚨 LÓGICA DE ALERTAS
   // ==========================================
 
@@ -283,18 +294,7 @@ export class ApiService {
       };
     } catch (error) {
       console.error('Error obteniendo usuario del backend:', error);
-      // Fallback a datos mock si falla
-      return {
-        id: userId,
-        fullName: 'Usuario',
-        email: 'usuario@ejemplo.com',
-        telefono: 'N/A',
-        direccion: 'N/A',
-        edad: null,
-        genero: null,
-        dispositivo_mac: null,
-        role: 'user',
-      };
+      throw error;
     }
   }
 }

@@ -17,4 +17,5 @@ export interface User {
   genero?: string;
   created_at?: string | Date;
   updated_at?: string | Date;
+  foto_perfil?: string; // URL de la foto de perfil en Cloudinary
 }

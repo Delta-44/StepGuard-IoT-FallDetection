@@ -40,6 +40,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   public showNavbar = signal<boolean>(true);
   public isMobileMenuOpen = signal<boolean>(false); // 👈 Estado del menú móvil
+  public isProfileDropdownOpen = signal<boolean>(false); // 👈 Estado del dropdown de perfil
   private alertSub: Subscription | null = null;
   private routerSub: Subscription | null = null;
 
@@ -51,6 +52,14 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isMobileMenuOpen.set(false);
   }
 
+  toggleProfileDropdown() {
+    this.isProfileDropdownOpen.update(value => !value);
+  }
+
+  closeProfileDropdown() {
+    this.isProfileDropdownOpen.set(false);
+  }
+
   ngOnInit() {
     // Suscripción a navegación
     this.routerSub = this.router.events
@@ -58,7 +67,8 @@ export class AppComponent implements OnInit, OnDestroy {
       .subscribe((event: any) => {
         const isLanding = event.url === '/';
         this.showNavbar.set(!isLanding);
-        this.closeMenu(); // 👈 Cerrar menú al navegar
+        this.closeMenu(); // 👈 Cerrar menú móvil al navegar
+        this.closeProfileDropdown(); // 👈 Cerrar dropdown perfil al navegar
 
         // Limpiar alertas cuando estás en landing
         if (isLanding) {

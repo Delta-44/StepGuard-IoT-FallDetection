@@ -34,17 +34,36 @@
         <div class="bg-white rounded-3xl shadow-2xl p-5 md:p-10 border border-gray-100">
           <div class="flex flex-col md:flex-row gap-6 items-center md:items-start text-center md:text-left">
             <!-- Avatar -->
-            <div class="relative group">
+            <div class="relative group cursor-pointer" (click)="fileInput.click()">
               <div
-                class="w-32 h-32 md:w-40 md:h-40 rounded-3xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white text-5xl md:text-7xl font-black shadow-2xl ring-4 ring-white/50"
+                class="w-32 h-32 md:w-40 md:h-40 rounded-3xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white text-5xl md:text-7xl font-black shadow-2xl ring-4 ring-white/50 overflow-hidden"
               >
-                {{ currentUser()?.fullName?.charAt(0) || 'U' }}
+                @if (currentUser()?.foto_perfil) {
+                  <img [src]="currentUser()?.foto_perfil" alt="Profile Photo" class="w-full h-full object-cover"/>
+                } @else {
+                  {{ currentUser()?.fullName?.charAt(0) || 'U' }}
+                }
+                
+                <!-- Overlay for hover -->
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-3xl backdrop-blur-sm">
+                   <div class="flex flex-col items-center text-white animate-bounce">
+                     <i-lucide name="upload-cloud" [size]="40" class="mb-1"></i-lucide>
+                     <span class="text-xs font-bold uppercase tracking-wider">Subir</span>
+                   </div>
+                </div>
               </div>
               <div
                 class="absolute -bottom-3 -right-3 w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full border-4 border-white shadow-xl flex items-center justify-center animate-pulse"
               >
                 <i-lucide name="check" [size]="24" class="text-white"></i-lucide>
               </div>
+              <input 
+                #fileInput 
+                type="file" 
+                class="hidden" 
+                accept="image/*" 
+                (change)="onFileSelected($event)"
+              />
             </div>
 
             <!-- User Info -->
@@ -59,7 +78,7 @@
                       class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full text-sm font-bold flex items-center gap-2"
                     >
                       <i-lucide name="user" [size]="14"></i-lucide>
-                      Paciente
+                      {{ getRoleLabel() }}
                     </span>
                     @if (currentUser()?.edad) {
                       <span

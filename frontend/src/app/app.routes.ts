@@ -74,7 +74,7 @@ export const routes: Routes = [
   {
     path: 'profile',
     component: PatientProfileComponent,
-    canActivate: [authGuard, patientOnlyGuard]
+    canActivate: [authGuard] // 🟢 AHORA ACCESIBLE PARA TODOS (Admin, Cuidador, Paciente)
   },
   {
     path: 'analytics',
