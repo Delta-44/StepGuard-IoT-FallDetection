@@ -413,14 +413,21 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
+    // Sanitize user object
+    const { password_hash, ...safeUser } = updatedUser;
+
     res.json({
         message: "Profile photo uploaded successfully",
         photoUrl: photoUrl,
-        user: updatedUser
+        user: safeUser
     });
 
-  } catch (error) {
-    console.error("Error uploading profile photo:", error);
-    res.status(500).json({ message: "Error uploading profile photo" });
+  } catch (error: any) {
+    console.error("❌ Error uploading profile photo:", error);
+    res.status(500).json({ 
+        message: "Error uploading profile photo", 
+        error: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 };

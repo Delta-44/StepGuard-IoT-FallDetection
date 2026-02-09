@@ -778,12 +778,7 @@
               }
             </div>
             
-            <h3 class="text-3xl font-black text-white tracking-tight drop-shadow-sm mb-2">
-              {{ 
-                selectedUserInfo?.role === 'user' ? 'Paciente' : 
-                selectedUserInfo?.role === 'caregiver' ? 'Cuidador' : 'Administrador' 
-              }}
-            </h3>
+            <!-- Removed overlapping role title -->
             
             <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">
                <span class="w-2 h-2 rounded-full" [ngClass]="selectedUserInfo?.status === 'active' ? 'bg-green-400 animate-pulse' : 'bg-gray-400'"></span>

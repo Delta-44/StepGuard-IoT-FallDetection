@@ -72,9 +72,26 @@ app.get('/api/alerts/stream', (req: Request, res: Response) => {
 );
 
 // Error handling middleware
+import fs from 'fs';
+import path from 'path';
+
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error("Application error:", err.message);
-  res.status(500).json({ message: 'Something went wrong!' });
+  
+  const logPath = path.join(__dirname, '../server_error.log');
+  const logMessage = `[${new Date().toISOString()}] ${err.message}\nStack: ${err.stack}\n\n`;
+  
+  try {
+    fs.appendFileSync(logPath, logMessage);
+  } catch (e) {
+    console.error("Could not write to error log:", e);
+  }
+
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    error: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 });
 
 // Start server

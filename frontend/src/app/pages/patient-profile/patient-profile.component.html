@@ -98,7 +98,8 @@
                 </div>
               </div>
 
-              <!-- Quick Stats -->
+              <!-- Quick Stats (Solo para Pacientes) -->
+              @if (currentUser()?.role === 'user') {
               <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-8">
                 <div
                   class="text-center p-4 md:p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 transition-transform hover:scale-105"
@@ -149,6 +150,7 @@
                   </div>
                 </div>
               </div>
+              }
             </div>
           </div>
         </div>

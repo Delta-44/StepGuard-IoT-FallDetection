@@ -63,7 +63,7 @@
     >
       <i-lucide name="check-circle" [size]="18" class="md:hidden"></i-lucide>
       <i-lucide name="check-circle" [size]="20" class="hidden md:block"></i-lucide>
-      <span class="hidden sm:inline">Online</span>
+      <span class="hidden sm:inline">Conectados</span>
       <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'online' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('online') }}</span>
     </button>
     
@@ -74,7 +74,7 @@
     >
       <i-lucide name="x-circle" [size]="18" class="md:hidden"></i-lucide>
       <i-lucide name="x-circle" [size]="20" class="hidden md:block"></i-lucide>
-      <span class="hidden sm:inline">Offline</span>
+      <span class="hidden sm:inline">Desconectados</span>
       <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'offline' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('offline') }}</span>
     </button>
   </div>
@@ -96,17 +96,17 @@
         @if (searchTerm()) {
           No hay dispositivos 
           @if (statusFilter() === 'online') {
-            online
+            conectados
           } @else if (statusFilter() === 'offline') {
-            offline
+            desconectados
           }
           que coincidan con "{{ searchTerm() }}"
         } @else {
           No hay dispositivos 
           @if (statusFilter() === 'online') {
-            online
+            conectados
           } @else if (statusFilter() === 'offline') {
-            offline
+            desconectados
           }
         }
       </p>
@@ -150,18 +150,15 @@
               <h3 class="text-xl font-bold text-gray-800">{{ device.nombre }}</h3>
             </div>
             
-            <span 
-              class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider "
+            <!-- Indicador de estado simple (punto) -->
+            <div 
+              class="w-3 h-3 rounded-full mt-2"
               [ngClass]="{
-                'bg-operational/10 text-operational border border-operational/20': device.estado,
-                'bg-emergency/10 text-emergency border border-emergency/20 animate-pulse-emergency': !device.estado
+                'bg-green-500': device.estado,
+                'bg-gray-400': !device.estado
               }"
-            >
-              @if (device.estado) {
-                <span class="w-2 h-2 bg-operational rounded-full animate-glow"></span>
-              }
-              {{ device.estado ? 'online' : 'offline' }}
-            </span>
+              [title]="device.estado ? 'Conectado' : 'Desconectado'"
+            ></div>
           </div>
 
           <!-- Info del Dispositivo -->
