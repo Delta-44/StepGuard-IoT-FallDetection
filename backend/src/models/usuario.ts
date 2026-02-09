@@ -25,11 +25,12 @@ export const UsuarioModel = {
     fecha_nacimiento?: Date,
     direccion?: string,
     telefono?: string,
-    dispositivo_mac?: string
+    dispositivo_mac?: string,
+    foto_perfil?: string
   ): Promise<Usuario> => {
     const result = await query(
-      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac]
+      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac, foto_perfil) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac, foto_perfil]
     );
     return result.rows[0];
   },
@@ -119,11 +120,12 @@ export const UsuarioModel = {
     email: string,
     fecha_nacimiento?: Date,
     direccion?: string,
-    telefono?: string
+    telefono?: string,
+    foto_perfil?: string
   ): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET nombre = $1, email = $2, fecha_nacimiento = $3, direccion = $4, telefono = $5 WHERE id = $6 RETURNING *',
-      [nombre, email, fecha_nacimiento, direccion, telefono, id]
+      'UPDATE usuarios SET nombre = $1, email = $2, fecha_nacimiento = $3, direccion = $4, telefono = $5, foto_perfil = COALESCE($7, foto_perfil) WHERE id = $6 RETURNING *',
+      [nombre, email, fecha_nacimiento, direccion, telefono, id, foto_perfil]
     );
     return result.rows[0] || null;
   },

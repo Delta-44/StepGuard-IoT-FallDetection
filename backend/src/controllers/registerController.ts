@@ -80,6 +80,7 @@ export const registerUsuario = async (req: Request, res: Response) => {
       direccion || undefined,
       telefono || undefined,
       macAddressAssigned || undefined, // Usar la MAC generada
+      req.body.profilePhoto // Optional: profile photo
     );
 
 

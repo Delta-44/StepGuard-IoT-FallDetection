@@ -85,6 +85,7 @@ export const updateUser = async (req: Request, res: Response) => {
       dateOfBirth,
       address,
       phone,
+      req.body.profilePhoto // Optional: allow updating via JSON
     );
 
     if (!updatedUser) {
