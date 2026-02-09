@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { AlertService } from '../../services/alert.service';
 import { UserService } from '../../services/user.service';
@@ -18,6 +19,7 @@ export class PatientProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private alertService = inject(AlertService);
   private userService = inject(UserService);
+  private apiService = inject(ApiService);
   private notificationService = inject(NotificationService);
 
   public currentUser = this.authService.currentUser;
@@ -33,7 +35,9 @@ export class PatientProfileComponent implements OnInit {
     const user = this.currentUser();
     if (!user) return;
 
-    // Cargar alertas del paciente
+    // Cargar alertas SOLO si es paciente, o si es cuidador/admin quizás mostrar las asignadas?
+    // Por ahora, para simplificar, mostramos alertas si el usuario tiene ID coincidente.
+    // Si es admin/cuidador sin alertas propias, esto devolverá array vacío y no pasa nada.
     this.alertService.alerts$.subscribe((allAlerts) => {
       const userAlerts = allAlerts.filter(
         (a) => a.userId === Number(user.id) || a.deviceId === String(user.id),
@@ -52,6 +56,37 @@ export class PatientProfileComponent implements OnInit {
       }).length;
       this.stats.resolved = userAlerts.filter((a) => a.status !== 'pendiente').length;
     });
+  }
+
+  isUploading = signal(false);
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      if (!file.type.match(/image\/*/)) {
+        this.notificationService.error('Error', 'Solo se permiten imágenes');
+        return;
+      }
+
+      this.isUploading.set(true);
+      const userId = Number(this.currentUser()?.id);
+
+      this.apiService.uploadProfilePhoto(userId, file).subscribe({
+        next: (response) => {
+          this.isUploading.set(false);
+          this.notificationService.success('Éxito', 'Foto de perfil actualizada');
+          
+          // Actualizar el usuario localmente
+          const updatedUser = { ...this.currentUser()!, foto_perfil: response.photoUrl };
+          this.authService.updateCurrentUser(updatedUser);
+        },
+        error: (err) => {
+          console.error('Error uploading photo:', err);
+          this.isUploading.set(false);
+          this.notificationService.error('Error', 'No se pudo subir la foto');
+        }
+      });
+    }
   }
 
   getSeverityColor(severity: string): string {

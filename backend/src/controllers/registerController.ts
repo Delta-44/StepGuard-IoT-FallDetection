@@ -86,7 +86,7 @@ export const registerUsuario = async (req: Request, res: Response) => {
 
 
     const token = jwt.sign(
-      { id: newUser.id, email: newUser.email, role: "usuario" },
+      { id: newUser.id, email: newUser.email, role: "user" },
       JWT_SECRET,
       { expiresIn: "1h" },
     );
@@ -104,6 +104,7 @@ export const registerUsuario = async (req: Request, res: Response) => {
         telefono: newUser.telefono,
         direccion: newUser.direccion,
         dispositivo_mac: newUser.dispositivo_mac,
+        foto_perfil: newUser.foto_perfil,
         status: "active",
       },
     });
@@ -144,7 +145,7 @@ export const registerCuidador = async (req: Request, res: Response) => {
 
 
     const token = jwt.sign(
-      { id: newCuidador.id, email: newCuidador.email, role: "cuidador" },
+      { id: newCuidador.id, email: newCuidador.email, role: is_admin ? "admin" : "caregiver" },
       JWT_SECRET,
       { expiresIn: "1h" },
     );
@@ -157,6 +158,7 @@ export const registerCuidador = async (req: Request, res: Response) => {
         email: newCuidador.email,
         name: newCuidador.nombre,
         role: "cuidador",
+        foto_perfil: newCuidador.foto_perfil,
       },
     });
   } catch (error: any) {

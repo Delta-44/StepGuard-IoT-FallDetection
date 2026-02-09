@@ -38,7 +38,12 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ id: dbUser.id, email: dbUser.email, role }, JWT_SECRET, { expiresIn: '1h' });
+    // Normalize role for JWT
+    let jwtRole = 'user';
+    if (role === 'admin') jwtRole = 'admin';
+    if (role === 'cuidador') jwtRole = 'caregiver';
+
+    const token = jwt.sign({ id: dbUser.id, email: dbUser.email, role: jwtRole }, JWT_SECRET, { expiresIn: '1h' });
 
     res.json({
       message: 'Login successful',
@@ -53,6 +58,7 @@ export const login = async (req: Request, res: Response) => {
         telefono: dbUser.telefono,
         direccion: dbUser.direccion,
         dispositivo_mac: dbUser.dispositivo_mac,
+        foto_perfil: dbUser.foto_perfil,
         is_admin: dbUser.is_admin || false,
         status: "active" as const,
       },

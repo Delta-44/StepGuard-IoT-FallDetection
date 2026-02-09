@@ -48,6 +48,7 @@ export class UserService {
           fecha_nacimiento: u.fecha_nacimiento,
           dispositivo_mac: u.dispositivo_mac,
           dispositivo_nombre: u.dispositivo_nombre,
+          foto_perfil: u.foto_perfil,
           created_at: u.fecha_creacion, // 👈 Mapeamos fecha de creación
           updated_at: u.fecha_actualizacion // 👈 Si existe, sino undefined
         }));
@@ -79,6 +80,7 @@ export class UserService {
         direccion: u.direccion,
         fecha_nacimiento: u.fecha_nacimiento,
         dispositivo_mac: u.dispositivo?.mac_address || u.dispositivo_mac,
+        foto_perfil: u.foto_perfil,
         lastLogin: u.lastLogin || u.last_login,
         created_at: u.createdAt || u.created_at || u.fecha_creacion,
         updated_at: u.updatedAt || u.updated_at || u.fecha_actualizacion,
@@ -116,7 +118,8 @@ export class UserService {
     return this.http.post(`${this.apiUrl}/users/${userId}/device`, { macAddress: deviceMac });
   }
 
-  exportUsersCSV(): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/users/export/csv`, { responseType: 'blob' });
+  exportUsersCSV(scope?: 'me'): Observable<Blob> {
+    const url = scope ? `${this.apiUrl}/users/export/csv?scope=${scope}` : `${this.apiUrl}/users/export/csv`;
+    return this.http.get(url, { responseType: 'blob' });
   }
 }
