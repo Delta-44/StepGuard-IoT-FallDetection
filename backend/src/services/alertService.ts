@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { UsuarioModel } from '../models/usuario';
+import { DiscordService } from './discordService';
 
 interface ConnectedClient {
     res: Response;
@@ -43,7 +44,7 @@ export class AlertService {
      * @param alert Event data containing 'dispositivo_mac' and the event payload
      */
     static async broadcast(alert: { type: string, data: any }) {
-        if (this.clients.length === 0) return;
+        // if (this.clients.length === 0) return; // Removed to allow Discord alerts even if no frontend is connected
 
         const macAddress = alert.data.dispositivo_mac;
         if (!macAddress) {
@@ -100,6 +101,13 @@ export class AlertService {
 
         } catch (err) {
             console.error('Error broadcasting alert:', err);
+        }
+
+        // Send to Discord
+        try {
+             await DiscordService.sendAlert(alert);
+        } catch (error) {
+             console.error('Error sending alert to Discord:', error);
         }
     }
 }

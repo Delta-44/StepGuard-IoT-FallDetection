@@ -1,4 +1,4 @@
-import redis, { ESP32Cache } from './config/redis';
+import redis, { ESP32Cache } from '../config/redis';
 import dotenv from 'dotenv';
 
 dotenv.config();

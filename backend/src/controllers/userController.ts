@@ -85,6 +85,7 @@ export const updateUser = async (req: Request, res: Response) => {
       dateOfBirth,
       address,
       phone,
+      req.body.profilePhoto // Optional: allow updating via JSON
     );
 
     if (!updatedUser) {
@@ -299,5 +300,38 @@ export const exportUsersCSV = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error exporting users CSV:", error);
     res.status(500).json({ message: "Error exporting users CSV" });
+  }
+};
+
+export const uploadProfilePhoto = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    console.log(`[Upload] Request received for user ${id}`);
+
+    if (!req.file) {
+      console.log('[Upload] No file in request');
+      return res.status(400).json({ message: "No file uploaded." });
+    }
+
+    const photoUrl = req.file.path;
+    console.log(`[Upload] File uploaded to Cloudinary: ${photoUrl}`);
+
+    const updatedUser = await UsuarioModel.updateProfilePhoto(Number(id), photoUrl);
+    console.log(`[Upload] Database updated for user ${id}`);
+
+    if (!updatedUser) {
+      console.log('[Upload] User not found during update');
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.json({
+        message: "Profile photo uploaded successfully",
+        photoUrl: photoUrl,
+        user: updatedUser
+    });
+
+  } catch (error) {
+    console.error("Error uploading profile photo:", error);
+    res.status(500).json({ message: "Error uploading profile photo" });
   }
 };
