@@ -16,6 +16,7 @@ import eventRoutes from './routes/eventRoutes';
 import authMiddleware, { AuthRequest } from './middleware/auth';
 import { connectMQTT } from './config/mqtt';
 import { AlertService } from './services/alertService';
+import { DiscordService } from './services/discordService';
 
 
 const app = express();
@@ -81,5 +82,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   connectMQTT();
+  DiscordService.initialize();
   ESP32Service.startHeartbeatMonitor();
 });

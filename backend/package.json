@@ -26,6 +26,7 @@
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.6",
+    "discord.js": "^14.25.1",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
