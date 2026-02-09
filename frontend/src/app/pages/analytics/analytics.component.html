@@ -1,0 +1,29 @@
+<div class="analytics-page">
+  <div class="analytics-header">
+    <div class="title-block">
+      <i-lucide name="layout-dashboard" [size]="24"></i-lucide>
+      <div>
+        <h1>Analítica en Grafana</h1>
+        <p>{{ scopeLabel() }}</p>
+      </div>
+    </div>
+    <div class="info">
+      <span class="tag">Filtro automático por rol</span>
+      <span class="divider">·</span>
+      <span class="tag">Intervalo: 7 días</span>
+      <span class="divider">·</span>
+      <span class="tag">Tema: dark</span>
+    </div>
+  </div>
+
+  <div class="panel-wrapper" *ngIf="safeUrl; else missing">
+    <iframe [src]="safeUrl" title="Grafana analytics" loading="lazy"></iframe>
+  </div>
+
+  <ng-template #missing>
+    <div class="empty">
+      <i-lucide name="alert-circle" [size]="22"></i-lucide>
+      <p>No se pudo generar el embed de Grafana. Revisa la URL en environment.grafanaUrl.</p>
+    </div>
+  </ng-template>
+</div>

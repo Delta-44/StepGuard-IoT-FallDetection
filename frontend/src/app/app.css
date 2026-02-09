@@ -152,6 +152,63 @@
   cursor: pointer; font-size: 1rem;
 }
 
+/* Floating Analytics Button */
+.fab-analytics {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.fab-analytics:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 16px 36px rgba(0,0,0,0.32);
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+.fab-analytics:active {
+  transform: translateY(0);
+}
+
+/* Responsive floating button */
+@media (max-width: 768px) {
+  .fab-analytics {
+    left: 12px;
+    bottom: 70px; /* Evitar chocar con navegación móvil */
+    padding: 8px 12px;
+    font-size: 13px;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fab-analytics {
+    left: 10px;
+    bottom: 75px;
+    padding: 6px 10px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  
+  /* Ocultar texto en pantallas muy pequeñas, solo mostrar ícono */
+  .fab-analytics span {
+    display: none;
+  }
+}
+
 /* Progress Bar Animation */
 .progress-bar {
   position: absolute; bottom: 0; left: 0; height: 4px; background: rgba(0, 0, 0, 0.1);

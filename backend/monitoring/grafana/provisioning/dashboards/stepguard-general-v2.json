@@ -1,0 +1,847 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "neon_postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "neon_postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) as value\nFROM eventos_caida\nWHERE fecha_hora >= NOW() - INTERVAL '7 days'\n  AND (\n    '${varScope}' = 'all'\n    OR (${varUserId} > 0 AND usuario_id = ${varUserId})\n    OR (${varCaregiverId} > 0 AND usuario_id IN (\n      SELECT usuario_id FROM usuario_cuidador WHERE cuidador_id = ${varCaregiverId}\n    ))\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Caídas (7d)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "neon_postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "neon_postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(DISTINCT id) as value\nFROM usuarios\nWHERE (\n  '${varScope}' = 'all'\n  OR (${varUserId} > 0 AND id = ${varUserId})\n  OR (${varCaregiverId} > 0 AND id IN (\n    SELECT usuario_id FROM usuario_cuidador WHERE cuidador_id = ${varCaregiverId}\n  ))\n)",
+          "refId": "A"
+        }
+      ],
+      "title": "Usuarios Activos",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "neon_postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "neon_postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) as value\nFROM dispositivos d\nLEFT JOIN usuarios u ON d.mac_address = u.dispositivo_mac\nWHERE d.estado = true\n  AND (\n    '${varScope}' = 'all'\n    OR (${varUserId} > 0 AND u.id = ${varUserId})\n    OR (${varCaregiverId} > 0 AND u.id IN (\n      SELECT usuario_id FROM usuario_cuidador WHERE cuidador_id = ${varCaregiverId}\n    ))\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "Dispositivos Activos",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "neon_postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "text": {},
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "neon_postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) as value\nFROM notificaciones n\nLEFT JOIN eventos_caida ec ON n.evento_id = ec.id\nWHERE n.fecha_envio >= NOW() - INTERVAL '7 days'\n  AND (\n    '${varScope}' = 'all'\n    OR (${varUserId} > 0 AND ec.usuario_id = ${varUserId})\n    OR (${varCaregiverId} > 0 AND n.cuidador_id = ${varCaregiverId})\n  )",
+          "refId": "A"
+        }
+      ],
+      "title": "Notificaciones (7d)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "neon_postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [
+            "sum",
+            "mean"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "neon_postgres"
+          },
+          "editorMode": "code",
+          "format": "time_series",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  DATE_TRUNC('hour', fecha_hora) as time,\n  COUNT(*) as value\nFROM eventos_caida\nWHERE fecha_hora >= NOW() - INTERVAL '7 days'\n  AND (\n    '${varScope}' = 'all'\n    OR (${varUserId} > 0 AND usuario_id = ${varUserId})\n    OR (${varCaregiverId} > 0 AND usuario_id IN (\n      SELECT usuario_id FROM usuario_cuidador WHERE cuidador_id = ${varCaregiverId}\n    ))\n  )\nGROUP BY time\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Tendencia de Caídas (Últimos 7 días)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "neon_postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "severidad"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "low": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "🟢 Baja"
+                      },
+                      "medium": {
+                        "color": "yellow",
+                        "index": 1,
+                        "text": "🟡 Media"
+                      },
+                      "high": {
+                        "color": "orange",
+                        "index": 2,
+                        "text": "🟠 Alta"
+                      },
+                      "critical": {
+                        "color": "red",
+                        "index": 3,
+                        "text": "🔴 Crítica"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "estado"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "pendiente": {
+                        "color": "yellow",
+                        "index": 0,
+                        "text": "⏳ Pendiente"
+                      },
+                      "atendida": {
+                        "color": "green",
+                        "index": 1,
+                        "text": "✓ Atendida"
+                      },
+                      "falsa_alarma": {
+                        "color": "blue",
+                        "index": 2,
+                        "text": "ℹ️ Falsa Alarma"
+                      },
+                      "ignorada": {
+                        "color": "dark-gray",
+                        "index": 3,
+                        "text": "✗ Ignorada"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "is_button_pressed"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "false": {
+                        "color": "blue",
+                        "index": 0,
+                        "text": "Auto"
+                      },
+                      "true": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "🆘 SOS"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 14,
+        "x": 0,
+        "y": 18
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "fecha_hora"
+          }
+        ]
+      },
+      "pluginVersion": "11.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "neon_postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  ec.fecha_hora,\n  u.nombre as usuario,\n  ec.severidad,\n  ec.estado,\n  ec.is_button_pressed\nFROM eventos_caida ec\nLEFT JOIN usuarios u ON ec.usuario_id = u.id\nWHERE ec.fecha_hora >= NOW() - INTERVAL '7 days'\n  AND (\n    '${varScope}' = 'all'\n    OR (${varUserId} > 0 AND ec.usuario_id = ${varUserId})\n    OR (${varCaregiverId} > 0 AND ec.usuario_id IN (\n      SELECT usuario_id FROM usuario_cuidador WHERE cuidador_id = ${varCaregiverId}\n    ))\n  )\nORDER BY ec.fecha_hora DESC\nLIMIT 50",
+          "refId": "A"
+        }
+      ],
+      "title": "Últimas Caídas Detectadas",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "neon_postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 10,
+        "x": 14,
+        "y": 18
+      },
+      "id": 7,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "11.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "neon_postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  u.nombre as metric,\n  COUNT(*) as value\nFROM eventos_caida ec\nJOIN usuarios u ON ec.usuario_id = u.id\nWHERE ec.fecha_hora >= NOW() - INTERVAL '7 days'\n  AND (\n    '${varScope}' = 'all'\n    OR (${varUserId} > 0 AND ec.usuario_id = ${varUserId})\n    OR (${varCaregiverId} > 0 AND ec.usuario_id IN (\n      SELECT usuario_id FROM usuario_cuidador WHERE cuidador_id = ${varCaregiverId}\n    ))\n  )\nGROUP BY u.id, u.nombre\nORDER BY value DESC\nLIMIT 10",
+          "refId": "A"
+        }
+      ],
+      "title": "Top 10 Usuarios con Más Caídas",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "neon_postgres"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "estado"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "true": {
+                        "color": "green",
+                        "index": 0,
+                        "text": "✓ Activo"
+                      },
+                      "false": {
+                        "color": "red",
+                        "index": 1,
+                        "text": "✗ Inactivo"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 8,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.2.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "neon_postgres"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \n  d.mac_address,\n  COALESCE(u.nombre, 'Sin asignar') as usuario,\n  d.estado,\n  d.total_impactos,\n  d.ultima_conexion\nFROM dispositivos d\nLEFT JOIN usuarios u ON d.mac_address = u.dispositivo_mac\nWHERE (\n  '${varScope}' = 'all'\n  OR (${varUserId} > 0 AND u.id = ${varUserId})\n  OR (${varCaregiverId} > 0 AND u.id IN (\n    SELECT usuario_id FROM usuario_cuidador WHERE cuidador_id = ${varCaregiverId}\n  ))\n)\nORDER BY d.ultima_conexion DESC NULLS LAST",
+          "refId": "A"
+        }
+      ],
+      "title": "Estado de Dispositivos",
+      "type": "table"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "stepguard",
+    "iot",
+    "monitoring"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "all",
+          "value": "all"
+        },
+        "description": "Scope de acceso (all = admin, null = otros roles)",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "varScope",
+        "options": [
+          {
+            "selected": true,
+            "text": "all",
+            "value": "all"
+          },
+          {
+            "selected": false,
+            "text": "null",
+            "value": "null"
+          }
+        ],
+        "query": "all,null",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "0",
+          "value": "0"
+        },
+        "description": "ID del usuario (paciente)",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "varUserId",
+        "options": [
+          {
+            "selected": true,
+            "text": "0",
+            "value": "0"
+          }
+        ],
+        "query": "0",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "0",
+          "value": "0"
+        },
+        "description": "ID del cuidador",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "varCaregiverId",
+        "options": [
+          {
+            "selected": true,
+            "text": "0",
+            "value": "0"
+          }
+        ],
+        "query": "0",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "StepGuard - General v2",
+  "uid": "stepguard-general-v2",
+  "version": 1,
+  "weekStart": ""
+}
