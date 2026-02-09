@@ -11,6 +11,7 @@ export interface Usuario {
   dispositivo_mac?: string; // MAC address del dispositivo asignado
   fecha_creacion?: Date;
   password_last_changed_at?: Date;
+  foto_perfil?: string;
 }
 
 export const UsuarioModel = {
@@ -144,6 +145,17 @@ export const UsuarioModel = {
     const result = await query(
       'UPDATE usuarios SET password_hash = $1, password_last_changed_at = NOW() WHERE id = $2 RETURNING *',
       [passwordHash, id]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Actualizar foto de perfil
+   */
+  updateProfilePhoto: async (id: number, photoUrl: string): Promise<Usuario | null> => {
+    const result = await query(
+      'UPDATE usuarios SET foto_perfil = $1 WHERE id = $2 RETURNING *',
+      [photoUrl, id]
     );
     return result.rows[0] || null;
   },
