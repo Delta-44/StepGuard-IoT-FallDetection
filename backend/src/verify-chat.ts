@@ -23,7 +23,7 @@ async function verifyChat() {
     try {
         const response = await axios.post(
             `${BASE_URL}/chat`,
-            { message: "Cuantas alertas quedan por resolver?" },
+            { message: "holi, que puedes hacer?" },
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
