@@ -15,13 +15,15 @@
     "db:diagnose": "ts-node src/diagnose-connection.ts",
     "db:seed": "ts-node src/seed-db.ts",
     "redis:seed": "ts-node src/seed-redis.ts",
-    "redis:view": "ts-node src/view-redis.ts"
+    "redis:view": "ts-node src/view-redis.ts",
+    "mcp": "ts-node src/mcp-server.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
@@ -38,8 +40,10 @@
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.13",
+    "openai": "^6.18.0",
     "pg": "^8.17.2",
-    "redis": "^5.10.0"
+    "redis": "^5.10.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

@@ -13,6 +13,7 @@ import authRoutes from './routes/authRoutes';
 import esp32Routes from './routes/esp32Routes';
 import userRoutes from './routes/userRoutes';
 import eventRoutes from './routes/eventRoutes';
+import chatRoutes from './routes/chatRoutes';
 import authMiddleware, { AuthRequest } from './middleware/auth';
 import { connectMQTT } from './config/mqtt';
 import { AlertService } from './services/alertService';
@@ -38,6 +39,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/esp32', esp32Routes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Protected Route Example
 app.get('/api/protected', authMiddleware, (req: AuthRequest, res: Response) => {
