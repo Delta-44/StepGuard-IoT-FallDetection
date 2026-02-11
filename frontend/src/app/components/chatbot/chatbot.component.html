@@ -1,0 +1,146 @@
+<!-- Botón Flotante -->
+<button 
+  class="chatbot-fab" 
+  (click)="toggleChat()"
+  [class.open]="isOpen()"
+  title="Asistente Virtual"
+>
+  @if (!isOpen()) {
+    <i-lucide name="message-circle" [size]="20"></i-lucide>
+    <span class="fab-text">Ayuda</span>
+  } @else {
+    <i-lucide name="x" [size]="20"></i-lucide>
+  }
+</button>
+
+<!-- Ventana de Chat -->
+@if (isOpen()) {
+  <div class="chatbot-window">
+    
+    <!-- Header -->
+    <div class="chatbot-header">
+      <div class="header-content">
+        <div class="bot-avatar">
+          <i-lucide name="bot" [size]="20"></i-lucide>
+        </div>
+        <div class="header-text">
+          <h3>Asistente StepGuard</h3>
+          <p>
+            @if (isTyping()) {
+              <span class="typing-indicator">escribiendo...</span>
+            } @else {
+              <span class="status-online">En línea</span>
+            }
+          </p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button 
+          class="icon-btn" 
+          (click)="clearChat()"
+          title="Limpiar chat"
+        >
+          <i-lucide name="trash-2" [size]="16"></i-lucide>
+        </button>
+        <button 
+          class="icon-btn" 
+          (click)="closeChat()"
+          title="Cerrar"
+        >
+          <i-lucide name="x" [size]="18"></i-lucide>
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages Body -->
+    <div class="chatbot-messages">
+      @for (message of messages(); track trackMessageById($index, message)) {
+        <div 
+          class="message-wrapper"
+          [class.user-message]="message.sender === 'user'"
+          [class.bot-message]="message.sender === 'bot'"
+        >
+          @if (message.sender === 'bot') {
+            <div class="message-avatar">
+              <i-lucide name="bot" [size]="16"></i-lucide>
+            </div>
+          }
+          <div class="message-bubble">
+            <p [innerHTML]="message.text | nl2br"></p>
+            <span class="message-time">{{ formatTime(message.timestamp) }}</span>
+          </div>
+          @if (message.sender === 'user') {
+            <div class="message-avatar user-avatar">
+              @if (currentUser()?.foto_perfil) {
+                <img [src]="currentUser()?.foto_perfil" alt="Usuario">
+              } @else {
+                <span>{{ currentUser()?.fullName?.charAt(0) || 'U' }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Typing Indicator -->
+      @if (isTyping()) {
+        <div class="message-wrapper bot-message">
+          <div class="message-avatar">
+            <i-lucide name="bot" [size]="16"></i-lucide>
+          </div>
+          <div class="message-bubble typing-bubble">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Suggested Questions -->
+    @if (messages().length <= 1 && !isTyping()) {
+      <div class="suggested-questions">
+        <p class="suggestions-title">Preguntas sugeridas:</p>
+        <div class="suggestions-grid">
+          @for (question of suggestedQuestions().slice(0, 3); track question) {
+            <button 
+              class="suggestion-btn"
+              (click)="useSuggestedQuestion(question)"
+            >
+              <i-lucide name="sparkles" [size]="14"></i-lucide>
+              <span>{{ question }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Input Area -->
+    <div class="chatbot-input-area">
+      <textarea
+        [(ngModel)]="inputMessage"
+        (keydown.enter)="handleKeyDown($event)"
+        placeholder="Escribe tu mensaje..."
+        rows="1"
+        class="chat-input"
+        [disabled]="isTyping()"
+      ></textarea>
+      <button 
+        class="send-btn"
+        (click)="sendMessage()"
+        [disabled]="!inputMessage().trim() || isTyping()"
+        title="Enviar mensaje"
+      >
+        <i-lucide name="send" [size]="18"></i-lucide>
+      </button>
+    </div>
+
+    <!-- Footer Info -->
+    <div class="chatbot-footer">
+      <i-lucide name="shield-check" [size]="12"></i-lucide>
+      <span>Asistente con IA · Datos en tiempo real</span>
+    </div>
+
+  </div>
+}

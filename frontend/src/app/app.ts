@@ -8,6 +8,7 @@ import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs'; // 👈 Importante
 import { LucideAngularModule } from 'lucide-angular';
 import { NotificationComponent } from './components/notification/notification.component';
+import { ChatbotComponent } from './components/chatbot/chatbot.component';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ import { NotificationComponent } from './components/notification/notification.co
     CommonModule,
     LucideAngularModule,
     NotificationComponent,
+    ChatbotComponent,
   ],
   styleUrl: './app.css',
   templateUrl: './app.html',
