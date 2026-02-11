@@ -45,14 +45,18 @@ export class PatientProfileComponent implements OnInit {
   ngOnInit() {
     const user = this.authService.currentUser();
 
-    // 🔒 Solo pacientes pueden ver esta página
-    if (!user || user.role !== 'user') {
-      this.router.navigate(['/dashboard']);
+    // 🟢 AHORA: Permitimos que todos entren.
+    if (!user) {
+      this.router.navigate(['/']);
       return;
     }
 
-    this.currentUser.set(user);
-    this.loadPatientData();
+    // Usar setTimeout para evitar el error NG0100 (ExpressionChangedAfterItHasBeenCheckedError)
+    // Esto asegura que la actualización de la señal y la carga de datos ocurran en el siguiente ciclo.
+    setTimeout(() => {
+        this.currentUser.set(user);
+        this.loadPatientData();
+    });
   }
 
   async loadPatientData() {
@@ -65,7 +69,12 @@ export class PatientProfileComponent implements OnInit {
       // Cargar información completa del paciente
       const patientData = await this.apiService.getUserById(String(userId));
       console.log('👤 Patient Data loaded:', patientData);
-      this.currentUser.set(patientData);
+      
+      // ✅ MERGE data to preserve Role and Token from local session
+      this.currentUser.update(prev => {
+          if (!prev) return patientData;
+          return { ...prev, ...patientData, role: prev.role };
+      });
 
       // Cargar dispositivo asignado
       if (patientData.dispositivo_mac) {
@@ -249,7 +258,7 @@ export class PatientProfileComponent implements OnInit {
   }
 
   exportData() {
-    this.userService.exportUsersCSV().subscribe({
+    this.userService.exportUsersCSV('me').subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -266,5 +275,35 @@ export class PatientProfileComponent implements OnInit {
         this.notificationService.error('Error', 'No se pudo descargar el archivo');
       }
     });
+  }
+
+  getRoleLabel(): string {
+    const role = this.currentUser()?.role;
+    if (role === 'admin') return 'Administrador';
+    if (role === 'caregiver') return 'Cuidador';
+    return 'Paciente';
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      const userId = this.currentUser()?.id;
+      if (!userId) return;
+
+      // Usamos el servicio de usuarios (que eventualmente llamará a la API)
+      this.apiService.uploadProfilePhoto(userId, file).subscribe({
+        next: (response) => {
+           console.log('Foto actualizada', response);
+           const updatedUser = { ...this.currentUser()!, foto_perfil: response.photoUrl };
+           this.currentUser.set(updatedUser); 
+           this.authService.updateCurrentUser(updatedUser);
+           this.notificationService.success('Éxito', 'Foto de perfil actualizada');
+        },
+        error: (err) => {
+            console.error('Error subiendo foto:', err);
+            this.notificationService.error('Error', 'No se pudo actualizar la foto');
+        }
+      });
+    }
   }
 }

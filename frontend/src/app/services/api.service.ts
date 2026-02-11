@@ -27,6 +27,17 @@ export class ApiService {
   constructor() {}
 
   // ==========================================
+  // 📸 PERFIL DE USUARIO
+  // ==========================================
+
+  uploadProfilePhoto(userId: number | string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    return this.http.post(`${this.apiUrl}/users/${userId}/photo`, formData);
+  }
+
+  // ==========================================
   // 🚨 LÓGICA DE ALERTAS
   // ==========================================
 
@@ -161,12 +172,24 @@ export class ApiService {
   // 🆕 Obtener historial de alertas (Real + Mock)
   async getEvents(userId?: string): Promise<Alert[]> {
     try {
-      // 1. Obtener alertas reales del backend
+      // 1. Obtener alertas reales del backend (Últimos 7 días por defecto para ver historial)
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7);
+
       let url = `${this.apiUrl}/events`;
-      if (userId) url += `?userId=${userId}`;
+      
+      const params: any = {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      };
+
+      if (userId) {
+        params.userId = userId;
+      }
 
       // Usar firstValueFrom en lugar de toPromise() para mejor compatibilidad con interceptores
-      const realEvents: any[] = await firstValueFrom(this.http.get<any[]>(url));
+      const realEvents: any[] = await firstValueFrom(this.http.get<any[]>(url, { params }));
 
       const mappedEvents = realEvents.map((e) => ({
         id: String(e.id),
@@ -271,18 +294,7 @@ export class ApiService {
       };
     } catch (error) {
       console.error('Error obteniendo usuario del backend:', error);
-      // Fallback a datos mock si falla
-      return {
-        id: userId,
-        fullName: 'Usuario',
-        email: 'usuario@ejemplo.com',
-        telefono: 'N/A',
-        direccion: 'N/A',
-        edad: null,
-        genero: null,
-        dispositivo_mac: null,
-        role: 'user',
-      };
+      throw error;
     }
   }
 }

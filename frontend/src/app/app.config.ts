@@ -72,6 +72,7 @@ import {
   FileSpreadsheet,
   Download,
   Menu,
+  UploadCloud,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -147,6 +148,7 @@ const icons = {
   FileSpreadsheet,
   Download,
   Menu,
+  UploadCloud,
 };
 
 export const appConfig: ApplicationConfig = {
