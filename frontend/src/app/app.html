@@ -228,4 +228,9 @@
   <!-- Componente de Notificaciones -->
   <app-notification></app-notification>
 
+  <!-- Chatbot (solo visible para usuarios autenticados) -->
+  @if (currentUser() && showNavbar()) {
+    <app-chatbot></app-chatbot>
+  }
+
 </div>

@@ -155,7 +155,7 @@
 /* Floating Analytics Button */
 .fab-analytics {
   position: fixed;
-  left: 20px;
+  left: 135px;
   bottom: 20px;
   z-index: 50;
   display: inline-flex;
@@ -186,8 +186,8 @@
 /* Responsive floating button */
 @media (max-width: 768px) {
   .fab-analytics {
-    left: 12px;
-    bottom: 70px; /* Evitar chocar con navegación móvil */
+    left: 125px;
+    bottom: 70px;
     padding: 8px 12px;
     font-size: 13px;
     gap: 6px;
@@ -196,7 +196,7 @@
 
 @media (max-width: 480px) {
   .fab-analytics {
-    left: 10px;
+    left: 80px;
     bottom: 75px;
     padding: 6px 10px;
     font-size: 12px;
