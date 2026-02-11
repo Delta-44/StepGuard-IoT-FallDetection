@@ -64,6 +64,27 @@ const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
                 properties: {},
             }
         }
+    },
+    {
+        type: 'function',
+        function: {
+            name: 'get_fall_history',
+            description: 'Get historical fall events for a user or all users (admin only). Can filter by date range.',
+            parameters: {
+                type: 'object',
+                properties: {
+                    targetUserId: {
+                        type: 'number',
+                        description: 'Optional ID of the specific user to query history for. Users can only query themselves.'
+                    },
+                    days: {
+                        type: 'number',
+                        description: 'Number of past days to search for. Default is 30.'
+                    }
+                },
+                required: []
+            }
+        }
     }
 ];
 
@@ -74,7 +95,7 @@ export class AIService {
      * @param userQuery The question or command from the user.
      * @returns The natural language response from the AI.
      */
-    static async processQuery(userQuery: string): Promise<string> {
+    static async processQuery(userQuery: string, userContext?: { id: number, role: string }): Promise<string> {
         try {
             const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
                 {
@@ -89,7 +110,7 @@ export class AIService {
                     4. If you cannot answer, admit it politedly.
                     
                     Current context:
-                    - You are speaking to a dashboard user (likely a caregiver or admin).
+                    - You are speaking to user ID ${userContext?.id || 'unknown'} with role ${userContext?.role || 'unknown'}.
                     - Be helpful and professional.`
                 },
                 { role: 'user', content: userQuery }
@@ -114,15 +135,15 @@ export class AIService {
                 for (const toolCall of responseMessage.tool_calls) {
                     // Start of workaround for type issue with OpenRouter/OpenAI compatibility
                     if (toolCall.type !== 'function') continue;
-                    
+
                     const functionName = toolCall.function.name;
                     const functionArgs = JSON.parse(toolCall.function.arguments);
-                    
+
                     let functionResult = '';
 
                     try {
                         console.log(`[AIService] Calling tool: ${functionName} with args:`, functionArgs);
-                        
+
                         if (functionName === 'get_device_telemetry') {
                             const data = await ESP32Service.getDeviceData(functionArgs.macAddress);
                             functionResult = JSON.stringify(data || { error: 'Device not found or offline' });
@@ -132,6 +153,35 @@ export class AIService {
                         } else if (functionName === 'list_pending_events') {
                             const events = await EventoCaidaModel.findPendientes();
                             functionResult = JSON.stringify(events);
+                        } else if (functionName === 'get_fall_history') {
+                            const { targetUserId, days = 30 } = functionArgs;
+
+                            // Securely get context from the authenticated user
+                            const requesterId = userContext?.id;
+                            const role = userContext?.role;
+
+                            if (!requesterId || !role) {
+                                functionResult = JSON.stringify({ error: "Unauthorized: User context missing." });
+                            } else {
+                                let effectiveTargetUserId: number | undefined = targetUserId;
+
+                                if (role !== 'admin') {
+                                    if (targetUserId && targetUserId !== requesterId) {
+                                        functionResult = JSON.stringify({ error: "Unauthorized: You can only view your own history." });
+                                    } else {
+                                        effectiveTargetUserId = requesterId;
+                                    }
+                                }
+
+                                if (!functionResult) { // Only proceed if no error yet
+                                    const endDate = new Date();
+                                    const startDate = new Date();
+                                    startDate.setDate(endDate.getDate() - days);
+
+                                    const events = await EventoCaidaModel.findByFechas(startDate, endDate, effectiveTargetUserId);
+                                    functionResult = JSON.stringify(events);
+                                }
+                            }
                         } else {
                             functionResult = JSON.stringify({ error: 'Tool not found' });
                         }

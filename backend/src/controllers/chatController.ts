@@ -16,8 +16,9 @@ export const ChatController = {
 
             console.log(`[ChatController] Received message: "${message}"`);
 
-            // Use AI Service to process the query
-            const reply = await AIService.processQuery(message);
+            // Use AI Service to process the query with user context
+            const userContext = (req as any).user;
+            const reply = await AIService.processQuery(message, userContext);
 
             res.json({ reply });
 
