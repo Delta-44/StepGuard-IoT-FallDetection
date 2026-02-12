@@ -4,6 +4,11 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { LUCIDE_ICONS, LucideIconProvider } from 'lucide-angular';
 import {
   Shield,
+  ShieldCheck,
+  Bot,
+  MessageCircle,
+  Sparkles,
+  Send,
   Users,
   AlertTriangle,
   Smartphone,
@@ -80,6 +85,11 @@ import { authInterceptor } from './interceptors/auth.interceptor';
 
 const icons = {
   Shield,
+  ShieldCheck,
+  Bot,
+  MessageCircle,
+  Sparkles,
+  Send,
   Users,
   AlertTriangle,
   Smartphone,
