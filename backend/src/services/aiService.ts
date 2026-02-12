@@ -1,13 +1,11 @@
 import OpenAI from 'openai';
-import { ESP32Service } from './esp32Service';
-import { DispositivoModel } from '../models/dispositivo';
-import { EventoCaidaModel } from '../models/eventoCaida';
+import { McpClientService } from './mcpClientService';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 // Configuration for OpenRouter
-const OPENROUTER_API_KEY = process.env.MCP_API_KEY || ''; // Reusing the same key variable
+const OPENROUTER_API_KEY = process.env.MCP_API_KEY || '';
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 const MODEL_NAME = 'google/gemini-2.0-flash-001';
 
@@ -19,205 +17,133 @@ const client = new OpenAI({
     baseURL: OPENROUTER_BASE_URL,
     apiKey: OPENROUTER_API_KEY,
     defaultHeaders: {
-        "HTTP-Referer": "https://stepguard-iot.com", // Optional: required by some OpenRouter models
-        "X-Title": "StepGuard IoT", // Optional
+        "HTTP-Referer": "https://stepguard-iot.com",
+        "X-Title": "StepGuard IoT",
     }
 });
-
-// Define tools available to the LLM
-const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
-    {
-        type: 'function',
-        function: {
-            name: 'get_device_telemetry',
-            description: 'Get real-time telemetry data (accelerometer, status) for a specific ESP32 device.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    macAddress: {
-                        type: 'string',
-                        description: 'The MAC address of the device (e.g., "FF:FF:FF:FF:FF:FF").'
-                    }
-                },
-                required: ['macAddress']
-            }
-        }
-    },
-    {
-        type: 'function',
-        function: {
-            name: 'list_devices',
-            description: 'List all registered devices and their assigned users.',
-            parameters: {
-                type: 'object',
-                properties: {},
-            }
-        }
-    },
-    {
-        type: 'function',
-        function: {
-            name: 'list_pending_events',
-            description: 'List all pending fall events or SOS alerts that have not been resolved.',
-            parameters: {
-                type: 'object',
-                properties: {},
-            }
-        }
-    },
-    {
-        type: 'function',
-        function: {
-            name: 'get_fall_history',
-            description: 'Get historical fall events for a user or all users (admin only). Can filter by date range.',
-            parameters: {
-                type: 'object',
-                properties: {
-                    targetUserId: {
-                        type: 'number',
-                        description: 'Optional ID of the specific user to query history for. Users can only query themselves.'
-                    },
-                    days: {
-                        type: 'number',
-                        description: 'Number of past days to search for. Default is 30.'
-                    }
-                },
-                required: []
-            }
-        }
-    }
-];
 
 export class AIService {
 
     /**
-     * Process a user query using OpenRouter LLM and internal tools.
+     * Process a user query using OpenRouter LLM and internal tools via MCP.
      * @param userQuery The question or command from the user.
      * @returns The natural language response from the AI.
      */
     static async processQuery(userQuery: string, userContext?: { id: number, role: string }): Promise<string> {
         try {
+            // 1. Initialize MCP Client
+            const mcpClient = McpClientService.getInstance();
+            await mcpClient.connect();
+
+            // 2. Fetch tools from MCP
+            const mcpTools = await mcpClient.getTools();
+            
+            // 3. Map MCP tools to OpenAI tools format
+            const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = mcpTools.map((tool: any) => ({
+                type: 'function',
+                function: {
+                    name: tool.name,
+                    description: tool.description,
+                    parameters: tool.inputSchema
+                }
+            }));
+
             const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
                 {
                     role: 'system',
                     content: `Eres StepGuard AI, un asistente inteligente para el sistema IoT de detección de caídas StepGuard.
-                    Tienes acceso a datos en tiempo real de los dispositivos ESP32 y registros de la base de datos.
+                    Utilizas un servidor MCP (Model Context Protocol) para acceder a datos en tiempo real.
                     
                     Tus responsabilidades:
-                    1. Responder preguntas sobre el estado de los dispositivos, caídas y alertas de forma concisa.
-                    2. Si necesitas datos, utiliza las herramientas proporcionadas.
-                    3. Si una herramienta devuelve datos, interprétalos para el usuario.
+                    1. Responder preguntas sobre el estado de los dispositivos, caídas y alertas.
+                    2. UTILIZA las herramientas proporcionadas para obtener datos reales.
+                    3. Interpreta los datos JSON que te devuelven las herramientas para el usuario.
                     4. Si no puedes responder, admítelo educadamente.
-                    5. IMPORTANTE: SIEMPRE RESPONDE EN ESPAÑOL, independientemente del idioma de la consulta.
+                    5. IMPORTANTE: SIEMPRE RESPONDE EN ESPAÑOL.
                     
-                    Contexto actual:
-                    - Estás hablando con un usuario del panel de control (cuidador o administrador).
-                    - Sé servicial, profesional y mantén un tono tranquilizador.`
+                    Contexto del usuario:
+                    ID: ${userContext?.id || 'Desconocido'}
+                    Rol: ${userContext?.role || 'Desconocido'}
+                    
+                    NOTA: Para herramientas que requieran 'adminId' o 'requesterId', usa el ID del contexto del usuario (${userContext?.id}).`
                 },
                 { role: 'user', content: userQuery }
             ];
 
-            // First call: Ask LLM what to do (it might call a tool)
+            // 4. First call: Ask LLM what to do
             const response = await client.chat.completions.create({
                 model: MODEL_NAME,
                 messages: messages,
-                tools: tools,
-                tool_choice: 'auto'
+                tools: tools.length > 0 ? tools : undefined,
+                tool_choice: tools.length > 0 ? 'auto' : undefined
             });
 
             const responseMessage = response.choices[0].message;
 
-            // Check if the LLM wants to call a tool
+            // 5. Check if the LLM wants to call a tool
             if (responseMessage.tool_calls) {
-                // Add the LLM's request to the conversation history
                 messages.push(responseMessage);
 
-                // Execute each tool call
                 for (const toolCall of responseMessage.tool_calls) {
-                    // Start of workaround for type issue with OpenRouter/OpenAI compatibility
                     if (toolCall.type !== 'function') continue;
 
                     const functionName = toolCall.function.name;
                     const functionArgs = JSON.parse(toolCall.function.arguments);
-
                     let functionResult = '';
 
                     try {
-                        console.log(`[AIService] Calling tool: ${functionName} with args:`, functionArgs);
+                        console.log(`[AIService] Calling MCP tool: ${functionName} with args:`, functionArgs);
 
-                        if (functionName === 'get_device_telemetry') {
-                            const data = await ESP32Service.getDeviceData(functionArgs.macAddress);
-                            functionResult = JSON.stringify(data || { error: 'Device not found or offline' });
-                        } else if (functionName === 'list_devices') {
-                            const devices = await DispositivoModel.findAllWithUser();
-                            functionResult = JSON.stringify(devices);
-                        } else if (functionName === 'list_pending_events') {
-                            const events = await EventoCaidaModel.findPendientes();
-                            functionResult = JSON.stringify(events);
-                        } else if (functionName === 'get_fall_history') {
-                            const { targetUserId, days = 30 } = functionArgs;
-
-                            // Securely get context from the authenticated user
-                            const requesterId = userContext?.id;
-                            const role = userContext?.role;
-
-                            if (!requesterId || !role) {
-                                functionResult = JSON.stringify({ error: "Unauthorized: User context missing." });
-                            } else {
-                                let effectiveTargetUserId: number | undefined = targetUserId;
-
-                                if (role !== 'admin') {
-                                    if (targetUserId && targetUserId !== requesterId) {
-                                        functionResult = JSON.stringify({ error: "Unauthorized: You can only view your own history." });
-                                    } else {
-                                        effectiveTargetUserId = requesterId;
-                                    }
-                                }
-
-                                if (!functionResult) { // Only proceed if no error yet
-                                    const endDate = new Date();
-                                    const startDate = new Date();
-                                    startDate.setDate(endDate.getDate() - days);
-
-                                    const events = await EventoCaidaModel.findByFechas(startDate, endDate, effectiveTargetUserId);
-                                    functionResult = JSON.stringify(events);
-                                }
-                            }
-                        } else {
-                            functionResult = JSON.stringify({ error: 'Tool not found' });
+                        // Inject user context if needed by specific tools (manual override for now if needed, 
+                        // but ideally the LLM should pass them based on the system prompt context)
+                        if (functionName === 'resolve_event' && !functionArgs.adminId && userContext?.id) {
+                            functionArgs.adminId = userContext.id;
                         }
+                        if (functionName === 'get_fall_history' || functionName === 'get_device_details') {
+                            // Always override/inject context to ensure security
+                             if (userContext?.id) functionArgs.requesterId = userContext.id;
+                             if (userContext?.role) functionArgs.role = userContext.role;
+                        }
+
+                        // Execute via MCP
+                        const result = await mcpClient.callTool(functionName, functionArgs);
+                        
+                        // Format result for OpenAI
+                        // MCP returns { content: [{ type: 'text', text: '...' }] }
+                        if (result.content && Array.isArray(result.content)) {
+                            functionResult = result.content
+                                .map((c: any) => c.text)
+                                .join('\n');
+                        } else {
+                             functionResult = JSON.stringify(result);
+                        }
+
                     } catch (error: any) {
-                        console.error(`[AIService] Tool execution error (${functionName}):`, error);
+                        console.error(`[AIService] MCP Tool execution error (${functionName}):`, error);
                         functionResult = JSON.stringify({ error: error.message });
                     }
 
-                    // Feed the tool result back to the LLM
                     messages.push({
                         role: 'tool',
                         tool_call_id: toolCall.id,
-                        content: functionResult
+                        content: functionResult || "No content returned"
                     });
                 }
 
-                // Second call: Get the final natural language response
+                // 6. Second call: Get final response
                 const secondResponse = await client.chat.completions.create({
                     model: MODEL_NAME,
                     messages: messages
                 });
 
-                return secondResponse.choices[0].message.content || 'I processed the data but could not generate a response.';
+                return secondResponse.choices[0].message.content || 'Procesé los datos pero no pude generar una respuesta.';
             }
 
-            // If no tool was called, just return the text
-            return responseMessage.content || 'I am sorry, I could not understand that.';
+            return responseMessage.content || 'Lo siento, no pude entender eso.';
 
         } catch (error: any) {
             console.error('[AIService] Error processing query:', error);
-            if (error.response) {
-                console.error('[AIService] OpenRouter Response Data:', error.response.data);
-                console.error('[AIService] OpenRouter Response Status:', error.response.status);
-            }
-            return `Sorry, I am having trouble connecting to the AI service right now. Error: ${error.message}`;
+            return `Lo siento, tengo problemas para conectar con el servicio de IA o el servidor MCP en este momento. Error: ${error.message}`;
         }
     }
 }
