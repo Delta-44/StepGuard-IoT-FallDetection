@@ -10,12 +10,12 @@
 }
 .modal-header h2 {
   margin: 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 1.8rem;
   font-weight: 700;
 }
 .modal-header p {
-  color: #666;
+  color: var(--text-secondary);
   margin: 5px 0 0;
   font-size: 0.95rem;
 }
@@ -30,12 +30,14 @@
   margin-bottom: 6px;
   font-weight: 600;
   font-size: 0.9rem;
-  color: #444;
+  color: var(--text-secondary);
 }
 .input-group input {
   width: 100%;
   padding: 12px;
-  border: 2px solid #eee;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
   border-radius: 10px;
   font-size: 1rem;
   box-sizing: border-box; /* ESTO ES CRÍTICO PARA QUE NO SE SALGA */
@@ -76,7 +78,7 @@
 /* BOTÓN GOOGLE */
 .google-btn {
   margin-top: 15px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   padding: 10px;
   border-radius: 10px;
   text-align: center;
@@ -85,8 +87,8 @@
   justify-content: center;
   align-items: center;
   font-weight: 600;
-  color: #555;
-  background: white;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
   transition: background 0.2s;
 }
 .google-btn:hover {
@@ -98,7 +100,7 @@
   margin-top: 20px;
   text-align: center;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 .modal-footer a {
   color: #007bff;
@@ -146,7 +148,7 @@
 }
 
 .forgot-password a {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   text-decoration: none;
   cursor: pointer;
