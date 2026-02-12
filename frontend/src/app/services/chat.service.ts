@@ -56,9 +56,10 @@ export class ChatService {
   /**
    * Guarda el historial de chat en sessionStorage
    */
-  saveHistory(messages: ChatMessage[]): void {
+  saveHistory(messages: ChatMessage[], userId?: string | number): void {
+    if (!userId) return;
     try {
-      sessionStorage.setItem('chat_history', JSON.stringify(messages));
+      sessionStorage.setItem(`chat_history_${userId}`, JSON.stringify(messages));
     } catch (error) {
       console.error('Error saving chat history:', error);
     }
@@ -67,9 +68,10 @@ export class ChatService {
   /**
    * Recupera el historial de chat desde sessionStorage
    */
-  loadHistory(): ChatMessage[] {
+  loadHistory(userId?: string | number): ChatMessage[] {
+    if (!userId) return [];
     try {
-      const history = sessionStorage.getItem('chat_history');
+      const history = sessionStorage.getItem(`chat_history_${userId}`);
       return history ? JSON.parse(history) : [];
     } catch (error) {
       console.error('Error loading chat history:', error);
@@ -80,9 +82,10 @@ export class ChatService {
   /**
    * Limpia el historial de chat
    */
-  clearHistory(): void {
+  clearHistory(userId?: string | number): void {
+    if (!userId) return;
     try {
-      sessionStorage.removeItem('chat_history');
+      sessionStorage.removeItem(`chat_history_${userId}`);
     } catch (error) {
       console.error('Error clearing chat history:', error);
     }

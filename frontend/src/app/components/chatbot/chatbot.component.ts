@@ -1,4 +1,4 @@
-import { Component, signal, inject, effect, OnInit } from '@angular/core';
+import { Component, signal, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
@@ -13,9 +13,10 @@ import { Nl2brPipe } from '../../pipes/nl2br.pipe';
   templateUrl: './chatbot.component.html',
   styleUrls: ['./chatbot.component.css'],
 })
-export class ChatbotComponent implements OnInit {
+export class ChatbotComponent {
   private chatService = inject(ChatService);
   private authService = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   // Estado del chatbot
   isOpen = signal(false);
@@ -30,23 +31,58 @@ export class ChatbotComponent implements OnInit {
     // Guardar historial cuando cambian los mensajes
     effect(() => {
       const msgs = this.messages();
-      if (msgs.length > 1) { // No guardar solo el mensaje de bienvenida
-        this.chatService.saveHistory(msgs);
+      const userId = this.currentUser()?.id;
+      if (msgs.length > 1 && userId) { 
+        this.chatService.saveHistory(msgs, userId);
       }
     });
+
+    // Cargar historial inicial si ya hay usuario
+    effect(() => {
+      const user = this.currentUser();
+      if (user?.id) {
+        this.loadChatForUser(user.id);
+      }
+    }, { allowSignalWrites: true });
   }
 
-  ngOnInit(): void {
-    // Inicializar contenido de forma inmediata
-    setTimeout(() => {
-      const history = this.chatService.loadHistory();
-      if (history.length > 0) {
-        this.messages.set(history);
-      } else {
-        this.addWelcomeMessage();
+  private loadChatForUser(userId: string | number): void {
+    console.log('[Chatbot] Loading chat for user:', userId);
+    const history = this.chatService.loadHistory(userId);
+    
+    if (history.length > 0) {
+      console.log('[Chatbot] Restoring history:', history.length);
+      this.messages.set(history);
+    } else {
+      console.log('[Chatbot] No history, showing welcome.');
+      this.addWelcomeMessage();
+    }
+    
+    this.loadSuggestedQuestions();
+    this.cdr.detectChanges();
+    setTimeout(() => this.scrollToBottom(), 50);
+  }
+
+  toggleChat(): void {
+    this.isOpen.update((val) => !val);
+    
+    if (this.isOpen()) {
+      // Al abrir, asegurarnos de que hay mensajes si el usuario está logueado
+      const user = this.currentUser();
+      if (user?.id && this.messages().length === 0) {
+        this.loadChatForUser(user.id);
       }
-      this.loadSuggestedQuestions();
-    }, 0);
+
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.scrollToBottom();
+        this.cdr.detectChanges(); // Check one more time after scroll/animation
+      }, 100);
+    }
+  }
+
+  closeChat(): void {
+    this.isOpen.set(false);
   }
 
   private addWelcomeMessage(): void {
@@ -62,14 +98,6 @@ export class ChatbotComponent implements OnInit {
   private loadSuggestedQuestions(): void {
     const role = this.currentUser()?.role;
     this.suggestedQuestions.set(this.chatService.getSuggestedQuestions(role));
-  }
-
-  toggleChat(): void {
-    this.isOpen.update((val) => !val);
-  }
-
-  closeChat(): void {
-    this.isOpen.set(false);
   }
 
   async sendMessage(messageText?: string): Promise<void> {
@@ -129,7 +157,10 @@ export class ChatbotComponent implements OnInit {
 
   clearChat(): void {
     this.messages.set([]);
-    this.chatService.clearHistory();
+    const userId = this.currentUser()?.id;
+    if (userId) {
+      this.chatService.clearHistory(userId);
+    }
     this.addWelcomeMessage();
   }
 
