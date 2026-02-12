@@ -113,7 +113,7 @@ async function main() {
     await runTest("assign_caregiver", `Asigna a ${CAREGIVER_EMAIL} como cuidador de ${USER_EMAIL}`);
 
     // 10. Discord
-    await runTest("send_discord_announcement", `Envía un anuncio a Discord: 'Prueba de sistema completada con éxito.'`);
+    await runTest("send_discord_message", `Envíale un mensaje a Discord: 'Prueba de mensaje genérico completada.'`);
 
     console.log("\n=== TEST COMPLETE ===");
 }

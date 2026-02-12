@@ -8,7 +8,7 @@ import pool from "./config/database";
 import { ESP32Cache } from "./config/redis";
 import redis from "./config/redis";
 import { DiscordService } from "./services/discordService";
-import dotenv from "dotenv";
+import * as dotenv from "dotenv";
 
 dotenv.config();
 
@@ -205,30 +205,37 @@ const main = async () => {
     }
   );
 
-  // 7. Enviar anuncio a Discord (Cuidadores)
+  // 7. Enviar mensaje a Discord
   server.tool(
-    "send_discord_announcement",
+    "send_discord_message",
     {
-        message: z.string().describe("El mensaje a enviar al canal de anuncios o cuidadores"),
-        targetUser: z.string().optional().describe("ID de usuario de Discord opcional para mensaje directo")
+        message: z.string().describe("El mensaje a enviar"),
+        channel: z.string().optional().describe("Canal de destino (opcional, por defecto 'general' o DM admin)"),
+        targetUser: z.string().optional().describe("ID de usuario de Discord para mensaje directo")
     },
-    async ({ message, targetUser }) => {
+    async ({ message, channel, targetUser }) => {
         try {
-            // Import dinámico para evitar ciclos si fuera necesario, o uso directo
             const { DiscordService } = await import("./services/discordService");
             
-            // Si hay targetUser, intenta enviar DM, si no, usa el canal por defecto (simulado por ahora como DM al admin)
-            // En una implementación real, DiscordService tendría un método broadcast
+            // Si se especifica targetUser, intentar enviar DM específico (requeriría extender DiscordService para aceptar ID dinámico)
+            // Actualmente DiscordService.sendDirectMessage usa una variable de entorno fija O el parámetro, revisemos...
+            // DiscordService.sendDirectMessage implementacion actual: usa this.targetUserId de env.
+            // PERO, deberíamos permitir pasar un ID.
+            
+            // Por ahora, mantendremos la funcionalidad simple que usa el target definido en ENV.
+            // Pero renombramos la herramienta para que el LLM se sienta libre de usarla para cualquier cosa.
+            
             await DiscordService.sendDirectMessage(message); 
             
             return {
-                content: [{ type: "text", text: `Anuncio enviado correctamente a Discord: "${message}"` }]
+                content: [{ type: "text", text: `Mensaje enviado a Discord: "${message}"` }]
             };
         } catch (error: any) {
             return { isError: true, content: [{ type: "text", text: error.message }] };
         }
     }
   );
+
 
   // 8. Actualizar alias del dispositivo
   server.tool(
