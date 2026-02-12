@@ -8,7 +8,7 @@
         <i-lucide name="radio" [size]="32" class="hidden md:block"></i-lucide>
         Sensores Conectados
       </h2>
-      <p class="text-sm md:text-base text-gray-600 mt-2">Monitoreo en tiempo real de dispositivos IoT</p>
+      <p class="text-sm md:text-base text-[var(--text-secondary)] mt-2">Monitoreo en tiempo real de dispositivos IoT</p>
     </div>
     
     <button 
@@ -38,7 +38,7 @@
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event); onSearchChange()"
         placeholder="Buscar dispositivos..."
-        class="w-full pl-12 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white text-sm md:text-base"
+        class="w-full pl-12 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-[var(--bg-secondary)] text-sm md:text-base"
       >
     </div>
   </div>
@@ -48,51 +48,51 @@
     <button 
       (click)="setStatusFilter('all')"
       class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
-      [ngClass]="statusFilter() === 'all' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+      [ngClass]="statusFilter() === 'all' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-gray-50 border-2 border-[var(--border-color)]'"
     >
       <i-lucide name="list" [size]="18" class="md:hidden"></i-lucide>
       <i-lucide name="list" [size]="20" class="hidden md:block"></i-lucide>
       <span class="hidden sm:inline">Todos</span>
-      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'all' ? 'bg-white/25' : 'bg-gray-200'">{{ devices().length }}</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'all' ? 'bg-[var(--bg-secondary)]/25' : 'bg-gray-200'">{{ devices().length }}</span>
     </button>
     
     <button 
       (click)="setStatusFilter('online')"
       class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
-      [ngClass]="statusFilter() === 'online' ? 'bg-green-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+      [ngClass]="statusFilter() === 'online' ? 'bg-green-600 text-white shadow-lg scale-105' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-gray-50 border-2 border-[var(--border-color)]'"
     >
       <i-lucide name="check-circle" [size]="18" class="md:hidden"></i-lucide>
       <i-lucide name="check-circle" [size]="20" class="hidden md:block"></i-lucide>
       <span class="hidden sm:inline">Conectados</span>
-      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'online' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('online') }}</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'online' ? 'bg-[var(--bg-secondary)]/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('online') }}</span>
     </button>
     
     <button 
       (click)="setStatusFilter('offline')"
       class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
-      [ngClass]="statusFilter() === 'offline' ? 'bg-red-600 text-white shadow-lg scale-105' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'"
+      [ngClass]="statusFilter() === 'offline' ? 'bg-red-600 text-white shadow-lg scale-105' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-gray-50 border-2 border-[var(--border-color)]'"
     >
       <i-lucide name="x-circle" [size]="18" class="md:hidden"></i-lucide>
       <i-lucide name="x-circle" [size]="20" class="hidden md:block"></i-lucide>
       <span class="hidden sm:inline">Desconectados</span>
-      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'offline' ? 'bg-white/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('offline') }}</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'offline' ? 'bg-[var(--bg-secondary)]/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('offline') }}</span>
     </button>
   </div>
 
   <!-- Empty State -->
   @if (!isLoading() && devices().length === 0) {
-    <div class="bg-white rounded-xl p-12 text-center animate-fade-in">
+    <div class="bg-[var(--bg-secondary)] rounded-xl p-12 text-center animate-fade-in">
       <div class="text-6xl mb-4">📡</div>
-      <p class="text-gray-500 text-lg">No se han encontrado dispositivos configurados.</p>
+      <p class="text-[var(--text-secondary)] text-lg">No se han encontrado dispositivos configurados.</p>
     </div>
   }
 
   <!-- Mensaje de búsqueda sin resultados -->
   @if (!isLoading() && devices().length > 0 && filteredDevices().length === 0) {
-    <div class="bg-white rounded-2xl p-12 text-center animate-fade-in">
+    <div class="bg-[var(--bg-secondary)] rounded-2xl p-12 text-center animate-fade-in">
       <div class="text-6xl mb-4">🔍</div>
-      <h3 class="text-xl font-bold text-gray-800 mb-2">No se encontraron resultados</h3>
-      <p class="text-gray-500">
+      <h3 class="text-xl font-bold text-[var(--text-primary)] mb-2">No se encontraron resultados</h3>
+      <p class="text-[var(--text-secondary)]">
         @if (searchTerm()) {
           No hay dispositivos 
           @if (statusFilter() === 'online') {
@@ -118,7 +118,7 @@
     
     @for (device of paginatedDevices(); track device.mac_address) {
       <div 
-        class="bg-white rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden animate-fade-in relative group"
+        class="bg-[var(--bg-secondary)] rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden animate-fade-in relative group"
       >
         
         <!-- Indicador de estado superior -->
@@ -147,7 +147,7 @@
                   }"
                 ></i-lucide>
               </div>
-              <h3 class="text-xl font-bold text-gray-800">{{ device.nombre }}</h3>
+              <h3 class="text-xl font-bold text-[var(--text-primary)]">{{ device.nombre }}</h3>
             </div>
             
             <!-- Indicador de estado simple (punto) -->
@@ -166,15 +166,15 @@
             <div class="flex items-center justify-between p-3 bg-transparent rounded-xl transition-colors">
               <div class="flex items-center gap-3">
                 <i-lucide name="network" [size]="18" class="text-primary"></i-lucide>
-                <span class="text-sm font-medium text-gray-600">MAC Address</span>
+                <span class="text-sm font-medium text-[var(--text-secondary)]">MAC Address</span>
               </div>
-              <span class="text-sm font-semibold text-gray-800 font-mono">{{ device.mac_address }}</span>
+              <span class="text-sm font-semibold text-[var(--text-primary)] font-mono">{{ device.mac_address }}</span>
             </div>
             
             <div class="flex items-center justify-between p-3 bg-transparent rounded-xl transition-colors">
               <div class="flex items-center gap-3">
                 <i-lucide name="zap" [size]="18" class="text-amber-500"></i-lucide>
-                <span class="text-sm font-medium text-gray-600">Impactos</span>
+                <span class="text-sm font-medium text-[var(--text-secondary)]">Impactos</span>
               </div>
               <span class="text-sm font-bold px-3 py-1 rounded-lg bg-blue-50 text-blue-700">
                 {{ device.total_impactos }}
@@ -184,9 +184,9 @@
             <div class="flex items-center justify-between p-3 bg-transparent rounded-xl transition-colors">
               <div class="flex items-center gap-3">
                 <i-lucide name="clock" [size]="18" class="text-gray-400"></i-lucide>
-                <span class="text-sm font-medium text-gray-600">Última conexión</span>
+                <span class="text-sm font-medium text-[var(--text-secondary)]">Última conexión</span>
               </div>
-              <span class="text-sm font-semibold text-gray-800">{{ device.ultima_conexion | date:'shortTime' }}</span>
+              <span class="text-sm font-semibold text-[var(--text-primary)]">{{ device.ultima_conexion | date:'shortTime' }}</span>
             </div>
           </div>
         </div>
@@ -209,14 +209,14 @@
 
   <!-- Controles de Paginación -->
   @if (filteredDevices().length > pageSize()) {
-    <div class="bg-white rounded-2xl mb-8 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in">
+    <div class="bg-[var(--bg-secondary)] rounded-2xl mb-8 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in">
       <!-- Info de páginas -->
-      <div class="text-sm text-gray-700 font-medium">
+      <div class="text-sm text-[var(--text-secondary)] font-medium">
         Mostrando <span class="font-bold text-blue-600">{{ (currentPage() - 1) * pageSize() + 1 }}</span> a 
         <span class="font-bold text-blue-600">{{ currentPage() * pageSize() > filteredDevices().length ? filteredDevices().length : currentPage() * pageSize() }}</span> de 
         <span class="font-bold text-blue-600">{{ filteredDevices().length }}</span> dispositivos
         @if (searchTerm()) {
-          <span class="text-gray-500 italic">(filtrados)</span>
+          <span class="text-[var(--text-secondary)] italic">(filtrados)</span>
         }
       </div>
 
@@ -226,7 +226,7 @@
           (click)="prevPage()" 
           [disabled]="currentPage() === 1"
           class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          [ngClass]="currentPage() === 1 ? 'bg-gray-200 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
+          [ngClass]="currentPage() === 1 ? 'bg-gray-200 text-[var(--text-secondary)]' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
         >
           <i-lucide name="chevron-left" [size]="18"></i-lucide>
           Anterior
@@ -238,7 +238,7 @@
             <button 
               (click)="changePage(page)"
               class="w-10 h-10 rounded-lg font-bold transition-all duration-300"
-              [ngClass]="currentPage() === page ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'"
+              [ngClass]="currentPage() === page ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-gray-200 text-[var(--text-secondary)] hover:bg-gray-300'"
             >
               {{ page }}
             </button>
@@ -249,7 +249,7 @@
           (click)="nextPage()" 
           [disabled]="currentPage() === totalPages()"
           class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          [ngClass]="currentPage() === totalPages() ? 'bg-gray-200 text-gray-500' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
+          [ngClass]="currentPage() === totalPages() ? 'bg-gray-200 text-[var(--text-secondary)]' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
         >
           Siguiente
           <i-lucide name="chevron-right" [size]="18"></i-lucide>
@@ -397,7 +397,7 @@
 
         <!-- Info Footer -->
         <div class="mt-6 p-4 bg-black/50 rounded-lg border border-gray-700">
-          <small class="text-gray-500 block leading-relaxed">
+          <small class="text-[var(--text-secondary)] block leading-relaxed">
             ℹ️ Este panel muestra datos técnicos para desarrollo y presentación del proyecto IoT.
             <br>
             Los datos son recibidos del ESP32 vía HTTP/MQTT y procesados por el backend.
@@ -411,7 +411,7 @@
 
 @if (isEditModalOpen()) {
   <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" (click)="closeEditDeviceModal()">
-    <div class="bg-white rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+    <div class="bg-[var(--bg-secondary)] rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
       <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-8 py-6">
         <h3 class="text-2xl font-bold flex items-center gap-2">
           <i-lucide name="edit" [size]="24"></i-lucide>
@@ -422,19 +422,19 @@
       <div class="p-8">
         <form (submit)="saveDeviceChanges()">
           <div class="mb-6">
-            <label class="block text-gray-700 font-bold mb-2">Nombre del Dispositivo</label>
+            <label class="block text-[var(--text-secondary)] font-bold mb-2">Nombre del Dispositivo</label>
             <input
               type="text"
               [ngModel]="editedDeviceName()"
               (ngModelChange)="editedDeviceName.set($event)"
               name="deviceName"
-              class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all font-medium"
+              class="w-full px-4 py-3 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all font-medium"
               placeholder="Ej: Sensor Habitación Principal"
               required
             >
           </div>
           <div class="flex gap-3">
-            <button type="button" class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all" (click)="closeEditDeviceModal()">
+            <button type="button" class="flex-1 px-6 py-3 border-2 border-[var(--border-color)] text-[var(--text-secondary)] rounded-xl font-bold hover:bg-gray-50 transition-all" (click)="closeEditDeviceModal()">
               Cancelar
             </button>
             <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">

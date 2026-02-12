@@ -6,7 +6,7 @@
       <i-lucide name="users" [size]="32" class="hidden md:block"></i-lucide>
       Lista de Usuarios
     </h2>
-    <p class="text-sm md:text-base text-gray-600 mt-2">Administración de pacientes y personal del sistema</p>
+    <p class="text-sm md:text-base text-[var(--text-secondary)] mt-2">Administración de pacientes y personal del sistema</p>
 
     <!-- Barra de Búsqueda y Filtros -->
     <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6 items-stretch sm:items-center">
@@ -27,14 +27,14 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
           placeholder="Buscar usuarios..."
-          class="w-full pl-11 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium text-sm md:text-base"
+          class="w-full pl-11 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium text-sm md:text-base"
         />
       </div>
 
       <!-- Botón de Orden Alfabético -->
       <button
         (click)="toggleAlphabeticalOrder()"
-        class="px-4 md:px-5 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:shadow-lg text-sm md:text-base whitespace-nowrap"
+        class="px-4 md:px-5 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] border-2 border-[var(--border-color)] hover:shadow-lg text-sm md:text-base whitespace-nowrap"
         [title]="
           isAlphabeticalOrder ? 'Ordenado A-Z (Click para Z-A)' : 'Ordenado Z-A (Click para A-Z)'
         "
@@ -62,7 +62,7 @@
         [ngClass]="
           activeFilter === 'user'
             ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105'
-            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] border-2 border-[var(--border-color)]'
         "
       >
         <i-lucide name="user" [size]="18" class="md:hidden"></i-lucide>
@@ -70,7 +70,7 @@
         <span class="hidden sm:inline">Pacientes</span>
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
-          [ngClass]="activeFilter === 'user' ? 'bg-white/25' : 'bg-gray-200'"
+          [ngClass]="activeFilter === 'user' ? 'bg-[var(--bg-secondary)]/25' : 'bg-[var(--bg-primary)]'"
           >{{ userCount }}</span
         >
       </button>
@@ -81,7 +81,7 @@
         [ngClass]="
           activeFilter === 'caregiver'
             ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-105'
-            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] border-2 border-[var(--border-color)]'
         "
       >
         <i-lucide name="heart" [size]="18" class="md:hidden"></i-lucide>
@@ -89,7 +89,7 @@
         <span class="hidden sm:inline">Cuidadores</span>
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
-          [ngClass]="activeFilter === 'caregiver' ? 'bg-white/25' : 'bg-gray-200'"
+          [ngClass]="activeFilter === 'caregiver' ? 'bg-[var(--bg-secondary)]/25' : 'bg-[var(--bg-primary)]'"
           >{{ caregiverCount }}</span
         >
       </button>
@@ -101,7 +101,7 @@
           [ngClass]="
             activeFilter === 'admin'
               ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+              : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] border-2 border-[var(--border-color)]'
           "
         >
           <i-lucide name="shield" [size]="18" class="md:hidden"></i-lucide>
@@ -109,7 +109,7 @@
           <span class="hidden sm:inline">Administradores</span>
           <span
             class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
-            [ngClass]="activeFilter === 'admin' ? 'bg-white/25' : 'bg-gray-200'"
+            [ngClass]="activeFilter === 'admin' ? 'bg-[var(--bg-secondary)]/25' : 'bg-[var(--bg-primary)]'"
             >{{ adminCount }}</span
           >
         </button>
@@ -123,15 +123,15 @@
       <div
         class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"
       ></div>
-      <p class="text-gray-600 text-lg">Cargando datos...</p>
+      <p class="text-[var(--text-secondary)] text-lg">Cargando datos...</p>
     </div>
   } @else {
     <!-- Sin resultados -->
     @if (filteredUsers.length === 0) {
-      <div class="bg-white rounded-2xl p-12 text-center animate-fade-in">
+      <div class="bg-[var(--bg-secondary)] rounded-2xl p-12 text-center animate-fade-in">
         <div class="text-6xl mb-4">🔍</div>
-        <h3 class="text-xl font-bold text-gray-800 mb-2">No se encontraron resultados</h3>
-        <p class="text-gray-500">
+        <h3 class="text-xl font-bold text-[var(--text-primary)] mb-2">No se encontraron resultados</h3>
+        <p class="text-[var(--text-secondary)]">
           @if (searchTerm.trim()) {
             No hay {{ activeFilter === 'user' ? 'pacientes' : 'cuidadores' }} que coincidan con "{{
               searchTerm
@@ -146,7 +146,7 @@
       <div class="md:hidden space-y-4 animate-fade-in">
         @for (user of paginatedUsers; track user.email) {
           <div 
-            class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98]"
+            class="bg-[var(--bg-secondary)] p-5 rounded-xl shadow-sm border border-[var(--border-color)] hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98]"
             (click)="openUserInfoModal(user)"
           >
             <!-- Header: Avatar, Nombre y Rol -->
@@ -174,7 +174,7 @@
 
               <div class="flex-1 min-w-0">
                 <div class="flex justify-between items-start">
-                  <h3 class="font-bold text-gray-900 text-lg leading-tight truncate">{{ user.fullName }}</h3>
+                  <h3 class="font-bold text-[var(--text-primary)] text-lg leading-tight truncate">{{ user.fullName }}</h3>
                   <span
                     class="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase text-white tracking-wide ml-2"
                     [ngClass]="{
@@ -197,7 +197,7 @@
             </div>
 
             <!-- Separador -->
-            <div class="border-t border-gray-200 my-3"></div>
+            <div class="border-t border-[var(--border-color)] my-3"></div>
 
             <!-- Botones de Acción (Alineados a la derecha) -->
             <div class="flex justify-end gap-3 mt-3">
@@ -271,7 +271,7 @@
             <tbody class="divide-y divide-gray-50">
               @for (user of paginatedUsers; track user.email) {
                 <tr 
-                  class="group hover:bg-gray-50/80 transition-all duration-300 cursor-pointer"
+                  class="group hover:bg-[var(--bg-primary)]/80 transition-all duration-300 cursor-pointer"
                   (click)="openUserInfoModal(user)"
                 >
                   <!-- Name Column -->
@@ -299,7 +299,7 @@
                       </div>
                       
                       <div>
-                        <div class="font-bold text-gray-900 text-base group-hover:text-blue-600 transition-colors">
+                        <div class="font-bold text-[var(--text-primary)] text-base group-hover:text-blue-600 transition-colors">
                           {{ user.fullName }}
                         </div>
                         <div class="text-xs text-gray-400 font-medium">
@@ -314,7 +314,7 @@
                   <!-- Contact Column -->
                   <td class="px-6 py-5">
                     <div class="flex flex-col">
-                      <span class="text-sm text-gray-600 font-medium">{{ user.email }}</span>
+                      <span class="text-sm text-[var(--text-secondary)] font-medium">{{ user.email }}</span>
                       <span class="text-xs text-gray-400">{{ user.username }}</span>
                     </div>
                   </td>
@@ -354,7 +354,7 @@
                        </span>
                        <span 
                           class="text-xs font-bold uppercase tracking-wider"
-                          [ngClass]="user.status === 'active' ? 'text-gray-700' : 'text-gray-400'"
+                          [ngClass]="user.status === 'active' ? 'text-[var(--text-secondary)]' : 'text-gray-400'"
                        >
                           {{ user.status === 'active' ? 'Activo' : 'Inactivo' }}
                        </span>
@@ -416,10 +416,10 @@
       <!-- Controles de Paginación Moderna (Visible en móvil y desktop) -->
       @if (filteredUsers.length > pageSize) {
           <div
-            class="bg-white/80 backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl mt-4 shadow-sm"
+            class="bg-[var(--bg-secondary)]/80 backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl mt-4 shadow-sm"
           >
             <!-- Info de páginas -->
-            <div class="text-sm text-gray-700 font-medium text-center sm:text-left">
+            <div class="text-sm text-[var(--text-secondary)] font-medium text-center sm:text-left">
               Mostrando
               <span class="font-bold text-blue-600">{{ (currentPage - 1) * pageSize + 1 }}</span> a
               <span class="font-bold text-blue-600">{{
@@ -431,7 +431,7 @@
               <span class="font-bold text-blue-600">{{ filteredUsers.length }}</span>
               {{ activeFilter === 'user' ? 'pacientes' : 'cuidadores' }}
               @if (searchTerm.trim()) {
-                <span class="text-gray-500 italic">(filtrados)</span>
+                <span class="text-[var(--text-secondary)] italic">(filtrados)</span>
               }
             </div>
 
@@ -443,7 +443,7 @@
                 class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 [ngClass]="
                   currentPage === 1
-                    ? 'bg-gray-200 text-gray-500'
+                    ? 'bg-[var(--bg-primary)] text-[var(--text-secondary)]'
                     : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
                 "
               >
@@ -460,7 +460,7 @@
                     [ngClass]="
                       currentPage === page
                         ? 'bg-blue-600 text-white shadow-lg scale-110'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        : 'bg-[var(--bg-primary)] text-[var(--text-secondary)] hover:bg-gray-300'
                     "
                   >
                     {{ page }}
@@ -474,7 +474,7 @@
                 class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 [ngClass]="
                   currentPage === totalPages
-                    ? 'bg-gray-200 text-gray-500'
+                    ? 'bg-[var(--bg-primary)] text-[var(--text-secondary)]'
                     : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
                 "
               >
@@ -494,7 +494,7 @@
       (click)="closeEditModal()"
     >
       <div
-        class="bg-white rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden"
+        class="bg-[var(--bg-secondary)] rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden"
         (click)="$event.stopPropagation()"
       >
         <!-- Header con Gradiente -->
@@ -503,7 +503,7 @@
         >
           <div class="relative z-10">
             <div class="flex items-center gap-3 mb-2">
-              <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+              <div class="p-3 bg-[var(--bg-secondary)]/20 rounded-xl backdrop-blur-sm">
                 <i-lucide name="user" [size]="28"></i-lucide>
               </div>
               <div>
@@ -514,14 +514,14 @@
           </div>
           <!-- Decoración de fondo -->
           <div
-            class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24"
+            class="absolute top-0 right-0 w-48 h-48 bg-[var(--bg-secondary)]/10 rounded-full -mr-24 -mt-24"
           ></div>
         </div>
 
         <form (ngSubmit)="saveUserChanges()" class="p-8 space-y-6">
           <!-- Campo Nombre -->
           <div>
-            <label class="block text-gray-900 font-bold mb-3 text-sm flex items-center gap-2">
+            <label class="block text-[var(--text-primary)] font-bold mb-3 text-sm flex items-center gap-2">
               <i-lucide name="user" [size]="16"></i-lucide>
               Nombre Completo
             </label>
@@ -531,13 +531,13 @@
               name="fullName"
               required
               placeholder="Ej: Juan Pérez García"
-              class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-900 bg-gray-50"
+              class="w-full px-4 py-4 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-[var(--text-primary)] bg-gray-50"
             />
           </div>
 
           <!-- Campo Email -->
           <div>
-            <label class="block text-gray-900 font-bold mb-3 text-sm flex items-center gap-2">
+            <label class="block text-[var(--text-primary)] font-bold mb-3 text-sm flex items-center gap-2">
               <i-lucide name="mail" [size]="16"></i-lucide>
               Correo Electrónico
             </label>
@@ -547,13 +547,13 @@
               name="email"
               required
               placeholder="ejemplo@correo.com"
-              class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-900 bg-gray-50"
+              class="w-full px-4 py-4 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-[var(--text-primary)] bg-gray-50"
             />
           </div>
 
           <!-- Campo Rol con Cards -->
           <div>
-            <label class="block text-gray-900 font-bold mb-3 text-sm flex items-center gap-2">
+            <label class="block text-[var(--text-primary)] font-bold mb-3 text-sm flex items-center gap-2">
               <i-lucide name="shield" [size]="16"></i-lucide>
               Rol del Usuario
             </label>
@@ -562,7 +562,7 @@
                 [(ngModel)]="selectedUser.role"
                 name="role"
                 [disabled]="selectedUser.role === 'user'"
-                class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-900 font-semibold bg-white appearance-none cursor-pointer disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                class="w-full px-4 py-4 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-[var(--text-primary)] font-semibold bg-[var(--bg-secondary)] appearance-none cursor-pointer disabled:bg-gray-100 disabled:text-[var(--text-secondary)] disabled:cursor-not-allowed"
               >
                 @if (isRoleAvailable('admin')) {
                   <option value="admin">🔴 Administrador - Control total del sistema</option>
@@ -598,7 +598,7 @@
           <div class="flex gap-3 pt-4">
             <button
               type="button"
-              class="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 flex items-center justify-center gap-2"
+              class="flex-1 px-6 py-4 border-2 border-[var(--border-color)] text-[var(--text-secondary)] rounded-xl font-bold hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 flex items-center justify-center gap-2"
               (click)="closeEditModal()"
             >
               <i-lucide name="x" [size]="18"></i-lucide>
@@ -624,7 +624,7 @@
       (click)="closeHistoryModal()"
     >
       <div
-        class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col animate-slide-down"
+        class="bg-[var(--bg-secondary)] rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col animate-slide-down"
         (click)="$event.stopPropagation()"
       >
         <!-- Header del Modal -->
@@ -636,7 +636,7 @@
             Historial: {{ selectedHistoryUserName }}
           </h3>
           <button
-            class="text-3xl hover:bg-white/20 w-10 h-10 rounded-full transition-all duration-300"
+            class="text-3xl hover:bg-[var(--bg-secondary)]/20 w-10 h-10 rounded-full transition-all duration-300"
             (click)="closeHistoryModal()"
           >
             ✕
@@ -663,23 +663,23 @@
                   }"
                 >
                   <!-- Timestamp -->
-                  <div class="text-sm text-gray-700 font-medium mb-2">
+                  <div class="text-sm text-[var(--text-secondary)] font-medium mb-2">
                     🕒 {{ alert.timestamp | date: 'dd MMM, HH:mm' }}
                   </div>
 
                   <!-- Mensaje -->
                   <div class="mb-3">
-                    <strong class="text-lg block mb-1 text-gray-900">
+                    <strong class="text-lg block mb-1 text-[var(--text-primary)]">
                       {{ alert.message }}
                     </strong>
 
-                    <div class="text-gray-700 text-sm">📍 {{ alert.location }}</div>
+                    <div class="text-[var(--text-secondary)] text-sm">📍 {{ alert.location }}</div>
                   </div>
 
                   <!-- Notas de Resolución -->
                   @if (alert.resolutionNotes) {
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-3">
-                      <p class="text-gray-700 italic mb-2">"{{ alert.resolutionNotes }}"</p>
+                      <p class="text-[var(--text-secondary)] italic mb-2">"{{ alert.resolutionNotes }}"</p>
                       <div class="text-right text-sm">
                         <span class="text-primary font-semibold">— {{ alert.attendedBy }}</span>
                       </div>
@@ -745,7 +745,7 @@
           <div class="absolute inset-0 opacity-10 pattern-grid-lg"></div>
           
           <!-- Decoración Difusa -->
-          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[var(--bg-secondary)]/10 rounded-full blur-3xl pointer-events-none"></div>
 
           <div class="relative z-10 flex flex-col items-center">
             <!-- Icono Grande o Foto con Anillo -->
@@ -766,7 +766,7 @@
                    </div>
                 </div>
               } @else {
-                <div class="p-6 bg-white/20 backdrop-blur-xl rounded-full border-2 border-white/30 shadow-2xl mb-6 ring-4 ring-white/10 transition-transform duration-500 hover:scale-110">
+                <div class="p-6 bg-[var(--bg-secondary)]/20 backdrop-blur-xl rounded-full border-2 border-white/30 shadow-2xl mb-6 ring-4 ring-white/10 transition-transform duration-500 hover:scale-110">
                   @if (selectedUserInfo?.role === 'admin') {
                     <i-lucide name="shield" [size]="48" class="text-white drop-shadow-lg"></i-lucide>
                   } @else if (selectedUserInfo?.role === 'caregiver') {
@@ -780,13 +780,13 @@
             
             <!-- Removed overlapping role title -->
             
-            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">
+            <div class="inline-flex items-center gap-2 bg-[var(--bg-secondary)]/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20">
                <span class="w-2 h-2 rounded-full" [ngClass]="selectedUserInfo?.status === 'active' ? 'bg-green-400 animate-pulse' : 'bg-gray-400'"></span>
                <span class="text-sm font-bold tracking-wide uppercase">{{ selectedUserInfo?.status === 'active' ? 'Activo' : 'Inactivo' }}</span>
             </div>
 
             <button
-              class="absolute top-6 right-6 group bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all duration-300 border border-white/10 hover:border-white/30"
+              class="absolute top-6 right-6 group bg-[var(--bg-secondary)]/10 hover:bg-[var(--bg-secondary)]/20 p-2.5 rounded-full transition-all duration-300 border border-white/10 hover:border-white/30"
               (click)="closeUserInfoModal()"
             >
               <i-lucide name="x" [size]="20" class="text-white/80 group-hover:text-white transition-colors"></i-lucide>
@@ -796,11 +796,11 @@
 
         <!-- Contenido Overlap -->
         <div class="flex-1 overflow-y-auto -mt-12 relative z-20 px-6 pb-6">
-          <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 space-y-8 min-h-[400px]">
+          <div class="bg-[var(--bg-secondary)] rounded-3xl shadow-xl border border-gray-100 p-8 space-y-8 min-h-[400px]">
             
             @if (isLoadingUserInfo) {
               <div class="flex flex-col items-center justify-center py-20">
-                <div class="w-12 h-12 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+                <div class="w-12 h-12 border-4 border-[var(--border-color)] border-t-blue-600 rounded-full animate-spin"></div>
                 <p class="mt-4 text-gray-400 font-medium">Obteniendo datos...</p>
               </div>
             } @else if (selectedUserInfo) {
@@ -809,15 +809,15 @@
                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 pb-8 border-b border-gray-100">
                   <div class="text-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-default">
                      <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Usuario desde</p>
-                     <p class="font-bold text-gray-800">{{ (selectedUserInfo.created_at | date:'MMM yyyy') || 'N/A' }}</p>
+                     <p class="font-bold text-[var(--text-primary)]">{{ (selectedUserInfo.created_at | date:'MMM yyyy') || 'N/A' }}</p>
                   </div>
                   <div class="text-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-default">
                      <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">ID Sistema</p>
-                     <p class="font-mono font-bold text-gray-800">#{{ selectedUserInfo.id }}</p>
+                     <p class="font-mono font-bold text-[var(--text-primary)]">#{{ selectedUserInfo.id }}</p>
                   </div>
                   <div class="text-center p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition-colors cursor-default col-span-2 sm:col-span-1">
                      <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Última Acc.</p>
-                     <p class="font-bold text-gray-800">{{ (selectedUserInfo.updated_at | date:'shortDate') || 'Hoy' }}</p>
+                     <p class="font-bold text-[var(--text-primary)]">{{ (selectedUserInfo.updated_at | date:'shortDate') || 'Hoy' }}</p>
                   </div>
                </div>
 
@@ -827,25 +827,25 @@
                     <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
                        <i-lucide name="id-card" [size]="20"></i-lucide>
                     </div>
-                    <h4 class="text-lg font-bold text-gray-900">Datos Personales</h4>
+                    <h4 class="text-lg font-bold text-[var(--text-primary)]">Datos Personales</h4>
                  </div>
                  
                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
                     <div>
                        <label class="block text-xs uppercase text-gray-400 font-bold tracking-wide mb-1.5">Nombre Completo</label>
-                       <p class="text-lg font-semibold text-gray-900 border-l-4 border-blue-500 pl-3 leading-none py-1">{{ selectedUserInfo.fullName }}</p>
+                       <p class="text-lg font-semibold text-[var(--text-primary)] border-l-4 border-blue-500 pl-3 leading-none py-1">{{ selectedUserInfo.fullName }}</p>
                     </div>
                     <div>
                        <label class="block text-xs uppercase text-gray-400 font-bold tracking-wide mb-1.5">Email</label>
-                       <p class="text-base font-medium text-gray-700 truncate" title="{{ selectedUserInfo.email }}">{{ selectedUserInfo.email }}</p>
+                       <p class="text-base font-medium text-[var(--text-secondary)] truncate" title="{{ selectedUserInfo.email }}">{{ selectedUserInfo.email }}</p>
                     </div>
                     <div>
                        <label class="block text-xs uppercase text-gray-400 font-bold tracking-wide mb-1.5">Teléfono</label>
-                       <p class="text-base font-medium text-gray-700 font-mono">{{ selectedUserInfo.telefono || 'Sin registrar' }}</p>
+                       <p class="text-base font-medium text-[var(--text-secondary)] font-mono">{{ selectedUserInfo.telefono || 'Sin registrar' }}</p>
                     </div>
                     <div>
                        <label class="block text-xs uppercase text-gray-400 font-bold tracking-wide mb-1.5">Usuario</label>
-                       <p class="text-base font-medium text-gray-700">@{{ selectedUserInfo.username }}</p>
+                       <p class="text-base font-medium text-[var(--text-secondary)]">@{{ selectedUserInfo.username }}</p>
                     </div>
                  </div>
                </div>
@@ -861,7 +861,7 @@
                              <i-lucide name="calendar" [size]="18"></i-lucide>
                              <span class="font-bold text-sm uppercase">Nacimiento</span>
                           </div>
-                          <p class="text-2xl font-black text-gray-800">{{ (selectedUserInfo.fecha_nacimiento | date:'dd MMM yyyy') || 'N/A' }}</p>
+                          <p class="text-2xl font-black text-[var(--text-primary)]">{{ (selectedUserInfo.fecha_nacimiento | date:'dd MMM yyyy') || 'N/A' }}</p>
                        </div>
                        
                        <div class="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 p-5 rounded-2xl">
@@ -869,7 +869,7 @@
                              <i-lucide name="map-pin" [size]="18"></i-lucide>
                              <span class="font-bold text-sm uppercase">Dirección</span>
                           </div>
-                          <p class="text-base font-medium text-gray-800 leading-snug">{{ selectedUserInfo.direccion || 'No registrada' }}</p>
+                          <p class="text-base font-medium text-[var(--text-primary)] leading-snug">{{ selectedUserInfo.direccion || 'No registrada' }}</p>
                        </div>
                     </div>
 
@@ -880,7 +880,7 @@
                        
                        <div class="relative z-10 flex items-center justify-between">
                           <div class="flex items-center gap-4">
-                             <div class="p-3 bg-white/10 rounded-xl backdrop-blur-md">
+                             <div class="p-3 bg-[var(--bg-secondary)]/10 rounded-xl backdrop-blur-md">
                                 <i-lucide name="watch" [size]="24" class="text-blue-400"></i-lucide>
                              </div>
                              <div>
@@ -899,7 +899,7 @@
                                    <i-lucide name="battery-medium" [size]="20"></i-lucide>
                                    <span>85%</span>
                                 </div>
-                                <span class="text-[10px] uppercase tracking-widest text-gray-500 font-bold">Batería</span>
+                                <span class="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] font-bold">Batería</span>
                              </div>
                           } @else {
                              <button 
@@ -920,7 +920,7 @@
           <!-- Footer Simple -->
           <div class="text-center mt-6 flex justify-center gap-4">
              <button
-                class="px-8 py-3 bg-white border border-gray-200 text-gray-600 rounded-full font-bold hover:bg-gray-50 hover:text-gray-900 transition-all shadow-sm hover:shadow-md border-2"
+                class="px-8 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-secondary)] rounded-full font-bold hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)] transition-all shadow-sm hover:shadow-md border-2"
                 (click)="closeUserInfoModal()"
              >
                 Cerrar Ventana
@@ -949,7 +949,7 @@
       (click)="closeAssignDeviceModal()"
     >
       <div
-        class="bg-white rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden"
+        class="bg-[var(--bg-secondary)] rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden"
         (click)="$event.stopPropagation()"
       >
         <!-- Header -->
@@ -968,11 +968,11 @@
             </div>
           } @else {
             <div class="mb-6">
-              <label class="block text-gray-700 font-bold mb-2">Seleccionar Dispositivo Disponible</label>
+              <label class="block text-[var(--text-secondary)] font-bold mb-2">Seleccionar Dispositivo Disponible</label>
               <div class="relative">
                 <select
                   [(ngModel)]="selectedDeviceMac"
-                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/20 appearance-none bg-white text-gray-700"
+                  class="w-full px-4 py-3 border-2 border-[var(--border-color)] rounded-xl focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/20 appearance-none bg-[var(--bg-secondary)] text-[var(--text-secondary)]"
                 >
                   <option value="" disabled selected>-- Elige un sensor --</option>
                   @for (device of availableDevices; track device.mac_address) {
@@ -990,7 +990,7 @@
 
             <div class="flex gap-3">
               <button
-                class="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all"
+                class="flex-1 px-6 py-3 border-2 border-[var(--border-color)] text-[var(--text-secondary)] rounded-xl font-bold hover:bg-[var(--bg-primary)] transition-all"
                 (click)="closeAssignDeviceModal()"
               >
                 Cancelar

@@ -1,6 +1,7 @@
 import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { ThemeService } from './services/theme.service';
 import { AlertService } from './services/alert.service';
 import { Alert } from './models/alert.model';
 import { CommonModule } from '@angular/common';
@@ -27,6 +28,7 @@ import { ChatbotComponent } from './components/chatbot/chatbot.component';
 })
 export class AppComponent implements OnInit, OnDestroy {
   public authService = inject(AuthService); // Público para usar en HTML
+  public themeService = inject(ThemeService); // 👈 Inject ThemeService
   private alertService = inject(AlertService);
   public router = inject(Router);
 

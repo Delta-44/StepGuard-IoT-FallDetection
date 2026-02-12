@@ -1,7 +1,7 @@
 ﻿<div class="min-h-screen p-4 sm:p-6 md:p-8">
   <!-- Header -->
   <div class="mb-6 md:mb-8 animate-fade-in">
-    <div class="bg-white rounded-2xl p-4 md:p-6">
+    <div class="bg-[var(--bg-secondary)] rounded-2xl p-4 md:p-6">
       <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div class="flex items-center gap-3 md:gap-4">
           <div class="p-3 md:p-4 bg-gradient-to-br from-emergency/10 to-red-500/5 rounded-xl">
@@ -9,12 +9,12 @@
             <i-lucide name="bell" [size]="32" class="hidden md:block text-emergency"></i-lucide>
           </div>
           <div>
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">Centro de Alertas</h2>
-            <p class="text-sm md:text-base text-gray-600 mt-1">Monitoreo en tiempo real de eventos críticos</p>
+            <h2 class="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">Centro de Alertas</h2>
+            <p class="text-sm md:text-base text-[var(--text-secondary)] mt-1">Monitoreo en tiempo real de eventos críticos</p>
           </div>
         </div>
         <div class="text-left md:text-right">
-          <div class="text-xs md:text-sm text-gray-500">Total de alertas</div>
+          <div class="text-xs md:text-sm text-[var(--text-secondary)]">Total de alertas</div>
           <div class="text-2xl md:text-3xl font-bold text-emergency">{{ alerts.length }}</div>
         </div>
       </div>
@@ -39,14 +39,14 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
           placeholder="Buscar alertas..."
-          class="w-full pl-12 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-white text-sm md:text-base"
+          class="w-full pl-12 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-[var(--bg-secondary)] text-sm md:text-base"
         />
       </div>
 
       <!-- Botón de Ordenamiento por Fecha -->
       <button
         (click)="toggleSortOrder()"
-        class="px-4 md:px-5 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:shadow-lg text-sm md:text-base whitespace-nowrap"
+        class="px-4 md:px-5 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] border-2 border-[var(--border-color)] hover:shadow-lg text-sm md:text-base whitespace-nowrap"
         [title]="sortOrder === 'newest' ? 'Más recientes primero' : 'Más antiguas primero'"
       >
         <i-lucide
@@ -71,7 +71,7 @@
         [ngClass]="
           statusFilter === 'all'
             ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105'
-            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] border-2 border-[var(--border-color)]'
         "
       >
         <i-lucide name="list" [size]="18" class="md:hidden"></i-lucide>
@@ -79,7 +79,7 @@
         <span class="hidden sm:inline">Todas</span>
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
-          [ngClass]="statusFilter === 'all' ? 'bg-white/25' : 'bg-gray-200'"
+          [ngClass]="statusFilter === 'all' ? 'bg-[var(--bg-secondary)]/25' : 'bg-[var(--bg-primary)]'"
           >{{ alerts.length }}</span
         >
       </button>
@@ -90,7 +90,7 @@
         [ngClass]="
           statusFilter === 'pendiente'
             ? 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white shadow-lg scale-105'
-            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] border-2 border-[var(--border-color)]'
         "
       >
         <i-lucide name="alert-circle" [size]="18" class="md:hidden"></i-lucide>
@@ -99,7 +99,7 @@
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
           [ngClass]="
-            statusFilter === 'pendiente' ? 'bg-white text-yellow-700' : 'bg-gray-200 text-gray-700'
+            statusFilter === 'pendiente' ? 'bg-[var(--bg-secondary)] text-yellow-700' : 'bg-[var(--bg-primary)] text-[var(--text-secondary)]'
           "
           >{{ getAlertCountByStatus('pendiente') }}</span
         >
@@ -111,14 +111,14 @@
         [ngClass]="
           statusFilter === 'atendida'
             ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-105'
-            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+            : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-primary)] border-2 border-[var(--border-color)]'
         "
       >
         <i-lucide name="check-circle" [size]="20"></i-lucide>
         Atendidas
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
-          [ngClass]="statusFilter === 'atendida' ? 'bg-white/25' : 'bg-gray-200'"
+          [ngClass]="statusFilter === 'atendida' ? 'bg-[var(--bg-secondary)]/25' : 'bg-[var(--bg-primary)]'"
           >{{ getAlertCountByStatus('atendida') }}</span
         >
       </button>
@@ -127,10 +127,10 @@
 
   <!-- Grid de Alertas -->
   @if (filteredAlerts.length === 0) {
-    <div class="bg-white rounded-2xl p-12 text-center animate-fade-in">
+    <div class="bg-[var(--bg-secondary)] rounded-2xl p-12 text-center animate-fade-in">
       <div class="text-6xl mb-4">🔍</div>
-      <h3 class="text-xl font-bold text-gray-800 mb-2">No se encontraron resultados</h3>
-      <p class="text-gray-500">
+      <h3 class="text-xl font-bold text-[var(--text-primary)] mb-2">No se encontraron resultados</h3>
+      <p class="text-[var(--text-secondary)]">
         @if (searchTerm.trim()) {
           No hay
           @if (statusFilter === 'pendiente') {
@@ -157,7 +157,7 @@
     <div class="space-y-3 md:space-y-4 animate-fade-in">
       @for (alert of paginatedAlerts; track alert.id) {
         <div
-          class="bg-white rounded-xl md:rounded-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1 shadow-sm"
+          class="bg-[var(--bg-secondary)] rounded-xl md:rounded-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1 shadow-sm"
           [ngClass]="{
             'ring-2 ring-emergency animate-pulse-emergency':
               alert.severity === 'critical' && alert.status === 'pendiente',
@@ -267,13 +267,13 @@
                       {{ alert.severity }}
                     </span>
 
-                    <span class="text-[11px] sm:text-xs md:text-sm text-gray-500 flex items-center gap-1">
+                    <span class="text-[11px] sm:text-xs md:text-sm text-[var(--text-secondary)] flex items-center gap-1">
                       <i-lucide name="clock" [size]="12" class="sm:hidden flex-shrink-0"></i-lucide>
                       <i-lucide name="clock" [size]="14" class="hidden sm:block flex-shrink-0"></i-lucide>
                       <span class="truncate">{{ alert.timestamp | date: 'dd/MM/yyyy HH:mm' }}</span>
                     </span>
                   </div>
-                  <p class="text-gray-800 font-semibold text-sm sm:text-base md:text-lg break-words">{{ alert.message }}</p>
+                  <p class="text-[var(--text-primary)] font-semibold text-sm sm:text-base md:text-lg break-words">{{ alert.message }}</p>
                 </div>
               </div>
 
@@ -332,29 +332,29 @@
                 <i-lucide name="map-pin" [size]="16" class="text-primary sm:hidden flex-shrink-0"></i-lucide>
                 <i-lucide name="map-pin" [size]="18" class="text-primary hidden sm:block flex-shrink-0"></i-lucide>
                 <div class="min-w-0 flex-1">
-                  <div class="text-[10px] sm:text-xs text-gray-500 font-medium">Ubicación</div>
-                  <div class="text-xs sm:text-sm font-semibold text-gray-800 truncate">{{ alert.location }}</div>
+                  <div class="text-[10px] sm:text-xs text-[var(--text-secondary)] font-medium">Ubicación</div>
+                  <div class="text-xs sm:text-sm font-semibold text-[var(--text-primary)] truncate">{{ alert.location }}</div>
                 </div>
               </div>
 
               <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 md:p-3 bg-transparent rounded-lg md:rounded-xl">
-                <i-lucide name="radio" [size]="16" class="text-gray-600 sm:hidden flex-shrink-0"></i-lucide>
-                <i-lucide name="radio" [size]="18" class="text-gray-600 hidden sm:block flex-shrink-0"></i-lucide>
+                <i-lucide name="radio" [size]="16" class="text-[var(--text-secondary)] sm:hidden flex-shrink-0"></i-lucide>
+                <i-lucide name="radio" [size]="18" class="text-[var(--text-secondary)] hidden sm:block flex-shrink-0"></i-lucide>
                 <div class="min-w-0 flex-1">
-                  <div class="text-[10px] sm:text-xs text-gray-500 font-medium">Dispositivo</div>
-                  <div class="text-xs sm:text-sm font-semibold text-gray-800 truncate">MAC: {{ alert.macAddress }}</div>
+                  <div class="text-[10px] sm:text-xs text-[var(--text-secondary)] font-medium">Dispositivo</div>
+                  <div class="text-xs sm:text-sm font-semibold text-[var(--text-primary)] truncate">MAC: {{ alert.macAddress }}</div>
                 </div>
               </div>
 
               @if (alert.attendedBy && alert.status !== 'pendiente') {
                 <div
-                  class="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 md:p-3 bg-green-50 rounded-lg md:rounded-xl border border-green-200"
+                  class="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 md:p-3 bg-green-50 rounded-lg md:rounded-xl border border-[var(--border-color)]"
                 >
                   <i-lucide name="user-circle" [size]="16" class="text-green-600 sm:hidden flex-shrink-0"></i-lucide>
                   <i-lucide name="user-circle" [size]="18" class="text-green-600 hidden sm:block flex-shrink-0"></i-lucide>
                   <div class="min-w-0 flex-1">
-                    <div class="text-[10px] sm:text-xs text-gray-500 font-medium">Atendida por</div>
-                    <div class="text-xs sm:text-sm font-semibold text-gray-800 truncate">{{ alert.attendedBy }}</div>
+                    <div class="text-[10px] sm:text-xs text-[var(--text-secondary)] font-medium">Atendida por</div>
+                    <div class="text-xs sm:text-sm font-semibold text-[var(--text-primary)] truncate">{{ alert.attendedBy }}</div>
                   </div>
                 </div>
               }
@@ -383,14 +383,14 @@
                 <div class="flex items-start gap-3">
                   <i-lucide name="message-square" [size]="20" class="text-primary mt-1"></i-lucide>
                   <div class="flex-1">
-                    <p class="text-gray-700 italic mb-3">"{{ alert.resolutionNotes }}"</p>
+                    <p class="text-[var(--text-secondary)] italic mb-3">"{{ alert.resolutionNotes }}"</p>
                     <div class="flex items-center gap-3 text-sm">
-                      <div class="flex items-center gap-2 text-gray-600">
+                      <div class="flex items-center gap-2 text-[var(--text-secondary)]">
                         <i-lucide name="user" [size]="14"></i-lucide>
-                        <strong class="text-gray-800">{{ alert.attendedBy }}</strong>
+                        <strong class="text-[var(--text-primary)]">{{ alert.attendedBy }}</strong>
                       </div>
                       <span class="text-gray-400">•</span>
-                      <div class="flex items-center gap-1.5 text-gray-500">
+                      <div class="flex items-center gap-1.5 text-[var(--text-secondary)]">
                         <i-lucide name="calendar" [size]="14"></i-lucide>
                         {{ alert.attendedAt | date: 'short' }}
                       </div>
@@ -408,10 +408,10 @@
   <!-- Controles de Paginación -->
   @if (filteredAlerts.length > pageSize) {
     <div
-      class="bg-white rounded-2xl mt-6 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in"
+      class="bg-[var(--bg-secondary)] rounded-2xl mt-6 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in"
     >
       <!-- Info de páginas -->
-      <div class="text-sm text-gray-700 font-medium">
+      <div class="text-sm text-[var(--text-secondary)] font-medium">
         Mostrando
         <span class="font-bold text-blue-600">{{ (currentPage - 1) * pageSize + 1 }}</span> a
         <span class="font-bold text-blue-600">{{
@@ -429,7 +429,7 @@
           <span>alertas</span>
         }
         @if (searchTerm.trim()) {
-          <span class="text-gray-500 italic">(filtradas)</span>
+          <span class="text-[var(--text-secondary)] italic">(filtradas)</span>
         }
       </div>
 
@@ -441,7 +441,7 @@
           class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           [ngClass]="
             currentPage === 1
-              ? 'bg-gray-200 text-gray-500'
+              ? 'bg-[var(--bg-primary)] text-[var(--text-secondary)]'
               : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
           "
         >
@@ -453,7 +453,7 @@
         <div class="flex gap-1 overflow-x-auto max-w-full pb-1">
           @for (page of visiblePages; track $index) {
             @if (page === '...') {
-              <span class="w-10 h-10 flex items-center justify-center text-gray-500 font-bold">...</span>
+              <span class="w-10 h-10 flex items-center justify-center text-[var(--text-secondary)] font-bold">...</span>
             } @else {
               <button
                 (click)="changePage(+$any(page))"
@@ -461,7 +461,7 @@
                 [ngClass]="
                   currentPage === page
                     ? 'bg-blue-600 text-white shadow-lg scale-110'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-[var(--bg-primary)] text-[var(--text-secondary)] hover:bg-gray-300'
                 "
               >
                 {{ page }}
@@ -477,7 +477,7 @@
           class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           [ngClass]="
             currentPage === totalPages
-              ? 'bg-gray-200 text-gray-500'
+              ? 'bg-[var(--bg-primary)] text-[var(--text-secondary)]'
               : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
           "
         >
@@ -492,10 +492,10 @@
 <!-- Modal de Atención con Diseño Profesional -->
 @if (processingAlert) {
   <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in p-4">
-    <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden">
+    <div class="bg-[var(--bg-secondary)] rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden">
       
       <!-- Header Minimalista -->
-      <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+      <div class="px-5 py-3 bg-[var(--bg-primary)] border-b border-[var(--border-color)] flex items-center justify-between">
         <div class="flex items-center gap-2">
           <div 
             class="w-2 h-2 rounded-full"
@@ -505,7 +505,7 @@
               'bg-blue-500': processingAlert.severity === 'low'
             }"
           ></div>
-          <h2 class="text-sm font-semibold text-slate-700">Procesando Incidencia #{{ processingAlert.id }} - {{ processingAlert.macAddress }}</h2>
+          <h2 class="text-sm font-semibold text-[var(--text-secondary)]">Procesando Incidencia #{{ processingAlert.id }} - {{ processingAlert.macAddress }}</h2>
         </div>
         <button 
           (click)="cancelResolution()" 
@@ -520,28 +520,28 @@
         
         <!-- Info Cards Compactas -->
         <div class="grid grid-cols-3 gap-2">
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3 sm:col-span-1">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+          <div class="bg-[var(--bg-primary)] rounded-lg p-2.5 border border-[var(--border-color)] col-span-3 sm:col-span-1">
+            <div class="flex items-center gap-1.5 text-[var(--text-secondary)] mb-1">
               <i-lucide name="map-pin" [size]="12"></i-lucide>
               <span class="text-[9px] font-semibold uppercase tracking-wide">Ubicación</span>
             </div>
-            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.location }}</p>
+            <p class="text-[var(--text-primary)] font-medium text-xs truncate">{{ processingAlert.location }}</p>
           </div>
           
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3 sm:col-span-1">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+          <div class="bg-[var(--bg-primary)] rounded-lg p-2.5 border border-[var(--border-color)] col-span-3 sm:col-span-1">
+            <div class="flex items-center gap-1.5 text-[var(--text-secondary)] mb-1">
               <i-lucide name="clock" [size]="12"></i-lucide>
               <span class="text-[9px] font-semibold uppercase tracking-wide">Hora</span>
             </div>
-            <p class="text-slate-900 font-medium text-xs">{{ processingAlert.timestamp | date:'short' }}</p>
+            <p class="text-[var(--text-primary)] font-medium text-xs">{{ processingAlert.timestamp | date:'short' }}</p>
           </div>
           
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3 sm:col-span-1">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+          <div class="bg-[var(--bg-primary)] rounded-lg p-2.5 border border-[var(--border-color)] col-span-3 sm:col-span-1">
+            <div class="flex items-center gap-1.5 text-[var(--text-secondary)] mb-1">
               <i-lucide name="activity" [size]="12"></i-lucide>
               <span class="text-[9px] font-semibold uppercase tracking-wide">Tipo</span>
             </div>
-            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.message }}</p>
+            <p class="text-[var(--text-primary)] font-medium text-xs truncate">{{ processingAlert.message }}</p>
           </div>
 
 
@@ -549,14 +549,14 @@
 
         <!-- Selector de Gravedad -->
         <div>
-          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
+          <label class="block text-[var(--text-secondary)] font-semibold mb-1.5 text-xs flex items-center gap-1.5">
             <i-lucide name="thermometer" [size]="14"></i-lucide>
             Nivel de Gravedad
           </label>
           <div class="relative">
             <select 
               [(ngModel)]="selectedSeverity" 
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-white appearance-none cursor-pointer"
+              class="w-full px-3 py-2 border border-[var(--border-color)] rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-[var(--bg-secondary)] appearance-none cursor-pointer"
             >
               <option value="low">🟢 Baja</option>
               <option value="medium">🟡 Media</option>
@@ -569,7 +569,7 @@
 
         <!-- Notas -->
         <div>
-          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
+          <label class="block text-[var(--text-secondary)] font-semibold mb-1.5 text-xs flex items-center gap-1.5">
             <i-lucide name="clipboard-list" [size]="14"></i-lucide>
             Notas de Atención
           </label>
@@ -577,16 +577,16 @@
             [(ngModel)]="resolutionNotes" 
             placeholder="Describe las acciones realizadas y el estado del paciente..."
             rows="3"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none text-sm placeholder:text-slate-400"
+            class="w-full px-3 py-2 border border-[var(--border-color)] rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none text-sm placeholder:text-slate-400"
           ></textarea>
         </div>
 
       </div>
 
       <!-- Footer -->
-      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-2">
+      <div class="px-5 py-3 bg-[var(--bg-primary)] border-t border-[var(--border-color)] flex justify-end items-center gap-2">
         <button 
-          class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-white transition-colors disabled:opacity-50"
+          class="px-3 py-1.5 border border-[var(--border-color)] text-[var(--text-secondary)] rounded-lg text-xs font-medium hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50"
           (click)="cancelResolution()" 
           [disabled]="isSubmitting"
         >

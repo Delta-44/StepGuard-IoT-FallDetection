@@ -1,14 +1,15 @@
 .page-container {
   padding: 2rem;
-  background: #f0f2f5;
+  background: var(--bg-primary);
   min-height: 100vh;
 }
 
 .card {
-  background: white;
+  background: var(--bg-secondary);
   padding: 1rem;
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: var(--card-shadow);
+  color: var(--text-primary);
 }
 
 /* TABLA */
@@ -16,20 +17,22 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-family: 'Segoe UI', sans-serif;
+  color: var(--text-primary);
 }
 
 th {
   text-align: left;
   padding: 15px;
-  border-bottom: 2px solid #eee;
-  color: #666;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 
 td {
   padding: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
   vertical-align: top;
+  color: var(--text-primary);
 }
 
 /* MENSAJE Y BOTÓN */
@@ -42,15 +45,15 @@ td {
 
 .message-text {
   font-weight: 500;
-  color: #333;
+  color: var(--text-primary);
 }
 
 /* Botón sutil para desplegar */
 .btn-toggle {
   background: none;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  color: #007bff;
+  color: var(--accent-color);
   font-size: 0.75rem;
   cursor: pointer;
   padding: 2px 8px;
@@ -59,15 +62,15 @@ td {
 }
 
 .btn-toggle:hover {
-  background: #f0f7ff;
-  border-color: #007bff;
+  background: var(--bg-primary);
+  border-color: var(--accent-color);
 }
 
 /* CAJA DESPLEGABLE DE NOTAS */
 .resolution-box {
   margin-top: 10px;
-  background: #fcfcfc;
-  border-left: 3px solid #007bff;
+  background: var(--bg-primary); /* Slight contrast from card */
+  border-left: 3px solid var(--accent-color);
   padding: 10px;
   border-radius: 0 6px 6px 0;
   box-shadow: 0 2px 5px rgba(0,0,0,0.03);
@@ -76,14 +79,15 @@ td {
 
 .note-content {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--text-secondary);
   margin-bottom: 5px;
 }
 
 .note-footer {
   font-size: 0.8rem;
-  color: #888;
+  color: var(--text-secondary);
   text-align: right;
+  opacity: 0.8;
 }
 
 .note-date {
@@ -124,7 +128,7 @@ td {
 
 /* FILA DE ALERTA CRÍTICA */
 .row-critical {
-  background-color: #fff0f0;
+  background-color: rgba(220, 53, 69, 0.1); /* Light red transparent */
 }
 
 /* ================================================

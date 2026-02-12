@@ -1,23 +1,23 @@
 /* CONTENEDOR PRINCIPAL */
 .users-container {
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: var(--bg-primary);
   min-height: 100vh;
 }
 
 .header-section h2 {
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 20px;
-  border-bottom: 2px solid #007bff;
+  border-bottom: 2px solid var(--accent-color);
   display: inline-block;
   padding-bottom: 5px;
 }
 
 /* TABLA BONITA */
 .table-responsive {
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+  box-shadow: var(--card-shadow);
   overflow: hidden; /* Para redondear esquinas */
 }
 
@@ -25,10 +25,11 @@
   width: 100%;
   border-collapse: collapse;
   font-family: 'Segoe UI', system-ui, sans-serif;
+  color: var(--text-primary);
 }
 
 .users-table th {
-  background-color: #007bff; /* Azul encabezado */
+  background-color: var(--accent-color); /* Azul encabezado */
   color: white;
   padding: 15px;
   text-align: left;
@@ -39,9 +40,9 @@
 
 .users-table td {
   padding: 15px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
   vertical-align: middle;
-  color: #555;
+  color: var(--text-secondary);
 }
 
 .users-table tr:last-child td {
@@ -49,14 +50,14 @@
 }
 
 .users-table tr:hover {
-  background-color: #f8faff;
+  background-color: color-mix(in srgb, var(--accent-color) 5%, var(--bg-secondary));
 }
 
 /* Indicador visual para filas clicables */
 .users-table tr.cursor-pointer:hover {
-  background-color: #e3f2fd;
+  background-color: color-mix(in srgb, var(--accent-color) 10%, var(--bg-secondary));
   transform: scale(1.01);
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }
 
@@ -68,11 +69,11 @@
 
 .user-name {
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
 }
 
 .user-sub {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.8rem;
 }
 
@@ -136,20 +137,30 @@
 }
 
 .modal-content {
-  background: white; padding: 25px; border-radius: 15px; width: 90%; max-width: 400px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  background: var(--bg-secondary);
+  padding: 25px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  color: var(--text-primary);
 }
 
 .form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary); }
 .form-group input, .form-group select {
-  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   box-sizing: border-box;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-.btn-save { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
-.btn-cancel { background: #eee; color: #333; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+.btn-save { background: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+.btn-cancel { background: var(--border-color); color: var(--text-primary); border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
 
 /* Botón Historial */
 .history-btn:hover { transform: scale(1.1); filter: drop-shadow(0 0 2px #6610f2); }
@@ -167,18 +178,18 @@
 }
 
 .alert-card {
-  display: flex; gap: 15px; padding: 12px; border-radius: 8px; border-left: 5px solid #ccc; background: #f9f9f9;
+  display: flex; gap: 15px; padding: 12px; border-radius: 8px; border-left: 5px solid #ccc; background: var(--bg-primary);
 }
 
-/* Colores según severidad */
-.alert-card.critical { border-left-color: #dc3545; background: #fff5f5; }
-.alert-card.warning { border-left-color: #ffc107; background: #fffbf0; }
-.alert-card.info { border-left-color: #0d6efd; background: #f0f7ff; }
+/* Colores según severidad - Adjusting for dark mode readability */
+.alert-card.critical { border-left-color: #dc3545; background: rgba(220, 53, 69, 0.1); }
+.alert-card.warning { border-left-color: #ffc107; background: rgba(255, 193, 7, 0.1); }
+.alert-card.info { border-left-color: #0d6efd; background: rgba(13, 110, 253, 0.1); }
 
-.alert-time { font-size: 0.85rem; color: #666; min-width: 80px; font-weight: bold; }
+.alert-time { font-size: 0.85rem; color: var(--text-secondary); min-width: 80px; font-weight: bold; }
 
 .alert-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-.alert-info strong { color: #333; font-size: 0.95rem; }
+.alert-info strong { color: var(--text-primary); font-size: 0.95rem; }
 
 .alert-meta { display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; }
 .badge-severity { font-weight: bold; opacity: 0.7; }
