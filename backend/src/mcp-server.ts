@@ -14,17 +14,17 @@ const main = async () => {
   // Inicializar conexiones a base de datos y Redis
   try {
     console.error("Verificando conexiones a DB y Redis...");
-    
+
     // Verificar Redis
     if (redis.status === 'ready' || redis.status === 'connect') {
-        console.error("Redis conectado.");
+      console.error("Redis conectado.");
     } else {
-        await new Promise<void>((resolve) => {
-            redis.once('ready', () => {
-                console.error("Redis conectado (evento ready).");
-                resolve();
-            });
+      await new Promise<void>((resolve) => {
+        redis.once('ready', () => {
+          console.error("Redis conectado (evento ready).");
+          resolve();
         });
+      });
     }
 
     // Verificar Postgres
@@ -115,7 +115,7 @@ const main = async () => {
           notes,
           severity
         );
-        
+
         if (!result) {
           return { isError: true, content: [{ type: "text", text: `Event ${eventId} not found or could not be updated` }] };
         }
@@ -129,22 +129,62 @@ const main = async () => {
     }
   );
 
-  // 5. Check API Status
+  // 5. Obtener historial de caídas (con control de acceso)
+  server.tool(
+    "get_fall_history",
+    {
+      requesterId: z.number().describe("ID del usuario que realiza la consulta"),
+      role: z.enum(["admin", "user", "family"]).describe("Rol del usuario que realiza la consulta"),
+      targetUserId: z.number().optional().describe("ID del usuario objetivo (opcional, solo admin puede ver otros)"),
+      days: z.number().optional().default(30).describe("Días de historial a consultar")
+    },
+    async ({ requesterId, role, targetUserId, days = 30 }) => {
+      try {
+        let effectiveTargetUserId: number | undefined = targetUserId;
+
+        if (role !== 'admin') {
+          // Usuario normal: solo puede ver su propia historia
+          if (targetUserId && targetUserId !== requesterId) {
+            return { isError: true, content: [{ type: "text", text: "Unauthorized: You can only view your own history." }] };
+          }
+          // Si no especifica, asumimos que quiere ver lo suyo
+          effectiveTargetUserId = requesterId;
+        }
+
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - days);
+
+        // Si es admin y no especifica target -> Ver todo (global) en el rango de fechas
+        // Si especifica target -> Ver historial de ese target
+        const events = await EventoCaidaModel.findByFechas(startDate, endDate, effectiveTargetUserId);
+
+        return {
+          content: [{ type: "text", text: JSON.stringify(events, null, 2) }]
+        };
+
+      } catch (error: any) {
+        return { isError: true, content: [{ type: "text", text: error.message }] };
+      }
+    }
+  );
+
+  // 6. Check API Status
   server.tool(
     "check_api_status",
     {},
     async () => {
-        const hasKey = !!process.env.MCP_API_KEY;
-        return {
-            content: [{ type: "text", text: `MCP Server running. External API Key configured: ${hasKey}` }]
-        };
+      const hasKey = !!process.env.MCP_API_KEY;
+      return {
+        content: [{ type: "text", text: `MCP Server running. External API Key configured: ${hasKey}` }]
+      };
     }
   );
 
   // Iniciar servidor
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  
+
   console.error("StepGuard MCP Server running on stdio");
 };
 
