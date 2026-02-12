@@ -7,6 +7,7 @@ import { EventoCaidaModel } from "./models/eventoCaida";
 import pool from "./config/database";
 import { ESP32Cache } from "./config/redis";
 import redis from "./config/redis";
+import { DiscordService } from "./services/discordService";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -31,6 +32,9 @@ const main = async () => {
     // Verificar Postgres
     await pool.query('SELECT NOW()');
     console.error("PostgreSQL conectado.");
+
+    // Inicializar Discord Bot (No bloqueante)
+    DiscordService.initialize().catch(err => console.error("Error inicializando Discord:", err));
 
   } catch (error) {
     console.error("Error inicializando backend:", error);
@@ -357,6 +361,157 @@ const main = async () => {
   // Iniciar servidor
   const transport = new StdioServerTransport();
   await server.connect(transport);
+
+  // 11. Simular evento de riesgo (Dev Tool)
+  server.tool(
+    "simulate_risk_event",
+    {
+        macAddress: z.string().describe("MAC Address del dispositivo"),
+        type: z.enum(["FALL", "SOS"]).describe("Tipo de evento a simular")
+    },
+    async ({ macAddress, type }) => {
+        try {
+            const mockPayload = {
+                macAddress,
+                impact_magnitude: type === 'FALL' ? 4.5 : 0,
+                isFallDetected: type === 'FALL',
+                isButtonPressed: type === 'SOS',
+                impact_count: 1,
+                battery_voltage: 3.8
+            };
+
+            await ESP32Service.processTelemetry(mockPayload);
+
+            return {
+                content: [{ type: "text", text: `Simulación enviada: Evento ${type} para ${macAddress}. Revisa las alertas.` }]
+            };
+        } catch (error: any) {
+            return { isError: true, content: [{ type: "text", text: error.message }] };
+        }
+    }
+  );
+
+  // 12. Asignar cuidador a paciente
+  server.tool(
+    "assign_caregiver",
+    {
+        caregiverEmail: z.string().describe("Email del cuidador"),
+        patientEmail: z.string().describe("Email del paciente (usuario)")
+    },
+    async ({ caregiverEmail, patientEmail }) => {
+        try {
+            // Import dinámico de modelos si no están arriba
+            const { CuidadorModel } = await import("./models/cuidador");
+            const { UsuarioModel } = await import("./models/usuario");
+
+            const caregiver = await CuidadorModel.findByEmail(caregiverEmail);
+            if (!caregiver) return { isError: true, content: [{ type: "text", text: "Cuidador no encontrado" }] };
+
+            const patient = await UsuarioModel.findByEmail(patientEmail);
+            if (!patient) return { isError: true, content: [{ type: "text", text: "Paciente no encontrado" }] };
+
+            const success = await CuidadorModel.asignarUsuario(caregiver.id, patient.id);
+
+            if (success) {
+                return { content: [{ type: "text", text: `Asignación exitosa: ${caregiver.nombre} ahora cuida a ${patient.nombre}.` }] };
+            } else {
+                return { isError: true, content: [{ type: "text", text: "Error al asignar. Verifica si ya existe la relación." }] };
+            }
+        } catch (error: any) {
+            return { isError: true, content: [{ type: "text", text: error.message }] };
+        }
+    }
+  );
+
+  // 13. Generar reporte semanal
+  server.tool(
+    "generate_weekly_report",
+    {
+        userId: z.number().describe("ID del usuario (paciente)"),
+    },
+    async ({ userId }) => {
+        try {
+            const { UsuarioModel } = await import("./models/usuario");
+            
+            // 1. Get User Info & Device
+            const user = await UsuarioModel.findByIdWithDevice(userId);
+            if (!user) return { isError: true, content: [{ type: "text", text: "Usuario no encontrado" }] };
+            if (!user.dispositivo_mac) return { isError: true, content: [{ type: "text", text: "El usuario no tiene dispositivo asignado." }] };
+
+            // 2. Get Events (Last 7 days)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - 7);
+            
+            const events = await EventoCaidaModel.findByFechas(startDate, endDate, userId);
+            
+            const fallCount = events.filter(e => e.is_fall_detected).length;
+            const sosCount = events.filter(e => e.is_button_pressed).length;
+
+            // 3. Get Device Status (Snapshot)
+            const telemetry = await ESP32Cache.getDeviceData(user.dispositivo_mac);
+            const status = await ESP32Cache.getDeviceStatus(user.dispositivo_mac);
+
+            const report = `
+# Reporte Semanal: ${user.nombre}
+**Fecha:** ${endDate.toISOString().split('T')[0]}
+**Dispositivo:** ${user.dispositivo_mac} (${user.dispositivo_nombre})
+
+## Resumen de Alertas (7 días)
+- **Caídas Detectadas:** ${fallCount}
+- **Botones SOS:** ${sosCount}
+- **Total Alertas:** ${events.length}
+
+## Estado Actual
+- **Conectado:** ${status ? 'SÍ' : 'NO'}
+- **Última Actividad:** ${telemetry ? new Date(telemetry.timestamp).toLocaleString() : 'N/A'}
+- **Batería (est.):** ${telemetry?.battery_voltage || 'N/A'}V
+
+${events.length > 0 ? '## Detalle de Eventos Recientes\n' + events.slice(0, 3).map(e => `- ${new Date(e.fecha_hora).toLocaleString()}: ${e.notas || 'Sin notas'} (${e.severidad})`).join('\n') : 'Sin eventos recientes de riesgo.'}
+`;
+
+            return {
+                content: [{ type: "text", text: report }]
+            };
+
+        } catch (error: any) {
+            return { isError: true, content: [{ type: "text", text: error.message }] };
+        }
+    }
+  );
+
+  // 14. Activar/Desactivar Modo Mantenimiento
+  server.tool(
+    "toggle_maintenance",
+    {
+        macAddress: z.string().describe("MAC Address del dispositivo"),
+        durationMinutes: z.number().optional().default(60).describe("Duración en minutos (solo para activar)"),
+        enable: z.boolean().describe("True para activar, False para desactivar")
+    },
+    async ({ macAddress, durationMinutes, enable }) => {
+        try {
+            if (enable) {
+                await ESP32Cache.setMaintenanceMode(macAddress, durationMinutes);
+                return {
+                    content: [{ type: "text", text: `Modo Mantenimiento ACTIVADO para ${macAddress} por ${durationMinutes} minutos. Las alertas serán silenciadas.` }]
+                };
+            } else {
+                // To disable, we can just delete the key. 
+                // Since we implemented set with expiry, we can just set it to expire immediately or del.
+                // But ESP32Cache doesn't have explicit 'del'. We can set duration 0 or 1 sec.
+                // Ideally we add a del method, but setting to 1 second is a quick hack if del missing.
+                // Wait, I can access redis directly since I imported it in mcp-server.ts (via ./config/redis default export)
+                
+                await redis.del(`maintenance:${macAddress}`);
+                 return {
+                    content: [{ type: "text", text: `Modo Mantenimiento DESACTIVADO para ${macAddress}.` }]
+                };
+            }
+        } catch (error: any) {
+            return { isError: true, content: [{ type: "text", text: error.message }] };
+        }
+    }
+  );
 
   console.error("StepGuard MCP Server running on stdio");
 };

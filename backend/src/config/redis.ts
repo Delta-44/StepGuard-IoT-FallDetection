@@ -162,6 +162,27 @@ export const ESP32Cache = {
   removeHeartbeat: async (macAddress: string) => {
     await redis.zrem('device_heartbeats', macAddress);
   },
+
+  /**
+   * Set maintenance mode for a device
+   * @param macAddress - MAC of the device
+   * @param durationMinutes - Duration in minutes
+   */
+  setMaintenanceMode: async (macAddress: string, durationMinutes: number) => {
+    const key = `maintenance:${macAddress}`;
+    await redis.set(key, 'true', 'EX', durationMinutes * 60);
+    return true;
+  },
+
+  /**
+   * Check if device is in maintenance mode
+   * @param macAddress - MAC of the device
+   */
+  getMaintenanceMode: async (macAddress: string) => {
+    const key = `maintenance:${macAddress}`;
+    const exists = await redis.get(key);
+    return exists === 'true';
+  },
 };
 
 export default redis;
