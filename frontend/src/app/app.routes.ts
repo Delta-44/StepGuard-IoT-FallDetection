@@ -7,8 +7,7 @@ import { AuthService } from './services/auth.service';
 import { LandingComponent } from './pages/landing/landing.component';
 import { AlertsComponent } from './components/alerts/alerts.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
-import { PatientProfileComponent } from './pages/patient-profile/patient-profile.component';
-import { AnalyticsComponent } from './pages/analytics/analytics.component';
+import { PatientProfileComponent } from './components/patient-profile/patient-profile.component';
 const authGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -77,11 +76,6 @@ export const routes: Routes = [
     canActivate: [authGuard, patientOnlyGuard]
   },
   {
-    path: 'analytics',
-    component: AnalyticsComponent,
-    canActivate: [authGuard]
-  },
-  {
     path: 'devices',
     component: DevicesComponent,
     canActivate: [authGuard, staffOnlyGuard]
@@ -95,12 +89,12 @@ export const routes: Routes = [
   { path: 'alerts', component: AlertsComponent, canActivate: [authGuard] },
 
   // ==========================================
-  // 3. RESET PASSWORD (PÚBLICO)
+  // 4. RESET PASSWORD (PÚBLICO)
   // ==========================================
   { path: 'reset-password', component: ResetPasswordComponent },
 
   // ==========================================
-  // 4. RUTAS DESCONOCIDAS
+  // 5. RUTAS DESCONOCIDAS
   // ==========================================
   // Cualquier cosa rara -> A la portada
   { path: '**', redirectTo: '' } 

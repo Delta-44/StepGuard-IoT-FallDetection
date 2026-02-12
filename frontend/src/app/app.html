@@ -1,4 +1,4 @@
-<div style="font-family: 'Segoe UI', sans-serif; min-height: 100vh; display: flex; flex-direction: column;">
+<div class="min-h-screen flex flex-col bg-white dark:bg-gray-900 transition-colors duration-300" style="font-family: 'Segoe UI', sans-serif;">
       
   @if (criticalAlert() && showNavbar()) {
     <div class="critical-banner">
@@ -19,7 +19,7 @@
   }
 
   @if (showNavbar()) {
-    <nav class="bg-gray-900 text-white shadow-lg sticky top-0 z-40 border-b border-gray-800">
+    <nav class="bg-gray-900 dark:bg-gray-950 text-white shadow-lg sticky top-0 z-40 border-b border-gray-800 dark:border-gray-700 transition-colors duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           
@@ -70,6 +70,19 @@
           <div class="hidden md:block">
             <div class="flex items-center gap-4">
               @if (currentUser()) {
+                <!-- Botón de tema -->
+                <button
+                  (click)="themeService.toggleTheme()"
+                  class="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all text-gray-300 hover:text-white"
+                  [title]="themeService.isDarkMode() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+                >
+                  @if (themeService.isDarkMode()) {
+                    <i-lucide name="sun" [size]="20"></i-lucide>
+                  } @else {
+                    <i-lucide name="moon" [size]="20"></i-lucide>
+                  }
+                </button>
+                
                 <div class="text-right">
                   <div class="text-sm font-bold text-white">{{ currentUser()?.fullName }}</div>
                   <div class="text-xs text-gray-400 flex items-center justify-end gap-1">
@@ -147,7 +160,19 @@
                 <div class="text-base font-medium leading-none text-white">{{ currentUser()?.fullName }}</div>
                 <div class="text-sm font-medium leading-none text-gray-400 mt-1 capitalize">{{ currentUser()?.role || 'Usuario' }}</div>
               </div>
-              <button (click)="logout()" class="ml-auto bg-red-600 p-2 rounded-full text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+              <!-- Botón de tema móvil -->
+              <button
+                (click)="themeService.toggleTheme()"
+                class="ml-2 p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-all text-gray-300"
+                [title]="themeService.isDarkMode() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+              >
+                @if (themeService.isDarkMode()) {
+                  <i-lucide name="sun" [size]="18"></i-lucide>
+                } @else {
+                  <i-lucide name="moon" [size]="18"></i-lucide>
+                }
+              </button>
+              <button (click)="logout()" class="ml-2 bg-red-600 p-2 rounded-full text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                 <i-lucide name="log-out" [size]="20"></i-lucide>
               </button>
             </div>
@@ -157,7 +182,7 @@
     </nav>
   }
 
-  <div class="flex-1 relative bg-gray-100">
+  <div class="flex-1 relative bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
     <router-outlet></router-outlet>
   </div>
 
@@ -165,6 +190,19 @@
     <button class="fab-analytics" routerLink="/analytics">
       <i-lucide name="layout-dashboard" [size]="18"></i-lucide>
       <span>Analítica</span>
+    </button>
+    
+    <!-- Floating Theme Toggle Button -->
+    <button 
+      class="fab-theme-toggle" 
+      (click)="themeService.toggleTheme()"
+      [title]="themeService.isDarkMode() ? 'Modo Claro ☀️' : 'Modo Oscuro 🌙'"
+    >
+      @if (themeService.isDarkMode()) {
+        <i-lucide name="sun" [size]="24" [strokeWidth]="2.5"></i-lucide>
+      } @else {
+        <i-lucide name="moon" [size]="24" [strokeWidth]="2.5"></i-lucide>
+      }
     </button>
   }
 

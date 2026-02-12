@@ -2,6 +2,7 @@ import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular
 import { RouterOutlet, RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
 import { AlertService } from './services/alert.service';
+import { ThemeService } from './services/theme.service';
 import { Alert } from './models/alert.model';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
@@ -26,6 +27,7 @@ import { NotificationComponent } from './components/notification/notification.co
 export class AppComponent implements OnInit, OnDestroy {
   public authService = inject(AuthService); // Público para usar en HTML
   private alertService = inject(AlertService);
+  public themeService = inject(ThemeService);
   public router = inject(Router);
 
   public currentUser = this.authService.currentUser;
