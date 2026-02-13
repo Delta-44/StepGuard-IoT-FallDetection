@@ -12,6 +12,11 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+// MCP Server must communicate via stdio. Any console.log calls will interfere with the protocol.
+// We redirect console.log to console.error so that logs from imported modules don't break the connection.
+console.log = console.error;
+
+
 const main = async () => {
   // Inicializar conexiones a base de datos y Redis
   try {
@@ -359,6 +364,84 @@ const main = async () => {
 
         } catch (error: any) {
             return { isError: true, content: [{ type: "text", text: error.message }] };
+        }
+    }
+  );
+
+  // 10.1. Obtener información personal del usuario (RBAC)
+  server.tool(
+    "get_user_personal_info",
+    {
+        targetUserId: z.number().describe("ID del usuario (paciente) a consultar"),
+        requesterId: z.number().describe("ID del usuario que solicita la información"),
+        role: z.enum(["admin", "cuidador", "usuario", "familiar"]).describe("Rol del usuario solicitante")
+    },
+    async ({ targetUserId, requesterId, role }) => {
+        try {
+             // Importar modelos dinámicamente para evitar dependencias circulares si las hubiera
+             const { UsuarioModel } = await import("./models/usuario");
+             const { CuidadorModel } = await import("./models/cuidador");
+
+             // 1. Verificar Permisos
+             let isAuthorized = false;
+
+             if (role === 'admin') {
+                 isAuthorized = true;
+             } else if (role === 'usuario') {
+                 if (targetUserId === requesterId) {
+                     isAuthorized = true;
+                 }
+             } else if (role === 'cuidador' || role === 'familiar') {
+                 // Verificar si el cuidador tiene asignado al paciente
+                 const assignedUsers = await CuidadorModel.getUsuariosAsignados(requesterId);
+                 const isAssigned = assignedUsers.some(u => u.id === targetUserId);
+                 
+                 if (isAssigned) {
+                     isAuthorized = true;
+                 }
+             }
+
+             if (!isAuthorized) {
+                 return { isError: true, content: [{ type: "text", text: "Acceso denegado: No tienes permiso para ver la información personal de este usuario." }] };
+             }
+
+             // 2. Obtener Datos
+             const user = await UsuarioModel.findByIdWithDevice(targetUserId);
+             if (!user) {
+                 return { isError: true, content: [{ type: "text", text: "Usuario no encontrado" }] };
+             }
+
+             // 3. Obtener Historial de Caídas (Resumen)
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setMonth(endDate.getMonth() - 1); // Último mes
+
+            const events = await EventoCaidaModel.findByFechas(startDate, endDate, targetUserId);
+            
+             return {
+                 content: [{ type: "text", text: JSON.stringify({
+                     personal_info: {
+                         id: user.id,
+                         nombre: user.nombre, 
+                         email: user.email,
+                         direccion: user.direccion,
+                         telefono: user.telefono,
+                         fecha_nacimiento: user.fecha_nacimiento,
+                         dispositivo: {
+                             mac: user.dispositivo_mac,
+                             nombre: user.dispositivo_nombre,
+                             estado: user.dispositivo_estado
+                         }
+                     },
+                     recent_activity: {
+                         total_alerts_last_30_days: events.length,
+                         last_alert: events.length > 0 ? events[0] : null
+                     }
+                 }, null, 2) }]
+             };
+
+        } catch (error: any) {
+             return { isError: true, content: [{ type: "text", text: error.message }] };
         }
     }
   );

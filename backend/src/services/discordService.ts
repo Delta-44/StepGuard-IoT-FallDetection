@@ -27,7 +27,7 @@ export class DiscordService {
         });
 
         this.client.once(Events.ClientReady, () => {
-            console.log(`Discord Bot logged in as ${this.client.user?.tag}`);
+            console.error(`Discord Bot logged in as ${this.client.user?.tag}`);
             this.isReady = true;
         });
 
@@ -52,7 +52,7 @@ export class DiscordService {
             const user = await this.client.users.fetch(this.targetUserId);
             if (user) {
                 await user.send(typeof message === 'string' ? { content: message } : { embeds: [message] });
-                console.log(`Message sent to Discord user ${this.targetUserId}`);
+                console.error(`Message sent to Discord user ${this.targetUserId}`);
             } else {
                 console.error(`Discord user ${this.targetUserId} not found.`);
             }
