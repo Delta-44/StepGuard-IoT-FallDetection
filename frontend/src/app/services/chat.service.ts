@@ -80,14 +80,17 @@ export class ChatService {
   }
 
   /**
-   * Limpia el historial de chat
+   * Limpia el historial de chat local y del servidor
    */
-  clearHistory(userId?: string | number): void {
-    if (!userId) return;
-    try {
-      sessionStorage.removeItem(`chat_history_${userId}`);
-    } catch (error) {
-      console.error('Error clearing chat history:', error);
+  clearHistory(userId?: string | number): Observable<any> {
+    if (userId) {
+      try {
+        sessionStorage.removeItem(`chat_history_${userId}`);
+      } catch (error) {
+        console.error('Error clearing local chat history:', error);
+      }
     }
+    // Also clear from server
+    return this.http.delete(`${this.apiUrl}/chat/history`);
   }
 }

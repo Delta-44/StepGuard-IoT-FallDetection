@@ -156,12 +156,27 @@ export class ChatbotComponent {
   }
 
   clearChat(): void {
-    this.messages.set([]);
     const userId = this.currentUser()?.id;
     if (userId) {
-      this.chatService.clearHistory(userId);
+      // Llamar al backend y limpiar localmente al finalizar
+      this.chatService.clearHistory(userId).subscribe({
+        next: () => {
+          console.log('[Chatbot] Historial borrado en servidor y local');
+          this.messages.set([]);
+          this.addWelcomeMessage();
+        },
+        error: (err) => {
+          console.error('[Chatbot] Error borrando historial:', err);
+          // Aún así limpiamos localmente para feedback inmediato
+          this.messages.set([]);
+          this.addWelcomeMessage();
+        }
+      });
+    } else {
+      // Solo local si no hay usuario (caso raro)
+      this.messages.set([]);
+      this.addWelcomeMessage();
     }
-    this.addWelcomeMessage();
   }
 
   private scrollToBottom(): void {
