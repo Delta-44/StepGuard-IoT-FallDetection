@@ -210,10 +210,8 @@ const main = async () => {
     "send_discord_message",
     {
         message: z.string().describe("El mensaje a enviar"),
-        channel: z.string().optional().describe("Canal de destino (opcional, por defecto 'general' o DM admin)"),
-        targetUser: z.string().optional().describe("ID de usuario de Discord para mensaje directo")
     },
-    async ({ message, channel, targetUser }) => {
+    async ({ message }) => {
         try {
             const { DiscordService } = await import("./services/discordService");
             
