@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, TextChannel, User, EmbedBuilder } from 'discord.js';
+import { Client, GatewayIntentBits, TextChannel, User, EmbedBuilder, Events } from 'discord.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -26,7 +26,7 @@ export class DiscordService {
             ]
         });
 
-        this.client.once('ready', () => {
+        this.client.once(Events.ClientReady, () => {
             console.log(`Discord Bot logged in as ${this.client.user?.tag}`);
             this.isReady = true;
         });
