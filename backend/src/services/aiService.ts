@@ -31,6 +31,15 @@ export class AIService {
      */
     static async processQuery(userQuery: string, userContext?: { id: number, role: string }): Promise<string> {
         try {
+            // 0. Initialize History (if user is authenticated)
+            const userId = userContext?.id;
+            let history: any[] = [];
+            
+            if (userId) {
+                const { ChatHistoryService } = await import('./chatHistoryService');
+                history = await ChatHistoryService.getHistory(userId);
+            }
+
             // 1. Initialize MCP Client
             const mcpClient = McpClientService.getInstance();
             await mcpClient.connect();
@@ -48,25 +57,29 @@ export class AIService {
                 }
             }));
 
+            const systemMessage: OpenAI.Chat.Completions.ChatCompletionMessageParam = {
+                role: 'system',
+                content: `Eres StepGuard AI, un asistente inteligente para el sistema IoT de detección de caídas StepGuard.
+                Utilizas un servidor MCP (Model Context Protocol) para acceder a datos en tiempo real.
+                
+                Tus responsabilidades:
+                1. Responder preguntas sobre el estado de los dispositivos, caídas y alertas.
+                2. UTILIZA las herramientas proporcionadas para obtener datos reales.
+                3. Interpreta los datos JSON que te devuelven las herramientas para el usuario.
+                4. Si no puedes responder, admítelo educadamente.
+                5. IMPORTANTE: SIEMPRE RESPONDE EN ESPAÑOL.
+                
+                Contexto del usuario:
+                ID: ${userContext?.id || 'Desconocido'}
+                Rol: ${userContext?.role || 'Desconocido'}
+                
+                NOTA: Para herramientas que requieran 'adminId' o 'requesterId', usa el ID del contexto del usuario (${userContext?.id}).`
+            };
+
+            // Build messages array: System + History + Current User Query
             const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-                {
-                    role: 'system',
-                    content: `Eres StepGuard AI, un asistente inteligente para el sistema IoT de detección de caídas StepGuard.
-                    Utilizas un servidor MCP (Model Context Protocol) para acceder a datos en tiempo real.
-                    
-                    Tus responsabilidades:
-                    1. Responder preguntas sobre el estado de los dispositivos, caídas y alertas.
-                    2. UTILIZA las herramientas proporcionadas para obtener datos reales.
-                    3. Interpreta los datos JSON que te devuelven las herramientas para el usuario.
-                    4. Si no puedes responder, admítelo educadamente.
-                    5. IMPORTANTE: SIEMPRE RESPONDE EN ESPAÑOL.
-                    
-                    Contexto del usuario:
-                    ID: ${userContext?.id || 'Desconocido'}
-                    Rol: ${userContext?.role || 'Desconocido'}
-                    
-                    NOTA: Para herramientas que requieran 'adminId' o 'requesterId', usa el ID del contexto del usuario (${userContext?.id}).`
-                },
+                systemMessage,
+                ...history,
                 { role: 'user', content: userQuery }
             ];
 
@@ -83,6 +96,15 @@ export class AIService {
             // 5. Check if the LLM wants to call a tool
             if (responseMessage.tool_calls) {
                 messages.push(responseMessage);
+
+                // Note: We don't save the intermediate tool calls/results to long-term history 
+                // to avoid blowing up the context window too fast, but we COULD if needed.
+                // For now, we will only save the final turn (User -> Assistant).
+                // OR better: save the whole chain if it's important. 
+                // Let's safe the User Query and the Final Assistant Response. 
+                // If we want "memory" of actions taken, we should save the intermediate steps too.
+                // But Redis list is simple. Let's simplify: Only save User Query + Final Response.
+                // Intermediate tool logic is transient context for the current answer.
 
                 for (const toolCall of responseMessage.tool_calls) {
                     if (toolCall.type !== 'function') continue;
@@ -136,10 +158,33 @@ export class AIService {
                     messages: messages
                 });
 
-                return secondResponse.choices[0].message.content || 'Procesé los datos pero no pude generar una respuesta.';
+                const finalContent = secondResponse.choices[0].message.content || 'Procesé los datos pero no pude generar una respuesta.';
+                
+                // Save to history (Async, don't block)
+                if (userId) {
+                    const { ChatHistoryService } = await import('./chatHistoryService');
+                    // Save User Query
+                    await ChatHistoryService.addToHistory(userId, { role: 'user', content: userQuery });
+                    // Save Assistant Response
+                    await ChatHistoryService.addToHistory(userId, { role: 'assistant', content: finalContent });
+                }
+
+                return finalContent;
             }
 
-            return responseMessage.content || 'Lo siento, no pude entender eso.';
+            // No tool call, simple response
+            const finalContent = responseMessage.content || 'Lo siento, no pude entender eso.';
+             
+            // Save to history (Async, don't block)
+            if (userId) {
+                 const { ChatHistoryService } = await import('./chatHistoryService');
+                 // Save User Query
+                 await ChatHistoryService.addToHistory(userId, { role: 'user', content: userQuery });
+                 // Save Assistant Response
+                 await ChatHistoryService.addToHistory(userId, { role: 'assistant', content: finalContent });
+            }
+
+            return finalContent;
 
         } catch (error: any) {
             console.error('[AIService] Error processing query:', error);

@@ -8,4 +8,7 @@ const router = Router();
 // Protected by authMiddleware to ensure only logged-in users can chat
 router.post('/', authMiddleware, ChatController.sendMessage);
 
+// Endpoint to clear chat history
+router.delete('/history', authMiddleware, ChatController.clearHistory);
+
 export default router;
