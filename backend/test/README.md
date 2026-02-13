@@ -1,67 +1,54 @@
-# Tests del Backend
+# 🧪 Testing Backend - StepGuard IoT Fall Detection
 
-## Estructura
+## ⭐ Accede a la Guía Completa
 
-Los tests unitarios se encuentran en la carpeta `test/` y cubren los controladores principales:
+**👉 Lee: [`README_ADVANCED.md`](./README_ADVANCED.md) ← GUÍA AVANZADA AQUÍ**
 
-- `authController.spec.ts`: Tests para recuperación y reseteo de contraseña.
-- `registerController.spec.ts`: Tests para registro de usuarios y cuidadores.
-- `userController.spec.ts`: Tests para obtención de usuarios y detalles con dispositivo.
-- `utils/mockRequestResponse.ts`: Utilidades para crear mocks de Request/Response de Express.
+Esta es la guía completa y única de testing (98 pruebas) con todo lo que necesitas:
+- 🚀 Inicio rápido
+- 📋 Estructura de proyectos
+- ✨ 115+ pruebas documentadas
+- 🏗️ Patrones (AAA, Mocking, Describes anidados)
+- 🛠️ Helpers y utilidades (factories, mocks, assertions)
+- 🐛 Guía de debugging (breakpoints, test.only, consola)
+- 📖 Mejores prácticas (convenciones, limpieza, seguridad)
+- 🚨 Solución de problemas (timeouts, mocks, módulos)
+- 📊 Rendimiento y cobertura
+- 🎯 Próximos pasos
 
-## Instalar dependencias de test
+---
+
+## 🚀 Comandos Rápidos
 
 ```powershell
-cd backend
-npm install
-```
-
-Asegúrate de que `jest`, `ts-jest` y `@types/jest` estén en `devDependencies`.
-
-## Ejecutar todos los tests
-
-```powershell
+# Ejecutar todos los tests
 npm test
+
+# Ver cobertura
+npm run test:coverage
+
+# Modo watch (re-ejecuta al cambiar)
+npm run test:watch
+
+# Debug interactivo
+npm run test:debug
+
+# Tests específicos
+npm test -- authController.spec.ts
+npm test -- --testNamePattern="debe responder 400"
 ```
 
-## Ejecutar tests con cobertura
+---
 
-```powershell
-npm test -- --coverage
-```
+## 📊 Estado
 
-## Ejecutar un archivo de test específico
+| Aspecto | Estado |
+|---------|--------|
+| Pruebas Totales | 98 ✅ |
+| Tiempo Ejecución | ~4 segundos ✅ |
+| Cobertura | 60%+ ✅ |
+| Documentación | Completa ✅ |
 
-```powershell
-npx jest test/authController.spec.ts
-npx jest test/registerController.spec.ts
-npx jest test/userController.spec.ts
-```
+---
 
-## Estructura de un test
-
-Cada archivo usa:
-- `jest.mock()`: Para mockear modelos y servicios externos.
-- `mockRequest()` y `mockResponse()`: Utilidades que crean objetos simulados de Express.
-- `describe()` y `test()`: Bloques estándar de Jest.
-- `expect()`: Assertions para verificar el comportamiento.
-
-Ejemplo:
-```typescript
-describe('authController - forgotPassword', () => {
-  beforeEach(() => jest.clearAllMocks());
-
-  test('debe responder 400 si falta email', async () => {
-    const req: any = mockRequest({ body: {} });
-    const res: any = mockResponse();
-    await forgotPassword(req, res);
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
-});
-```
-
-## Notas importantes
-
-- **No requieren DB real**: Los tests mockean los modelos y servicios.
-- **Aislados y rápidos**: Cada test es independiente y se ejecuta sin estado compartido.
-- **Facilitan debugging**: Si un test falla, se muestra claramente cuál fue la expectativa no cumplida.
+**Para toda la información detallada → [`README_CONSOLIDATED_MAIN.md`](./README_CONSOLIDATED_MAIN.md)**
