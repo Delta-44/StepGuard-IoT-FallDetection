@@ -346,9 +346,9 @@ Si encuentras problemas con los tests, verifica:
 3. Archivo jest.config.cjs presente en `backend/`
 4. Variables de entorno en `.env.example` si es necesario
 
-##  Estadísticas Finales
+##  Estadï¿½sticas Finales
 
 \\\Test Suites: 5 passed, 5 total Tests:       123 passed, 123 total Pass Rate:   100%Execution Time: ~3-4 segundos\\\`n
 **Desglose por Suite:**- authController.spec.ts: 38/38 tests - registerController.spec.ts: 28/28 tests - userController.spec.ts: 28/28 tests - chatController.spec.ts: 14/14 tests - eventsController.spec.ts: 15/15 tests 
 
-Última actualización: Febrero 13, 2026
+Ãšltima actualizaciÃ³n: Febrero 13, 2026
