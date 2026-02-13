@@ -1,7 +1,7 @@
-﻿<div class="min-h-screen bg-[var(--bg-primary)]">
+﻿<div class="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
   
   <!-- Header Premium -->
-  <header class="bg-blue-600 text-white px-4 sm:px-6 md:px-8 py-6 md:py-8">
+  <header class="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-gray-800 dark:to-gray-900 text-white px-4 sm:px-6 md:px-8 py-6 md:py-8 shadow-lg transition-colors duration-300">
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="flex items-center gap-3 md:gap-4">
         <div class="p-3 md:p-4 rounded-2xl">
@@ -25,22 +25,22 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
       
       <!-- Pacientes -->
-      <div class="bg-[var(--bg-secondary)] rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
-        <div class="h-2 bg-gradient-to-r from-operational via-green-500 to-emerald-500"></div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl overflow-hidden group">
+        <div class="h-2 bg-gradient-to-r from-green-400 via-green-500 to-emerald-500"></div>
         <div class="p-4 md:p-6">
           <div class="flex items-center justify-between mb-3 md:mb-4">
-            <div class="p-3 md:p-4 bg-operational/10 rounded-xl group-hover:scale-110 transition-transform">
-              <i-lucide name="users" class="text-operational" [size]="28" class="md:hidden"></i-lucide>
-              <i-lucide name="users" class="text-operational" [size]="32" class="hidden md:block"></i-lucide>
+            <div class="p-3 md:p-4 bg-green-50 dark:bg-green-900/20 rounded-xl group-hover:scale-110 transition-transform">
+              <i-lucide name="users" class="text-green-600 dark:text-green-400" [size]="28" class="md:hidden"></i-lucide>
+              <i-lucide name="users" class="text-green-600 dark:text-green-400" [size]="32" class="hidden md:block"></i-lucide>
             </div>
-            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Pacientes</span>
+            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pacientes</span>
           </div>
           <div class="flex items-end justify-between">
             <div>
-              <p class="text-4xl md:text-5xl font-black text-[var(--text-primary)]">{{ stats.activePatients }}</p>
+              <p class="text-4xl md:text-5xl font-black text-gray-900 dark:text-white">{{ stats.activePatients }}</p>
               <div class="flex items-center gap-2 mt-2">
-                <span class="w-2 h-2 bg-operational rounded-full animate-glow"></span>
-                <small class="text-xs md:text-sm text-[var(--text-secondary)] font-semibold">Monitoreados</small>
+                <span class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full animate-pulse"></span>
+                <small class="text-xs md:text-sm text-gray-600 dark:text-gray-400 font-semibold">Monitoreados</small>
               </div>
             </div>
           </div>
@@ -48,46 +48,46 @@
       </div>
 
       <!-- Alertas Pendientes -->
-      <div class="bg-[var(--bg-secondary)] rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl overflow-hidden group">
         <div class="h-2"
-          [ngClass]="stats.pendingAlerts > 0 ? 'bg-gradient-to-r from-emergency via-red-600 to-red-700 animate-pulse' : 'bg-gradient-to-r from-gray-300 to-gray-400'"
+          [ngClass]="stats.pendingAlerts > 0 ? 'bg-gradient-to-r from-red-400 via-red-600 to-red-700 animate-pulse' : 'bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700'"
         ></div>
         <div class="p-4 md:p-6">
           <div class="flex items-center justify-between mb-3 md:mb-4">
             <div class="p-3 md:p-4 rounded-xl group-hover:scale-110 transition-transform"
-              [ngClass]="stats.pendingAlerts > 0 ? 'bg-emergency/10' : ''"
+              [ngClass]="stats.pendingAlerts > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-700'"
             >
               <i-lucide 
                 name="alert-triangle" 
-                [class]="stats.pendingAlerts > 0 ? 'text-emergency' : 'text-gray-400'"
+                [class]="stats.pendingAlerts > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'"
                 [size]="28"
                 class="md:hidden"
               ></i-lucide>
               <i-lucide 
                 name="alert-triangle" 
-                [class]="stats.pendingAlerts > 0 ? 'text-emergency' : 'text-gray-400'"
+                [class]="stats.pendingAlerts > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'"
                 [size]="32"
                 class="hidden md:block"
               ></i-lucide>
             </div>
-            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Alertas</span>
+            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Alertas</span>
           </div>
           <div class="flex items-end justify-between">
             <div>
               <p 
                 class="text-4xl md:text-5xl font-black"
-                [ngClass]="stats.pendingAlerts > 0 ? 'text-emergency' : 'text-[var(--text-primary)]'"
+                [ngClass]="stats.pendingAlerts > 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'"
               >
                 {{ stats.pendingAlerts }}
               </p>
               <div class="mt-2">
                 @if (stats.pendingAlerts > 0) {
-                  <small class="text-xs md:text-sm text-emergency font-bold flex items-center gap-1">
+                  <small class="text-xs md:text-sm text-red-600 dark:text-red-400 font-bold flex items-center gap-1">
                     <i-lucide name="alert-circle" [size]="14"></i-lucide>
                     ¡Requiere atención!
                   </small>
                 } @else {
-                  <small class="text-xs md:text-sm text-[var(--text-secondary)] font-semibold">Todo bajo control</small>
+                  <small class="text-xs md:text-sm text-gray-600 dark:text-gray-400 font-semibold">Todo bajo control</small>
                 }
               </div>
             </div>
@@ -96,22 +96,22 @@
       </div>
 
       <!-- Dispositivos -->
-      <div class="bg-[var(--bg-secondary)] rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
-        <div class="h-2 bg-gradient-to-r from-primary via-blue-500 to-indigo-500"></div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl overflow-hidden group">
+        <div class="h-2 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-500"></div>
         <div class="p-4 md:p-6">
           <div class="flex items-center justify-between mb-3 md:mb-4">
-            <div class="p-3 md:p-4 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
-              <i-lucide name="smartphone" class="text-primary" [size]="28" class="md:hidden"></i-lucide>
-              <i-lucide name="smartphone" class="text-primary" [size]="32" class="hidden md:block"></i-lucide>
+            <div class="p-3 md:p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl group-hover:scale-110 transition-transform">
+              <i-lucide name="smartphone" class="text-blue-600 dark:text-blue-400" [size]="28" class="md:hidden"></i-lucide>
+              <i-lucide name="smartphone" class="text-blue-600 dark:text-blue-400" [size]="32" class="hidden md:block"></i-lucide>
             </div>
-            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Dispositivos</span>
+            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Dispositivos</span>
           </div>
           <div class="flex items-end justify-between">
             <div>
-              <p class="text-4xl md:text-5xl font-black text-[var(--text-primary)]">{{ stats.onlineDevices }}</p>
+              <p class="text-4xl md:text-5xl font-black text-gray-900 dark:text-white">{{ stats.onlineDevices }}</p>
               <div class="flex items-center gap-2 mt-2">
-                <span class="w-2 h-2 bg-operational rounded-full animate-breathe"></span>
-                <small class="text-xs md:text-sm text-[var(--text-secondary)] font-semibold">Conectados</small>
+                <span class="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full animate-pulse"></span>
+                <small class="text-xs md:text-sm text-gray-600 dark:text-gray-400 font-semibold">Conectados</small>
               </div>
             </div>
           </div>
@@ -119,42 +119,42 @@
       </div>
 
       <!-- Batería Baja -->
-      <div class="bg-[var(--bg-secondary)] rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg animate-fade-in">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl border-2 border-gray-200 dark:border-gray-700 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl overflow-hidden group">
         <div class="h-2"
-          [ngClass]="stats.lowBattery > 0 ? 'bg-gradient-to-r from-preventive via-yellow-500 to-amber-500' : 'bg-gradient-to-r from-gray-300 to-gray-400'"
+          [ngClass]="stats.lowBattery > 0 ? 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-amber-500' : 'bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700'"
         ></div>
         <div class="p-4 md:p-6">
           <div class="flex items-center justify-between mb-3 md:mb-4">
             <div class="p-3 md:p-4 rounded-xl group-hover:scale-110 transition-transform"
-              [ngClass]="stats.lowBattery > 0 ? 'bg-preventive/10' : ''"
+              [ngClass]="stats.lowBattery > 0 ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'bg-gray-50 dark:bg-gray-700'"
             >
               <i-lucide 
                 name="battery-warning" 
-                [class]="stats.lowBattery > 0 ? 'text-preventive' : 'text-gray-400'"
+                [class]="stats.lowBattery > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-400 dark:text-gray-500'"
                 [size]="28"
                 class="md:hidden"
               ></i-lucide>
               <i-lucide 
                 name="battery-warning" 
-                [class]="stats.lowBattery > 0 ? 'text-preventive' : 'text-gray-400'"
+                [class]="stats.lowBattery > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-400 dark:text-gray-500'"
                 [size]="32"
                 class="hidden md:block"
               ></i-lucide>
             </div>
-            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Batería</span>
+            <span class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Batería</span>
           </div>
           <div class="flex items-end justify-between">
             <div>
               <p 
                 class="text-4xl md:text-5xl font-black"
-                [ngClass]="stats.lowBattery > 0 ? 'text-preventive' : 'text-[var(--text-primary)]'"
+                [ngClass]="stats.lowBattery > 0 ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white'"
               >
                 {{ stats.lowBattery }}
               </p>
               <div class="mt-2">
                 <small 
                   class="text-xs md:text-sm font-semibold"
-                  [ngClass]="stats.lowBattery > 0 ? 'text-preventive font-bold flex items-center gap-1' : 'text-[var(--text-secondary)]'"
+                  [ngClass]="stats.lowBattery > 0 ? 'text-yellow-600 dark:text-yellow-400 font-bold flex items-center gap-1' : 'text-gray-600 dark:text-gray-400'"
                 >
                   @if (stats.lowBattery > 0) {
                     <i-lucide name="zap" [size]="14"></i-lucide>
@@ -174,8 +174,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
       
       <!-- Gráfica de Actividad -->
-      <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] p-4 md:p-6 animate-fade-in">
-        <h3 class="text-base md:text-lg font-bold text-base-text mb-4 flex items-center gap-2">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-md hover:shadow-lg transition-shadow">
+        <h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <i-lucide name="bar-chart-3" [size]="20"></i-lucide>
           <span class="text-sm md:text-base">Actividad de Sensores (Últimas 24 hrs)</span>
         </h3>
@@ -183,10 +183,10 @@
           <!-- Total Resueltas -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Total Resueltas</span>
-              <span class="text-sm font-bold text-green-600">{{ resolvedStats.totalResolved }}</span>
+              <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Total Resueltas</span>
+              <span class="text-sm font-bold text-green-600 dark:text-green-400">{{ resolvedStats.totalResolved }}</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
               <div 
                 class="bg-gradient-to-r from-green-500 to-green-600 h-full rounded-full transition-all duration-1000"
                 [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.totalResolved / (resolvedStats.totalResolved + stats.pendingAlerts)) * 100 : 0"
@@ -197,12 +197,12 @@
           <!-- Críticas Resueltas -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Críticas</span>
-              <span class="text-sm font-bold text-red-600">{{ resolvedStats.criticalResolved }}</span>
+              <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Críticas</span>
+              <span class="text-sm font-bold text-red-600 dark:text-red-400">{{ resolvedStats.criticalResolved }}</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
               <div 
-                class="bg-gradient-to-r from-red-500 to-red-600 h-full rounded-full transition-all duration-1000"
+                class="bg-gradient-to-r from-red-500 to-red-600 dark:from-red-400 dark:to-red-500 h-full rounded-full transition-all duration-1000"
                 [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.criticalResolved / resolvedStats.totalResolved) * 100 : 0"
               ></div>
             </div>
@@ -211,12 +211,12 @@
           <!-- Altas Resueltas -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Altas</span>
-              <span class="text-sm font-bold text-orange-600">{{ resolvedStats.highResolved }}</span>
+              <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Altas</span>
+              <span class="text-sm font-bold text-orange-600 dark:text-orange-400">{{ resolvedStats.highResolved }}</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
               <div 
-                class="bg-gradient-to-r from-orange-500 to-orange-600 h-full rounded-full transition-all duration-1000"
+                class="bg-gradient-to-r from-orange-500 to-orange-600 dark:from-orange-400 dark:to-orange-500 h-full rounded-full transition-all duration-1000"
                 [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.highResolved / resolvedStats.totalResolved) * 100 : 0"
               ></div>
             </div>
@@ -225,12 +225,12 @@
           <!-- Medias Resueltas -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Medias</span>
-              <span class="text-sm font-bold text-yellow-600">{{ resolvedStats.mediumResolved }}</span>
+              <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Medias</span>
+              <span class="text-sm font-bold text-yellow-600 dark:text-yellow-400">{{ resolvedStats.mediumResolved }}</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
               <div 
-                class="bg-gradient-to-r from-yellow-500 to-yellow-600 h-full rounded-full transition-all duration-1000"
+                class="bg-gradient-to-r from-yellow-500 to-yellow-600 dark:from-yellow-400 dark:to-yellow-500 h-full rounded-full transition-all duration-1000"
                 [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.mediumResolved / resolvedStats.totalResolved) * 100 : 0"
               ></div>
             </div>
@@ -239,12 +239,12 @@
           <!-- Bajas Resueltas -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Bajas</span>
-              <span class="text-sm font-bold text-blue-600">{{ resolvedStats.lowResolved }}</span>
+              <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Bajas</span>
+              <span class="text-sm font-bold text-blue-600 dark:text-blue-400">{{ resolvedStats.lowResolved }}</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
               <div 
-                class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-1000"
+                class="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 h-full rounded-full transition-all duration-1000"
                 [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.lowResolved / resolvedStats.totalResolved) * 100 : 0"
               ></div>
             </div>
@@ -253,10 +253,10 @@
           <!-- Falsas Alarmas -->
           <div>
             <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Falsas Alarmas</span>
-              <span class="text-sm font-bold text-[var(--text-secondary)]">{{ resolvedStats.falseAlarms }}</span>
+              <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Falsas Alarmas</span>
+              <span class="text-sm font-bold text-gray-600 dark:text-gray-400">{{ resolvedStats.falseAlarms }}</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
               <div 
                 class="bg-gradient-to-r from-gray-500 to-gray-600 h-full rounded-full transition-all duration-1000"
                 [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.falseAlarms / resolvedStats.totalResolved) * 100 : 0"
@@ -267,28 +267,28 @@
       </div>
 
       <!-- Lista de Alertas -->
-      <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] p-4 md:p-6 animate-fade-in">
-        <h3 class="text-base md:text-lg font-bold text-base-text mb-4 flex items-center gap-2">
+      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 md:p-6 shadow-md hover:shadow-lg transition-shadow">
+        <h3 class="text-base md:text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
           <i-lucide name="bell" [size]="20"></i-lucide>
           <span class="text-sm md:text-base">Alertas Pendientes de Atención</span>
         </h3>
         
         @if (activeAlerts.length === 0) {
-          <div class="flex flex-col items-center justify-center h-48 text-gray-400">
+          <div class="flex flex-col items-center justify-center h-48 text-gray-400 dark:text-gray-500">
             <i-lucide name="check-circle" [size]="48" class="md:hidden mb-3"></i-lucide>
-            <i-lucide name="check-circle" [size]="64" class="hidden md:block text-operational mb-3"></i-lucide>
+            <i-lucide name="check-circle" [size]="64" class="hidden md:block text-green-500 dark:text-green-400 mb-3"></i-lucide>
             <p class="text-base md:text-lg text-center">Todo tranquilo. No hay alertas pendientes.</p>
           </div>
         } @else {
           <ul class="space-y-3 max-h-96 overflow-y-auto">
             @for (alert of activeAlerts; track alert.id) {
               <li 
-                class="p-3 md:p-4 rounded-lg border-l-4 transition-all duration-300 hover: animate-slide-down"
+                class="p-3 md:p-4 rounded-lg border-l-4 transition-all duration-300 hover:shadow-md"
                 [ngClass]="{
-                  'bg-emergency/5 border-emergency': alert.severity === 'critical',
-                  'bg-red-50 border-red-400': alert.severity === 'high',
-                  'bg-preventive/10 border-preventive': alert.severity === 'medium',
-                  'bg-blue-50 border-primary': alert.severity === 'low'
+                  'bg-red-50 dark:bg-red-900/10 border-red-600 dark:border-red-500': alert.severity === 'critical',
+                  'bg-red-50 dark:bg-red-900/5 border-red-400 dark:border-red-600': alert.severity === 'high',
+                  'bg-yellow-50 dark:bg-yellow-900/10 border-yellow-500 dark:border-yellow-600': alert.severity === 'medium',
+                  'bg-blue-50 dark:bg-blue-900/10 border-blue-500 dark:border-blue-600': alert.severity === 'low'
                 }"
               >
                 <div class="flex flex-col md:flex-row justify-between items-start gap-2 md:gap-3">
@@ -296,21 +296,21 @@
                     <strong 
                       class="block mb-1 text-sm md:text-base"
                       [ngClass]="{
-                        'text-emergency': alert.severity === 'critical',
-                        'text-red-600': alert.severity === 'high',
-                        'text-preventive': alert.severity === 'medium',
-                        'text-primary': alert.severity === 'low'
+                        'text-red-700 dark:text-red-400': alert.severity === 'critical',
+                        'text-red-600 dark:text-red-400': alert.severity === 'high',
+                        'text-yellow-700 dark:text-yellow-400': alert.severity === 'medium',
+                        'text-blue-700 dark:text-blue-400': alert.severity === 'low'
                       }"
                     >
                       {{ alert.message }}
                     </strong>
                     @if (alert.userName) {
-                      <span class="text-xs md:text-sm text-blue-600 font-semibold block mb-1">
+                      <span class="text-xs md:text-sm text-blue-600 dark:text-blue-400 font-semibold block mb-1">
                         <i-lucide name="user" [size]="14" class="inline mr-1"></i-lucide>
                         {{ alert.userName }}
                       </span>
                     }
-                    <small class="text-[var(--text-secondary)] flex items-center gap-1 md:gap-2 flex-wrap text-xs md:text-sm">
+                    <small class="text-gray-600 dark:text-gray-400 flex items-center gap-1 md:gap-2 flex-wrap text-xs md:text-sm">
                       <span class="flex items-center gap-1" title="Dispositivo">
                         <i-lucide name="smartphone" [size]="12" class="md:hidden"></i-lucide>
                         <i-lucide name="smartphone" [size]="14" class="hidden md:inline"></i-lucide>
@@ -353,11 +353,11 @@
 
 <!-- Modal de Atención con Diseño Profesional -->
 @if (processingAlert) {
-  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in">
-    <div class="bg-[var(--bg-secondary)] rounded-xl w-full max-w-2xl mx-4 shadow-2xl">
+  <div class="fixed inset-0 bg-black/60 dark:bg-black/80 z-50 flex items-center justify-center animate-fade-in">
+    <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-2xl mx-4 shadow-2xl">
       
       <!-- Header Minimalista -->
-      <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+      <div class="px-5 py-3 bg-slate-50 dark:bg-gray-900 border-b border-slate-200 dark:border-gray-700 flex items-center justify-between">
         <div class="flex items-center gap-2">
           <div 
             class="w-2 h-2 rounded-full"
@@ -367,11 +367,11 @@
               'bg-blue-500': processingAlert.severity === 'low'
             }"
           ></div>
-          <h2 class="text-sm font-semibold text-slate-700">Procesando Incidencia #{{ processingAlert.id }} - {{ processingAlert.deviceName }}</h2>
+          <h2 class="text-sm font-semibold text-slate-700 dark:text-gray-300">Procesando Incidencia #{{ processingAlert.id }} - {{ processingAlert.deviceName }}</h2>
         </div>
         <button 
           (click)="cancelResolution()" 
-          class="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors"
+          class="p-1 hover:bg-slate-200 dark:hover:bg-gray-700 rounded text-slate-400 dark:text-gray-500 hover:text-slate-600 dark:hover:text-gray-300 transition-colors"
         >
           <i-lucide name="x" [size]="18"></i-lucide>
         </button>
@@ -382,40 +382,40 @@
         
         <!-- Info Cards Compactas -->
         <div class="grid grid-cols-3 gap-2">
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+          <div class="bg-slate-50 dark:bg-gray-900 rounded-lg p-2.5 border border-slate-200 dark:border-gray-700">
+            <div class="flex items-center gap-1.5 text-slate-500 dark:text-gray-400 mb-1">
               <i-lucide name="map-pin" [size]="12"></i-lucide>
               <span class="text-[9px] font-semibold uppercase tracking-wide">Ubicación</span>
             </div>
-            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.location }}</p>
+            <p class="text-slate-900 dark:text-gray-100 font-medium text-xs truncate">{{ processingAlert.location }}</p>
           </div>
           
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+          <div class="bg-slate-50 dark:bg-gray-900 rounded-lg p-2.5 border border-slate-200 dark:border-gray-700">
+            <div class="flex items-center gap-1.5 text-slate-500 dark:text-gray-400 mb-1">
               <i-lucide name="clock" [size]="12"></i-lucide>
               <span class="text-[9px] font-semibold uppercase tracking-wide">Hora</span>
             </div>
-            <p class="text-slate-900 font-medium text-xs">{{ processingAlert.timestamp | date:'short' }}</p>
+            <p class="text-slate-900 dark:text-gray-100 font-medium text-xs">{{ processingAlert.timestamp | date:'short' }}</p>
           </div>
           
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+          <div class="bg-slate-50 dark:bg-gray-900 rounded-lg p-2.5 border border-slate-200 dark:border-gray-700">
+            <div class="flex items-center gap-1.5 text-slate-500 dark:text-gray-400 mb-1">
               <i-lucide name="activity" [size]="12"></i-lucide>
               <span class="text-[9px] font-semibold uppercase tracking-wide">Tipo</span>
             </div>
-            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.message }}</p>
+            <p class="text-slate-900 dark:text-gray-100 font-medium text-xs truncate">{{ processingAlert.message }}</p>
           </div>
 
           @if (processingAlert.acc_x !== undefined) {
-             <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3">
-              <div class="flex items-center gap-1.5 text-slate-500 mb-1">
+             <div class="bg-slate-50 dark:bg-gray-900 rounded-lg p-2.5 border border-slate-200 dark:border-gray-700 col-span-3">
+              <div class="flex items-center gap-1.5 text-slate-500 dark:text-gray-400 mb-1">
                 <i-lucide name="activity-square" [size]="12"></i-lucide>
                 <span class="text-[9px] font-semibold uppercase tracking-wide">Impacto (G-Force)</span>
               </div>
               <div class="flex gap-4">
-                 <span class="text-xs font-mono">X: <span class="font-bold">{{ processingAlert.acc_x | number:'1.1-2' }}</span></span>
-                 <span class="text-xs font-mono">Y: <span class="font-bold">{{ processingAlert.acc_y | number:'1.1-2' }}</span></span>
-                 <span class="text-xs font-mono">Z: <span class="font-bold">{{ processingAlert.acc_z | number:'1.1-2' }}</span></span>
+                 <span class="text-xs font-mono text-slate-900 dark:text-gray-100">X: <span class="font-bold">{{ processingAlert.acc_x | number:'1.1-2' }}</span></span>
+                 <span class="text-xs font-mono text-slate-900 dark:text-gray-100">Y: <span class="font-bold">{{ processingAlert.acc_y | number:'1.1-2' }}</span></span>
+                 <span class="text-xs font-mono text-slate-900 dark:text-gray-100">Z: <span class="font-bold">{{ processingAlert.acc_z | number:'1.1-2' }}</span></span>
               </div>
             </div>
           }
@@ -423,27 +423,27 @@
 
         <!-- Selector de Gravedad -->
         <div>
-          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
+          <label class="block text-slate-700 dark:text-gray-300 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
             <i-lucide name="thermometer" [size]="14"></i-lucide>
             Nivel de Gravedad
           </label>
           <div class="relative">
             <select 
               [(ngModel)]="selectedSeverity" 
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-[var(--bg-secondary)] appearance-none cursor-pointer"
+              class="w-full px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 appearance-none cursor-pointer"
             >
               <option value="low">🟢 Baja</option>
               <option value="medium">🟡 Media</option>
               <option value="high">🟠 Alta</option>
               <option value="critical">🔴 Crítica</option>
             </select>
-            <i-lucide name="chevron-down" [size]="16" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i-lucide>
+            <i-lucide name="chevron-down" [size]="16" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-500 pointer-events-none"></i-lucide>
           </div>
         </div>
 
         <!-- Notas -->
         <div>
-          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
+          <label class="block text-slate-700 dark:text-gray-300 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
             <i-lucide name="clipboard-list" [size]="14"></i-lucide>
             Notas de Atención
           </label>
@@ -451,16 +451,16 @@
             [(ngModel)]="resolutionNotes" 
             placeholder="Describe las acciones realizadas y el estado del paciente..."
             rows="3"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none text-sm placeholder:text-slate-400"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-gray-600 rounded-lg focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 resize-none text-sm placeholder:text-slate-400 dark:placeholder:text-gray-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
           ></textarea>
         </div>
 
       </div>
 
       <!-- Footer -->
-      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-2">
+      <div class="px-5 py-3 bg-slate-50 dark:bg-gray-900 border-t border-slate-200 dark:border-gray-700 flex justify-end items-center gap-2">
         <button 
-          class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50"
+          class="px-3 py-1.5 border border-slate-300 dark:border-gray-600 text-slate-700 dark:text-gray-300 rounded-lg text-xs font-medium hover:bg-white dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
           (click)="cancelResolution()" 
           [disabled]="isSubmitting"
         >
@@ -468,7 +468,7 @@
         </button>
         
         <button 
-          class="px-3 py-1.5 bg-slate-600 text-white rounded-lg text-xs font-medium hover:bg-slate-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          class="px-3 py-1.5 bg-slate-600 dark:bg-gray-700 text-white rounded-lg text-xs font-medium hover:bg-slate-700 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 flex items-center gap-1.5"
           (click)="submitResolution('falsa_alarma')" 
           [disabled]="isSubmitting"
         >
@@ -477,7 +477,7 @@
         </button>
         
         <button 
-          class="px-4 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+          class="px-4 py-1.5 bg-green-600 dark:bg-green-700 text-white rounded-lg text-xs font-medium hover:bg-green-700 dark:hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-1.5"
           (click)="submitResolution('atendida')" 
           [disabled]="isSubmitting"
         >

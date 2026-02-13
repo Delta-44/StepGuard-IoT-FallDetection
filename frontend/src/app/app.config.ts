@@ -78,6 +78,8 @@ import {
   Download,
   Menu,
   UploadCloud,
+  Moon,
+  Sun,
 } from 'lucide-angular';
 
 import { routes } from './app.routes';
@@ -159,6 +161,8 @@ const icons = {
   Download,
   Menu,
   UploadCloud,
+  Moon,
+  Sun,
 };
 
 export const appConfig: ApplicationConfig = {

@@ -1,39 +1,39 @@
 ﻿@if (step === 'selection') {
   <div class="p-4 sm:p-6 md:p-8 text-center">
-    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">¿Quién eres?</h2>
-    <p class="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8">Selecciona tu perfil para comenzar</p>
+    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-3">¿Quién eres?</h2>
+    <p class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6 sm:mb-8">Selecciona tu perfil para comenzar</p>
   </div>
 
   <div class="px-4 sm:px-6 md:px-8 pb-6 md:pb-8 space-y-3 md:space-y-4">
-    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-4 md:p-6 cursor-pointer hover:border-blue-400 hover:-translate-y-1 transition-all duration-300" (click)="chooseRole('user')">
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-4 md:p-6 cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 hover:-translate-y-1 transition-all duration-300" (click)="chooseRole('user')">
       <div class="flex items-center gap-3 md:gap-4">
-        <div class="p-3 md:p-4 bg-blue-500 text-white rounded-xl">
+        <div class="p-3 md:p-4 bg-blue-500 dark:bg-blue-600 text-white rounded-xl">
           <i-lucide name="user" [size]="28" class="sm:hidden"></i-lucide>
           <i-lucide name="user" [size]="32" class="hidden sm:block"></i-lucide>
         </div>
         <div class="flex-1 text-left">
-          <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-1">Paciente / Familiar</h3>
-          <p class="text-gray-600 text-xs md:text-sm">Monitorización personal y seguridad en el hogar.</p>
+          <h3 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1">Paciente / Familiar</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-xs md:text-sm">Monitorización personal y seguridad en el hogar.</p>
         </div>
       </div>
     </div>
 
-    <div class="bg-gradient-to-r from-pink-50 to-purple-50 border-2 border-pink-200 rounded-2xl p-4 md:p-6 cursor-pointer hover:border-pink-400 hover:-translate-y-1 transition-all duration-300" (click)="chooseRole('caregiver')">
+    <div class="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border-2 border-pink-200 dark:border-pink-700 rounded-2xl p-4 md:p-6 cursor-pointer hover:border-pink-400 dark:hover:border-pink-500 hover:-translate-y-1 transition-all duration-300" (click)="chooseRole('caregiver')">
       <div class="flex items-center gap-3 md:gap-4">
-        <div class="p-3 md:p-4 bg-pink-500 text-white rounded-xl">
+        <div class="p-3 md:p-4 bg-pink-500 dark:bg-pink-600 text-white rounded-xl">
           <i-lucide name="activity" [size]="28" class="sm:hidden"></i-lucide>
           <i-lucide name="activity" [size]="32" class="hidden sm:block"></i-lucide>
         </div>
         <div class="flex-1 text-left">
-          <h3 class="text-lg md:text-xl font-bold text-gray-800 mb-1">Cuidador / Enfermero</h3>
-          <p class="text-gray-600 text-xs md:text-sm">Gestión de múltiples pacientes y recepción de alertas.</p>
+          <h3 class="text-lg md:text-xl font-bold text-gray-800 dark:text-white mb-1">Cuidador / Enfermero</h3>
+          <p class="text-gray-600 dark:text-gray-400 text-xs md:text-sm">Gestión de múltiples pacientes y recepción de alertas.</p>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="px-4 sm:px-6 md:px-8 pb-6 md:pb-8 text-center text-xs sm:text-sm text-gray-600">
-    ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()" class="text-blue-600 font-semibold hover:underline cursor-pointer">Inicia Sesión</a>
+  <div class="px-4 sm:px-6 md:px-8 pb-6 md:pb-8 text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+    ¿Ya tienes cuenta? <a (click)="switchToLogin.emit()" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline cursor-pointer">Inicia Sesión</a>
   </div>
 }
 
@@ -47,12 +47,12 @@
   <div class="p-4 sm:p-6 md:p-8">
     <div class="max-w-xs mx-auto">
       <div class="mb-6 text-center">
-        <label class="block text-gray-700 font-semibold mb-2">Código de Acceso</label>
+        <label class="block text-gray-700 dark:text-gray-300 font-semibold mb-2">Código de Acceso</label>
         <input 
           type="password" 
           [(ngModel)]="pin" 
           (keyup.enter)="verifyPin()"
-          class="w-full text-center text-3xl tracking-[1em] font-bold p-3 border-2 rounded-xl focus:border-blue-500 focus:outline-none transition-colors uppercase"
+          class="w-full text-center text-3xl tracking-[1em] font-bold p-3 border-2 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none transition-colors uppercase bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700"
           [class.border-red-500]="pinError"
           [class.text-red-600]="pinError"
           placeholder="••••" 
@@ -68,7 +68,7 @@
 
       <button 
         (click)="verifyPin()" 
-        class="w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+        class="w-full bg-gray-900 dark:bg-gray-700 text-white py-3 rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-gray-600 transition-all flex items-center justify-center gap-2"
       >
         <i-lucide name="lock" [size]="20"></i-lucide>
         Verificar Código
@@ -145,7 +145,7 @@
 <!-- Modal de Éxito (FUERA del formulario) -->
 @if (showSuccessModal) {
   <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] flex items-center justify-center animate-fade-in">
-    <div class="bg-white rounded-3xl w-full max-w-md mx-4 animate-slide-down shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+    <div class="bg-white dark:bg-gray-800 rounded-3xl w-full max-w-md mx-4 animate-slide-down shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
       
       <!-- Header con gradiente verde -->
       <div class="bg-gradient-to-br from-green-600 to-emerald-700 text-white px-8 py-8 text-center relative overflow-hidden">
@@ -163,8 +163,8 @@
       </div>
 
       <div class="p-8 text-center">
-        <p class="text-gray-700 mb-6 text-lg">
-          Ahora puedes <strong class="text-blue-600">iniciar sesión</strong> con tus credenciales
+        <p class="text-gray-700 dark:text-gray-300 mb-6 text-lg">
+          Ahora puedes <strong class="text-blue-600 dark:text-blue-400">iniciar sesión</strong> con tus credenciales
         </p>
         
         <button 

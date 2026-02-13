@@ -4,12 +4,22 @@
   min-height: 100vh;
 }
 
+.dark .page-container {
+  background: #0f172a;
+}
+
 .card {
   background: var(--bg-secondary);
   padding: 1rem;
   border-radius: 10px;
   box-shadow: var(--card-shadow);
   color: var(--text-primary);
+}
+
+.dark .card {
+  background: #1e293b;
+  color: #f1f5f9;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* TABLA */
@@ -20,6 +30,10 @@ table {
   color: var(--text-primary);
 }
 
+.dark table {
+  color: #f1f5f9;
+}
+
 th {
   text-align: left;
   padding: 15px;
@@ -28,11 +42,21 @@ th {
   font-size: 0.85rem;
 }
 
+.dark th {
+  border-bottom-color: #334155;
+  color: #94a3b8;
+}
+
 td {
   padding: 15px;
   border-bottom: 1px solid var(--border-color);
   vertical-align: top;
   color: var(--text-primary);
+}
+
+.dark td {
+  border-bottom-color: #334155;
+  color: #f1f5f9;
 }
 
 /* MENSAJE Y BOTÓN */
@@ -48,6 +72,10 @@ td {
   color: var(--text-primary);
 }
 
+.dark .message-text {
+  color: #f1f5f9;
+}
+
 /* Botón sutil para desplegar */
 .btn-toggle {
   background: none;
@@ -61,9 +89,19 @@ td {
   white-space: nowrap;
 }
 
+.dark .btn-toggle {
+  border-color: #334155;
+  color: #60a5fa;
+}
+
 .btn-toggle:hover {
   background: var(--bg-primary);
   border-color: var(--accent-color);
+}
+
+.dark .btn-toggle:hover {
+  background: #0f172a;
+  border-color: #60a5fa;
 }
 
 /* CAJA DESPLEGABLE DE NOTAS */
@@ -77,10 +115,20 @@ td {
   animation: slideDown 0.2s ease-out;
 }
 
+.dark .resolution-box {
+  background: #0f172a;
+  border-left-color: #60a5fa;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
 .note-content {
   font-size: 0.9rem;
   color: var(--text-secondary);
   margin-bottom: 5px;
+}
+
+.dark .note-content {
+  color: #94a3b8;
 }
 
 .note-footer {
@@ -88,6 +136,10 @@ td {
   color: var(--text-secondary);
   text-align: right;
   opacity: 0.8;
+}
+
+.dark .note-footer {
+  color: #94a3b8;
 }
 
 .note-date {
@@ -129,6 +181,10 @@ td {
 /* FILA DE ALERTA CRÍTICA */
 .row-critical {
   background-color: rgba(220, 53, 69, 0.1); /* Light red transparent */
+}
+
+.dark .row-critical {
+  background-color: rgba(220, 53, 69, 0.2);
 }
 
 /* ================================================

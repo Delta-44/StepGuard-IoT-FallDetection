@@ -18,15 +18,22 @@ export class ThemeService {
   }
 
   private initTheme() {
+    console.log('🎨 ThemeService: Initializing...');
+    
     // 1. Check persistence
     const savedTheme = localStorage.getItem(this.THEME_KEY);
+    console.log('💾 Saved theme from localStorage:', savedTheme);
+    
     if (savedTheme) {
       this.setTheme(savedTheme);
       return;
     }
 
     // 2. Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    console.log('🖥️ System prefers dark mode:', prefersDark);
+    
+    if (prefersDark) {
       this.setTheme('dark');
     } else {
       this.setTheme('light');
@@ -34,6 +41,9 @@ export class ThemeService {
   }
 
   setTheme(theme: string) {
+    console.log('🎨 Setting theme to:', theme);
+    console.log('📍 Current HTML element:', document.documentElement);
+    
     this.themeSignal.set(theme);
     localStorage.setItem(this.THEME_KEY, theme);
     
@@ -43,13 +53,20 @@ export class ThemeService {
     // Toggle class for Tailwind 'darkMode: class' strategy if used
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+      console.log('✅ Dark mode activated');
+      console.log('📋 HTML classList after adding dark:', document.documentElement.classList.toString());
+      console.log('🔍 Has dark class?', document.documentElement.classList.contains('dark'));
     } else {
       document.documentElement.classList.remove('dark');
+      console.log('✅ Light mode activated');
+      console.log('📋 HTML classList after removing dark:', document.documentElement.classList.toString());
     }
   }
 
   toggleTheme() {
     const current = this.themeSignal();
-    this.setTheme(current === 'light' ? 'dark' : 'light');
+    const newTheme = current === 'light' ? 'dark' : 'light';
+    console.log('🔄 Toggling theme from', current, 'to', newTheme);
+    this.setTheme(newTheme);
   }
 }

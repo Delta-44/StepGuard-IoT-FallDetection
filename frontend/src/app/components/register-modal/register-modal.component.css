@@ -6,7 +6,9 @@
   padding-top: 30px; /* 👈 ESTO ARREGLA QUE EL BOTÓN PISE EL TÍTULO */
 }
 .modal-header h2 { margin: 0; color: var(--text-primary); font-size: 1.5rem; font-weight: 700; }
+.dark .modal-header h2 { color: #ffffff; }
 .modal-header p { color: var(--text-secondary); margin: 5px 0 0; font-size: 0.9rem; }
+.dark .modal-header p { color: #9ca3af; }
 
 /* Botón Volver */
 .back-btn {
@@ -15,7 +17,9 @@
   font-weight: 600; cursor: pointer; font-size: 0.85rem;
   padding: 5px 0;
 }
+.dark .back-btn { color: #9ca3af; }
 .back-btn:hover { color: var(--text-primary); text-decoration: underline; }
+.dark .back-btn:hover { color: #ffffff; }
 
 /* --- SELECCIÓN DE ROL --- */
 .role-selection {
@@ -46,12 +50,15 @@ form {
 
 .input-group { margin-bottom: 12px; text-align: left; }
 .input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); }
+.dark .input-group label { color: #d1d5db; }
 .input-group input {
   width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 0.95rem;
   background: var(--bg-primary); color: var(--text-primary);
   box-sizing: border-box; font-family: inherit;
 }
+.dark .input-group input { background: #111827; color: #ffffff; border-color: #374151; }
 .input-group input:focus { border-color: #007bff; outline: none; }
+.dark .input-group input:focus { border-color: #3b82f6; }
 
 /* Inputs en línea (opcional) */
 .row-2-col { display: flex; gap: 10px; }
@@ -63,11 +70,16 @@ form {
   transition: background 0.3s; font-family: inherit;
 }
 .black-btn { background: #222; }
+.dark .black-btn { background: #374151; }
 .black-btn:hover { background: black; }
+.dark .black-btn:hover { background: #4b5563; }
 .btn-full:disabled { background: #ccc; cursor: not-allowed; }
+.dark .btn-full:disabled { background: #6b7280; }
 
 .modal-footer { margin-top: 15px; text-align: center; font-size: 0.85rem; color: var(--text-secondary); }
+.dark .modal-footer { color: #9ca3af; }
 .modal-footer a { color: #007bff; font-weight: 700; cursor: pointer; text-decoration: none; }
+.dark .modal-footer a { color: #60a5fa; }
 .required { color: #dc3545; font-weight: bold; margin-left: 2px; }
 
 /* ================================================

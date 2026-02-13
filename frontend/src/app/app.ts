@@ -39,6 +39,12 @@ export class AppComponent implements OnInit, OnDestroy {
     return role === 'admin' || role === 'caregiver';
   });
 
+  // Método público para cambiar el tema
+  toggleTheme() {
+    console.log('🔘 Toggle button clicked!');
+    this.themeService.toggleTheme();
+  }
+
   // Alerta Roja (Crítica)
   public criticalAlert = signal<Alert | null>(null);
 

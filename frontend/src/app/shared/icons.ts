@@ -20,7 +20,9 @@ import {
   LogOut,
   Home,
   FileText,
-  UserCircle
+  UserCircle,
+  Moon,
+  Sun
 } from 'lucide-angular';
 
 export const icons = {
@@ -45,5 +47,7 @@ export const icons = {
   LogOut,
   Home,
   FileText,
-  UserCircle
+  UserCircle,
+  Moon,
+  Sun
 };

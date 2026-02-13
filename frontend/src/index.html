@@ -11,6 +11,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Theme initialization script to prevent flash -->
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme-preference') || 
+                     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        }
+        console.log('🚀 Theme pre-loaded:', theme);
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>
