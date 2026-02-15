@@ -121,7 +121,10 @@ export class AIService {
                         if (functionName === 'resolve_event' && !functionArgs.adminId && userContext?.id) {
                             functionArgs.adminId = userContext.id;
                         }
-                        if (functionName === 'get_fall_history' || functionName === 'get_device_details') {
+                        
+                        // Tools that require RBAC context
+                        const rbacTools = ['get_fall_history', 'get_device_details', 'get_user_personal_info'];
+                        if (rbacTools.includes(functionName)) {
                             // Always override/inject context to ensure security
                              if (userContext?.id) functionArgs.requesterId = userContext.id;
                              if (userContext?.role) functionArgs.role = userContext.role;
