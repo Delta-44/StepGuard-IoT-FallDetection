@@ -1,1 +1,371 @@
-/* Estilos para el componente de dispositivos */
+/* ================================================
+   DISPOSITIVOS PAGE - LIGHT & DARK MODE
+   ================================================ */
+
+/* ================================================
+   FONDO PRINCIPAL
+   ================================================ */
+.devices-bg {
+  background-color: #f9fafb;
+}
+
+html.dark .devices-bg,
+:host-context(.dark) .devices-bg {
+  background-color: #0f172a !important;
+}
+
+/* ================================================
+   CARDS DE DISPOSITIVOS
+   ================================================ */
+
+/* LIGHT MODE */
+.device-card {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
+}
+
+.device-card:hover {
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1);
+}
+
+/* DARK MODE */
+html.dark .device-card,
+:host-context(.dark) .device-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .device-card:hover,
+:host-context(.dark) .device-card:hover {
+  box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.3);
+}
+
+/* ================================================
+   BARRA DE BÚSQUEDA Y FILTROS
+   ================================================ */
+
+/* LIGHT MODE */
+.search-input {
+  background-color: #ffffff !important;
+  border: 2px solid #e5e7eb !important;
+  color: #111827 !important;
+}
+
+.search-input:focus {
+  border-color: #3b82f6 !important;
+  background-color: #ffffff !important;
+}
+
+.search-input::placeholder {
+  color: #9ca3af !important;
+}
+
+/* DARK MODE */
+html.dark .search-input,
+:host-context(.dark) .search-input {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .search-input:focus,
+:host-context(.dark) .search-input:focus {
+  border-color: #3b82f6 !important;
+  background-color: #1e293b !important;
+}
+
+/* ================================================
+   BOTONES DE FILTRO
+   ================================================ */
+
+/* LIGHT MODE */
+.filter-btn {
+  background-color: #ffffff !important;
+  border: 2px solid #e5e7eb !important;
+  color: #6b7280 !important;
+}
+
+.filter-btn:hover {
+  background-color: #f9fafb !important;
+}
+
+.filter-badge {
+  background-color: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* DARK MODE */
+html.dark .filter-btn,
+:host-context(.dark) .filter-btn {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .filter-btn:hover,
+:host-context(.dark) .filter-btn:hover {
+  background-color: #334155 !important;
+}
+
+html.dark .filter-badge,
+:host-context(.dark) .filter-badge {
+  background-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+/* ================================================
+   EMPTY STATE
+   ================================================ */
+
+/* LIGHT MODE */
+.empty-state {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* DARK MODE */
+html.dark .empty-state,
+:host-context(.dark) .empty-state {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* ================================================
+   PAGINACIÓN
+   ================================================ */
+
+/* LIGHT MODE */
+.pagination-container {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.pagination-info {
+  color: #6b7280 !important;
+}
+
+.pagination-info .highlight {
+  color: #2563eb !important;
+}
+
+.pagination-btn-disabled {
+  background-color: #e5e7eb !important;
+  color: #9ca3af !important;
+}
+
+.pagination-btn-active {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.pagination-page-btn {
+  background-color: #e5e7eb !important;
+  color: #374151 !important;
+}
+
+.pagination-page-btn:hover {
+  background-color: #d1d5db !important;
+}
+
+/* DARK MODE */
+html.dark .pagination-container,
+:host-context(.dark) .pagination-container {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .pagination-info,
+:host-context(.dark) .pagination-info {
+  color: #94a3b8 !important;
+}
+
+html.dark .pagination-info .highlight,
+:host-context(.dark) .pagination-info .highlight {
+  color: #3b82f6 !important;
+}
+
+html.dark .pagination-btn-disabled,
+:host-context(.dark) .pagination-btn-disabled {
+  background-color: #334155 !important;
+  color: #64748b !important;
+}
+
+html.dark .pagination-btn-active,
+:host-context(.dark) .pagination-btn-active {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html.dark .pagination-page-btn,
+:host-context(.dark) .pagination-page-btn {
+  background-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark .pagination-page-btn:hover,
+:host-context(.dark) .pagination-page-btn:hover {
+  background-color: #475569 !important;
+}
+
+/* ================================================
+   PANEL TÉCNICO (DEBUG)
+   ================================================ */
+
+/* LIGHT MODE */
+.technical-toggle {
+  background: linear-gradient(to right, #1e293b, #0f172a) !important;
+  border: 1px solid #334155 !important;
+  color: white !important;
+}
+
+.technical-toggle:hover {
+  background: linear-gradient(to right, #334155, #1e293b) !important;
+}
+
+.technical-panel {
+  background: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a) !important;
+  border: 1px solid #334155 !important;
+}
+
+/* DARK MODE - mantiene los mismos colores */
+html.dark .technical-toggle,
+:host-context(.dark) .technical-toggle {
+  background: linear-gradient(to right, #1e293b, #0f172a) !important;
+  border-color: #334155 !important;
+}
+
+html.dark .technical-toggle:hover,
+:host-context(.dark) .technical-toggle:hover {
+  background: linear-gradient(to right, #334155, #1e293b) !important;
+  border-color: #475569 !important;
+}
+
+html.dark .technical-panel,
+:host-context(.dark) .technical-panel {
+  background: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a) !important;
+  border-color: #334155 !important;
+}
+
+/* ================================================
+   MODAL DE EDICIÓN
+   ================================================ */
+
+/* LIGHT MODE */
+.edit-modal-container {
+  background-color: #ffffff !important;
+}
+
+.edit-modal-header {
+  background: linear-gradient(to bottom right, #2563eb, #1e40af) !important;
+}
+
+.edit-modal-input {
+  background-color: #ffffff !important;
+  border: 2px solid #e5e7eb !important;
+  color: #111827 !important;
+}
+
+.edit-modal-input:focus {
+  border-color: #3b82f6 !important;
+}
+
+.edit-modal-input::placeholder {
+  color: #9ca3af !important;
+}
+
+/* DARK MODE */
+html.dark .edit-modal-container,
+:host-context(.dark) .edit-modal-container {
+  background-color: #1e293b !important;
+}
+
+html.dark .edit-modal-header,
+:host-context(.dark) .edit-modal-header {
+  background: linear-gradient(to bottom right, #2563eb, #1e40af) !important;
+}
+
+html.dark .edit-modal-input,
+:host-context(.dark) .edit-modal-input {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .edit-modal-input:focus,
+:host-context(.dark) .edit-modal-input:focus {
+  border-color: #3b82f6 !important;
+  background-color: #0f172a !important;
+}
+
+html.dark .edit-modal-label,
+:host-context(.dark) .edit-modal-label {
+  color: #cbd5e1 !important;
+}
+
+/* ================================================
+   ANIMACIONES
+   ================================================ */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-down {
+  from { 
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.4s ease-out forwards;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.animate-breathe {
+  animation: breathe 2s ease-in-out infinite;
+}
+
+@keyframes pulse-emergency {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.animate-pulse-emergency {
+  animation: pulse-emergency 2s ease-in-out infinite;
+}
+
+/* ================================================
+   VARIABLES CSS
+   ================================================ */
+@layer utilities {
+  :root {
+    --bg-primary: #f9fafb;
+    --bg-secondary: #ffffff;
+    --border-color: #e5e7eb;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+  }
+
+  html.dark,
+  :host-context(.dark) {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --border-color: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+  }
+}

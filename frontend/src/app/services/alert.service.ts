@@ -54,7 +54,7 @@ export class AlertService {
       this.connectToRealTimeAlerts();
 
       // 3. Mantener simulación (Hybrid Mode)
-      setTimeout(() => this.startSimulation(), 5000);
+      // setTimeout(() => this.startSimulation(), 5000);
     } else {
       console.log('ℹ️ No hay usuario autenticado, AlertService en espera...');
     }
@@ -78,7 +78,7 @@ export class AlertService {
     this.connectToRealTimeAlerts();
     
     // Iniciar simulación
-    setTimeout(() => this.startSimulation(), 5000);
+    // setTimeout(() => this.startSimulation(), 5000);
   }
 
   private async loadInitialHistory() {
@@ -213,9 +213,9 @@ export class AlertService {
 
   // Genera una alerta aleatoria cada 30 segundos (optimización de rendimiento)
   private startSimulation() {
-    this.simulationInterval = setInterval(() => {
-      this.generateRandomAlert();
-    }, 30000);
+    // this.simulationInterval = setInterval(() => {
+    //   this.generateRandomAlert();
+    // }, 30000);
   }
 
   private generateRandomAlert() {

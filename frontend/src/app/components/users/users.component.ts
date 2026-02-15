@@ -231,12 +231,28 @@ export class UsersComponent implements OnInit {
     this.notificationService.success('Éxito', `Datos de ${user.fullName} exportados.`);
   }
 
-  deleteUser(user: User) {
-    if (!confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.fullName}? Esta acción no se puede deshacer.`)) {
-      return;
-    }
+  // Variable para controlar el modal de confirmación
+  public isDeleteConfirmModalOpen = false;
+  public userToDelete: User | null = null;
 
-    this.userService.deleteUser(user.id, user.role).subscribe({
+  deleteUser(user: User) {
+    // En lugar de usar confirm(), abrimos nuestro modal personalizado
+    this.userToDelete = user;
+    this.isDeleteConfirmModalOpen = true;
+  }
+
+  closeDeleteConfirmModal() {
+    this.isDeleteConfirmModalOpen = false;
+    this.userToDelete = null;
+  }
+
+  confirmDeleteUser() {
+    if (!this.userToDelete) return;
+
+    const userToDelete = this.userToDelete;
+    this.closeDeleteConfirmModal();
+
+    this.userService.deleteUser(userToDelete.id, userToDelete.role).subscribe({
       next: () => {
         this.notificationService.success('Éxito', 'Usuario eliminado correctamente');
         this.userService.refreshUsers();

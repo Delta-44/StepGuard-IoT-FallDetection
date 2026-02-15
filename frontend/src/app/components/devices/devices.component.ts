@@ -32,7 +32,7 @@ export class DevicesComponent implements OnInit, OnDestroy {
   public filteredDevices = signal<Device[]>([]);
   public paginatedDevices = signal<Device[]>([]);
   public isLoading = signal<boolean>(true);
-  public showTechnicalPanel = signal<boolean>(true);
+  public showTechnicalPanel = signal<boolean>(false);
   public connectionStatus = signal<'Conectado' | 'Desconectado'>('Conectado');
   public criticalState = signal<boolean>(false);
 

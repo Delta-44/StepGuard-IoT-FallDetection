@@ -92,17 +92,26 @@
 
                   <!-- Dropdown Menu -->
                   @if (isProfileDropdownOpen()) {
-                    <div class="absolute right-0 top-12 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 animate-in fade-in slide-in-from-top-2 duration-200">
-                      <div class="px-4 py-2 border-b border-gray-100">
-                        <p class="text-xs text-gray-500">Conectado como</p>
-                        <p class="text-sm font-bold text-gray-900 truncate">{{ currentUser()?.fullName }}</p>
+                    <div class="absolute right-0 top-12 mt-2 w-48 bg-[var(--bg-secondary)] rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 animate-in fade-in slide-in-from-top-2 duration-200 border border-[var(--border-color)]">
+                      <div class="px-4 py-2 border-b border-[var(--border-color)]">
+                        <p class="text-xs text-[var(--text-secondary)]">Conectado como</p>
+                        <p class="text-sm font-bold text-[var(--text-primary)] truncate">{{ currentUser()?.fullName }}</p>
                       </div>
 
-                      <a routerLink="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                      <a routerLink="/profile" class="block px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-primary)] flex items-center gap-2">
                         <i-lucide name="user" [size]="16"></i-lucide> Mi Perfil
                       </a>
+
+                      <!-- Theme Toggle Item -->
+                      <button (click)="themeService.toggleTheme()" class="w-full text-left block px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-primary)] flex items-center gap-2">
+                        @if (themeService.themeSignal() === 'dark') {
+                          <i-lucide name="sun" [size]="16"></i-lucide> Modo Claro
+                        } @else {
+                          <i-lucide name="moon" [size]="16"></i-lucide> Modo Oscuro
+                        }
+                      </button>
                       
-                      <button (click)="logout()" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2">
+                      <button (click)="logout()" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-[var(--bg-primary)] flex items-center gap-2">
                         <i-lucide name="log-out" [size]="16"></i-lucide> Cerrar Sesión
                       </button>
                     </div>
@@ -121,6 +130,15 @@
 
           <!-- Mobile Menu Button -->
           <div class="-mr-2 flex md:hidden">
+            <!-- Theme Toggle Button -->
+            <button (click)="themeService.toggleTheme()" class="p-2 mr-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none transition-colors" title="Cambiar tema">
+                @if (themeService.themeSignal() === 'dark') {
+                  <i-lucide name="sun" [size]="20"></i-lucide>
+                } @else {
+                  <i-lucide name="moon" [size]="20"></i-lucide>
+                }
+            </button>
+
             @if (currentUser()) {
               <button (click)="toggleMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                 <span class="sr-only">Abrir menú</span>
@@ -188,7 +206,7 @@
     </nav>
   }
 
-  <div class="flex-1 relative bg-gray-100">
+  <div class="flex-1 relative bg-[var(--bg-primary)] transition-colors duration-300">
     <router-outlet></router-outlet>
   </div>
 
