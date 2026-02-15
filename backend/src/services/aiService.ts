@@ -34,7 +34,7 @@ export class AIService {
             // 0. Initialize History (if user is authenticated)
             const userId = userContext?.id;
             let history: any[] = [];
-            
+
             if (userId) {
                 const { ChatHistoryService } = await import('./chatHistoryService');
                 history = await ChatHistoryService.getHistory(userId);
@@ -46,7 +46,7 @@ export class AIService {
 
             // 2. Fetch tools from MCP
             const mcpTools = await mcpClient.getTools();
-            
+
             // 3. Map MCP tools to OpenAI tools format
             const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = mcpTools.map((tool: any) => ({
                 type: 'function',
@@ -68,6 +68,7 @@ export class AIService {
                 3. Interpreta los datos JSON que te devuelven las herramientas para el usuario.
                 4. Si no puedes responder, admítelo educadamente.
                 5. IMPORTANTE: SIEMPRE RESPONDE EN ESPAÑOL.
+                6. Cuando te pidan hacer algo no pidas permiso, ejecuta la acción o di que no es posible si no dispones de las herramientas necesarias. 
                 
                 Contexto del usuario:
                 ID: ${userContext?.id || 'Desconocido'}
@@ -83,111 +84,95 @@ export class AIService {
                 { role: 'user', content: userQuery }
             ];
 
-            // 4. First call: Ask LLM what to do
-            const response = await client.chat.completions.create({
-                model: MODEL_NAME,
-                messages: messages,
-                tools: tools.length > 0 ? tools : undefined,
-                tool_choice: tools.length > 0 ? 'auto' : undefined
-            });
+            // 4. Loop for Multi-Turn Tool Execution
+            let loopCount = 0;
+            const MAX_LOOPS = 5;
 
-            const responseMessage = response.choices[0].message;
-
-            // 5. Check if the LLM wants to call a tool
-            if (responseMessage.tool_calls) {
-                messages.push(responseMessage);
-
-                // Note: We don't save the intermediate tool calls/results to long-term history 
-                // to avoid blowing up the context window too fast, but we COULD if needed.
-                // For now, we will only save the final turn (User -> Assistant).
-                // OR better: save the whole chain if it's important. 
-                // Let's safe the User Query and the Final Assistant Response. 
-                // If we want "memory" of actions taken, we should save the intermediate steps too.
-                // But Redis list is simple. Let's simplify: Only save User Query + Final Response.
-                // Intermediate tool logic is transient context for the current answer.
-
-                for (const toolCall of responseMessage.tool_calls) {
-                    if (toolCall.type !== 'function') continue;
-
-                    const functionName = toolCall.function.name;
-                    const functionArgs = JSON.parse(toolCall.function.arguments);
-                    let functionResult = '';
-
-                    try {
-                        console.log(`[AIService] Calling MCP tool: ${functionName} with args:`, functionArgs);
-
-                        // Inject user context if needed by specific tools (manual override for now if needed, 
-                        // but ideally the LLM should pass them based on the system prompt context)
-                        if (functionName === 'resolve_event' && !functionArgs.adminId && userContext?.id) {
-                            functionArgs.adminId = userContext.id;
-                        }
-                        
-                        // Tools that require RBAC context
-                        const rbacTools = ['get_fall_history', 'get_device_details', 'get_user_personal_info'];
-                        if (rbacTools.includes(functionName)) {
-                            // Always override/inject context to ensure security
-                             if (userContext?.id) functionArgs.requesterId = userContext.id;
-                             if (userContext?.role) functionArgs.role = userContext.role;
-                        }
-
-                        // Execute via MCP
-                        const result = await mcpClient.callTool(functionName, functionArgs);
-                        
-                        // Format result for OpenAI
-                        // MCP returns { content: [{ type: 'text', text: '...' }] }
-                        if (result.content && Array.isArray(result.content)) {
-                            functionResult = result.content
-                                .map((c: any) => c.text)
-                                .join('\n');
-                        } else {
-                             functionResult = JSON.stringify(result);
-                        }
-
-                    } catch (error: any) {
-                        console.error(`[AIService] MCP Tool execution error (${functionName}):`, error);
-                        functionResult = JSON.stringify({ error: error.message });
-                    }
-
-                    messages.push({
-                        role: 'tool',
-                        tool_call_id: toolCall.id,
-                        content: functionResult || "No content returned"
-                    });
-                }
-
-                // 6. Second call: Get final response
-                const secondResponse = await client.chat.completions.create({
+            while (loopCount < MAX_LOOPS) {
+                // Call LLM
+                const response = await client.chat.completions.create({
                     model: MODEL_NAME,
-                    messages: messages
+                    messages: messages,
+                    tools: tools.length > 0 ? tools : undefined,
+                    tool_choice: tools.length > 0 ? 'auto' : undefined
                 });
 
-                const finalContent = secondResponse.choices[0].message.content || 'Procesé los datos pero no pude generar una respuesta.';
-                
-                // Save to history (Async, don't block)
-                if (userId) {
-                    const { ChatHistoryService } = await import('./chatHistoryService');
-                    // Save User Query
-                    await ChatHistoryService.addToHistory(userId, { role: 'user', content: userQuery });
-                    // Save Assistant Response
-                    await ChatHistoryService.addToHistory(userId, { role: 'assistant', content: finalContent });
+                const responseMessage = response.choices[0].message;
+                messages.push(responseMessage); // Add assistant response to history
+
+                // Check if the LLM wants to call a tool
+                if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
+                    // console.log(`[AIService] LLM requested ${responseMessage.tool_calls.length} tool calls. Loop: ${loopCount + 1}`);
+
+                    for (const toolCall of responseMessage.tool_calls) {
+                        if (toolCall.type !== 'function') continue;
+
+                        const functionName = toolCall.function.name;
+                        let functionArgs: any = {};
+                        try {
+                            functionArgs = JSON.parse(toolCall.function.arguments);
+                        } catch (e) {
+                            console.error(`[AIService] Failed to parse args for ${functionName}:`, toolCall.function.arguments);
+                            functionArgs = {};
+                        }
+
+                        let functionResult = '';
+
+                        try {
+                            console.log(`[AIService] Calling MCP tool: ${functionName} with args:`, functionArgs);
+
+                            // Inject user context if needed
+                            if (functionName === 'resolve_event' && !functionArgs.adminId && userContext?.id) {
+                                functionArgs.adminId = userContext.id;
+                            }
+
+                            // Tools that require RBAC context
+                            const rbacTools = ['get_fall_history', 'get_device_details', 'get_user_personal_info'];
+                            if (rbacTools.includes(functionName)) {
+                                if (userContext?.id) functionArgs.requesterId = userContext.id;
+                                if (userContext?.role) functionArgs.role = userContext.role;
+                            }
+
+                            // Execute via MCP
+                            const result = await mcpClient.callTool(functionName, functionArgs);
+
+                            // Format result
+                            if (result.content && Array.isArray(result.content)) {
+                                functionResult = result.content.map((c: any) => c.text).join('\n');
+                            } else {
+                                functionResult = JSON.stringify(result);
+                            }
+
+                        } catch (error: any) {
+                            console.error(`[AIService] MCP Tool execution error (${functionName}):`, error);
+                            functionResult = JSON.stringify({ error: error.message });
+                        }
+
+                        messages.push({
+                            role: 'tool',
+                            tool_call_id: toolCall.id,
+                            content: functionResult || "No content returned"
+                        });
+                    }
+
+                    // Increment loop count and continue to next iteration (sending tool outputs back to LLM)
+                    loopCount++;
+                } else {
+                    // No more tool calls, we have the final answer
+                    const finalContent = responseMessage.content || 'Procesé los datos pero no pude generar una respuesta final.';
+
+                    // Save to history (Async)
+                    if (userId) {
+                        const { ChatHistoryService } = await import('./chatHistoryService');
+                        await ChatHistoryService.addToHistory(userId, { role: 'user', content: userQuery });
+                        await ChatHistoryService.addToHistory(userId, { role: 'assistant', content: finalContent });
+                    }
+
+                    return finalContent;
                 }
-
-                return finalContent;
             }
 
-            // No tool call, simple response
-            const finalContent = responseMessage.content || 'Lo siento, no pude entender eso.';
-             
-            // Save to history (Async, don't block)
-            if (userId) {
-                 const { ChatHistoryService } = await import('./chatHistoryService');
-                 // Save User Query
-                 await ChatHistoryService.addToHistory(userId, { role: 'user', content: userQuery });
-                 // Save Assistant Response
-                 await ChatHistoryService.addToHistory(userId, { role: 'assistant', content: finalContent });
-            }
-
-            return finalContent;
+            return "Lo siento, la operación es demasiado compleja y alcancé el límite de intentos.";
 
         } catch (error: any) {
             console.error('[AIService] Error processing query:', error);

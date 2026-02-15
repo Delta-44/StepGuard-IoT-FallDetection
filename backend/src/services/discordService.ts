@@ -51,7 +51,24 @@ export class DiscordService {
         try {
             const user = await this.client.users.fetch(this.targetUserId);
             if (user) {
-                await user.send(typeof message === 'string' ? { content: message } : { embeds: [message] });
+                if (typeof message === 'string') {
+                    // Discord limit is 2000 chars. Split into safer chunks (e.g., 1900).
+                    const MAX_LENGTH = 1900;
+                    if (message.length > MAX_LENGTH) {
+                        const chunks = [];
+                        for (let i = 0; i < message.length; i += MAX_LENGTH) {
+                            chunks.push(message.substring(i, i + MAX_LENGTH));
+                        }
+                        
+                        for (const chunk of chunks) {
+                            await user.send({ content: chunk });
+                        }
+                    } else {
+                        await user.send({ content: message });
+                    }
+                } else {
+                    await user.send({ embeds: [message] });
+                }
                 console.error(`Message sent to Discord user ${this.targetUserId}`);
             } else {
                 console.error(`Discord user ${this.targetUserId} not found.`);
