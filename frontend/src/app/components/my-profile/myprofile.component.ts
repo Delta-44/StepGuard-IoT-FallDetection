@@ -12,13 +12,13 @@ import { UserService } from '../../services/user.service'; // 🆕
 import { NotificationService } from '../../services/notification.service'; // 🆕
 
 @Component({
-  selector: 'app-patient-profile',
+  selector: 'app-myprofile',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
-  templateUrl: './patient-profile.component.html',
-  styleUrls: ['./patient-profile.component.css'],
+  templateUrl: './myprofile.component.html',
+  styleUrls: ['./myprofile.component.css'],
 })
-export class PatientProfileComponent implements OnInit {
+export class MyProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private apiService = inject(ApiService);
   private alertService = inject(AlertService);

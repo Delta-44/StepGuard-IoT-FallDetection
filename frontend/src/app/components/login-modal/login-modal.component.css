@@ -1,332 +1,335 @@
 /* =========================================
-   ESTILOS PROPIOS DEL LOGIN
-   (Angular requiere que estén aquí)
+   LOGIN COMPONENT CSS - COMPLETO Y FINAL
    ========================================= */
 
-/* CABECERA */
+/* --- CABECERA --- */
 .modal-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
+
 .modal-header h2 {
   margin: 0;
-  color: var(--text-primary);
+  color: #111827;
   font-size: 1.8rem;
-  font-weight: 700;
-}
-.modal-header p {
-  color: var(--text-secondary);
-  margin: 5px 0 0;
-  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
 }
 
-/* INPUTS (Cajas de texto) */
+.modal-header p {
+  color: #6b7280;
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* --- FORMULARIO (Inputs) --- */
 .input-group {
-  margin-bottom: 15px;
+  margin-bottom: 16px;
   text-align: left;
 }
+
 .input-group label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: #374151;
 }
+
 .input-group input {
   width: 100%;
-  padding: 12px;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border: 2px solid var(--border-color);
-  border-radius: 10px;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  color: #111827;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
   font-size: 1rem;
-  box-sizing: border-box; /* ESTO ES CRÍTICO PARA QUE NO SE SALGA */
-  transition: border-color 0.3s;
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
   font-family: inherit;
 }
+
 .input-group input:focus {
-  border-color: #007bff;
+  border-color: #3b82f6;
   outline: none;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
-/* BOTÓN ENTRAR */
-.btn-full {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-weight: 700;
-  font-size: 1rem;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: background 0.3s, transform 0.2s;
-  font-family: inherit;
+.input-group input::placeholder {
+  color: #9ca3af;
 }
 
-.blue-btn {
-  background: #007bff; /* Azul vibrante */
-}
-.blue-btn:hover {
-  background: #0056b3;
-}
-.btn-full:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-/* BOTÓN GOOGLE */
-.google-btn {
-  margin-top: 15px;
-  border: 1px solid var(--border-color);
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: 600;
-  color: var(--text-primary);
-  background: var(--bg-secondary);
-  transition: background 0.2s;
-}
-.google-btn:hover {
-  background: #f8f9fa;
-}
-
-/* PIE (Footer) */
-.modal-footer {
-  margin-top: 20px;
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-.modal-footer a {
-  color: #007bff;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-}
-.modal-footer a:hover {
-  text-decoration: underline;
-}   
-
-.google-btn {
-  margin-top: 15px; 
-  border: 1px solid #ddd; 
-  padding: 10px; 
-  border-radius: 10px;
-  text-align: center; 
-  cursor: pointer; /* 👈 Importante: Manita */
-  display: flex; 
-  justify-content: center; 
-  align-items: center; 
-  font-weight: 500; 
-  color: #555;
-  transition: all 0.2s;
-  user-select: none; /* Evita que se seleccione el texto al hacer click rápido */
-}
-
-.google-btn:hover {
-  background-color: #f1f3f4;
-  border-color: #c1c1c1;
-  transform: translateY(-1px);
-}
-
-.google-btn:active {
-  transform: translateY(0);
-  background-color: #e8e8e8;
-}
-
-/* ... tus otros estilos ... */
-
+/* --- OLVIDASTE CONTRASEÑA --- */
 .forgot-password {
   text-align: right;
-  margin-top: -10px; /* Pegarlo un poco al input de arriba */
-  margin-bottom: 15px;
+  margin-top: -8px;
+  margin-bottom: 20px;
 }
 
 .forgot-password a {
-  color: var(--text-secondary);
+  color: #6b7280;
   font-size: 0.85rem;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .forgot-password a:hover {
-  color: #007bff;
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* --- BOTÓN PRINCIPAL (ENTRAR) --- */
+.btn-full {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
+}
+
+.blue-btn {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.blue-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+}
+
+.blue-btn:active {
+  transform: translateY(0);
+}
+
+.btn-full:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- GOOGLE BUTTON --- */
+#google-btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  min-height: 50px;
+}
+
+/* Forzar tamaño del botón de Google */
+#google-btn-container > div,
+#google-btn-container > button,
+#google-btn-container iframe {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 50px !important;
+  border-radius: 12px !important;
+}
+
+#google-btn-container div[role="button"] {
+  height: 50px !important;
+  border-radius: 12px !important;
+}
+
+/* --- FOOTER --- */
+.modal-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.modal-footer a {
+  color: #2563eb;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: color 0.2s;
+}
+
+.modal-footer a:hover {
+  color: #1d4ed8;
   text-decoration: underline;
 }
 
 /* ================================================
-   RESPONSIVE DESIGN
+   DARK MODE
    ================================================ */
 
-/* Tablets y escritorios pequeños (max-width: 1024px) */
-@media (max-width: 1024px) {
-  .modal-header h2 {
-    font-size: 1.7rem;
+@media (prefers-color-scheme: dark) {
+  html.dark .modal-header h2 {
+    color: #f3f4f6;
   }
 
-  .modal-header p {
-    font-size: 0.9rem;
+  html.dark .modal-header p {
+    color: #9ca3af;
   }
 
-  .input-group input {
-    padding: 11px;
-    font-size: 0.95rem;
+  html.dark .input-group label {
+    color: #d1d5db;
   }
 
-  .btn-full {
-    padding: 11px;
-    font-size: 0.95rem;
+  html.dark .input-group input {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+
+  html.dark .input-group input:focus {
+    border-color: #60a5fa;
+    background-color: #111827;
+  }
+
+  html.dark .input-group input::placeholder {
+    color: #6b7280;
+  }
+
+  html.dark .forgot-password a {
+    color: #9ca3af;
+  }
+
+  html.dark .forgot-password a:hover {
+    color: #60a5fa;
+  }
+
+  html.dark .modal-footer {
+    color: #9ca3af;
+  }
+
+  html.dark .modal-footer a {
+    color: #60a5fa;
+  }
+
+  html.dark .modal-footer a:hover {
+    color: #93c5fd;
+  }
+
+  /* Modales adicionales */
+  html.dark .fixed .bg-white {
+    background-color: #1e293b;
+  }
+
+  html.dark .text-gray-900 {
+    color: #f1f5f9;
+  }
+
+  html.dark .text-gray-800 {
+    color: #f1f5f9;
+  }
+
+  html.dark .text-gray-700 {
+    color: #e2e8f0;
+  }
+
+  html.dark .text-gray-600 {
+    color: #cbd5e1;
+  }
+
+  html.dark .text-gray-500 {
+    color: #94a3b8;
+  }
+
+  html.dark .text-gray-400 {
+    color: #64748b;
+  }
+
+  html.dark .bg-blue-50 {
+    background-color: #1e3a8a;
+  }
+
+  html.dark .bg-blue-100 {
+    background-color: #1e40af;
+  }
+
+  html.dark .bg-emerald-100 {
+    background-color: #065f46;
+  }
+
+  html.dark .bg-green-50 {
+    background-color: #14532d;
+  }
+
+  html.dark .bg-red-50 {
+    background-color: #7f1d1d;
+  }
+
+  html.dark .text-blue-600 {
+    color: #60a5fa;
+  }
+
+  html.dark .text-blue-800 {
+    color: #93c5fd;
+  }
+
+  html.dark .text-emerald-600 {
+    color: #34d399;
+  }
+
+  html.dark .text-green-700 {
+    color: #4ade80;
+  }
+
+  html.dark .border-gray-100 {
+    border-color: #334155;
+  }
+
+  html.dark .border-gray-200 {
+    border-color: #475569;
+  }
+
+  html.dark .border-blue-200 {
+    border-color: #1e40af;
+  }
+
+  html.dark .border-green-200 {
+    border-color: #166534;
+  }
+
+  html.dark .border-green-300 {
+    border-color: #16a34a;
+  }
+
+  html.dark .border-red-200 {
+    border-color: #991b1b;
   }
 }
 
-/* Tablets (max-width: 768px) */
-@media (max-width: 768px) {
-  .modal-header h2 {
-    font-size: 1.6rem;
-  }
-
-  .modal-header p {
-    font-size: 0.85rem;
-  }
-
-  .modal-header {
-    margin-bottom: 18px;
-  }
-
-  .input-group {
-    margin-bottom: 14px;
-  }
-
-  .input-group label {
-    font-size: 0.85rem;
-  }
-
-  .input-group input {
-    padding: 10px;
-    font-size: 0.9rem;
-    border-radius: 8px;
-  }
-
-  .btn-full {
-    padding: 11px;
-    font-size: 0.9rem;
-    border-radius: 8px;
-  }
-
-  .modal-footer {
-    font-size: 0.85rem;
-  }
-
-  .google-btn {
-    padding: 9px;
-    font-size: 0.9rem;
-  }
-
-  .forgot-password a {
-    font-size: 0.8rem;
-  }
-}
-
-/* Móviles (max-width: 480px) */
-@media (max-width: 480px) {
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+@media (max-width: 640px) {
   .modal-header h2 {
     font-size: 1.5rem;
   }
 
   .modal-header p {
-    font-size: 0.8rem;
-  }
-
-  .modal-header {
-    margin-bottom: 16px;
-  }
-
-  .input-group {
-    margin-bottom: 12px;
-  }
-
-  .input-group label {
-    font-size: 0.8rem;
-    margin-bottom: 5px;
+    font-size: 0.85rem;
   }
 
   .input-group input {
-    padding: 10px;
-    font-size: 0.85rem;
-    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
   }
 
   .btn-full {
-    padding: 11px;
-    font-size: 0.85rem;
-    border-radius: 8px;
-  }
-
-  .modal-footer {
-    font-size: 0.8rem;
-    margin-top: 16px;
-  }
-
-  .google-btn {
-    padding: 8px;
-    font-size: 0.85rem;
-    border-radius: 8px;
-  }
-
-  .forgot-password {
-    margin-top: -8px;
-    margin-bottom: 12px;
-  }
-
-  .forgot-password a {
-    font-size: 0.75rem;
-  }
-}
-
-/* Móviles muy pequeños (max-width: 359px) */
-@media (max-width: 359px) {
-  .modal-header h2 {
-    font-size: 1.35rem;
-  }
-
-  .modal-header p {
-    font-size: 0.75rem;
-  }
-
-  .modal-header {
-    margin-bottom: 14px;
-  }
-
-  .input-group {
-    margin-bottom: 10px;
-  }
-
-  .input-group label {
-    font-size: 0.75rem;
-  }
-
-  .input-group input {
-    padding: 9px;
-    font-size: 0.8rem;
-  }
-
-  .btn-full {
-    padding: 10px;
-    font-size: 0.8rem;
-  }
-
-  .modal-footer {
-    font-size: 0.75rem;
-  }
-
-  .google-btn {
-    padding: 7px;
-    font-size: 0.8rem;
+    padding: 12px;
+    font-size: 0.95rem;
   }
 }

@@ -1,9 +1,9 @@
-﻿<div class="min-h-screen bg-transparent p-4 sm:p-6 md:p-8">
+﻿<div class="min-h-screen devices-bg p-4 sm:p-6 md:p-8">
   
   <!-- Header -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-8 animate-fade-in">
     <div>
-      <h2 class="text-2xl md:text-3xl font-bold text-base-text flex items-center gap-2 md:gap-3">
+      <h2 class="text-2xl md:text-3xl font-bold text-[var(--text-primary)] flex items-center gap-2 md:gap-3">
         <i-lucide name="radio" [size]="28" class="md:hidden"></i-lucide>
         <i-lucide name="radio" [size]="32" class="hidden md:block"></i-lucide>
         Sensores Conectados
@@ -14,7 +14,7 @@
     <button 
       (click)="loadDevices()" 
       [disabled]="isLoading()" 
-      class="w-full md:w-auto px-5 md:px-6 py-2.5 md:py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 hover: hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base"
+      class="w-full md:w-auto px-5 md:px-6 py-2.5 md:py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 hover:hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base"
     >
       @if (isLoading()) {
         <i-lucide name="clock" class="animate-spin" [size]="18" class="md:hidden"></i-lucide>
@@ -38,7 +38,7 @@
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event); onSearchChange()"
         placeholder="Buscar dispositivos..."
-        class="w-full pl-12 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium bg-[var(--bg-secondary)] text-sm md:text-base"
+        class="search-input w-full pl-12 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all font-medium text-sm md:text-base"
       >
     </div>
   </div>
@@ -48,40 +48,40 @@
     <button 
       (click)="setStatusFilter('all')"
       class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
-      [ngClass]="statusFilter() === 'all' ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-gray-50 border-2 border-[var(--border-color)]'"
+      [ngClass]="statusFilter() === 'all' ? 'bg-blue-600 text-white shadow-lg scale-105 !border-blue-600' : 'filter-btn'"
     >
       <i-lucide name="list" [size]="18" class="md:hidden"></i-lucide>
       <i-lucide name="list" [size]="20" class="hidden md:block"></i-lucide>
       <span class="hidden sm:inline">Todos</span>
-      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'all' ? 'bg-[var(--bg-secondary)]/25' : 'bg-gray-200'">{{ devices().length }}</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'all' ? 'bg-white/30 text-white' : 'filter-badge'">{{ devices().length }}</span>
     </button>
     
     <button 
       (click)="setStatusFilter('online')"
       class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
-      [ngClass]="statusFilter() === 'online' ? 'bg-green-600 text-white shadow-lg scale-105' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-gray-50 border-2 border-[var(--border-color)]'"
+      [ngClass]="statusFilter() === 'online' ? 'bg-green-600 text-white shadow-lg scale-105 !border-green-600' : 'filter-btn'"
     >
       <i-lucide name="check-circle" [size]="18" class="md:hidden"></i-lucide>
       <i-lucide name="check-circle" [size]="20" class="hidden md:block"></i-lucide>
       <span class="hidden sm:inline">Conectados</span>
-      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'online' ? 'bg-[var(--bg-secondary)]/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('online') }}</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'online' ? 'bg-white/30 text-white' : 'filter-badge'">{{ getDeviceCountByStatus('online') }}</span>
     </button>
     
     <button 
       (click)="setStatusFilter('offline')"
       class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
-      [ngClass]="statusFilter() === 'offline' ? 'bg-red-600 text-white shadow-lg scale-105' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-gray-50 border-2 border-[var(--border-color)]'"
+      [ngClass]="statusFilter() === 'offline' ? 'bg-red-600 text-white shadow-lg scale-105 !border-red-600' : 'filter-btn'"
     >
       <i-lucide name="x-circle" [size]="18" class="md:hidden"></i-lucide>
       <i-lucide name="x-circle" [size]="20" class="hidden md:block"></i-lucide>
       <span class="hidden sm:inline">Desconectados</span>
-      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'offline' ? 'bg-[var(--bg-secondary)]/25' : 'bg-gray-200'">{{ getDeviceCountByStatus('offline') }}</span>
+      <span class="ml-1 px-2 py-1 rounded-full text-xs font-bold" [ngClass]="statusFilter() === 'offline' ? 'bg-white/30 text-white' : 'filter-badge'">{{ getDeviceCountByStatus('offline') }}</span>
     </button>
   </div>
 
   <!-- Empty State -->
   @if (!isLoading() && devices().length === 0) {
-    <div class="bg-[var(--bg-secondary)] rounded-xl p-12 text-center animate-fade-in">
+    <div class="empty-state rounded-xl p-12 text-center animate-fade-in">
       <div class="text-6xl mb-4">📡</div>
       <p class="text-[var(--text-secondary)] text-lg">No se han encontrado dispositivos configurados.</p>
     </div>
@@ -89,7 +89,7 @@
 
   <!-- Mensaje de búsqueda sin resultados -->
   @if (!isLoading() && devices().length > 0 && filteredDevices().length === 0) {
-    <div class="bg-[var(--bg-secondary)] rounded-2xl p-12 text-center animate-fade-in">
+    <div class="empty-state rounded-2xl p-12 text-center animate-fade-in">
       <div class="text-6xl mb-4">🔍</div>
       <h3 class="text-xl font-bold text-[var(--text-primary)] mb-2">No se encontraron resultados</h3>
       <p class="text-[var(--text-secondary)]">
@@ -117,9 +117,7 @@
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
     
     @for (device of paginatedDevices(); track device.mac_address) {
-      <div 
-        class="bg-[var(--bg-secondary)] rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden animate-fade-in relative group"
-      >
+      <div class="device-card rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden animate-fade-in relative group">
         
         <!-- Indicador de estado superior -->
         <div class="h-1.5 w-full"
@@ -163,7 +161,7 @@
 
           <!-- Info del Dispositivo -->
           <div class="space-y-3">
-            <div class="flex items-center justify-between p-3 bg-transparent rounded-xl transition-colors">
+            <div class="flex items-center justify-between p-3 rounded-xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/50">
               <div class="flex items-center gap-3">
                 <i-lucide name="network" [size]="18" class="text-primary"></i-lucide>
                 <span class="text-sm font-medium text-[var(--text-secondary)]">MAC Address</span>
@@ -171,17 +169,17 @@
               <span class="text-sm font-semibold text-[var(--text-primary)] font-mono">{{ device.mac_address }}</span>
             </div>
             
-            <div class="flex items-center justify-between p-3 bg-transparent rounded-xl transition-colors">
+            <div class="flex items-center justify-between p-3 rounded-xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/50">
               <div class="flex items-center gap-3">
                 <i-lucide name="zap" [size]="18" class="text-amber-500"></i-lucide>
                 <span class="text-sm font-medium text-[var(--text-secondary)]">Impactos</span>
               </div>
-              <span class="text-sm font-bold px-3 py-1 rounded-lg bg-blue-50 text-blue-700">
+              <span class="text-sm font-bold px-3 py-1 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
                 {{ device.total_impactos }}
               </span>
             </div>
             
-            <div class="flex items-center justify-between p-3 bg-transparent rounded-xl transition-colors">
+            <div class="flex items-center justify-between p-3 rounded-xl transition-colors hover:bg-gray-50 dark:hover:bg-slate-800/50">
               <div class="flex items-center gap-3">
                 <i-lucide name="clock" [size]="18" class="text-gray-400"></i-lucide>
                 <span class="text-sm font-medium text-[var(--text-secondary)]">Última conexión</span>
@@ -196,7 +194,7 @@
           <div class="px-6 pb-6">
             <button 
               (click)="rebootDevice(device)" 
-              class="w-full bg-red-600 text-white py-3 px-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 group"
+              class="w-full bg-red-600 text-white py-3 px-4 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 hover:bg-red-700 hover:shadow-lg"
             >
               <i-lucide name="refresh-cw" [size]="18"></i-lucide>
               Reiniciar Dispositivo
@@ -209,12 +207,12 @@
 
   <!-- Controles de Paginación -->
   @if (filteredDevices().length > pageSize()) {
-    <div class="bg-[var(--bg-secondary)] rounded-2xl mb-8 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in">
+    <div class="pagination-container rounded-2xl mb-8 px-6 py-5 flex items-center justify-between shadow-md animate-fade-in">
       <!-- Info de páginas -->
-      <div class="text-sm text-[var(--text-secondary)] font-medium">
-        Mostrando <span class="font-bold text-blue-600">{{ (currentPage() - 1) * pageSize() + 1 }}</span> a 
-        <span class="font-bold text-blue-600">{{ currentPage() * pageSize() > filteredDevices().length ? filteredDevices().length : currentPage() * pageSize() }}</span> de 
-        <span class="font-bold text-blue-600">{{ filteredDevices().length }}</span> dispositivos
+      <div class="pagination-info text-sm font-medium">
+        Mostrando <span class="font-bold highlight">{{ (currentPage() - 1) * pageSize() + 1 }}</span> a 
+        <span class="font-bold highlight">{{ currentPage() * pageSize() > filteredDevices().length ? filteredDevices().length : currentPage() * pageSize() }}</span> de 
+        <span class="font-bold highlight">{{ filteredDevices().length }}</span> dispositivos
         @if (searchTerm()) {
           <span class="text-[var(--text-secondary)] italic">(filtrados)</span>
         }
@@ -226,7 +224,7 @@
           (click)="prevPage()" 
           [disabled]="currentPage() === 1"
           class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          [ngClass]="currentPage() === 1 ? 'bg-gray-200 text-[var(--text-secondary)]' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
+          [ngClass]="currentPage() === 1 ? 'pagination-btn-disabled' : 'pagination-btn-active hover:shadow-lg'"
         >
           <i-lucide name="chevron-left" [size]="18"></i-lucide>
           Anterior
@@ -238,7 +236,7 @@
             <button 
               (click)="changePage(page)"
               class="w-10 h-10 rounded-lg font-bold transition-all duration-300"
-              [ngClass]="currentPage() === page ? 'bg-blue-600 text-white shadow-lg scale-110' : 'bg-gray-200 text-[var(--text-secondary)] hover:bg-gray-300'"
+              [ngClass]="currentPage() === page ? 'pagination-btn-active shadow-lg scale-110' : 'pagination-page-btn'"
             >
               {{ page }}
             </button>
@@ -249,7 +247,7 @@
           (click)="nextPage()" 
           [disabled]="currentPage() === totalPages()"
           class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          [ngClass]="currentPage() === totalPages() ? 'bg-gray-200 text-[var(--text-secondary)]' : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'"
+          [ngClass]="currentPage() === totalPages() ? 'pagination-btn-disabled' : 'pagination-btn-active hover:shadow-lg'"
         >
           Siguiente
           <i-lucide name="chevron-right" [size]="18"></i-lucide>
@@ -260,194 +258,191 @@
 
   <!-- PANEL TÉCNICO / DEBUG -->
   <div class="animate-fade-in">
-  <!-- Vista Técnica (Solo Admin y Cuidadores) -->
-  @if (canViewTechnical()) {
-    <button 
-      (click)="toggleTechnicalPanel()" 
-      class="w-full px-6 py-4 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-2xl font-semibold hover:from-slate-700 hover:to-slate-800 transition-all duration-300 mb-4 flex items-center justify-between  border border-slate-700 hover:border-slate-600"
-    >
-      <span class="flex items-center gap-3">
-        <i-lucide name="terminal" [size]="20"></i-lucide>
-        VISTA TÉCNICA (DEBUG)
-      </span>
-      <i-lucide [name]="showTechnicalPanel() ? 'chevron-down' : 'chevron-right'" [size]="24"></i-lucide>
-    </button>
+    <!-- Vista Técnica (Solo Admin y Cuidadores) -->
+    @if (canViewTechnical()) {
+      <button 
+        (click)="toggleTechnicalPanel()" 
+        class="technical-toggle w-full px-6 py-4 text-white rounded-2xl font-semibold transition-all duration-300 mb-4 flex items-center justify-between"
+      >
+        <span class="flex items-center gap-3">
+          <i-lucide name="terminal" [size]="20"></i-lucide>
+          VISTA TÉCNICA (DEBUG)
+        </span>
+        <i-lucide [name]="showTechnicalPanel() ? 'chevron-down' : 'chevron-right'" [size]="24"></i-lucide>
+      </button>
 
-    @if (showTechnicalPanel()) {
-      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-emerald-400 rounded-2xl p-8 font-mono text-sm animate-slide-down  border border-slate-700">
-        
-        <h3 class="text-sky-400 text-xl font-bold mb-6 flex items-center gap-3 pb-4 border-b border-slate-700">
-          <i-lucide name="cpu" [size]="24"></i-lucide>
-          PANEL DE DESARROLLO
-        </h3>
-        
-        <!-- Estados del Sistema -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div class="bg-slate-800/50 rounded-xl p-5 border border-slate-700 hover:border-slate-600 transition-all">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i-lucide name="alert-triangle" [size]="20" class="text-amber-400"></i-lucide>
-                <strong class="text-slate-300">Estado Crítico</strong>
+      @if (showTechnicalPanel()) {
+        <div class="technical-panel text-emerald-400 rounded-2xl p-8 font-mono text-sm animate-slide-down">
+          
+          <h3 class="text-sky-400 text-xl font-bold mb-6 flex items-center gap-3 pb-4 border-b border-slate-700">
+            <i-lucide name="cpu" [size]="24"></i-lucide>
+            PANEL DE DESARROLLO
+          </h3>
+          
+          <!-- Estados del Sistema -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-slate-800/50 rounded-xl p-5 border border-slate-700 hover:border-slate-600 transition-all">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <i-lucide name="alert-triangle" [size]="20" class="text-amber-400"></i-lucide>
+                  <strong class="text-slate-300">Estado Crítico</strong>
+                </div>
+                <span 
+                  class="font-bold px-4 py-2 rounded-lg flex items-center gap-2"
+                  [ngClass]="criticalState() ? 'bg-emergency text-white' : 'bg-operational text-white'"
+                >
+                  @if (criticalState()) {
+                    <i-lucide name="alert-circle" [size]="16"></i-lucide> TRUE
+                  } @else {
+                    <i-lucide name="check-circle" [size]="16"></i-lucide> FALSE
+                  }
+                </span>
               </div>
-              <span 
-                class="font-bold px-4 py-2 rounded-lg flex items-center gap-2 "
-                [ngClass]="criticalState() ? 'bg-emergency text-white' : 'bg-operational text-white'"
-              >
-                @if (criticalState()) {
-                  <i-lucide name="alert-circle" [size]="16"></i-lucide> TRUE
-                } @else {
-                  <i-lucide name="check-circle" [size]="16"></i-lucide> FALSE
-                }
-              </span>
+            </div>
+
+            <div class="bg-slate-800/50 rounded-xl p-5 border border-slate-700 hover:border-slate-600 transition-all">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <i-lucide name="wifi" [size]="20" class="text-sky-400"></i-lucide>
+                  <strong class="text-slate-300">Conexión</strong>
+                </div>
+                <span 
+                  class="font-bold px-4 py-2 rounded-lg flex items-center gap-2"
+                  [ngClass]="connectionStatus() === 'Conectado' ? 'bg-operational text-white' : 'bg-emergency text-white'"
+                >
+                  {{ connectionStatus() }}
+                  @if (connectionStatus() === 'Conectado') {
+                    <span class="inline-block w-2 h-2 rounded-full bg-white animate-breathe"></span>
+                  }
+                </span>
+              </div>
             </div>
           </div>
 
-          <div class="bg-slate-800/50 rounded-xl p-5 border border-slate-700 hover:border-slate-600 transition-all">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <i-lucide name="wifi" [size]="20" class="text-sky-400"></i-lucide>
-                <strong class="text-slate-300">Conexión</strong>
-              </div>
-              <span 
-                class="font-bold px-4 py-2 rounded-lg flex items-center gap-2 "
-                [ngClass]="connectionStatus() === 'Conectado' ? 'bg-operational text-white' : 'bg-emergency text-white'"
-              >
-                {{ connectionStatus() }}
-                @if (connectionStatus() === 'Conectado') {
-                  <span class="inline-block w-2 h-2 rounded-full animate-breathe"></span>
-                }
-              </span>
-            </div>
+          <div class="border-t border-slate-700 my-6"></div>
+
+          <!-- JSON Crudo -->
+          <h4 class="text-amber-400 font-semibold mb-4 flex items-center gap-3">
+            <i-lucide name="braces" [size]="20"></i-lucide>
+            Datos recibidos (JSON)
+          </h4>
+          <div class="bg-black/70 rounded-xl border border-slate-700 overflow-hidden">
+            <pre class="p-5 overflow-x-auto max-h-96 text-xs text-emerald-300">{{ devices() | json }}</pre>
           </div>
-        </div>
 
-        <div class="border-t border-slate-700 my-6"></div>
+          <div class="border-t border-slate-700 my-6"></div>
 
-        <!-- JSON Crudo -->
-        <h4 class="text-amber-400 font-semibold mb-4 flex items-center gap-3">
-          <i-lucide name="braces" [size]="20"></i-lucide>
-          Datos recibidos (JSON)
-        </h4>
-        <div class="bg-black/70 rounded-xl border border-slate-700 overflow-hidden">
-          <pre class="p-5 overflow-x-auto max-h-96 text-xs text-emerald-300">{{ devices() | json }}</pre>
-        </div>
-
-        <div class="border-t border-slate-700 my-6"></div>
-
-        <!-- Datos del Acelerómetro -->
-        <h4 class="text-amber-400 font-semibold mb-4 flex items-center gap-3">
-          <i-lucide name="activity" [size]="20"></i-lucide>
-          Datos del Sensor (Acelerómetro)
-        </h4>
-        <div class="space-y-4">
-          @for (device of devices(); track device.mac_address) {
-            @if (device.esp32Data) {
-              <div 
-                class="bg-slate-800/50 rounded-xl p-5 border-l-4 transition-all duration-300 "
-                [ngClass]="device.esp32Data.isFallDetected ? 'border-emergency animate-pulse-emergency shadow-emergency/20' : 'border-operational shadow-operational/10'"
-              >
-                <div class="text-sky-400 font-semibold mb-4 flex items-center gap-2 pb-3 border-b border-slate-700">
-                  <i-lucide name="radio" [size]="18"></i-lucide>
-                  {{ device.nombre }} ({{ device.mac_address }})
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3">
-                    <i-lucide name="zap" [size]="16" class="text-amber-400"></i-lucide>
-                    <span class="text-slate-400">Impactos:</span> 
-                    <span class="text-white font-bold ml-auto">{{ device.esp32Data.impact_count }}</span>
+          <!-- Datos del Acelerómetro -->
+          <h4 class="text-amber-400 font-semibold mb-4 flex items-center gap-3">
+            <i-lucide name="activity" [size]="20"></i-lucide>
+            Datos del Sensor (Acelerómetro)
+          </h4>
+          <div class="space-y-4">
+            @for (device of devices(); track device.mac_address) {
+              @if (device.esp32Data) {
+                <div 
+                  class="bg-slate-800/50 rounded-xl p-5 border-l-4 transition-all duration-300"
+                  [ngClass]="device.esp32Data.isFallDetected ? 'border-emergency animate-pulse-emergency shadow-lg shadow-emergency/20' : 'border-operational shadow-operational/10'"
+                >
+                  <div class="text-sky-400 font-semibold mb-4 flex items-center gap-2 pb-3 border-b border-slate-700">
+                    <i-lucide name="radio" [size]="18"></i-lucide>
+                    {{ device.nombre }} ({{ device.mac_address }})
                   </div>
-                  <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3">
-                    <i-lucide name="activity" [size]="16" class="text-red-400"></i-lucide>
-                    <span class="text-slate-400">Magnitud:</span> 
-                    <span class="text-white font-bold ml-auto">{{ device.esp32Data.impact_magnitude }} m/s²</span>
-                  </div>
-                  <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3">
-                    <i-lucide name="alert-circle" [size]="16" class="text-slate-400"></i-lucide>
-                    <span class="text-slate-400">Caída detectada:</span>
-                    <span 
-                      class="font-bold ml-auto flex items-center gap-1"
-                      [ngClass]="device.esp32Data.isFallDetected ? 'text-emergency' : 'text-operational'"
-                    >
-                      {{ device.esp32Data.isFallDetected ? 'SÍ' : 'NO' }}
-                      @if (device.esp32Data.isFallDetected) {
-                        <i-lucide name="siren" [size]="16"></i-lucide>
-                      }
-                    </span>
-                  </div>
-                  <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3">
-                    <i-lucide name="circle-alert" [size]="16" class="text-red-600"></i-lucide>
-                    <span class="text-slate-400">Botón SOS:</span>
-                    <span 
-                      class="font-bold ml-auto"
-                      [ngClass]="device.esp32Data.isButtonPressed ? 'text-emergency' : 'text-operational'"
-                    >
-                      {{ device.esp32Data.isButtonPressed ? 'PRESIONADO' : 'Normal' }}
-                    </span>
-                  </div>
-                  <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3 md:col-span-2">
-                    <i-lucide name="network" [size]="16" class="text-purple-400"></i-lucide>
-                    <span class="text-slate-400">MAC:</span> 
-                    <span class="text-slate-500 ml-auto font-mono text-xs">{{ device.mac_address }}</span>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3">
+                      <i-lucide name="zap" [size]="16" class="text-amber-400"></i-lucide>
+                      <span class="text-slate-400">Impactos:</span> 
+                      <span class="text-white font-bold ml-auto">{{ device.esp32Data.impact_count }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3">
+                      <i-lucide name="activity" [size]="16" class="text-red-400"></i-lucide>
+                      <span class="text-slate-400">Magnitud:</span> 
+                      <span class="text-white font-bold ml-auto">{{ device.esp32Data.impact_magnitude }} m/s²</span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3">
+                      <i-lucide name="alert-circle" [size]="16" class="text-slate-400"></i-lucide>
+                      <span class="text-slate-400">Caída detectada:</span>
+                      <span 
+                        class="font-bold ml-auto flex items-center gap-1"
+                        [ngClass]="device.esp32Data.isFallDetected ? 'text-emergency' : 'text-operational'"
+                      >
+                        {{ device.esp32Data.isFallDetected ? 'SÍ' : 'NO' }}
+                        @if (device.esp32Data.isFallDetected) {
+                          <i-lucide name="siren" [size]="16"></i-lucide>
+                        }
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3">
+                      <i-lucide name="circle-alert" [size]="16" class="text-red-600"></i-lucide>
+                      <span class="text-slate-400">Botón SOS:</span>
+                      <span 
+                        class="font-bold ml-auto"
+                        [ngClass]="device.esp32Data.isButtonPressed ? 'text-emergency' : 'text-operational'"
+                      >
+                        {{ device.esp32Data.isButtonPressed ? 'PRESIONADO' : 'Normal' }}
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-2 bg-slate-900/50 rounded-lg p-3 md:col-span-2">
+                      <i-lucide name="network" [size]="16" class="text-purple-400"></i-lucide>
+                      <span class="text-slate-400">MAC:</span> 
+                      <span class="text-slate-500 ml-auto font-mono text-xs">{{ device.mac_address }}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              }
             }
-          }
-        </div>
+          </div>
 
-        <!-- Info Footer -->
-        <div class="mt-6 p-4 bg-black/50 rounded-lg border border-gray-700">
-          <small class="text-[var(--text-secondary)] block leading-relaxed">
-            ℹ️ Este panel muestra datos técnicos para desarrollo y presentación del proyecto IoT.
-            <br>
-            Los datos son recibidos del ESP32 vía HTTP/MQTT y procesados por el backend.
-          </small>
+          <!-- Info Footer -->
+          <div class="mt-6 p-4 bg-black/50 rounded-lg border border-gray-700">
+            <small class="text-slate-400 block leading-relaxed">
+              ℹ️ Este panel muestra datos técnicos para desarrollo y presentación del proyecto IoT.
+              <br>
+              Los datos son recibidos del ESP32 vía HTTP/MQTT y procesados por el backend.
+            </small>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Modal de Edición -->
+  @if (isEditModalOpen()) {
+    <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" (click)="closeEditDeviceModal()">
+      <div class="edit-modal-container rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+        <div class="edit-modal-header text-white px-8 py-6">
+          <h3 class="text-2xl font-bold flex items-center gap-2">
+            <i-lucide name="edit" [size]="24"></i-lucide>
+            Editar Dispositivo
+          </h3>
+          <p class="text-blue-100 text-sm mt-1">Modificar información del sensor</p>
+        </div>
+        <div class="p-8">
+          <form (submit)="saveDeviceChanges()">
+            <div class="mb-6">
+              <label class="edit-modal-label block font-bold mb-2">Nombre del Dispositivo</label>
+              <input
+                type="text"
+                [ngModel]="editedDeviceName()"
+                (ngModelChange)="editedDeviceName.set($event)"
+                name="deviceName"
+                class="edit-modal-input w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all font-medium"
+                placeholder="Ej: Sensor Habitación Principal"
+                required
+              >
+            </div>
+            <div class="flex gap-3">
+              <button type="button" class="flex-1 px-6 py-3 border-2 border-gray-300 dark:border-slate-600 text-[var(--text-secondary)] rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-slate-800 transition-all" (click)="closeEditDeviceModal()">
+                Cancelar
+              </button>
+              <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg">
+                Guardar Cambios
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    }
+    </div>
   }
 
 </div>
-
-@if (isEditModalOpen()) {
-  <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in" (click)="closeEditDeviceModal()">
-    <div class="bg-[var(--bg-secondary)] rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
-      <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-8 py-6">
-        <h3 class="text-2xl font-bold flex items-center gap-2">
-          <i-lucide name="edit" [size]="24"></i-lucide>
-          Editar Dispositivo
-        </h3>
-        <p class="text-blue-100 text-sm mt-1">Modificar información del sensor</p>
-      </div>
-      <div class="p-8">
-        <form (submit)="saveDeviceChanges()">
-          <div class="mb-6">
-            <label class="block text-[var(--text-secondary)] font-bold mb-2">Nombre del Dispositivo</label>
-            <input
-              type="text"
-              [ngModel]="editedDeviceName()"
-              (ngModelChange)="editedDeviceName.set($event)"
-              name="deviceName"
-              class="w-full px-4 py-3 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all font-medium"
-              placeholder="Ej: Sensor Habitación Principal"
-              required
-            >
-          </div>
-          <div class="flex gap-3">
-            <button type="button" class="flex-1 px-6 py-3 border-2 border-[var(--border-color)] text-[var(--text-secondary)] rounded-xl font-bold hover:bg-gray-50 transition-all" (click)="closeEditDeviceModal()">
-              Cancelar
-            </button>
-            <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
-              Guardar Cambios
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-}
-
-
-
-
-

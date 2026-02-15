@@ -1,498 +1,526 @@
-﻿<div class="min-h-screen bg-[var(--bg-primary)]">
-  
-  <!-- Header Premium -->
-  <header class="bg-blue-600 text-white px-4 sm:px-6 md:px-8 py-6 md:py-8">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div class="flex items-center gap-3 md:gap-4">
-        <div class="p-3 md:p-4 rounded-2xl">
-          <i-lucide name="layout-dashboard" [size]="32" class="md:hidden"></i-lucide>
-          <i-lucide name="layout-dashboard" [size]="40" class="hidden md:block"></i-lucide>
-        </div>
-        <div>
-          <h1 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight">Panel de Control</h1>
-          <p class="text-blue-50 mt-1 font-medium text-sm md:text-base">Monitor en tiempo real - StepGuard IoT</p>
-        </div>
+﻿<div class="min-h-screen bg-[var(--bg-primary)] p-4 sm:p-6 md:p-8">
+  <div class="max-w-7xl mx-auto space-y-8">
+    <!-- Minimalist Header -->
+    <div
+      class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[var(--border-color)] pb-6 animate-fade-up"
+    >
+      <div>
+        <h1 class="text-2xl font-bold text-[var(--text-primary)]">Panel de Control</h1>
+        <p class="text-[var(--text-secondary)] text-sm">StepGuard IoT • Monitor de Actividad</p>
       </div>
-      <div class="px-4 md:px-6 py-2 md:py-3 rounded-2xl">
-        <div class="text-xs text-blue-100 font-semibold">Fecha</div>
-        <span class="font-bold text-base md:text-lg">{{ today | date:'dd MMM yyyy' }}</span>
+      <div
+        class="flex items-center gap-4 bg-[var(--bg-secondary)] px-4 py-2 rounded-lg border border-[var(--border-color)]"
+      >
+        <i-lucide name="calendar" [size]="18" class="text-blue-500"></i-lucide>
+        <span class="text-sm font-semibold text-[var(--text-primary)]">{{
+          today | date: 'fullDate'
+        }}</span>
       </div>
     </div>
-  </header>
 
-  <!-- Grid de Estadísticas Premium -->
-  <div class="px-4 sm:px-6 md:px-8 py-6 md:py-8">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-      
-      <!-- Pacientes -->
-      <div class="bg-[var(--bg-secondary)] rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
-        <div class="h-2 bg-gradient-to-r from-operational via-green-500 to-emerald-500"></div>
-        <div class="p-4 md:p-6">
-          <div class="flex items-center justify-between mb-3 md:mb-4">
-            <div class="p-3 md:p-4 bg-operational/10 rounded-xl group-hover:scale-110 transition-transform">
-              <i-lucide name="users" class="text-operational" [size]="28" class="md:hidden"></i-lucide>
-              <i-lucide name="users" class="text-operational" [size]="32" class="hidden md:block"></i-lucide>
-            </div>
-            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Pacientes</span>
+    <!-- Clean Metrics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <!-- Metrics Helper Macro -->
+      <ng-container
+        *ngFor="
+          let metric of [
+            {
+              label: 'Pacientes',
+              val: stats.activePatients,
+              icon: 'users',
+              color: 'text-blue-500',
+              bg: 'bg-blue-50',
+              sub: 'Activos',
+            },
+            {
+              label: 'Alertas',
+              val: stats.pendingAlerts,
+              icon: 'alert-triangle',
+              color: stats.pendingAlerts > 0 ? 'text-red-500' : 'text-slate-400',
+              bg: 'bg-red-50',
+              sub: 'Pendientes',
+            },
+            {
+              label: 'Equipos',
+              val: stats.onlineDevices,
+              icon: 'smartphone',
+              color: 'text-green-500',
+              bg: 'bg-green-50',
+              sub: 'Conectados',
+            },
+            {
+              label: 'Batería',
+              val: stats.lowBattery,
+              icon: 'battery-warning',
+              color: stats.lowBattery > 0 ? 'text-orange-500' : 'text-slate-400',
+              bg: 'bg-orange-50',
+              sub: 'Niveles bajos',
+            },
+          ]
+        "
+      >
+        <div class="card-minimal p-5 flex items-center gap-4 animate-fade-up">
+          <div class="w-12 h-12 rounded-lg flex items-center justify-center" [ngClass]="metric.bg">
+            <i-lucide [name]="metric.icon" [class]="metric.color" [size]="24"></i-lucide>
           </div>
-          <div class="flex items-end justify-between">
-            <div>
-              <p class="text-4xl md:text-5xl font-black text-[var(--text-primary)]">{{ stats.activePatients }}</p>
-              <div class="flex items-center gap-2 mt-2">
-                <span class="w-2 h-2 bg-operational rounded-full animate-glow"></span>
-                <small class="text-xs md:text-sm text-[var(--text-secondary)] font-semibold">Monitoreados</small>
-              </div>
-            </div>
+          <div>
+            <p class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">
+              {{ metric.label }}
+            </p>
+            <p class="text-2xl font-extrabold text-[var(--text-primary)] leading-tight">
+              {{ metric.val }}
+            </p>
+            <p class="text-[10px] font-medium text-[var(--text-secondary)] mt-0.5">
+              {{ metric.sub }}
+            </p>
           </div>
         </div>
-      </div>
+      </ng-container>
+    </div>
 
-      <!-- Alertas Pendientes -->
-      <div class="bg-[var(--bg-secondary)] rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
-        <div class="h-2"
-          [ngClass]="stats.pendingAlerts > 0 ? 'bg-gradient-to-r from-emergency via-red-600 to-red-700 animate-pulse' : 'bg-gradient-to-r from-gray-300 to-gray-400'"
-        ></div>
-        <div class="p-4 md:p-6">
-          <div class="flex items-center justify-between mb-3 md:mb-4">
-            <div class="p-3 md:p-4 rounded-xl group-hover:scale-110 transition-transform"
-              [ngClass]="stats.pendingAlerts > 0 ? 'bg-emergency/10' : ''"
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div
+        (click)="toggleChartModal(true)"
+        class="lg:col-span-1 card-minimal p-6 space-y-6 animate-fade-up cursor-pointer hover:border-blue-400 group/summary"
+      >
+        <h3
+          class="text-sm font-bold text-[var(--text-primary)] border-b border-[var(--border-color)] pb-3 flex items-center justify-between"
+        >
+          <div class="flex items-center gap-2">
+            <i-lucide name="bar-chart-3" [size]="16" class="text-blue-500"></i-lucide>
+            Resumen de Resolución
+          </div>
+          <i-lucide
+            name="maximize-2"
+            [size]="14"
+            class="text-slate-400 opacity-0 group-hover/summary:opacity-100 transition-opacity"
+          ></i-lucide>
+        </h3>
+
+        <div class="space-y-4">
+          <div class="flex justify-between items-end">
+            <span class="text-xs font-semibold text-[var(--text-secondary)] uppercase">Total</span>
+            <span class="text-2xl font-black text-blue-600">{{ resolvedStats.totalResolved }}</span>
+          </div>
+
+          <div class="space-y-3">
+            <ng-container
+              *ngFor="
+                let item of [
+                  {
+                    label: 'Críticas',
+                    val: resolvedStats.criticalResolved,
+                    color: 'bg-red-500',
+                    icon: 'alert-circle',
+                  },
+                  {
+                    label: 'Altas',
+                    val: resolvedStats.highResolved,
+                    color: 'bg-orange-500',
+                    icon: 'chevron-up',
+                  },
+                  {
+                    label: 'Medias',
+                    val: resolvedStats.mediumResolved,
+                    color: 'bg-yellow-500',
+                    icon: 'minus',
+                  },
+                  {
+                    label: 'Bajas',
+                    val: resolvedStats.lowResolved,
+                    color: 'bg-blue-500',
+                    icon: 'chevron-down',
+                  },
+                  {
+                    label: 'Falsas',
+                    val: resolvedStats.falseAlarms,
+                    color: 'bg-slate-400',
+                    icon: 'x-circle',
+                  },
+                ]
+              "
             >
-              <i-lucide 
-                name="alert-triangle" 
-                [class]="stats.pendingAlerts > 0 ? 'text-emergency' : 'text-gray-400'"
-                [size]="28"
-                class="md:hidden"
-              ></i-lucide>
-              <i-lucide 
-                name="alert-triangle" 
-                [class]="stats.pendingAlerts > 0 ? 'text-emergency' : 'text-gray-400'"
-                [size]="32"
-                class="hidden md:block"
-              ></i-lucide>
-            </div>
-            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Alertas</span>
-          </div>
-          <div class="flex items-end justify-between">
-            <div>
-              <p 
-                class="text-4xl md:text-5xl font-black"
-                [ngClass]="stats.pendingAlerts > 0 ? 'text-emergency' : 'text-[var(--text-primary)]'"
-              >
-                {{ stats.pendingAlerts }}
-              </p>
-              <div class="mt-2">
-                @if (stats.pendingAlerts > 0) {
-                  <small class="text-xs md:text-sm text-emergency font-bold flex items-center gap-1">
-                    <i-lucide name="alert-circle" [size]="14"></i-lucide>
-                    ¡Requiere atención!
-                  </small>
-                } @else {
-                  <small class="text-xs md:text-sm text-[var(--text-secondary)] font-semibold">Todo bajo control</small>
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dispositivos -->
-      <div class="bg-[var(--bg-secondary)] rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg">
-        <div class="h-2 bg-gradient-to-r from-primary via-blue-500 to-indigo-500"></div>
-        <div class="p-4 md:p-6">
-          <div class="flex items-center justify-between mb-3 md:mb-4">
-            <div class="p-3 md:p-4 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
-              <i-lucide name="smartphone" class="text-primary" [size]="28" class="md:hidden"></i-lucide>
-              <i-lucide name="smartphone" class="text-primary" [size]="32" class="hidden md:block"></i-lucide>
-            </div>
-            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Dispositivos</span>
-          </div>
-          <div class="flex items-end justify-between">
-            <div>
-              <p class="text-4xl md:text-5xl font-black text-[var(--text-primary)]">{{ stats.onlineDevices }}</p>
-              <div class="flex items-center gap-2 mt-2">
-                <span class="w-2 h-2 bg-operational rounded-full animate-breathe"></span>
-                <small class="text-xs md:text-sm text-[var(--text-secondary)] font-semibold">Conectados</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Batería Baja -->
-      <div class="bg-[var(--bg-secondary)] rounded-2xl border-2 border-gray-800 transition-all duration-500 hover:-translate-y-2 overflow-hidden group shadow-lg animate-fade-in">
-        <div class="h-2"
-          [ngClass]="stats.lowBattery > 0 ? 'bg-gradient-to-r from-preventive via-yellow-500 to-amber-500' : 'bg-gradient-to-r from-gray-300 to-gray-400'"
-        ></div>
-        <div class="p-4 md:p-6">
-          <div class="flex items-center justify-between mb-3 md:mb-4">
-            <div class="p-3 md:p-4 rounded-xl group-hover:scale-110 transition-transform"
-              [ngClass]="stats.lowBattery > 0 ? 'bg-preventive/10' : ''"
-            >
-              <i-lucide 
-                name="battery-warning" 
-                [class]="stats.lowBattery > 0 ? 'text-preventive' : 'text-gray-400'"
-                [size]="28"
-                class="md:hidden"
-              ></i-lucide>
-              <i-lucide 
-                name="battery-warning" 
-                [class]="stats.lowBattery > 0 ? 'text-preventive' : 'text-gray-400'"
-                [size]="32"
-                class="hidden md:block"
-              ></i-lucide>
-            </div>
-            <span class="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider">Batería</span>
-          </div>
-          <div class="flex items-end justify-between">
-            <div>
-              <p 
-                class="text-4xl md:text-5xl font-black"
-                [ngClass]="stats.lowBattery > 0 ? 'text-preventive' : 'text-[var(--text-primary)]'"
-              >
-                {{ stats.lowBattery }}
-              </p>
-              <div class="mt-2">
-                <small 
-                  class="text-xs md:text-sm font-semibold"
-                  [ngClass]="stats.lowBattery > 0 ? 'text-preventive font-bold flex items-center gap-1' : 'text-[var(--text-secondary)]'"
+              <div class="space-y-2 group">
+                <div
+                  class="flex justify-between text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-tight"
                 >
-                  @if (stats.lowBattery > 0) {
-                    <i-lucide name="zap" [size]="14"></i-lucide>
-                    Nivel bajo
-                  } @else {
-                    Todo correcto
-                  }
-                </small>
+                  <span
+                    class="flex items-center gap-1.5 group-hover:text-[var(--text-primary)] transition-colors"
+                  >
+                    <i-lucide
+                      [name]="item.icon"
+                      [size]="12"
+                      [class]="item.color.replace('bg-', 'text-')"
+                    ></i-lucide>
+                    {{ item.label }}
+                  </span>
+                  <span class="text-[var(--text-primary)] font-black">{{ item.val }}</span>
+                </div>
+                <div
+                  class="relative w-full bg-slate-100 dark:bg-slate-700/50 rounded-full h-2.5 overflow-hidden transition-all group-hover:h-3"
+                >
+                  <div
+                    class="h-full rounded-full transition-all duration-1000 ease-out shadow-sm"
+                    [ngClass]="item.color"
+                    [style.width.%]="
+                      resolvedStats.totalResolved > 0
+                        ? (item.val / resolvedStats.totalResolved) * 100
+                        : 0
+                    "
+                  >
+                    <div
+                      class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    ></div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sección de Gráficas -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-      
-      <!-- Gráfica de Actividad -->
-      <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] p-4 md:p-6 animate-fade-in">
-        <h3 class="text-base md:text-lg font-bold text-base-text mb-4 flex items-center gap-2">
-          <i-lucide name="bar-chart-3" [size]="20"></i-lucide>
-          <span class="text-sm md:text-base">Actividad de Sensores (Últimas 24 hrs)</span>
-        </h3>
-        <div class="space-y-3">
-          <!-- Total Resueltas -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Total Resueltas</span>
-              <span class="text-sm font-bold text-green-600">{{ resolvedStats.totalResolved }}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                class="bg-gradient-to-r from-green-500 to-green-600 h-full rounded-full transition-all duration-1000"
-                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.totalResolved / (resolvedStats.totalResolved + stats.pendingAlerts)) * 100 : 0"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Críticas Resueltas -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Críticas</span>
-              <span class="text-sm font-bold text-red-600">{{ resolvedStats.criticalResolved }}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                class="bg-gradient-to-r from-red-500 to-red-600 h-full rounded-full transition-all duration-1000"
-                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.criticalResolved / resolvedStats.totalResolved) * 100 : 0"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Altas Resueltas -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Altas</span>
-              <span class="text-sm font-bold text-orange-600">{{ resolvedStats.highResolved }}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                class="bg-gradient-to-r from-orange-500 to-orange-600 h-full rounded-full transition-all duration-1000"
-                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.highResolved / resolvedStats.totalResolved) * 100 : 0"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Medias Resueltas -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Medias</span>
-              <span class="text-sm font-bold text-yellow-600">{{ resolvedStats.mediumResolved }}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                class="bg-gradient-to-r from-yellow-500 to-yellow-600 h-full rounded-full transition-all duration-1000"
-                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.mediumResolved / resolvedStats.totalResolved) * 100 : 0"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Bajas Resueltas -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Bajas</span>
-              <span class="text-sm font-bold text-blue-600">{{ resolvedStats.lowResolved }}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                class="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-1000"
-                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.lowResolved / resolvedStats.totalResolved) * 100 : 0"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Falsas Alarmas -->
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <span class="text-sm font-semibold text-[var(--text-secondary)]">Falsas Alarmas</span>
-              <span class="text-sm font-bold text-[var(--text-secondary)]">{{ resolvedStats.falseAlarms }}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div 
-                class="bg-gradient-to-r from-gray-500 to-gray-600 h-full rounded-full transition-all duration-1000"
-                [style.width.%]="resolvedStats.totalResolved > 0 ? (resolvedStats.falseAlarms / resolvedStats.totalResolved) * 100 : 0"
-              ></div>
-            </div>
+            </ng-container>
           </div>
         </div>
       </div>
 
-      <!-- Lista de Alertas -->
-      <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] p-4 md:p-6 animate-fade-in">
-        <h3 class="text-base md:text-lg font-bold text-base-text mb-4 flex items-center gap-2">
-          <i-lucide name="bell" [size]="20"></i-lucide>
-          <span class="text-sm md:text-base">Alertas Pendientes de Atención</span>
-        </h3>
-        
+      <!-- Incidents Table - VERSIÓN CORREGIDA -->
+      <div
+        class="lg:col-span-2 overflow-hidden animate-fade-up rounded-2xl incidents-table-container shadow-sm"
+      >
+        <div class="p-6 border-b incidents-table-header">
+          <h3 class="text-sm font-black flex items-center gap-2" style="color: inherit">
+            <i-lucide name="bell" [size]="16" class="text-red-600"></i-lucide>
+            Cola de Incidentes ({{ activeAlerts.length }})
+          </h3>
+        </div>
+
         @if (activeAlerts.length === 0) {
-          <div class="flex flex-col items-center justify-center h-48 text-gray-400">
-            <i-lucide name="check-circle" [size]="48" class="md:hidden mb-3"></i-lucide>
-            <i-lucide name="check-circle" [size]="64" class="hidden md:block text-operational mb-3"></i-lucide>
-            <p class="text-base md:text-lg text-center">Todo tranquilo. No hay alertas pendientes.</p>
+          <div
+            class="flex flex-col items-center justify-center p-12 text-gray-400 dark:text-slate-500"
+          >
+            <i-lucide name="check-circle" [size]="40" class="mb-3 text-green-500"></i-lucide>
+            <p class="text-sm font-medium">Bandeja de entrada vacía</p>
           </div>
         } @else {
-          <ul class="space-y-3 max-h-96 overflow-y-auto">
-            @for (alert of activeAlerts; track alert.id) {
-              <li 
-                class="p-3 md:p-4 rounded-lg border-l-4 transition-all duration-300 hover: animate-slide-down"
-                [ngClass]="{
-                  'bg-emergency/5 border-emergency': alert.severity === 'critical',
-                  'bg-red-50 border-red-400': alert.severity === 'high',
-                  'bg-preventive/10 border-preventive': alert.severity === 'medium',
-                  'bg-blue-50 border-primary': alert.severity === 'low'
-                }"
-              >
-                <div class="flex flex-col md:flex-row justify-between items-start gap-2 md:gap-3">
-                  <div class="flex-1 min-w-0">
-                    <strong 
-                      class="block mb-1 text-sm md:text-base"
-                      [ngClass]="{
-                        'text-emergency': alert.severity === 'critical',
-                        'text-red-600': alert.severity === 'high',
-                        'text-preventive': alert.severity === 'medium',
-                        'text-primary': alert.severity === 'low'
-                      }"
-                    >
-                      {{ alert.message }}
-                    </strong>
-                    @if (alert.userName) {
-                      <span class="text-xs md:text-sm text-blue-600 font-semibold block mb-1">
-                        <i-lucide name="user" [size]="14" class="inline mr-1"></i-lucide>
-                        {{ alert.userName }}
+          <div class="overflow-x-auto max-h-[500px] overflow-y-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse incidents-table">
+              <thead>
+                <tr
+                  class="text-[10px] font-extrabold uppercase tracking-widest border-b sticky top-0 z-10"
+                >
+                  <th class="px-6 py-4">Prioridad</th>
+                  <th class="px-6 py-4">Mensaje</th>
+                  <th class="px-6 py-4">Paciente</th>
+                  <th class="px-6 py-4">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (alert of activeAlerts; track alert.id) {
+                  <tr class="text-sm transition-colors border-b">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex">
+                        <span
+                          class="px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm border"
+                          [ngClass]="{
+                            'bg-red-600 text-white border-red-700': alert.severity === 'critical',
+                            'bg-gray-200 text-gray-800 border-gray-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700':
+                              alert.severity === 'high',
+                            'bg-gray-100 text-gray-700 border-gray-200 dark:bg-slate-800/60 dark:text-slate-300 dark:border-slate-700':
+                              alert.severity === 'medium',
+                            'bg-gray-50 text-gray-600 border-gray-100 dark:bg-slate-900/40 dark:text-slate-400 dark:border-slate-800':
+                              alert.severity === 'low',
+                          }"
+                          >{{ alert.severity }}</span
+                        >
+                      </div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <p class="font-black leading-tight text-sm">{{ alert.message }}</p>
+                      <span
+                        class="text-[10px] text-secondary flex items-center gap-1.5 mt-1 font-bold"
+                      >
+                        <i-lucide name="map-pin" [size]="10"></i-lucide>{{ alert.location }} •
+                        <i-lucide name="clock" [size]="10"></i-lucide>
+                        {{ alert.timestamp | date: 'HH:mm' }}
                       </span>
-                    }
-                    <small class="text-[var(--text-secondary)] flex items-center gap-1 md:gap-2 flex-wrap text-xs md:text-sm">
-                      <span class="flex items-center gap-1" title="Dispositivo">
-                        <i-lucide name="smartphone" [size]="12" class="md:hidden"></i-lucide>
-                        <i-lucide name="smartphone" [size]="14" class="hidden md:inline"></i-lucide>
-                        <span class="truncate max-w-[120px] md:max-w-none">{{ alert.macAddress || 'Sin MAC' }}</span>
-                      </span>
-                      <span class="hidden md:inline">•</span>
-                      <span class="flex items-center gap-1" title="Ubicación">
-                        <i-lucide name="map-pin" [size]="14"></i-lucide>
-                        {{ alert.location }}
-                      </span>
-                      <span>•</span>
-                      <span class="flex items-center gap-1" title="Hora">
-                        <i-lucide name="clock" [size]="14"></i-lucide>
-                        {{ alert.timestamp | date:'shortTime' }}
-                      </span>
-                    </small>
-                  </div>
-                  <button 
-                    class="px-5 py-2.5 rounded-lg font-bold text-white transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 border-2"
-                    [ngClass]="{
-                      'bg-red-600 hover:bg-red-700 border-red-700': alert.severity === 'critical' || alert.severity === 'high',
-                      'bg-orange-600 hover:bg-orange-700 border-orange-700': alert.severity === 'medium',
-                      'bg-blue-600 hover:bg-blue-700 border-blue-700': alert.severity === 'low'
-                    }"
-                    (click)="openResolutionModal(alert)"
-                  >
-                    Atender
-                  </button>
-                </div>
-              </li>
-            }
-          </ul>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="w-7 h-7 rounded-full user-avatar flex items-center justify-center text-[10px] font-black shadow-inner"
+                        >
+                          {{ (alert.userName || 'U')[0].toUpperCase() }}
+                        </div>
+                        <span class="font-black">{{ alert.userName || 'Desconocido' }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <button
+                        (click)="openResolutionModal(alert)"
+                        class="px-4 py-2 bg-gray-900 hover:bg-black dark:bg-slate-700 dark:hover:bg-slate-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-md shadow-gray-900/10 active:scale-95 border border-gray-800 dark:border-slate-600"
+                      >
+                        Atender
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         }
       </div>
     </div>
-  </div>
-
-</div>
-
-
-<!-- Modal de Atención con Diseño Profesional -->
-@if (processingAlert) {
-  <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center animate-fade-in">
-    <div class="bg-[var(--bg-secondary)] rounded-xl w-full max-w-2xl mx-4 shadow-2xl">
-      
-      <!-- Header Minimalista -->
-      <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div 
-            class="w-2 h-2 rounded-full"
-            [ngClass]="{
-              'bg-red-500': processingAlert.severity === 'critical' || processingAlert.severity === 'high',
-              'bg-orange-500': processingAlert.severity === 'medium',
-              'bg-blue-500': processingAlert.severity === 'low'
-            }"
-          ></div>
-          <h2 class="text-sm font-semibold text-slate-700">Procesando Incidencia #{{ processingAlert.id }} - {{ processingAlert.deviceName }}</h2>
-        </div>
-        <button 
-          (click)="cancelResolution()" 
-          class="p-1 hover:bg-slate-200 rounded text-slate-400 hover:text-slate-600 transition-colors"
+    <!-- Compact Bar Chart Modal -->
+    @if (showChartModal) {
+      <div
+        class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center animate-fade-in p-4 backdrop-blur-sm"
+      >
+        <div
+          class="bg-[var(--bg-secondary)] rounded-3xl w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,0.3)] border border-[var(--border-color)] overflow-hidden"
         >
-          <i-lucide name="x" [size]="18"></i-lucide>
-        </button>
-      </div>
-
-      <!-- Body -->
-      <div class="p-5 space-y-4">
-        
-        <!-- Info Cards Compactas -->
-        <div class="grid grid-cols-3 gap-2">
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
-              <i-lucide name="map-pin" [size]="12"></i-lucide>
-              <span class="text-[9px] font-semibold uppercase tracking-wide">Ubicación</span>
+          <div
+            class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-b border-[var(--border-color)] flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <i-lucide name="bar-chart-3" [size]="20" class="text-blue-600"></i-lucide>
+              <h2 class="text-lg font-black text-slate-800 dark:text-slate-100">
+                Estadísticas Detalladas
+              </h2>
             </div>
-            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.location }}</p>
-          </div>
-          
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
-              <i-lucide name="clock" [size]="12"></i-lucide>
-              <span class="text-[9px] font-semibold uppercase tracking-wide">Hora</span>
-            </div>
-            <p class="text-slate-900 font-medium text-xs">{{ processingAlert.timestamp | date:'short' }}</p>
-          </div>
-          
-          <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200">
-            <div class="flex items-center gap-1.5 text-slate-500 mb-1">
-              <i-lucide name="activity" [size]="12"></i-lucide>
-              <span class="text-[9px] font-semibold uppercase tracking-wide">Tipo</span>
-            </div>
-            <p class="text-slate-900 font-medium text-xs truncate">{{ processingAlert.message }}</p>
-          </div>
-
-          @if (processingAlert.acc_x !== undefined) {
-             <div class="bg-slate-50 rounded-lg p-2.5 border border-slate-200 col-span-3">
-              <div class="flex items-center gap-1.5 text-slate-500 mb-1">
-                <i-lucide name="activity-square" [size]="12"></i-lucide>
-                <span class="text-[9px] font-semibold uppercase tracking-wide">Impacto (G-Force)</span>
-              </div>
-              <div class="flex gap-4">
-                 <span class="text-xs font-mono">X: <span class="font-bold">{{ processingAlert.acc_x | number:'1.1-2' }}</span></span>
-                 <span class="text-xs font-mono">Y: <span class="font-bold">{{ processingAlert.acc_y | number:'1.1-2' }}</span></span>
-                 <span class="text-xs font-mono">Z: <span class="font-bold">{{ processingAlert.acc_z | number:'1.1-2' }}</span></span>
-              </div>
-            </div>
-          }
-        </div>
-
-        <!-- Selector de Gravedad -->
-        <div>
-          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
-            <i-lucide name="thermometer" [size]="14"></i-lucide>
-            Nivel de Gravedad
-          </label>
-          <div class="relative">
-            <select 
-              [(ngModel)]="selectedSeverity" 
-              class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm bg-[var(--bg-secondary)] appearance-none cursor-pointer"
+            <button
+              (click)="toggleChartModal(false)"
+              class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-400 transition-all"
             >
-              <option value="low">🟢 Baja</option>
-              <option value="medium">🟡 Media</option>
-              <option value="high">🟠 Alta</option>
-              <option value="critical">🔴 Crítica</option>
-            </select>
-            <i-lucide name="chevron-down" [size]="16" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i-lucide>
+              <i-lucide name="x" [size]="20"></i-lucide>
+            </button>
+          </div>
+
+          <div class="p-6">
+            <div
+              class="h-40 flex items-end justify-around gap-2 border-b-2 border-slate-200 dark:border-slate-700 pb-2 relative"
+            >
+              <ng-container
+                *ngFor="
+                  let item of [
+                    { label: 'Críticas', val: resolvedStats.criticalResolved, color: 'bg-red-500' },
+                    { label: 'Altas', val: resolvedStats.highResolved, color: 'bg-orange-500' },
+                    { label: 'Medias', val: resolvedStats.mediumResolved, color: 'bg-yellow-500' },
+                    { label: 'Bajas', val: resolvedStats.lowResolved, color: 'bg-blue-500' },
+                    { label: 'Falsas', val: resolvedStats.falseAlarms, color: 'bg-slate-400' },
+                  ]
+                "
+              >
+                <div class="flex flex-col items-center flex-1 group">
+                  <div class="relative w-full flex justify-center items-end h-32">
+                    <div
+                      class="w-full max-w-[28px] rounded-t-md transition-all duration-700 ease-out animate-chart-rise relative group-hover:brightness-110"
+                      [ngClass]="item.color"
+                      [style.height.%]="
+                        resolvedStats.totalResolved > 0
+                          ? (item.val / resolvedStats.totalResolved) * 100
+                          : 5
+                      "
+                    >
+                      <span
+                        class="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-black text-[var(--text-primary)] opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        {{ item.val }}
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    class="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-3 text-center truncate w-full"
+                    >{{ item.label }}</span
+                  >
+                </div>
+              </ng-container>
+
+              <!-- Grid lines helper -->
+              <div
+                class="absolute inset-0 flex flex-col justify-between pointer-events-none -z-10 h-32 translate-y-0"
+              >
+                <div class="border-t border-slate-100 dark:border-slate-800/50 w-full h-0"></div>
+                <div class="border-t border-slate-100 dark:border-slate-800/50 w-full h-0"></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-6">
+              <div
+                class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/50"
+              >
+                <span
+                  class="text-[8px] font-black text-blue-600 uppercase tracking-widest block mb-0.5"
+                  >Total Resueltas</span
+                >
+                <p class="text-xl font-black text-blue-800 dark:text-blue-400">
+                  {{ resolvedStats.totalResolved }}
+                </p>
+              </div>
+              <div
+                class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800"
+              >
+                <span
+                  class="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-0.5"
+                  >Efectividad</span
+                >
+                <p class="text-xl font-black text-slate-800 dark:text-slate-100">
+                  {{
+                    resolvedStats.totalResolved > 0
+                      ? (100 - (resolvedStats.falseAlarms / resolvedStats.totalResolved) * 100
+                        | number: '1.0-0')
+                      : 0
+                  }}%
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-[var(--border-color)] flex justify-end"
+          >
+            <button
+              (click)="toggleChartModal(false)"
+              class="px-6 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
+      </div>
+    }
 
-        <!-- Notas -->
-        <div>
-          <label class="block text-slate-700 font-semibold mb-1.5 text-xs flex items-center gap-1.5">
-            <i-lucide name="clipboard-list" [size]="14"></i-lucide>
-            Notas de Atención
-          </label>
-          <textarea 
-            [(ngModel)]="resolutionNotes" 
-            placeholder="Describe las acciones realizadas y el estado del paciente..."
-            rows="3"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none text-sm placeholder:text-slate-400"
-          ></textarea>
+    <!-- Compact Restored Modal de Atención -->
+    @if (processingAlert) {
+      <div
+        class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center animate-fade-in p-4 backdrop-blur-sm"
+      >
+        <div
+          class="bg-[var(--bg-secondary)] rounded-3xl w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,0.3)] overflow-hidden border border-[var(--border-color)]"
+        >
+          <div
+            class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-b border-[var(--border-color)] flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-red-600 rounded-xl animate-pulse shadow-lg shadow-red-500/20">
+                <i-lucide name="alert-circle" [size]="20" class="text-white"></i-lucide>
+              </div>
+              <div>
+                <h2 class="text-lg font-black text-slate-800 dark:text-slate-100">
+                  Gestionar Incidencia
+                </h2>
+                <p
+                  class="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest"
+                >
+                  ID: #{{ processingAlert.id.slice(-6) }}
+                </p>
+              </div>
+            </div>
+            <button
+              (click)="cancelResolution()"
+              class="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-slate-400 transition-all hover:text-slate-600 dark:hover:text-slate-200"
+            >
+              <i-lucide name="x" [size]="20"></i-lucide>
+            </button>
+          </div>
+
+          <div class="p-6 space-y-5">
+            <!-- Info Cards (Compact) -->
+            <div class="grid grid-cols-3 gap-2">
+              <div
+                class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 border border-[var(--border-color)]"
+              >
+                <span
+                  class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5"
+                  >Paciente</span
+                >
+                <p class="text-slate-900 dark:text-slate-100 font-bold text-xs truncate">
+                  {{ processingAlert.userName || '–' }}
+                </p>
+              </div>
+              <div
+                class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 border border-[var(--border-color)]"
+              >
+                <span
+                  class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5"
+                  >Ubicación</span
+                >
+                <p class="text-slate-900 dark:text-slate-100 font-bold text-xs truncate">
+                  {{ processingAlert.location }}
+                </p>
+              </div>
+              <div
+                class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 border border-[var(--border-color)]"
+              >
+                <span
+                  class="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-0.5"
+                  >Hora</span
+                >
+                <p class="text-slate-900 dark:text-slate-100 font-bold text-xs">
+                  {{ processingAlert.timestamp | date: 'HH:mm' }}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label
+                class="block text-slate-700 dark:text-slate-300 font-black mb-1.5 text-[10px] uppercase tracking-widest"
+                >Prioridad Actualizada</label
+              >
+              <div class="relative">
+                <select
+                  [(ngModel)]="selectedSeverity"
+                  class="w-full pl-4 pr-10 py-3 bg-slate-50 dark:bg-slate-900/80 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 text-xs font-bold text-slate-700 dark:text-slate-200 appearance-none cursor-pointer transition-all"
+                >
+                  <option value="low">🟢 Baja Prioridad</option>
+                  <option value="medium">🟡 Media Prioridad</option>
+                  <option value="high">🟠 Alta Prioridad</option>
+                  <option value="critical">🔴 Nivel Crítico</option>
+                </select>
+                <i-lucide
+                  name="chevron-down"
+                  [size]="16"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                ></i-lucide>
+              </div>
+            </div>
+
+            <div>
+              <label
+                class="block text-slate-700 dark:text-slate-300 font-black mb-1.5 text-[10px] uppercase tracking-widest"
+                >Notas de Intervención</label
+              >
+              <textarea
+                [(ngModel)]="resolutionNotes"
+                placeholder="Detalles de la atención..."
+                rows="3"
+                class="w-full p-4 bg-slate-50 dark:bg-slate-900/80 border-2 border-[var(--border-color)] rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 resize-none text-xs font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 transition-all"
+              ></textarea>
+            </div>
+          </div>
+
+          <div
+            class="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-[var(--border-color)] flex flex-col sm:flex-row justify-end gap-2"
+          >
+            <button
+              class="px-4 py-2.5 border-2 border-[var(--border-color)] text-slate-500 dark:text-slate-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 dark:hover:bg-slate-700 transition-all disabled:opacity-50"
+              (click)="cancelResolution()"
+              [disabled]="isSubmitting"
+            >
+              Cancelar
+            </button>
+            <button
+              class="px-4 py-2.5 bg-slate-800 hover:bg-slate-900 border border-slate-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              (click)="submitResolution('falsa_alarma')"
+              [disabled]="isSubmitting"
+            >
+              <i-lucide name="alert-octagon" [size]="14"></i-lucide> Falsa
+            </button>
+            <button
+              class="px-6 py-2.5 bg-green-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-green-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-green-500/20"
+              (click)="submitResolution('atendida')"
+              [disabled]="isSubmitting"
+            >
+              <i-lucide name="check-square" [size]="14"></i-lucide> Confirmar
+            </button>
+          </div>
         </div>
-
       </div>
-
-      <!-- Footer -->
-      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex justify-end items-center gap-2">
-        <button 
-          class="px-3 py-1.5 border border-slate-300 text-slate-700 rounded-lg text-xs font-medium hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50"
-          (click)="cancelResolution()" 
-          [disabled]="isSubmitting"
-        >
-          Cancelar
-        </button>
-        
-        <button 
-          class="px-3 py-1.5 bg-slate-600 text-white rounded-lg text-xs font-medium hover:bg-slate-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-          (click)="submitResolution('falsa_alarma')" 
-          [disabled]="isSubmitting"
-        >
-          <i-lucide name="x-circle" [size]="14"></i-lucide>
-          Falsa Alarma
-        </button>
-        
-        <button 
-          class="px-4 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-          (click)="submitResolution('atendida')" 
-          [disabled]="isSubmitting"
-        >
-          <i-lucide name="check" [size]="14"></i-lucide>
-          Atendida
-        </button>
-      </div>
-
-    </div>
+    }
   </div>
-}
-
-
-
-
-
-
-
+</div>

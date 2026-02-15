@@ -59,6 +59,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public selectedSeverity: 'low' | 'medium' | 'high' | 'critical' | 'warning' | 'info' = 'medium';
   public isSubmitting = false;
 
+  // Variables Modal Estadísticas
+  public showChartModal = false;
+
+  toggleChartModal(show: boolean) {
+    this.showChartModal = show;
+  }
+
+
   get canAttend() {
     const role = this.authService.currentUser()?.role;
     return role === 'admin' || role === 'caregiver';
