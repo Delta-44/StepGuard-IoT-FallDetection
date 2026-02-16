@@ -5,17 +5,17 @@ export interface EventoCaida {
   dispositivo_mac: string;
   usuario_id?: number;
   fecha_hora: Date;
-  
+
   // Datos del ESP32 (coinciden con init.sql)
   is_button_pressed?: boolean;
   is_fall_detected?: boolean;
   impact_magnitudes?: number[];
   impact_count?: number;
-  
+
   // Severidad y estado
   severidad: "low" | "medium" | "high" | "critical";
   estado: "pendiente" | "atendida" | "falsa_alarma" | "ignorada";
-  
+
   // Información adicional
   notas?: string;
   atendido_por?: number;
@@ -162,15 +162,15 @@ export const EventoCaidaModel = {
   findPendientes: async (): Promise<EventoCaida[]> => {
     try {
       const result = await query(
-      `SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre, d.mac_address as device_id
+        `SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre, d.mac_address as device_id
        FROM eventos_caida ec
        LEFT JOIN usuarios u ON ec.usuario_id = u.id
        LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
        LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
        WHERE ec.estado = 'pendiente'
        ORDER BY ec.severidad DESC, ec.fecha_hora DESC`,
-    );
-    return result.rows;
+      );
+      return result.rows;
     } catch (error) {
       console.error('Error en findPendientes:', error);
       throw error;
@@ -299,4 +299,51 @@ export const EventoCaidaModel = {
     const result = await query("DELETE FROM eventos_caida WHERE id = $1", [id]);
     return (result.rowCount ?? 0) > 0;
   },
+
+  // --- MÉTODOS DE ANÁLISIS ---
+
+  /**
+   * Obtener distribución de eventos por hora del día (0-23)
+   */
+  getHourlyTrend: async (usuario_id: number, days: number = 30): Promise<any[]> => {
+    const result = await query(
+      `SELECT EXTRACT(HOUR FROM fecha_hora) as hora, COUNT(*) as cantidad
+       FROM eventos_caida
+       WHERE usuario_id = $1 AND fecha_hora > NOW() - INTERVAL '${days} days'
+       GROUP BY hora 
+       ORDER BY cantidad DESC`,
+      [usuario_id]
+    );
+    return result.rows;
+  },
+
+  /**
+   * Obtener distribución de eventos por día de la semana (0=Domingo, 6=Sábado)
+   */
+  getWeeklyTrend: async (usuario_id: number, days: number = 30): Promise<any[]> => {
+    const result = await query(
+      `SELECT EXTRACT(DOW FROM fecha_hora) as dia_semana, COUNT(*) as cantidad
+       FROM eventos_caida
+       WHERE usuario_id = $1 AND fecha_hora > NOW() - INTERVAL '${days} days'
+       GROUP BY dia_semana 
+       ORDER BY cantidad DESC`,
+      [usuario_id]
+    );
+    return result.rows;
+  },
+
+  /**
+   * Obtener evolución diaria de eventos (últimos N días)
+   */
+  getDailyEvolution: async (usuario_id: number, days: number = 30): Promise<any[]> => {
+    const result = await query(
+      `SELECT date_trunc('day', fecha_hora) as fecha, COUNT(*) as cantidad
+       FROM eventos_caida
+       WHERE usuario_id = $1 AND fecha_hora > NOW() - INTERVAL '${days} days'
+       GROUP BY fecha 
+       ORDER BY fecha ASC`,
+      [usuario_id]
+    );
+    return result.rows;
+  }
 };

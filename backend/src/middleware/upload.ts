@@ -8,7 +8,7 @@ const storage = new CloudinaryStorage({
     folder: 'stepguard_profiles',
     allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'heic'],
     public_id: (req: any, file: any) => `user-${req.params.id}-${Date.now()}`,
-  } as any, // Type assertion needed for some specific params
+  } as any, // Aserción de tipo necesaria para algunos parámetros específicos
 });
 
 const upload = multer({ storage: storage });

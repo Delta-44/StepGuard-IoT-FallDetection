@@ -12,19 +12,19 @@ export class AlertService {
     private static clients: ConnectedClient[] = [];
 
     /**
-     * Add a new SSE client
-     * @param res Express Response object
-     * @param userId User ID extracted from token
-     * @param role User role extracted from token
+     * Agregar un nuevo cliente SSE
+     * @param res Objeto Response de Express
+     * @param userId ID de usuario extraído del token
+     * @param role Rol de usuario extraído del token
      */
     static addClient(res: Response, userId: number, role: 'usuario' | 'cuidador' | 'admin') {
-        // Headers for SSE
+        // Encabezados para SSE
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('Access-Control-Allow-Origin', '*');
 
-        // Initial content
+        // Contenido inicial
         const initData = JSON.stringify({ message: 'Connected to Targeted Alert Stream' });
         res.write(`data: ${initData}\n\n`);
 
@@ -32,7 +32,7 @@ export class AlertService {
         this.clients.push(newClient);
         console.log(`New SSE Client connected (ID: ${userId}, Role: ${role}). Total: ${this.clients.length}`);
 
-        // Remove client on close
+        // Eliminar cliente al cerrar
         res.on('close', () => {
             this.clients = this.clients.filter(c => c.res !== res);
             console.log(`SSE Client disconnected (ID: ${userId}). Total: ${this.clients.length}`);
@@ -40,11 +40,11 @@ export class AlertService {
     }
 
     /**
-     * Broadcast an alert ONLY to relevant clients
-     * @param alert Event data containing 'dispositivo_mac' and the event payload
+     * Transmitir una alerta SOLO a clientes relevantes
+     * @param alert Datos del evento que contienen 'dispositivo_mac' y la carga útil del evento
      */
     static async broadcast(alert: { type: string, data: any }) {
-        // if (this.clients.length === 0) return; // Removed to allow Discord alerts even if no frontend is connected
+
 
         const macAddress = alert.data.dispositivo_mac;
         if (!macAddress) {
@@ -55,17 +55,17 @@ export class AlertService {
         console.log(`Processing alert for device ${macAddress}...`);
 
         try {
-            // 1. Find the User who owns this device
+            // 1. Encontrar al Usuario dueño de este dispositivo
             const deviceOwner = await UsuarioModel.findByDispositivo(macAddress);
 
             const allowedUserIds = new Set<number>();
             const allowedCaregiverIds = new Set<number>();
 
             if (deviceOwner) {
-                // Owner (User) can see it
+                // El Dueño (Usuario) puede verlo
                 allowedUserIds.add(deviceOwner.id);
 
-                // 2. Find Caregivers assigned to this User
+                // 2. Encontrar Cuidadores asignados a este Usuario
                 const caregivers = await UsuarioModel.getCuidadoresAsignados(deviceOwner.id);
                 caregivers.forEach(c => allowedCaregiverIds.add(c.id));
 
@@ -74,7 +74,7 @@ export class AlertService {
                 console.log(`No owner found for device ${macAddress}. Only Admins will see this.`);
             }
 
-            // 3. Send to matching clients
+            // 3. Enviar a clientes coincidentes
             const data = JSON.stringify(alert);
             let sentCount = 0;
 
@@ -103,11 +103,11 @@ export class AlertService {
             console.error('Error broadcasting alert:', err);
         }
 
-        // Send to Discord
+        // Enviar a Discord
         try {
-             await DiscordService.sendAlert(alert);
+            await DiscordService.sendAlert(alert);
         } catch (error) {
-             console.error('Error sending alert to Discord:', error);
+            console.error('Error sending alert to Discord:', error);
         }
     }
 }

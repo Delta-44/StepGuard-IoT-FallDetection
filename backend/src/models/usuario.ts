@@ -8,7 +8,7 @@ export interface Usuario {
   fecha_nacimiento?: Date;
   direccion?: string;
   telefono?: string;
-  dispositivo_mac?: string; // MAC address del dispositivo asignado
+  dispositivo_mac?: string; // Dirección MAC del dispositivo asignado
   fecha_creacion?: Date;
   password_last_changed_at?: Date;
   foto_perfil?: string;
@@ -192,6 +192,17 @@ export const UsuarioModel = {
        FROM usuarios u
        LEFT JOIN dispositivos d ON u.dispositivo_mac = d.mac_address
        ORDER BY u.fecha_creacion DESC`
+    );
+    return result.rows;
+  },
+
+  /**
+   * Buscar usuarios por nombre (coincidencia parcial, case-insensitive)
+   */
+  searchByName: async (termino: string): Promise<Usuario[]> => {
+    const result = await query(
+      `SELECT * FROM usuarios WHERE nombre ILIKE $1`,
+      [`%${termino}%`]
     );
     return result.rows;
   },

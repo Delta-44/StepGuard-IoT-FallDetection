@@ -232,3 +232,38 @@ Base URL: `http://localhost:3000`
 - **URL:** `/api/protected`
 - **Method:** `GET`
 - **Headers:** `Authorization: Bearer <token>`
+
+### Upload Profile Photo
+
+- **URL:** `/api/users/:id/photo`
+- **Method:** `POST`
+- **Headers:** `Authorization: Bearer <token>`
+- **Content-Type:** `multipart/form-data`
+- **Params:** `id` (string)
+- **Body:**
+  - `photo`: File (image)
+
+## Chat (`/api/chat`)
+
+### Send Message
+
+- **URL:** `/api/chat`
+- **Method:** `POST`
+- **Headers:** `Authorization: Bearer <token>`
+- **Body:**
+  ```json
+  {
+    "message": "Hello, how are you?",
+    "history": [
+        { "role": "user", "content": "Hi" },
+        { "role": "assistant", "content": "Hello!" }
+    ]
+  }
+  ```
+
+### Clear History
+
+- **URL:** `/api/chat/history`
+- **Method:** `DELETE`
+- **Headers:** `Authorization: Bearer <token>`
+- **Description:** Clears the chat history for the authenticated user.

@@ -51,7 +51,24 @@ export class DiscordService {
         try {
             const user = await this.client.users.fetch(this.targetUserId);
             if (user) {
-                await user.send(typeof message === 'string' ? { content: message } : { embeds: [message] });
+                if (typeof message === 'string') {
+                    // El límite de Discord es de 2000 caracteres, no te pases
+                    const MAX_LENGTH = 1900;
+                    if (message.length > MAX_LENGTH) {
+                        const chunks = [];
+                        for (let i = 0; i < message.length; i += MAX_LENGTH) {
+                            chunks.push(message.substring(i, i + MAX_LENGTH));
+                        }
+
+                        for (const chunk of chunks) {
+                            await user.send({ content: chunk });
+                        }
+                    } else {
+                        await user.send({ content: message });
+                    }
+                } else {
+                    await user.send({ embeds: [message] });
+                }
                 console.error(`Message sent to Discord user ${this.targetUserId}`);
             } else {
                 console.error(`Discord user ${this.targetUserId} not found.`);
@@ -65,8 +82,8 @@ export class DiscordService {
         if (!this.isReady) return;
 
         const { type, data } = alert;
-        
-        // Customize the message based on alert type/data
+
+        // Personalizar el mensaje basado en el tipo/datos de la alerta
         const embed = new EmbedBuilder()
             .setColor(type === 'caida' || data.severidad === 'critical' || data.severidad === 'high' ? 0xFF0000 : 0xFFA500)
             .setTitle(`🚨 StepGuard Alert: ${type.toUpperCase()}`)
@@ -80,7 +97,7 @@ export class DiscordService {
         if (data.usuario_nombre) {
             embed.addFields({ name: 'User', value: data.usuario_nombre });
         }
-        
+
         if (data.is_fall_detected) {
             embed.setDescription('**FALL DETECTED!** Immediate attention required.');
         } else if (data.is_button_pressed) {
@@ -90,7 +107,7 @@ export class DiscordService {
         }
 
         if (data.notas) {
-             embed.addFields({ name: 'Notes', value: data.notas });
+            embed.addFields({ name: 'Notes', value: data.notas });
         }
 
         await this.sendDirectMessage(embed);

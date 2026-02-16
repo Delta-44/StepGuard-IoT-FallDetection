@@ -9,19 +9,19 @@ export const resolveEvent = async (req: AuthRequest, res: Response) => {
     const eventId = parseInt(req.params.id as string);
     console.log(`[RESOLVE] Attempting to resolve event ${eventId} by user ${req.user?.id}`);
 
-    const atendidoPorId = req.user?.id; // Assumes AuthRequest has user populated (caregiver/admin)
+    const atendidoPorId = req.user?.id; // Asume que AuthRequest tiene usuario poblado (cuidador/admin)
     const userRole = req.user?.role;
 
     if (isNaN(eventId)) {
-            return res.status(400).json({ message: 'Invalid event ID' });
+      return res.status(400).json({ message: 'Invalid event ID' });
     }
 
     if (!atendidoPorId) {
-             return res.status(401).json({ message: 'User not identified' });
+      return res.status(401).json({ message: 'User not identified' });
     }
 
-    // TODO: Optional - Check if user has permission to resolve THIS specific event?
-    // For now, any authorized caregiver/admin can resolve it.
+    // TODO: Opcional - ¿Verificar si el usuario tiene permiso para resolver ESTE evento específico?
+    // Por ahora, cualquier cuidador/admin autorizado puede resolverlo.
 
     const { status, notes, severity } = req.body;
     const finalStatus = status === 'falsa_alarma' ? 'falsa_alarma' : 'atendida';
@@ -29,30 +29,30 @@ export const resolveEvent = async (req: AuthRequest, res: Response) => {
     console.log(`[RESOLVE] Details: status=${finalStatus}, notes=${notes}, severity=${severity}`);
 
     const updatedEvent = await EventoCaidaModel.resolveWithDetails(
-      eventId, 
-      atendidoPorId, 
-      finalStatus, 
-      notes, 
+      eventId,
+      atendidoPorId,
+      finalStatus,
+      notes,
       severity
     );
     console.log(`[RESOLVE] Result for event ${eventId}:`, updatedEvent);
 
     if (!updatedEvent) {
-            return res.status(404).json({ message: 'Event not found' });
+      return res.status(404).json({ message: 'Event not found' });
     }
 
-    // NEW: Fetch populated event to have atendido_por_nombre for the broadcast
+    // NUEVO: Obtener evento poblado para tener atendido_por_nombre para la transmisión
     const populatedEvent = await EventoCaidaModel.findById(eventId);
     console.log(`[RESOLVE] Populated event for broadcast:`, JSON.stringify(populatedEvent, null, 2));
 
     if (populatedEvent && !populatedEvent.atendido_por_nombre) {
-        console.warn(`[RESOLVE] WARNING: atendido_por_nombre is missing. Check JOIN with cuidadores table. atendido_por ID: ${populatedEvent.atendido_por}`);
+      console.warn(`[RESOLVE] WARNING: atendido_por_nombre is missing. Check JOIN with cuidadores table. atendido_por ID: ${populatedEvent.atendido_por}`);
     }
 
-    // Broadcast the resolution so all clients update their UI
+    // Transmitir la resolución para que todos los clientes actualicen su UI
     AlertService.broadcast({
-            type: 'EVENT_RESOLVED',
-            data: populatedEvent || updatedEvent
+      type: 'EVENT_RESOLVED',
+      data: populatedEvent || updatedEvent
     });
 
     res.json({ message: 'Event mark as resolved', event: populatedEvent || updatedEvent });
