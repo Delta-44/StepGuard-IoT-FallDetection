@@ -154,7 +154,7 @@ void enviarHeartbeat()
     static unsigned long ultimoHeartbeat = 0;
     unsigned long ahora = millis();
 
-    int segundos = 7000;
+    int segundos = 1000;
 
     // Enviamos el pulso cada 7 segundos
     if (ahora - ultimoHeartbeat >= segundos)

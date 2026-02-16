@@ -55,6 +55,13 @@ export class ESP32Service {
         // 5. Check for fall detection and button press
         if (telemetry.isFallDetected || telemetry.isButtonPressed) {
 
+            // Check MAINTENANCE MODE
+            const isMaintenance = await ESP32Cache.getMaintenanceMode(macAddress);
+            if (isMaintenance) {
+                console.log(`[Maintenance Mode] Ignoring alert from ${macAddress}`);
+                return { macAddress, ...telemetry, note: "Maintenance Mode Active - Alerts Suppressed" };
+            }
+
             // Get user associated with this device
             const usuario = await DispositivoModel.getUsuarioAsignado(macAddress);
             const usuarioId = usuario ? usuario.id : undefined;

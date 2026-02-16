@@ -2,7 +2,7 @@
 
 Documentación de los tests unitarios que cubren todas las funcionalidades del backend de StepGuard.
 
-## Estructura
+## 📋 Descripción General
 
 Los tests se encuentran en `backend/test/` y están organizados por componentes:
 
@@ -331,8 +331,117 @@ describe('authController - forgotPassword', () => {
 });
 ```
 
-## Notas importantes
+### Ejemplo 2: Test con Mock de BD
+```typescript
+test('debe crear usuario cuando no existe', async () => {
+  mockedUsuario.findByEmail.mockResolvedValue(null);
+  const newUser = createMockUser({ email: 'new@test.com' });
+  mockedUsuario.create.mockResolvedValue(newUser as any);
 
-- **No requieren DB real**: Los tests mockean los modelos y servicios.
-- **Aislados y rápidos**: Cada test es independiente y se ejecuta sin estado compartido.
-- **Facilitan debugging**: Si un test falla, se muestra claramente cuál fue la expectativa no cumplida.
+  const req = mockRequest({ body: { email: 'new@test.com', password: 'Pass123!', name: 'New' } });
+  const res = mockResponse();
+
+  await registerUsuario(req, res);
+
+  expect(mockedUsuario.create).toHaveBeenCalled();
+  expect(res.status).toHaveBeenCalledWith(201);
+});
+```
+
+### Ejemplo 3: Test con Manejo de Errores
+```typescript
+test('debe retornar 500 si error en BD', async () => {
+  mockedUsuario.findAll.mockRejectedValue(new Error('Database error'));
+
+  const req = mockRequest();
+  const res = mockResponse();
+
+  await getUsers(req, res);
+
+  expect(res.status).toHaveBeenCalledWith(500);
+  expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ error: expect.any(String) }));
+});
+```
+
+## ✨ Características de los Tests Mejorados
+
+✅ **Cobertura Completa**: Casos exitosos, de error y edge cases
+✅ **Validación Robusta**: Tests para entrada inválida, vacía y malformada
+✅ **Seguridad**: Tests de rate limiting, validación de tokens, prevención de enumeración
+✅ **Manejo de Errores**: Todos los escenarios de error de BD están cubiertos
+✅ **Aislamiento**: Cada test es independiente sin estado compartido
+✅ **Claridad**: Nombres descriptivos y comentarios útiles
+✅ **Velocidad**: No requieren BD real, se ejecutan en segundos
+✅ **Builders**: Utilidades reutilizables para datos de prueba
+
+## 🔍 Mejores Prácticas
+
+1. **Siempre limpiar mocks**: Usar `jest.clearAllMocks()` en `beforeEach`
+2. **Usar builders**: Aprovechar `createMockUser()`, `createMockCuidador()`
+3. **Nombres descriptivos**: Tests deben explicar qué validan
+4. **Una expectativa principal**: Cada test debe verificar un comportamiento específico
+5. **Manejar async/await**: Todos los tests de controladores son async
+6. **Verificar status y body**: Comprobar tanto el código HTTP como la respuesta
+
+## 🐛 Solución de Problemas
+
+### Tests no se encuentran
+```powershell
+# Verifica que la carpeta test existe
+dir test
+
+# Verifica que jest.config.cjs existe en backend/
+dir jest.config.cjs
+```
+
+### Error "Cannot find module"
+```powershell
+# Reinstala dependencias
+npm install
+
+# Limpia caché de jest
+npx jest --clearCache
+```
+
+### Tests fallan intermitentemente
+- Verifica que `jest.clearAllMocks()` se llama en `beforeEach`
+- Asegúrate de no usar valores globales compartidos entre tests
+
+### Cobertura muy baja
+```powershell
+# Genera reporte de cobertura detallado
+npm test -- --coverage --coverageReporters=text-summary
+```
+
+## 📚 Recursos Adicionales
+
+- [Jest Documentation](https://jestjs.io/docs/getting-started)
+- [TypeScript Jest Setup](https://jestjs.io/docs/getting-started#using-typescript)
+- [Testing Best Practices](https://jestjs.io/docs/expect)
+
+## 🎯 Estado de Completion
+
+- ✅ Tests de autenticación (authController) - 38 tests
+- ✅ Tests de registro (registerController) - 28 tests
+- ✅ Tests de gestión de usuarios (userController) - 28 tests
+- ✅ Tests de chat (chatController) - 14 tests
+- ✅ Tests de eventos de caída (eventsController) - 15 tests
+- ⏳ Tests de integración con BD real (para ambiente staging)
+- ⏳ Tests de endpoints de ESP32 (esp32Controller)
+- ⏳ Tests de middleware de autenticación
+- ⏳ Tests end-to-end con Supertest
+
+## 📞 Soporte
+
+Si encuentras problemas con los tests, verifica:
+1. Versión de Node.js >= 16
+2. Todas las dependencias instaladas: `npm install`
+3. Archivo jest.config.cjs presente en `backend/`
+4. Variables de entorno en `.env.example` si es necesario
+
+##  Estad�sticas Finales
+
+\\\Test Suites: 5 passed, 5 total Tests:       123 passed, 123 total Pass Rate:   100%Execution Time: ~3-4 segundos\\\`n
+**Desglose por Suite:**- authController.spec.ts: 38/38 tests - registerController.spec.ts: 28/28 tests - userController.spec.ts: 28/28 tests - chatController.spec.ts: 14/14 tests - eventsController.spec.ts: 15/15 tests 
+
+Última actualización: Febrero 13, 2026

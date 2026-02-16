@@ -1,80 +1,376 @@
-/* --- CABECERA (CORREGIDO OVERLAP) --- */
-.modal-header { 
-  text-align: center; 
-  margin-bottom: 20px; 
-  position: relative; 
-  padding-top: 30px; /* 👈 ESTO ARREGLA QUE EL BOTÓN PISE EL TÍTULO */
-}
-.modal-header h2 { margin: 0; color: #333; font-size: 1.5rem; font-weight: 700; }
-.modal-header p { color: #666; margin: 5px 0 0; font-size: 0.9rem; }
+/* =========================================
+   REGISTER COMPONENT CSS - COMPLETO Y FINAL
+   ========================================= */
 
-/* Botón Volver */
+/* --- HEADER & BACK BUTTON --- */
+.modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative;
+  padding-top: 45px;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.modal-header p {
+  color: #6b7280;
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .back-btn {
-  position: absolute; left: 0; top: 0;
-  background: none; border: none; color: #555;
-  font-weight: 600; cursor: pointer; font-size: 0.85rem;
-  padding: 5px 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 10;
 }
-.back-btn:hover { color: #000; text-decoration: underline; }
 
-/* --- SELECCIÓN DE ROL --- */
-.role-selection {
-  display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;
+.back-btn:hover {
+  background-color: #f3f4f6;
+  color: #111827;
 }
-.role-card {
-  background: #f8f9fa; border: 2px solid transparent; padding: 15px;
-  border-radius: 12px; cursor: pointer; transition: all 0.2s ease;
-  display: flex; align-items: center; gap: 15px; text-align: left;
-}
-.role-card:hover {
-  background: white; border-color: #007bff;
-  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.1); transform: translateY(-2px);
-}
-.role-card.caregiver:hover { border-color: #28a745; }
 
-.role-icon { font-size: 1.8rem; }
-.role-card h3 { margin: 0 0 3px; font-size: 1rem; color: #333; }
-.role-card p { margin: 0; font-size: 0.8rem; color: #666; line-height: 1.3; }
-
-/* --- FORMULARIO --- */
-/* Scroll si hay muchos campos */
+/* --- FORMULARIO (Inputs) --- */
 form {
-  max-height: 60vh; /* Altura máxima */
-  overflow-y: auto; /* Scroll si se pasa */
-  padding: 0 5px; /* Espacio para que no corte el foco */
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
-.input-group { margin-bottom: 12px; text-align: left; }
-.input-group label { display: block; margin-bottom: 4px; font-weight: 600; font-size: 0.85rem; color: #444; }
+.input-group {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
 .input-group input {
-  width: 100%; padding: 10px; border: 2px solid #eee; border-radius: 8px; font-size: 0.95rem;
-  box-sizing: border-box; font-family: inherit;
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #ffffff;
+  color: #111827;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
-.input-group input:focus { border-color: #007bff; outline: none; }
 
-/* Inputs en línea (opcional) */
-.row-2-col { display: flex; gap: 10px; }
-.row-2-col .input-group { flex: 1; }
+.input-group input:focus {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
 
+.input-group input::placeholder {
+  color: #9ca3af;
+}
+
+/* Row for side-by-side inputs */
+.row-2-col {
+  display: flex;
+  gap: 16px;
+}
+
+.row-2-col .input-group {
+  flex: 1;
+}
+
+.required {
+  color: #dc2626;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+/* --- BOTÓN PRINCIPAL (REGISTRAR) --- */
 .btn-full {
-  width: 100%; padding: 12px; border: none; border-radius: 10px;
-  color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 10px;
-  transition: background 0.3s; font-family: inherit;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
 }
-.black-btn { background: #222; }
-.black-btn:hover { background: black; }
-.btn-full:disabled { background: #ccc; cursor: not-allowed; }
 
-.modal-footer { margin-top: 15px; text-align: center; font-size: 0.85rem; color: #666; }
-.modal-footer a { color: #007bff; font-weight: 700; cursor: pointer; text-decoration: none; }
-.required { color: #dc3545; font-weight: bold; margin-left: 2px; }
+.black-btn {
+  background-color: #111827;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.black-btn:hover {
+  background-color: #000000;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.btn-full:disabled {
+  background: #9ca3af !important;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- FOOTER --- */
+.modal-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.modal-footer a {
+  color: #2563eb;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: color 0.2s;
+}
+
+.modal-footer a:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
 
 /* ================================================
-   RESPONSIVE DESIGN
+   PÁGINA "¿QUIÉN ERES?" - MÁS COMPACTA
    ================================================ */
 
-/* Tablets y escritorios pequeños (max-width: 1024px) */
-@media (max-width: 1024px) {
+/* Contenedor principal */
+.p-4.sm\:p-6.md\:p-8.text-center {
+  padding: 1.5rem 1.5rem 1rem 1.5rem !important;
+}
+
+/* Título "¿Quién eres?" */
+.text-2xl.sm\:text-3xl.font-bold.text-gray-800 {
+  font-size: 1.75rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Subtítulo */
+.text-sm.sm\:text-base.text-gray-600.mb-6 {
+  font-size: 0.875rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Contenedor de tarjetas */
+.px-4.sm\:px-6.md\:px-8.pb-6.md\:pb-8.space-y-3 {
+  padding: 0 1.5rem 1.5rem 1.5rem !important;
+}
+
+/* Tarjetas individuales */
+.bg-gradient-to-r.from-blue-50.to-indigo-50,
+.bg-gradient-to-r.from-pink-50.to-purple-50 {
+  padding: 1.25rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+/* Iconos */
+.p-3.md\:p-4.bg-blue-500.text-white.rounded-xl,
+.p-3.md\:p-4.bg-pink-500.text-white.rounded-xl {
+  padding: 0.875rem !important;
+}
+
+/* Títulos de tarjetas */
+.text-lg.md\:text-xl.font-bold.text-gray-800.mb-1 {
+  font-size: 1.125rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+/* Descripciones */
+.text-gray-600.text-xs.md\:text-sm {
+  font-size: 0.8125rem !important;
+  line-height: 1.3 !important;
+}
+
+/* Footer "¿Ya tienes cuenta?" */
+.px-4.sm\:px-6.md\:px-8.pb-6.md\:pb-8.text-center {
+  padding: 0.75rem 1.5rem 1.5rem 1.5rem !important;
+  font-size: 0.875rem !important;
+}
+
+/* ================================================
+   DARK MODE
+   ================================================ */
+
+@media (prefers-color-scheme: dark) {
+  html.dark .modal-header h2 {
+    color: #f3f4f6;
+  }
+
+  html.dark .modal-header p {
+    color: #9ca3af;
+  }
+
+  html.dark .back-btn {
+    color: #9ca3af;
+  }
+
+  html.dark .back-btn:hover {
+    background-color: #374151;
+    color: #f3f4f6;
+  }
+
+  html.dark .input-group label {
+    color: #d1d5db;
+  }
+
+  html.dark .input-group input {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+  }
+
+  html.dark .input-group input:focus {
+    border-color: #60a5fa;
+    background-color: #111827;
+  }
+
+  html.dark .input-group input::placeholder {
+    color: #6b7280;
+  }
+
+  html.dark .required {
+    color: #ef4444;
+  }
+
+  html.dark .black-btn {
+    background-color: #374151;
+    border: 1px solid #4b5563;
+  }
+
+  html.dark .black-btn:hover {
+    background-color: #4b5563;
+  }
+
+  html.dark .modal-footer {
+    color: #9ca3af;
+  }
+
+  html.dark .modal-footer a {
+    color: #60a5fa;
+  }
+
+  html.dark .modal-footer a:hover {
+    color: #93c5fd;
+  }
+
+  /* Modales adicionales */
+  html.dark .fixed .bg-white {
+    background-color: #1e293b;
+  }
+
+  html.dark .text-gray-900,
+  html.dark .text-gray-800 {
+    color: #f1f5f9;
+  }
+
+  html.dark .text-gray-700 {
+    color: #e2e8f0;
+  }
+
+  html.dark .text-gray-600 {
+    color: #cbd5e1;
+  }
+
+  html.dark .text-gray-500 {
+    color: #94a3b8;
+  }
+
+  /* Tarjetas "¿Quién eres?" en dark */
+  html.dark .bg-gradient-to-r.from-blue-50 {
+    background: linear-gradient(to right, rgba(30, 58, 138, 0.3), rgba(30, 64, 175, 0.3)) !important;
+    border-color: #1e40af !important;
+  }
+
+  html.dark .bg-gradient-to-r.from-pink-50 {
+    background: linear-gradient(to right, rgba(159, 18, 57, 0.3), rgba(134, 25, 143, 0.3)) !important;
+    border-color: #9f1239 !important;
+  }
+
+  html.dark .text-gray-800.mb-1 {
+    color: #f1f5f9 !important;
+  }
+
+  html.dark input.text-center {
+    background-color: #1f2937;
+    color: #f1f5f9;
+    border-color: #374151;
+  }
+
+  html.dark .text-red-500 {
+    color: #ef4444;
+  }
+
+  html.dark .text-red-600 {
+    color: #dc2626;
+  }
+
+  html.dark .border-red-500 {
+    border-color: #ef4444;
+  }
+
+  html.dark .border-blue-200 {
+    border-color: #1e40af;
+  }
+
+  html.dark .border-pink-200 {
+    border-color: #9f1239;
+  }
+
+  html.dark a.text-blue-600 {
+    color: #60a5fa;
+  }
+}
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+@media (max-width: 640px) {
+  .modal-header {
+    padding-top: 40px;
+  }
+
   .modal-header h2 {
     font-size: 1.4rem;
   }
@@ -83,241 +379,37 @@ form {
     font-size: 0.85rem;
   }
 
-  .role-card {
-    padding: 14px;
-  }
-
-  .role-card h3 {
-    font-size: 0.95rem;
-  }
-
-  .role-card p {
-    font-size: 0.75rem;
+  .back-btn {
+    font-size: 0.85rem;
+    padding: 6px 10px;
   }
 
   .input-group input {
-    padding: 9px;
+    padding: 10px 14px;
     font-size: 0.9rem;
   }
 
   .btn-full {
-    padding: 11px;
-    font-size: 0.95rem;
-  }
-}
-
-/* Tablets (max-width: 768px) */
-@media (max-width: 768px) {
-  .modal-header {
-    padding-top: 25px;
-    margin-bottom: 18px;
-  }
-
-  .modal-header h2 {
-    font-size: 1.35rem;
-  }
-
-  .modal-header p {
-    font-size: 0.8rem;
-  }
-
-  .back-btn {
-    font-size: 0.8rem;
-  }
-
-  .role-selection {
-    gap: 12px;
-  }
-
-  .role-card {
     padding: 12px;
-    gap: 12px;
-  }
-
-  .role-icon {
-    font-size: 1.6rem;
-  }
-
-  .role-card h3 {
-    font-size: 0.9rem;
-  }
-
-  .role-card p {
-    font-size: 0.75rem;
-  }
-
-  form {
-    max-height: 55vh;
-  }
-
-  .input-group {
-    margin-bottom: 11px;
-  }
-
-  .input-group label {
-    font-size: 0.8rem;
-  }
-
-  .input-group input {
-    padding: 9px;
-    font-size: 0.85rem;
-  }
-
-  .btn-full {
-    padding: 11px;
-    font-size: 0.9rem;
-  }
-
-  .modal-footer {
-    margin-top: 12px;
-    font-size: 0.8rem;
-  }
-}
-
-/* Móviles (max-width: 480px) */
-@media (max-width: 480px) {
-  .modal-header {
-    padding-top: 22px;
-    margin-bottom: 16px;
-  }
-
-  .modal-header h2 {
-    font-size: 1.25rem;
-  }
-
-  .modal-header p {
-    font-size: 0.75rem;
-  }
-
-  .back-btn {
-    font-size: 0.75rem;
-    padding: 4px 0;
-  }
-
-  .role-selection {
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-
-  .role-card {
-    padding: 10px;
-    gap: 10px;
-    border-radius: 10px;
-  }
-
-  .role-icon {
-    font-size: 1.5rem;
-  }
-
-  .role-card h3 {
-    font-size: 0.85rem;
-  }
-
-  .role-card p {
-    font-size: 0.7rem;
-  }
-
-  form {
-    max-height: 50vh;
-    padding: 0 3px;
-  }
-
-  .input-group {
-    margin-bottom: 10px;
-  }
-
-  .input-group label {
-    font-size: 0.75rem;
-    margin-bottom: 3px;
-  }
-
-  .input-group input {
-    padding: 8px;
-    font-size: 0.8rem;
-    border-radius: 7px;
+    font-size: 0.95rem;
   }
 
   .row-2-col {
-    gap: 8px;
+    flex-direction: column;
+    gap: 0;
   }
 
-  .btn-full {
-    padding: 10px;
-    font-size: 0.85rem;
-    border-radius: 8px;
-    margin-top: 8px;
+  /* Tarjetas "¿Quién eres?" en móvil */
+  .p-4.sm\:p-6.md\:p-8.text-center {
+    padding: 1rem !important;
   }
 
-  .modal-footer {
-    margin-top: 10px;
-    font-size: 0.75rem;
-  }
-}
-
-/* Móviles muy pequeños (max-width: 359px) */
-@media (max-width: 359px) {
-  .modal-header {
-    padding-top: 20px;
-    margin-bottom: 14px;
+  .text-2xl.sm\:text-3xl.font-bold {
+    font-size: 1.5rem !important;
   }
 
-  .modal-header h2 {
-    font-size: 1.15rem;
-  }
-
-  .modal-header p {
-    font-size: 0.7rem;
-  }
-
-  .back-btn {
-    font-size: 0.7rem;
-  }
-
-  .role-selection {
-    gap: 8px;
-  }
-
-  .role-card {
-    padding: 8px;
-    gap: 8px;
-    border-radius: 8px;
-  }
-
-  .role-icon {
-    font-size: 1.3rem;
-  }
-
-  .role-card h3 {
-    font-size: 0.8rem;
-  }
-
-  .role-card p {
-    font-size: 0.65rem;
-  }
-
-  form {
-    max-height: 45vh;
-  }
-
-  .input-group {
-    margin-bottom: 8px;
-  }
-
-  .input-group label {
-    font-size: 0.7rem;
-  }
-
-  .input-group input {
-    padding: 7px;
-    font-size: 0.75rem;
-  }
-
-  .btn-full {
-    padding: 9px;
-    font-size: 0.8rem;
-  }
-
-  .modal-footer {
-    font-size: 0.7rem;
+  .bg-gradient-to-r.from-blue-50,
+  .bg-gradient-to-r.from-pink-50 {
+    padding: 1rem !important;
   }
 }

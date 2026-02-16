@@ -1,1 +1,512 @@
-﻿/* CSS limpio - usando solo Tailwind */
+﻿/* ================================================
+   MINIMALIST ADMIN DASHBOARD STYLES
+   ================================================ */
+
+/* Dashboard Background */
+.dashboard-bg {
+  background-color: var(--bg-primary);
+}
+
+html.dark .dashboard-bg,
+:host-context(.dark) .dashboard-bg {
+  background-color: #0f172a !important;
+}
+
+/* Date Card */
+.date-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+
+html.dark .date-card,
+:host-context(.dark) .date-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+/* Clean Card Layout */
+.card-minimal {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
+}
+
+.card-minimal:hover {
+  border-color: var(--accent-color);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Data Tables / Incident Feed */
+.incident-row {
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.incident-row:hover {
+  background-color: var(--bg-primary);
+  transform: scale(1.002);
+  box-shadow: inset 4px 0 0 var(--accent-color);
+}
+
+.status-indicator {
+  width: 10px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Animations - Subtle Only */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes chart-rise {
+  from { height: 0; opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-up {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+.animate-chart-rise {
+  animation: chart-rise 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in-up 0.3s ease-out forwards;
+}
+
+/* ================================================
+   TABLA DE INCIDENTES - LIGHT & DARK MODE
+   ================================================ */
+
+/* LIGHT MODE (default) */
+.incidents-table-container {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.incidents-table-header {
+  background-color: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.incidents-table thead {
+  background-color: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.incidents-table thead th {
+  color: #111827 !important;
+}
+
+.incidents-table tbody {
+  background-color: #ffffff !important;
+}
+
+.incidents-table tbody tr {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+}
+
+.incidents-table tbody tr:hover {
+  background-color: #f9fafb !important;
+}
+
+.incidents-table tbody td {
+  color: #111827 !important;
+}
+
+.incidents-table .text-secondary {
+  color: #6b7280 !important;
+}
+
+.incidents-table .user-avatar {
+  background-color: #f3f4f6 !important;
+  border: 1px solid #e5e7eb !important;
+  color: #374151 !important;
+}
+
+/* DARK MODE */
+html.dark .incidents-table-container,
+:host-context(.dark) .incidents-table-container {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .incidents-table-header,
+:host-context(.dark) .incidents-table-header {
+  background-color: #1e293b !important;
+  border-bottom-color: #334155 !important;
+}
+
+html.dark .incidents-table thead,
+:host-context(.dark) .incidents-table thead {
+  background-color: #1e293b !important;
+  border-bottom-color: #334155 !important;
+}
+
+html.dark .incidents-table thead th,
+:host-context(.dark) .incidents-table thead th {
+  color: #e2e8f0 !important;
+}
+
+html.dark .incidents-table tbody,
+:host-context(.dark) .incidents-table tbody {
+  background-color: #1e293b !important;
+}
+
+html.dark .incidents-table tbody tr,
+:host-context(.dark) .incidents-table tbody tr {
+  background-color: #1e293b !important;
+  border-bottom-color: #334155 !important;
+}
+
+html.dark .incidents-table tbody tr:hover,
+:host-context(.dark) .incidents-table tbody tr:hover {
+  background-color: #334155 !important;
+}
+
+html.dark .incidents-table tbody td,
+:host-context(.dark) .incidents-table tbody td {
+  color: #f8fafc !important;
+}
+
+html.dark .incidents-table .text-secondary,
+:host-context(.dark) .incidents-table .text-secondary {
+  color: #94a3b8 !important;
+}
+
+html.dark .incidents-table .user-avatar,
+:host-context(.dark) .incidents-table .user-avatar {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+/* ================================================
+   MODAL: GESTIONAR INCIDENCIA
+   ================================================ */
+
+/* LIGHT MODE */
+.modal-resolution-container {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.modal-resolution-header {
+  background-color: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.modal-resolution-header h2 {
+  color: #1f2937 !important;
+}
+
+.modal-resolution-header p {
+  color: #6b7280 !important;
+}
+
+.modal-info-card {
+  background-color: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.modal-info-card .info-label {
+  color: #9ca3af !important;
+}
+
+.modal-info-card .info-value {
+  color: #111827 !important;
+}
+
+.modal-label {
+  color: #374151 !important;
+}
+
+.modal-select,
+.modal-textarea {
+  background-color: #f9fafb !important;
+  border: 2px solid #e5e7eb !important;
+  color: #111827 !important;
+}
+
+.modal-select:focus,
+.modal-textarea:focus {
+  border-color: #3b82f6 !important;
+  background-color: #ffffff !important;
+}
+
+.modal-select::placeholder,
+.modal-textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+.modal-footer {
+  background-color: #f9fafb !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* DARK MODE */
+html.dark .modal-resolution-container,
+:host-context(.dark) .modal-resolution-container {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .modal-resolution-header,
+:host-context(.dark) .modal-resolution-header {
+  background-color: #1e293b !important;
+  border-bottom-color: #334155 !important;
+}
+
+html.dark .modal-resolution-header h2,
+:host-context(.dark) .modal-resolution-header h2 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .modal-resolution-header p,
+:host-context(.dark) .modal-resolution-header p {
+  color: #94a3b8 !important;
+}
+
+html.dark .modal-info-card,
+:host-context(.dark) .modal-info-card {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark .modal-info-card .info-label,
+:host-context(.dark) .modal-info-card .info-label {
+  color: #64748b !important;
+}
+
+html.dark .modal-info-card .info-value,
+:host-context(.dark) .modal-info-card .info-value {
+  color: #f1f5f9 !important;
+}
+
+html.dark .modal-label,
+:host-context(.dark) .modal-label {
+  color: #cbd5e1 !important;
+}
+
+html.dark .modal-select,
+html.dark .modal-textarea,
+:host-context(.dark) .modal-select,
+:host-context(.dark) .modal-textarea {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .modal-select:focus,
+html.dark .modal-textarea:focus,
+:host-context(.dark) .modal-select:focus,
+:host-context(.dark) .modal-textarea:focus {
+  border-color: #3b82f6 !important;
+  background-color: #0f172a !important;
+}
+
+html.dark .modal-footer,
+:host-context(.dark) .modal-footer {
+  background-color: #1e293b !important;
+  border-top-color: #334155 !important;
+}
+
+/* ================================================
+   MODAL: ESTADÍSTICAS DETALLADAS
+   ================================================ */
+
+/* LIGHT MODE */
+.modal-stats-container {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.modal-stats-header {
+  background-color: #f9fafb !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.modal-stats-header h2 {
+  color: #1f2937 !important;
+}
+
+.modal-stats-body {
+  background-color: #ffffff !important;
+}
+
+.modal-stats-chart-container {
+  border-bottom: 2px solid #e5e7eb !important;
+}
+
+.modal-stats-label {
+  color: #6b7280 !important;
+}
+
+.stats-info-card {
+  background-color: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.stats-info-card.blue {
+  background-color: #eff6ff !important;
+  border-color: #dbeafe !important;
+}
+
+.stats-info-label {
+  color: #6b7280 !important;
+}
+
+.stats-info-label.blue {
+  color: #2563eb !important;
+}
+
+.stats-info-value {
+  color: #111827 !important;
+}
+
+.stats-info-value.blue {
+  color: #1e40af !important;
+}
+
+.modal-stats-footer {
+  background-color: #f9fafb !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* DARK MODE */
+html.dark .modal-stats-container,
+:host-context(.dark) .modal-stats-container {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html.dark .modal-stats-header,
+:host-context(.dark) .modal-stats-header {
+  background-color: #1e293b !important;
+  border-bottom-color: #334155 !important;
+}
+
+html.dark .modal-stats-header h2,
+:host-context(.dark) .modal-stats-header h2 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .modal-stats-body,
+:host-context(.dark) .modal-stats-body {
+  background-color: #1e293b !important;
+}
+
+html.dark .modal-stats-chart-container,
+:host-context(.dark) .modal-stats-chart-container {
+  border-bottom-color: #334155 !important;
+}
+
+html.dark .modal-stats-label,
+:host-context(.dark) .modal-stats-label {
+  color: #64748b !important;
+}
+
+html.dark .stats-info-card,
+:host-context(.dark) .stats-info-card {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html.dark .stats-info-card.blue,
+:host-context(.dark) .stats-info-card.blue {
+  background-color: #1e3a8a !important;
+  border-color: #1e40af !important;
+}
+
+html.dark .stats-info-label,
+:host-context(.dark) .stats-info-label {
+  color: #64748b !important;
+}
+
+html.dark .stats-info-label.blue,
+:host-context(.dark) .stats-info-label.blue {
+  color: #3b82f6 !important;
+}
+
+html.dark .stats-info-value,
+:host-context(.dark) .stats-info-value {
+  color: #f1f5f9 !important;
+}
+
+html.dark .stats-info-value.blue,
+:host-context(.dark) .stats-info-value.blue {
+  color: #60a5fa !important;
+}
+
+html.dark .modal-stats-footer,
+:host-context(.dark) .modal-stats-footer {
+  background-color: #1e293b !important;
+  border-top-color: #334155 !important;
+}
+
+/* ================================================
+   DARK MODE INTEGRATION (Variables CSS)
+   ================================================ */
+@layer utilities {
+  :root {
+    --accent-color: #2563eb;
+    --accent-color-rgb: 37, 99, 235;
+    --bg-primary: #f9fafb;
+    --bg-secondary: #ffffff;
+    --border-color: #e5e7eb;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+  }
+
+  html.dark,
+  :host-context(.dark) {
+    --accent-color: #3b82f6;
+    --accent-color-rgb: 59, 130, 246;
+    --bg-secondary: #1e293b;
+    --bg-primary: #0f172a;
+    --border-color: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+  }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-track,
+:host-context(.dark) .custom-scrollbar::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb,
+:host-context(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+html.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+:host-context(.dark) .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
