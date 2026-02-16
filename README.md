@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- Cabecera con gradiente -->
-<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=200&section=header&text=Fall%20Detection%20System&fontSize=45&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20Inteligente%20de%20Detección%20de%20Caídas&descSize=16&descAlignY=55" width="100%"/>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,16,18,20&height=200&section=header&text=%20StepGuard&fontSize=45&fontColor=fff&animation=twinkling&fontAlignY=35&desc=Sistema%20Inteligente%20de%20Detección%20de%20Caídas&descSize=16&descAlignY=55" width="100%"/>
 
 <!-- Badges con colores personalizados -->
 <p>
