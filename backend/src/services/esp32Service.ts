@@ -5,9 +5,9 @@ import { AlertService } from './alertService';
 
 export class ESP32Service {
     /**
-     * Process incoming telemetry data from either HTTP or MQTT
-     * @param data - The raw data payload
-     * @returns Processed data object or throws error
+     * Procesa datos de telemetría entrantes desde HTTP o MQTT
+     * @param data - La carga útil de datos sin procesar
+     * @returns Objeto de datos procesados o lanza un error
      */
     static async processTelemetry(data: any) {
         const { macAddress, ...telemetry } = data;
@@ -16,18 +16,17 @@ export class ESP32Service {
             throw new Error('Mac Address is required');
         }
 
-        // 1. Save current state to Redis
+        // 1. Guardar estado actual en Redis
         await ESP32Cache.setDeviceData(macAddress, telemetry);
 
-        // 2. Add to history in Redis
+        // 2. Agregar al historial en Redis
         await ESP32Cache.addDeviceHistory(macAddress, telemetry);
 
-        // 3. Update status in Redis -> MOVED to separate method
-        // processTelemetry no longer handles status updates based on payload
+        // 3. Las actualizaciones de estado se manejan por separado en updateDeviceStatus
 
-        // 4. Persistence to PostgreSQL
+        // 4. Persistir en PostgreSQL
         try {
-            // Try to update existing device
+            // Actualizar dispositivo existente
             const updatedDevice = await DispositivoModel.actualizarDatosESP32(
                 macAddress,
                 telemetry.impact_count || 0,
@@ -35,12 +34,12 @@ export class ESP32Service {
             );
 
             if (!updatedDevice) {
-                console.log(`New device detected: ${macAddress}. Auto-creating...`);
-                // Auto-create device if it doesn't exist
-                const defaultName = `ESP32 Device ${macAddress}`;
+                console.log(`Nuevo dispositivo detectado: ${macAddress}. Auto-creando...`);
+                // Auto-crear dispositivo si no existe
+                const defaultName = `Dispositivo ESP32 ${macAddress}`;
                 await DispositivoModel.create(macAddress, defaultName);
 
-                // Update with the fresh data
+                // Actualizar con los datos recientes
                 await DispositivoModel.actualizarDatosESP32(
                     macAddress,
                     telemetry.impact_count || 0,
@@ -48,21 +47,21 @@ export class ESP32Service {
                 );
             }
         } catch (dbError) {
-            console.error('Error persisting to PostgreSQL:', dbError);
-            // Non-blocking error: we continue even if DB write fails (Redis is primary for realtime)
+            console.error('Error persistiendo en PostgreSQL:', dbError);
+            // Error no bloqueante
         }
 
-        // 5. Check for fall detection and button press
+        // 5. Verificar detección de caídas y presión de botón
         if (telemetry.isFallDetected || telemetry.isButtonPressed) {
 
-            // Check MAINTENANCE MODE
+            // Verificar MODO MANTENIMIENTO
             const isMaintenance = await ESP32Cache.getMaintenanceMode(macAddress);
             if (isMaintenance) {
                 console.log(`[Maintenance Mode] Ignoring alert from ${macAddress}`);
                 return { macAddress, ...telemetry, note: "Maintenance Mode Active - Alerts Suppressed" };
             }
 
-            // Get user associated with this device
+            // Obtener usuario asociado con este dispositivo
             const usuario = await DispositivoModel.getUsuarioAsignado(macAddress);
             const usuarioId = usuario ? usuario.id : undefined;
 
@@ -120,17 +119,17 @@ export class ESP32Service {
     }
 
     /**
-     * Get device data by MAC address
+     * Obtener datos del dispositivo por dirección MAC
      */
     static async getDeviceData(macAddress: string) {
         return await ESP32Cache.getDeviceData(macAddress);
     }
 
     /**
-     * Update device status (online/offline)
+     * Actualizar estado del dispositivo (online/offline)
      */
     static async updateDeviceStatus(macAddress: string, status: string | boolean) {
-        // Normalize status to boolean if it's a string 'online'/'offline' or similar
+        // Normalizar estado a booleano si es cadena 'online'/'offline' o similar
         let isOnline = false;
         if (typeof status === 'string') {
             isOnline = status.toLowerCase() === 'online';
@@ -138,63 +137,60 @@ export class ESP32Service {
             isOnline = !!status;
         }
 
-        // Check previous status BEFORE updating Redis to detect transitions
+        // Verificar estado anterior para transiciones
         const previousStatus = await ESP32Cache.getDeviceStatus(macAddress);
-        console.log(`[DEBUG] Transition Check: Previous=${previousStatus}, New=${isOnline}`);
+        // console.log(`[DEBUG] Transition Check: Previous=${previousStatus}, New=${isOnline}`);
 
         await ESP32Cache.setDeviceStatus(macAddress, isOnline);
-        console.log(`device ${macAddress} is ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+        // console.log(`device ${macAddress} is ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
 
-        // Sync with PostgreSQL IF:
-        // 1. New status is OFFLINE
-        // 2. OR New status is ONLINE but previous was OFFLINE/UNKNOWN (Transition)
-        if (!isOnline || (isOnline && !previousStatus)) {
-            try {
-                await DispositivoModel.updateEstado(macAddress, isOnline);
-                console.log(`Postgres updated: device ${macAddress} transitioned to ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
-            } catch (error) {
-                console.error(`Error syncing status to Postgres for ${macAddress}:`, error);
-            }
+        // Sincronizar con PostgreSQL al cambiar de estado
+        try {
+            await DispositivoModel.updateEstado(macAddress, isOnline);
+            // console.log(`Postgres updated: device ${macAddress} transitioned to ${isOnline ? 'ONLINE' : 'OFFLINE'}`);
+        } catch (error) {
+            console.error(`Error syncing status to Postgres for ${macAddress}:`, error);
         }
     }
 
+
     /**
-     * Register a heartbeat from a device.
-     * Updates the ZSET score and ensures status is online.
+     * Registrar un latido (heartbeat) de un dispositivo.
+     * Actualiza el puntaje ZSET y asegura que el estado sea online.
      */
     static async registerHeartbeat(macAddress: string) {
         await ESP32Cache.updateHeartbeat(macAddress);
 
-        // Ensure it is marked as online (logic inside handles transition if needed)
-        // Optimization: We could check if it's already online to save calls, 
-        // but updateDeviceStatus handles transition checks efficiently enough.
+        // Asegurar que esté marcado como online (la lógica interna maneja la transición si es necesaria)
+        // Optimización: Podríamos verificar si ya está online para ahorrar llamadas,
+        // pero updateDeviceStatus maneja las verificaciones de transición de manera eficiente.
         await this.updateDeviceStatus(macAddress, 'online');
     }
 
     /**
-     * Start the background monitor to check for expired heartbeats.
-     * Timeout: 17 seconds.
+     * Iniciar el monitor en segundo plano para verificar latidos expirados.
+     * Tiempo de espera: 17 segundos.
      */
     static startHeartbeatMonitor() {
-        console.log('Starting Heartbeat Monitor (17s timeout check every 5s)...');
+        console.log('Iniciando Monitor de Latidos (verificación de tiempo de espera de 17s cada 5s)...');
 
         setInterval(async () => {
-            // console.log('[DEBUG] Heartbeat Monitor Tick'); // Verbose
+            // console.log('[DEBUG] Tic del Monitor de Latidos'); // Verbosidad
             try {
-                const threshold = Date.now() - 2500; // 1 seconds ago
+                const threshold = Date.now() - 2500; // hace 1 segundo
                 const expiredDevices = await ESP32Cache.getExpiredHeartbeats(threshold);
                 // console.log(`[DEBUG] Check expired < ${threshold}. Found: ${expiredDevices.length}`);
 
                 if (expiredDevices.length > 0) {
-                    console.log(`Found ${expiredDevices.length} expired devices (No heartbeat > 3s). Marking offline...`);
+                    console.log(`Encontrados ${expiredDevices.length} dispositivos expirados (Sin latido > 3s). Marcando offline...`);
 
                     for (const mac of expiredDevices) {
                         try {
-                            console.log(`Device ${mac} timed out. Marking OFFLINE.`);
+                            console.log(`Dispositivo ${mac} agotó tiempo de espera. Marcando OFFLINE.`);
                             await this.updateDeviceStatus(mac, 'offline');
 
-                            // Remove from heartbeat list so we don't keep processing it
-                            // (It will be re-added when next 'online' msg comes)
+                            // Eliminar de la lista de latidos para no seguir procesándolo
+                            // (Se volverá a agregar cuando llegue el próximo mensaje 'online')
                             await ESP32Cache.removeHeartbeat(mac);
                         } catch (err) {
                             console.error(`Error marking device ${mac} offline:`, err);

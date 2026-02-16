@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Configuration for OpenRouter
+// Configuración para OpenRouter
 const OPENROUTER_API_KEY = process.env.MCP_API_KEY || '';
 const OPENROUTER_BASE_URL = 'https://openrouter.ai/api/v1';
 const MODEL_NAME = 'google/gemini-2.0-flash-001';
@@ -25,13 +25,13 @@ const client = new OpenAI({
 export class AIService {
 
     /**
-     * Process a user query using OpenRouter LLM and internal tools via MCP.
-     * @param userQuery The question or command from the user.
-     * @returns The natural language response from the AI.
+     * Procesa una consulta de usuario utilizando OpenRouter LLM y herramientas internas vía MCP.
+     * @param userQuery La pregunta o comando del usuario.
+     * @returns La respuesta en lenguaje natural de la IA.
      */
     static async processQuery(userQuery: string, userContext?: { id: number, role: string }): Promise<string> {
         try {
-            // 0. Initialize History (if user is authenticated)
+            // 0. Inicializar Historial (si el usuario está autenticado)
             const userId = userContext?.id;
             let history: any[] = [];
 
@@ -40,14 +40,14 @@ export class AIService {
                 history = await ChatHistoryService.getHistory(userId);
             }
 
-            // 1. Initialize MCP Client
+            // 1. Inicializar Cliente MCP
             const mcpClient = McpClientService.getInstance();
             await mcpClient.connect();
 
-            // 2. Fetch tools from MCP
+            // 2. Obtener herramientas de MCP
             const mcpTools = await mcpClient.getTools();
 
-            // 3. Map MCP tools to OpenAI tools format
+            // 3. Mapear herramientas MCP al formato de herramientas de OpenAI
             const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = mcpTools.map((tool: any) => ({
                 type: 'function',
                 function: {
@@ -81,19 +81,19 @@ export class AIService {
             };
 
 
-            // Build messages array: System + History + Current User Query
+            // Construir arreglo de mensajes: Sistema + Historial + Consulta Actual del Usuario
             const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
                 systemMessage,
                 ...history,
                 { role: 'user', content: userQuery }
             ];
 
-            // 4. Loop for Multi-Turn Tool Execution
+            // 4. Bucle para Ejecución de Herramientas Multi-Turno
             let loopCount = 0;
             const MAX_LOOPS = 5;
 
             while (loopCount < MAX_LOOPS) {
-                // Call LLM
+                // Llamar al LLM
                 const response = await client.chat.completions.create({
                     model: MODEL_NAME,
                     messages: messages,
@@ -102,9 +102,9 @@ export class AIService {
                 });
 
                 const responseMessage = response.choices[0].message;
-                messages.push(responseMessage); // Add assistant response to history
+                messages.push(responseMessage); // Agregar respuesta del asistente al historial
 
-                // Check if the LLM wants to call a tool
+                // Verificar si el LLM quiere llamar a una herramienta
                 if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
                     // console.log(`[AIService] LLM requested ${responseMessage.tool_calls.length} tool calls. Loop: ${loopCount + 1}`);
 
@@ -125,22 +125,22 @@ export class AIService {
                         try {
                             console.log(`[AIService] Calling MCP tool: ${functionName} with args:`, functionArgs);
 
-                            // Inject user context if needed
+                            // Inyectar contexto de usuario si es necesario
                             if (functionName === 'resolve_event' && !functionArgs.adminId && userContext?.id) {
                                 functionArgs.adminId = userContext.id;
                             }
 
-                            // Tools that require RBAC context
+                            // Herramientas que requieren contexto RBAC
                             const rbacTools = ['get_fall_history', 'get_device_details', 'get_user_personal_info'];
                             if (rbacTools.includes(functionName)) {
                                 if (userContext?.id) functionArgs.requesterId = userContext.id;
                                 if (userContext?.role) functionArgs.role = userContext.role;
                             }
 
-                            // Execute via MCP
+                            // Ejecutar vía MCP
                             const result = await mcpClient.callTool(functionName, functionArgs);
 
-                            // Format result
+                            // Formatear resultado
                             if (result.content && Array.isArray(result.content)) {
                                 functionResult = result.content.map((c: any) => c.text).join('\n');
                             } else {
@@ -159,13 +159,13 @@ export class AIService {
                         });
                     }
 
-                    // Increment loop count and continue to next iteration (sending tool outputs back to LLM)
+                    // Incrementar contador de bucle y continuar a la siguiente iteración (enviando salidas de herramientas al LLM)
                     loopCount++;
                 } else {
-                    // No more tool calls, we have the final answer
+                    // No hay más llamadas a herramientas, tenemos la respuesta final
                     const finalContent = responseMessage.content || 'Procesé los datos pero no pude generar una respuesta final.';
 
-                    // Save to history (Async)
+                    // Guardar en historial (mientras tanto)
                     if (userId) {
                         const { ChatHistoryService } = await import('./chatHistoryService');
                         await ChatHistoryService.addToHistory(userId, { role: 'user', content: userQuery });

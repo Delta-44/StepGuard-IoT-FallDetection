@@ -1,13 +1,13 @@
 import pool, { query } from '../config/database';
 
 export interface Dispositivo {
-  mac_address: string; // macAddress del ESP32 (PK)
-  nombre: string; // name del ESP32
-  estado: boolean; // status del ESP32 (true=activo, false=inactivo)
-  total_impactos: number; // impact_count del ESP32
-  ultima_magnitud?: number; // impact_magnitude del ESP32
+  mac_address: string; // dirección MAC del ESP32 (PK)
+  nombre: string; // nombre del ESP32
+  estado: boolean; // estado del ESP32 (true=activo, false=inactivo)
+  total_impactos: number; // conteo de impactos del ESP32
+  ultima_magnitud?: number; // magnitud de impacto del ESP32
   fecha_registro?: Date;
-  ultima_conexion?: Date; // timestamp del ESP32
+  ultima_conexion?: Date; // marca de tiempo del ESP32
 }
 
 export const DispositivoModel = {

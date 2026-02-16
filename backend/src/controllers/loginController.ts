@@ -14,18 +14,18 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // 1. Try to find user
+    // 1. Intentar encontrar usuario
     let user = await UsuarioModel.findByEmail(email);
     let role = 'usuario';
     let dbUser: any = user;
 
-    // 2. If not user, try to find caregiver
+    // 2. Si no es usuario, intentar encontrar cuidador
     if (!user) {
       const caregiver = await CuidadorModel.findByEmail(email);
       if (caregiver) {
         dbUser = caregiver;
-        // Determine role based on is_admin field
-            role = caregiver.is_admin ? 'admin' : 'cuidador';
+        // Determinar rol basado en el campo is_admin
+        role = caregiver.is_admin ? 'admin' : 'cuidador';
       }
     }
 
@@ -38,7 +38,7 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Normalize role for JWT
+    // Normalizar rol para JWT
     let jwtRole = 'user';
     if (role === 'admin') jwtRole = 'admin';
     if (role === 'cuidador') jwtRole = 'caregiver';

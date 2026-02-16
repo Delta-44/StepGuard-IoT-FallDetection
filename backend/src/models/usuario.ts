@@ -8,7 +8,7 @@ export interface Usuario {
   fecha_nacimiento?: Date;
   direccion?: string;
   telefono?: string;
-  dispositivo_mac?: string; // MAC address del dispositivo asignado
+  dispositivo_mac?: string; // Dirección MAC del dispositivo asignado
   fecha_creacion?: Date;
   password_last_changed_at?: Date;
   foto_perfil?: string;

@@ -8,7 +8,7 @@ export const receiveData = async (req: Request, res: Response) => {
     res.status(200).json({ message: 'Data received successfully' });
   } catch (error: any) {
     if (error.message === 'Mac Address is required') {
-        return res.status(400).json({ message: error.message });
+      return res.status(400).json({ message: error.message });
     }
     console.error('Error receiving ESP32 data:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -50,15 +50,14 @@ export const updateDevice = async (req: Request, res: Response) => {
   try {
     const { macAddress } = req.params;
     const { nombre } = req.body;
-    
-    // Auth check
-    // Assuming req.user is populated by middleware. Need to handle 'any' or AuthRequest logic if TS complains.
-    // Ideally we should import AuthRequest from middleware/auth but for now let's cast or access safely.
-    // The middleware defines req.user.
+
+    // Verificación de Auth
+    // Asumiendo que req.user es poblado por el middleware.
+    // El middleware define req.user.
     const user = (req as any).user;
 
     if (!user) {
-         return res.status(401).json({ message: 'Unauthorized' });
+      return res.status(401).json({ message: 'Unauthorized' });
     }
 
     if (!macAddress) {
@@ -66,22 +65,22 @@ export const updateDevice = async (req: Request, res: Response) => {
     }
 
     if (!nombre) {
-        return res.status(400).json({ message: 'Name is required' });
+      return res.status(400).json({ message: 'Name is required' });
     }
-    
-    // Check Authorization
-    if (user.role !== 'admin') {
-         // If not admin, must be the owner
-         const assignedUser = await DispositivoModel.getUsuarioAsignado(macAddress as string);
-         
-         if (!assignedUser) {
-             // Device has no owner, non-admins cannot edit
-             return res.status(403).json({ message: 'Forbidden. Device not assigned to you.' });
-         }
 
-         if (assignedUser.id !== user.id) {
-             return res.status(403).json({ message: 'Forbidden. Device not assigned to you.' });
-         }
+    // Verificar Autorización
+    if (user.role !== 'admin') {
+      // Si no es admin, debe ser el dueño
+      const assignedUser = await DispositivoModel.getUsuarioAsignado(macAddress as string);
+
+      if (!assignedUser) {
+        // El dispositivo no tiene dueño, los no-admins no pueden editar
+        return res.status(403).json({ message: 'Forbidden. Device not assigned to you.' });
+      }
+
+      if (assignedUser.id !== user.id) {
+        return res.status(403).json({ message: 'Forbidden. Device not assigned to you.' });
+      }
     }
 
     const updatedDevice = await DispositivoModel.update(macAddress as string, nombre);
@@ -91,8 +90,8 @@ export const updateDevice = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
-        message: "Device updated successfully",
-        device: updatedDevice
+      message: "Device updated successfully",
+      device: updatedDevice
     });
 
   } catch (error: any) {

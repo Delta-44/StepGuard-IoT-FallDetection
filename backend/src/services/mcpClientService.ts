@@ -8,7 +8,7 @@ export class McpClientService {
     private transport: StdioClientTransport | null = null;
     private isConnected: boolean = false;
 
-    private constructor() {}
+    private constructor() { }
 
     public static getInstance(): McpClientService {
         if (!McpClientService.instance) {
@@ -18,7 +18,7 @@ export class McpClientService {
     }
 
     /**
-     * Connects to the local MCP server if not already connected.
+     * Conecta al servidor MCP local si no está conectado.
      */
     public async connect(): Promise<void> {
         if (this.isConnected && this.client) {
@@ -28,16 +28,16 @@ export class McpClientService {
         try {
             console.log("[McpClientService] Connecting to MCP Server...");
 
-            // Path to the MCP server script
+            // Ruta al script del servidor MCP
             const serverScriptPath = path.resolve(__dirname, "../mcp-server.ts");
-            
-            // Spawn the MCP server process using node directly for better performance/reliability
+
+            // Iniciar el proceso del servidor MCP usando node directamente para mejor rendimiento/confiabilidad
             this.transport = new StdioClientTransport({
-                command: process.execPath, // Node.js executable
+                command: process.execPath, // Ejecutable Node.js
                 args: ["-r", "ts-node/register", serverScriptPath],
                 env: {
-                  ...process.env,
-                  PATH: process.env.PATH || "", // Ensure PATH is inherited
+                    ...process.env,
+                    PATH: process.env.PATH || "", // Asegurar que PATH se herede
                 }
             });
 
@@ -76,14 +76,14 @@ export class McpClientService {
     }
 
     /**
-     * Retrieves the list of available tools from the MCP server.
+     * Recupera la lista de herramientas disponibles del servidor MCP.
      */
     public async getTools(): Promise<any[]> { // Returns ListToolsResult
         await this.connect();
         if (!this.client) {
             throw new Error("MCP Client is not initialized.");
         }
-        
+
         try {
             const result = await this.client.listTools();
             return result.tools;
@@ -94,9 +94,9 @@ export class McpClientService {
     }
 
     /**
-     * Calls a specific tool on the MCP server.
-     * @param name Name of the tool to call
-     * @param args Arguments for the tool
+     * Llama a una herramienta específica en el servidor MCP.
+     * @param name Nombre de la herramienta a llamar
+     * @param args Argumentos para la herramienta
      */
     public async callTool(name: string, args: any): Promise<any> {
         await this.connect();
@@ -115,9 +115,9 @@ export class McpClientService {
             throw error;
         }
     }
-    
+
     /**
-     * Closes the connection to the MCP server.
+     * Cierra la conexión al servidor MCP.
      */
     public async close(): Promise<void> {
         if (this.client) {

@@ -41,12 +41,12 @@ app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/chat', chatRoutes);
 
-// Protected Route Example
+// Ejemplo de Ruta Protegida
 app.get('/api/protected', authMiddleware, (req: AuthRequest, res: Response) => {
   res.json({ message: 'This is a protected route', user: req.user });
 });
 
-// SSE Alert Stream
+// Flujo de Alertas SSE
 app.get('/api/alerts/stream', (req: Request, res: Response) => {
   const token = req.query.token as string;
 
@@ -57,15 +57,15 @@ app.get('/api/alerts/stream', (req: Request, res: Response) => {
 
 
   try {
-    // Manually verify token since browsers don't send headers for EventSource
+    // Verificar token manualmente ya que los navegadores no envían encabezados para EventSource
     const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
 
 
 
-    // Assuming decoded token has structure: { id: number, role: 'usuario' | 'cuidador' | 'admin', ... }
+    // Asumiendo que el token decodificado tiene la estructura: { id: number, role: 'usuario' | 'cuidador' | 'admin', ... }
     const decoded: any = jwt.verify(token, jwtSecret);
 
-    // Pass user info to AlertService
+    // Pasar información del usuario al AlertService
     AlertService.addClient(res, decoded.id, decoded.role);
 
   } catch (error) {
@@ -74,30 +74,30 @@ app.get('/api/alerts/stream', (req: Request, res: Response) => {
 }
 );
 
-// Error handling middleware
+// Middleware de manejo de errores
 import fs from 'fs';
 import path from 'path';
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error("Application error:", err.message);
-  
+
   const logPath = path.join(__dirname, '../server_error.log');
   const logMessage = `[${new Date().toISOString()}] ${err.message}\nStack: ${err.stack}\n\n`;
-  
+
   try {
     fs.appendFileSync(logPath, logMessage);
   } catch (e) {
     console.error("Could not write to error log:", e);
   }
 
-  res.status(500).json({ 
+  res.status(500).json({
     message: 'Something went wrong!',
     error: err.message,
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 });
 
-// Start server
+// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   connectMQTT();

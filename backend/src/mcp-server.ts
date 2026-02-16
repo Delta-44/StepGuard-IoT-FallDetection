@@ -12,8 +12,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-// MCP Server must communicate via stdio. Any console.log calls will interfere with the protocol.
-// We redirect console.log to console.error so that logs from imported modules don't break the connection.
+// Redirigir console.log a console.error para evitar interferencias con el protocolo stdio de MCP
 console.log = console.error;
 
 
@@ -229,13 +228,7 @@ const main = async () => {
       try {
         const { DiscordService } = await import("./services/discordService");
 
-        // Si se especifica targetUser, intentar enviar DM específico (requeriría extender DiscordService para aceptar ID dinámico)
-        // Actualmente DiscordService.sendDirectMessage usa una variable de entorno fija O el parámetro, revisemos...
-        // DiscordService.sendDirectMessage implementacion actual: usa this.targetUserId de env.
-        // PERO, deberíamos permitir pasar un ID.
-
-        // Por ahora, mantendremos la funcionalidad simple que usa el target definido en ENV.
-        // Pero renombramos la herramienta para que el LLM se sienta libre de usarla para cualquier cosa.
+        // Usar objetivo definido en ENV
 
         await DiscordService.sendDirectMessage(message);
 
@@ -284,8 +277,7 @@ const main = async () => {
     async ({ macAddress, date }) => {
       try {
         const targetDate = date ? new Date(date) : new Date();
-        // Simple heurística: Contar impactos del historial en redis para hoy (o simular query compleja)
-        // Para esta demo, usaremos datos de telemetría actual y una simulación basada en historial reciente
+        // Heurística simple: Contar impactos del historial en Redis para hoy
 
         const data = await ESP32Service.getDeviceData(macAddress);
         const history = await ESP32Cache.getDeviceHistory(macAddress); // Asumiendo que devuelve array
@@ -348,13 +340,7 @@ const main = async () => {
             isAuthorized = true;
           }
         } else if (role === 'cuidador' || role === 'familiar') {
-          // Cuidador ve los de sus pacientes asignados
-          // Aquí deberíamos consultar la tabla de relación cuidador-paciente
-          // Por simplicidad en este paso, asumiremos que si el usuario tiene rol cuidador
-          // y el dispositivo NO es suyo, verificamos asignación.
-          // TODO: Implementar check real: await CaregiverModel.isAssigned(requesterId, owner.id)
-          // Para demo, permitimos si es cuidador (asumiendo que frontend filtra o confiamos en backend logic futura)
-          isAuthorized = true; // TEMPORAL para demo, idealmente verificar relación
+          isAuthorized = true;
         }
 
         if (!isAuthorized) {

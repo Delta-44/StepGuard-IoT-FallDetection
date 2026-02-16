@@ -2,18 +2,18 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from './auth';
 
 /**
- * Middleware to check if the user is an admin
- * Assumes authMiddleware has already run and populated req.user
+ * Middleware para verificar si el usuario es administrador
+ * Asume que authMiddleware ya se ha ejecutado y ha poblado req.user
  */
 const adminAuthMiddleware = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     if (!req.user) {
-        return res.status(401).json({ message: 'Access denied. No user authenticated.' });
+      return res.status(401).json({ message: 'Access denied. No user authenticated.' });
     }
 
-    // Check if the user has the 'admin' role
-    // In our JWT, the role is stored in `role` property and can be 'admin'
-    // Also checking `is_admin` property if present in the user object
+    // Verificar si el usuario tiene el rol 'admin'
+    // En nuestro JWT, el rol se almacena en la propiedad `role` y puede ser 'admin'
+    // También verificando la propiedad `is_admin` si está presente en el objeto usuario
     if (req.user.role === 'admin' || req.user.is_admin === true) {
       next();
     } else {
