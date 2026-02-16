@@ -7,7 +7,8 @@ import { AuthService } from './services/auth.service';
 import { LandingComponent } from './pages/landing/landing.component';
 import { AlertsComponent } from './components/alerts/alerts.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
-import { PatientProfileComponent } from './pages/patient-profile/patient-profile.component';
+import { MyProfileComponent } from './components/my-profile/myprofile.component';
+import { AnalyticsComponent } from './pages/analytics/analytics.component';
 const authGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -72,8 +73,13 @@ export const routes: Routes = [
   },
   {
     path: 'profile',
-    component: PatientProfileComponent,
-    canActivate: [authGuard, patientOnlyGuard]
+    component: MyProfileComponent,
+    canActivate: [authGuard] // 🟢 AHORA ACCESIBLE PARA TODOS (Admin, Cuidador, Paciente)
+  },
+  {
+    path: 'analytics',
+    component: AnalyticsComponent,
+    canActivate: [authGuard, staffOnlyGuard]
   },
   {
     path: 'devices',

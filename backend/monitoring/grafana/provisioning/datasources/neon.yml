@@ -1,0 +1,25 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: Neon Postgres
+    type: postgres
+
+datasources:
+  - name: Neon Postgres
+    type: postgres
+    uid: neon_postgres
+    access: proxy
+    isDefault: true
+    url: ${DB_HOST}:${DB_PORT}
+    user: ${DB_USER}
+    secureJsonData:
+      password: ${DB_PASSWORD}
+    jsonData:
+      database: ${DB_NAME}
+      sslmode: require
+      postgresVersion: 1500
+      timeInterval: 30s
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 14400
+    editable: false

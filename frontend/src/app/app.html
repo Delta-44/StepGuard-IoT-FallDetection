@@ -19,72 +19,203 @@
   }
 
   @if (showNavbar()) {
-    <nav style="background: #222; height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; z-index: 10;">
-      <a routerLink="/" style="text-decoration: none; cursor: pointer;">
-        <div style="display: flex; align-items: center; gap: 8px; color: white; font-weight: bold; font-size: 1.2em;">
-          <i-lucide name="shield" [size]="24"></i-lucide>
-          StepGuard IoT
-        </div>
-      </a>
+    <nav class="bg-gray-900 text-white shadow-lg sticky top-0 z-40 border-b border-gray-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          
+          <!-- Logo -->
+          <div class="flex-shrink-0">
+            <div class="flex items-center gap-2 select-none">
+              <div class="bg-blue-600 p-1.5 rounded-lg">
+                <i-lucide name="shield" [size]="24" class="text-white"></i-lucide>
+              </div>
+              <span class="font-bold text-xl tracking-tight cursor-default">StepGuard IoT</span>
+            </div>
+          </div>
 
-      @if (currentUser()) {
-        <div style="display: flex; gap: 20px;">
-          @if (currentUser()?.role === 'user') {
-            <!-- Navegación para Pacientes -->
-            <a routerLink="/profile" routerLinkActive="active-link" class="nav-item">
-              <i-lucide name="user" [size]="16"></i-lucide> Mi Perfil
-            </a>
-            <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
-              <i-lucide name="bell" [size]="16"></i-lucide> Mis Incidencias
-            </a>
-          } @else {
-            <!-- Navegación para Admin y Cuidadores -->
-            <a routerLink="/dashboard" routerLinkActive="active-link" class="nav-item">
-              <i-lucide name="activity" [size]="16"></i-lucide> Monitorización
-            </a>
-            <a routerLink="/devices" routerLinkActive="active-link" class="nav-item">
-              <i-lucide name="smartphone" [size]="16"></i-lucide> Dispositivos
-            </a>
-            <a routerLink="/alerts" routerLinkActive="active-link" class="nav-item">
-              <i-lucide name="bell" [size]="16"></i-lucide> Historial
-            </a>
+          <!-- Desktop Navigation -->
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              @if (currentUser()) {
+                @if (currentUser()?.role === 'user') {
+                  <a routerLink="/alerts" routerLinkActive="bg-gray-800 text-white" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center gap-2">
+                    <i-lucide name="bell" [size]="16"></i-lucide> Mis Incidencias
+                  </a>
+                } @else {
+                  <a routerLink="/dashboard" routerLinkActive="bg-gray-800 text-white" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center gap-2">
+                    <i-lucide name="activity" [size]="16"></i-lucide> Monitorización
+                  </a>
+                  <a routerLink="/devices" routerLinkActive="bg-gray-800 text-white" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center gap-2">
+                    <i-lucide name="smartphone" [size]="16"></i-lucide> Dispositivos
+                  </a>
+                  <a routerLink="/alerts" routerLinkActive="bg-gray-800 text-white" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center gap-2">
+                    <i-lucide name="bell" [size]="16"></i-lucide> Historial
+                  </a>
 
-            @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
-              <a routerLink="/users" routerLinkActive="active-link" 
-                 [class.nav-item-admin]="isAdmin()" [class.nav-item]="!isAdmin()">
-                <i-lucide name="users" [size]="16"></i-lucide>
-                {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
-              </a>
-            }
-          }
-        </div>
-      }
-
-      <div style="display: flex; align-items: center; gap: 15px;">
-        @if (currentUser()) {
-          <div style="text-align: right; color: white; line-height: 1.2; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
-            <div style="font-weight: bold; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ currentUser()?.fullName }}</div>
-            <div style="font-size: 0.75em; opacity: 0.8; color: #ccc; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
-              @switch (currentUser()?.role) {
-                @case ('admin') { <i-lucide name="settings" [size]="12"></i-lucide> <span>Administrador</span> }
-                @case ('caregiver') { <i-lucide name="user-circle" [size]="12"></i-lucide> <span>Cuidador</span> }
-                @case ('user') { <i-lucide name="user-circle" [size]="12"></i-lucide> <span>Paciente</span> }
+                  @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
+                    <a routerLink="/users" routerLinkActive="bg-gray-800 text-white" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 transition-all flex items-center gap-2">
+                      <i-lucide name="users" [size]="16"></i-lucide>
+                      {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
+                    </a>
+                  }
+                }
               }
             </div>
           </div>
-          <button (click)="logout()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-            <i-lucide name="log-out" [size]="16"></i-lucide> Salir
-          </button>
-        } @else {
-          <a routerLink="/" style="color: white; text-decoration: none; font-weight: 500; font-size: 0.9rem; margin-right: 10px; cursor: pointer;">Iniciar Sesión</a>
-        }
+
+          <!-- Desktop User Profile & Dropdown -->
+          <div class="hidden md:block relative">
+            <div class="flex items-center gap-4">
+              @if (currentUser()) {
+                <div class="flex items-center gap-3">
+                  <div class="flex flex-col items-end">
+                    <div class="text-sm font-bold text-white max-w-[150px] truncate whitespace-nowrap" [title]="currentUser()?.fullName">{{ currentUser()?.fullName }}</div>
+                    <div class="text-xs text-gray-400 flex items-center justify-end gap-1">
+                      @switch (currentUser()?.role) {
+                        @case ('admin') { <i-lucide name="settings" [size]="12"></i-lucide> <span>Administrador</span> }
+                        @case ('caregiver') { <i-lucide name="user-circle" [size]="12"></i-lucide> <span>Cuidador</span> }
+                        @case ('user') { <i-lucide name="user-circle" [size]="12"></i-lucide> <span>Paciente</span> }
+                      }
+                    </div>
+                  </div>
+                  
+                  <!-- Dropdown Trigger (Foto de Perfil) -->
+                  <button (click)="toggleProfileDropdown()" class="relative focus:outline-none">
+                    <div class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden border-2 border-gray-700 hover:border-blue-400 transition-colors cursor-pointer">
+                      @if (currentUser()?.foto_perfil) {
+                        <img [src]="currentUser()?.foto_perfil" alt="Perfil" class="w-full h-full object-cover">
+                      } @else {
+                        <span class="text-white font-bold text-lg">{{ currentUser()?.fullName?.charAt(0) }}</span>
+                      }
+                    </div>
+                  </button>
+
+                  <!-- Dropdown Menu -->
+                  @if (isProfileDropdownOpen()) {
+                    <div class="absolute right-0 top-12 mt-2 w-48 bg-[var(--bg-secondary)] rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5 animate-in fade-in slide-in-from-top-2 duration-200 border border-[var(--border-color)]">
+                      <div class="px-4 py-2 border-b border-[var(--border-color)]">
+                        <p class="text-xs text-[var(--text-secondary)]">Conectado como</p>
+                        <p class="text-sm font-bold text-[var(--text-primary)] truncate">{{ currentUser()?.fullName }}</p>
+                      </div>
+
+                      <a routerLink="/profile" class="block px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-primary)] flex items-center gap-2">
+                        <i-lucide name="user" [size]="16"></i-lucide> Mi Perfil
+                      </a>
+
+                      <!-- Theme Toggle Item -->
+                      <button (click)="themeService.toggleTheme()" class="w-full text-left block px-4 py-2 text-sm text-[var(--text-primary)] hover:bg-[var(--bg-primary)] flex items-center gap-2">
+                        @if (themeService.themeSignal() === 'dark') {
+                          <i-lucide name="sun" [size]="16"></i-lucide> Modo Claro
+                        } @else {
+                          <i-lucide name="moon" [size]="16"></i-lucide> Modo Oscuro
+                        }
+                      </button>
+                      
+                      <button (click)="logout()" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-[var(--bg-primary)] flex items-center gap-2">
+                        <i-lucide name="log-out" [size]="16"></i-lucide> Cerrar Sesión
+                      </button>
+                    </div>
+                  }
+                  
+                  <!-- Overlay invisible para cerrar al hacer click fuera -->
+                  @if (isProfileDropdownOpen()) {
+                    <div class="fixed inset-0 z-40" (click)="closeProfileDropdown()"></div>
+                  }
+                </div>
+              } @else {
+                <a routerLink="/" class="text-gray-300 hover:text-white font-medium transition-colors">Iniciar Sesión</a>
+              }
+            </div>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <div class="-mr-2 flex md:hidden">
+            <!-- Theme Toggle Button -->
+            <button (click)="themeService.toggleTheme()" class="p-2 mr-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none transition-colors" title="Cambiar tema">
+                @if (themeService.themeSignal() === 'dark') {
+                  <i-lucide name="sun" [size]="20"></i-lucide>
+                } @else {
+                  <i-lucide name="moon" [size]="20"></i-lucide>
+                }
+            </button>
+
+            @if (currentUser()) {
+              <button (click)="toggleMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                <span class="sr-only">Abrir menú</span>
+                @if (isMobileMenuOpen()) {
+                  <i-lucide name="x" [size]="24"></i-lucide>
+                } @else {
+                  <i-lucide name="menu" [size]="24"></i-lucide>
+                }
+              </button>
+            }
+          </div>
+        </div>
       </div>
+
+      <!-- Mobile Menu (Conditional) -->
+      @if (isMobileMenuOpen() && currentUser()) {
+        <div class="md:hidden bg-gray-800 border-t border-gray-700 animate-slide-down">
+          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            @if (currentUser()?.role === 'user') {
+              <a routerLink="/alerts" (click)="closeMenu()" routerLinkActive="bg-gray-900 text-white" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2">
+                <i-lucide name="bell" [size]="18"></i-lucide> Mis Incidencias
+              </a>
+            } @else {
+              <a routerLink="/dashboard" (click)="closeMenu()" routerLinkActive="bg-gray-900 text-white" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2">
+                <i-lucide name="activity" [size]="18"></i-lucide> Monitorización
+              </a>
+              <a routerLink="/devices" (click)="closeMenu()" routerLinkActive="bg-gray-900 text-white" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2">
+                <i-lucide name="smartphone" [size]="18"></i-lucide> Dispositivos
+              </a>
+              <a routerLink="/alerts" (click)="closeMenu()" routerLinkActive="bg-gray-900 text-white" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2">
+                <i-lucide name="bell" [size]="18"></i-lucide> Historial
+              </a>
+
+              @if (currentUser()?.role === 'admin' || currentUser()?.role === 'caregiver') {
+                <a routerLink="/users" (click)="closeMenu()" routerLinkActive="bg-gray-900 text-white" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2">
+                  <i-lucide name="users" [size]="18"></i-lucide>
+                  {{ isAdmin() ? 'Gestión Usuarios' : 'Lista Pacientes' }}
+                </a>
+              }
+            }
+          </div>
+          
+          <div class="pt-4 pb-4 border-t border-gray-700">
+            <div class="flex items-center px-5">
+              <div class="flex-shrink-0">
+                <a routerLink="/profile" (click)="closeMenu()" class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden border-2 border-transparent hover:border-white transition-all">
+                  @if (currentUser()?.foto_perfil) {
+                    <img [src]="currentUser()?.foto_perfil" alt="Perfil" class="w-full h-full object-cover">
+                  } @else {
+                    {{ currentUser()?.fullName?.charAt(0) }}
+                  }
+                </a>
+              </div>
+              <div class="ml-3">
+                <div class="text-base font-medium leading-none text-white">{{ currentUser()?.fullName }}</div>
+                <div class="text-sm font-medium leading-none text-gray-400 mt-1 capitalize">{{ currentUser()?.role || 'Usuario' }}</div>
+              </div>
+              <button (click)="logout()" class="ml-auto bg-red-600 p-2 rounded-full text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                <i-lucide name="log-out" [size]="20"></i-lucide>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
     </nav>
   }
 
-  <div style="flex: 1; position: relative;">
+  <div class="flex-1 relative bg-[var(--bg-primary)] transition-colors duration-300">
     <router-outlet></router-outlet>
   </div>
+
+  @if (currentUser() && showNavbar() && canViewAnalytics()) {
+    <button class="fab-analytics" (click)="openGrafanaDashboard()">
+      <i-lucide name="layout-dashboard" [size]="18"></i-lucide>
+      <span>Analítica</span>
+    </button>
+  }
 
   @if (miniAlert()) {
     <div class="toast-notification" [ngClass]="miniAlert()?.severity">
@@ -114,5 +245,10 @@
 
   <!-- Componente de Notificaciones -->
   <app-notification></app-notification>
+
+  <!-- Chatbot (solo visible para usuarios autenticados) -->
+  @if (currentUser() && showNavbar()) {
+    <app-chatbot></app-chatbot>
+  }
 
 </div>

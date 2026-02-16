@@ -1,0 +1,17 @@
+[dotenv@17.2.3] injecting env (35) from .env -- tip: 🔄 add secrets lifecycle management: https://dotenvx.com/ops
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+Verificando conexiones a DB y Redis...
+Conectado a Redis
+Redis conectado (evento ready).
+Conectado a PostgreSQL
+PostgreSQL conectado.
+{"method":"notifications/tools/list_changed","jsonrpc":"2.0"}
+{"method":"notifications/tools/list_changed","jsonrpc":"2.0"}
+{"method":"notifications/tools/list_changed","jsonrpc":"2.0"}
+{"method":"notifications/tools/list_changed","jsonrpc":"2.0"}
+StepGuard MCP Server running on stdio
+Discord Bot logged in as StepguardIoT#0611
+(node:50523) DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)

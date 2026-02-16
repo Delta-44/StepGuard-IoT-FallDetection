@@ -1,96 +1,114 @@
-﻿<div class="min-h-screen bg-transparent p-8">
+﻿<div class="min-h-screen users-bg p-4 sm:p-6 md:p-8">
   <!-- Header -->
-  <div class="mb-8 animate-fade-in">
-    <h2 class="text-3xl font-bold text-base-text flex items-center gap-3">
-      <i-lucide name="users" [size]="32"></i-lucide>
+  <div class="mb-6 md:mb-8 animate-fade-in">
+    <h2 class="text-2xl md:text-3xl font-bold text-base-text flex items-center gap-2 md:gap-3">
+      <i-lucide name="users" [size]="28" class="md:hidden"></i-lucide>
+      <i-lucide name="users" [size]="32" class="hidden md:block"></i-lucide>
       Lista de Usuarios
     </h2>
-    <p class="text-gray-600 mt-2">Administración de pacientes y personal del sistema</p>
+    <p class="text-sm md:text-base text-[var(--text-secondary)] mt-2">
+      Administración de pacientes y personal del sistema
+    </p>
 
     <!-- Barra de Búsqueda y Filtros -->
-    <div class="flex gap-3 mt-6 items-center">
+    <div class="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6 items-stretch sm:items-center">
       <!-- Input de Búsqueda -->
       <div class="flex-1 relative">
         <i-lucide
           name="search"
+          [size]="18"
+          class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 text-gray-400 md:hidden"
+        ></i-lucide>
+        <i-lucide
+          name="search"
           [size]="20"
-          class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+          class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hidden md:block"
         ></i-lucide>
         <input
           type="text"
           [(ngModel)]="searchTerm"
           (ngModelChange)="onSearchChange()"
-          placeholder="Buscar por nombre, email o usuario..."
-          class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium"
+          placeholder="Buscar usuarios..."
+          class="search-input-users w-full pl-11 md:pl-14 pr-3 md:pr-4 py-2.5 md:py-3 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-medium text-sm md:text-base"
         />
       </div>
 
       <!-- Botón de Orden Alfabético -->
       <button
         (click)="toggleAlphabeticalOrder()"
-        class="px-5 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300 hover:shadow-lg"
+        class="sort-btn-users px-4 md:px-5 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-lg text-sm md:text-base whitespace-nowrap"
         [title]="
           isAlphabeticalOrder ? 'Ordenado A-Z (Click para Z-A)' : 'Ordenado Z-A (Click para A-Z)'
         "
       >
         {{ isAlphabeticalOrder ? 'A-Z' : 'Z-A' }}
       </button>
+
+      <!-- Botón Exportar CSV -->
+      <button
+        (click)="exportUsers()"
+        class="px-4 md:px-5 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center justify-center gap-2 bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-lg hover:shadow-emerald-200 text-sm md:text-base whitespace-nowrap"
+        title="Descargar lista en Excel/CSV"
+      >
+        <i-lucide name="file-spreadsheet" [size]="20" class="hidden md:block"></i-lucide>
+        <i-lucide name="download" [size]="18" class="md:hidden"></i-lucide>
+        <span class="hidden sm:inline">Exportar</span>
+      </button>
     </div>
 
     <!-- Botones de Filtro -->
-    <div class="flex gap-3 mt-4">
+    <div class="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-4">
       <button
         (click)="setFilter('user')"
-        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
         [ngClass]="
           activeFilter === 'user'
             ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105'
-            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+            : 'filter-btn-users'
         "
       >
-        <i-lucide name="user" [size]="20"></i-lucide>
-        Pacientes
+        <i-lucide name="user" [size]="18" class="md:hidden"></i-lucide>
+        <i-lucide name="user" [size]="20" class="hidden md:block"></i-lucide>
+        <span class="hidden sm:inline">Pacientes</span>
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
-          [ngClass]="activeFilter === 'user' ? 'bg-white/25' : 'bg-gray-200'"
-          >{{ getUserCountByRole('user') }}</span
+          [ngClass]="activeFilter === 'user' ? 'bg-white/30 text-white' : 'filter-badge-users'"
+          >{{ userCount }}</span
         >
       </button>
 
       <button
         (click)="setFilter('caregiver')"
-        class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
+        class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
         [ngClass]="
           activeFilter === 'caregiver'
             ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg scale-105'
-            : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
+            : 'filter-btn-users'
         "
       >
-        <i-lucide name="heart" [size]="20"></i-lucide>
-        Cuidadores
+        <i-lucide name="heart" [size]="18" class="md:hidden"></i-lucide>
+        <i-lucide name="heart" [size]="20" class="hidden md:block"></i-lucide>
+        <span class="hidden sm:inline">Cuidadores</span>
         <span
           class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
-          [ngClass]="activeFilter === 'caregiver' ? 'bg-white/25' : 'bg-gray-200'"
-          >{{ getUserCountByRole('caregiver') }}</span
+          [ngClass]="activeFilter === 'caregiver' ? 'bg-white/30 text-white' : 'filter-badge-users'"
+          >{{ caregiverCount }}</span
         >
       </button>
 
       @if (isAdmin()) {
         <button
           (click)="setFilter('admin')"
-          class="px-6 py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg"
-          [ngClass]="
-            activeFilter === 'admin'
-              ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-300'
-          "
+          class="px-4 md:px-6 py-2.5 md:py-3 rounded-xl font-bold transition-all duration-300 flex items-center gap-2 hover:shadow-lg text-sm md:text-base"
+          [ngClass]="activeFilter === 'admin' ? 'admin-filter-btn-active' : 'filter-btn-users'"
         >
-          <i-lucide name="shield" [size]="20"></i-lucide>
-          Administradores
+          <i-lucide name="shield" [size]="18" class="md:hidden"></i-lucide>
+          <i-lucide name="shield" [size]="20" class="hidden md:block"></i-lucide>
+          <span class="hidden sm:inline">Administradores</span>
           <span
             class="ml-1 px-2 py-1 rounded-full text-xs font-bold"
-            [ngClass]="activeFilter === 'admin' ? 'bg-white/25' : 'bg-gray-200'"
-            >{{ getUserCountByRole('admin') }}</span
+            [ngClass]="activeFilter === 'admin' ? 'bg-white/30 text-white' : 'filter-badge-users'"
+            >{{ adminCount }}</span
           >
         </button>
       }
@@ -103,15 +121,17 @@
       <div
         class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"
       ></div>
-      <p class="text-gray-600 text-lg">Cargando datos...</p>
+      <p class="text-[var(--text-secondary)] text-lg">Cargando datos...</p>
     </div>
   } @else {
     <!-- Sin resultados -->
     @if (filteredUsers.length === 0) {
-      <div class="bg-white rounded-2xl p-12 text-center animate-fade-in">
+      <div class="empty-state-users rounded-2xl p-12 text-center animate-fade-in">
         <div class="text-6xl mb-4">🔍</div>
-        <h3 class="text-xl font-bold text-gray-800 mb-2">No se encontraron resultados</h3>
-        <p class="text-gray-500">
+        <h3 class="text-xl font-bold text-[var(--text-primary)] mb-2">
+          No se encontraron resultados
+        </h3>
+        <p class="text-[var(--text-secondary)]">
           @if (searchTerm.trim()) {
             No hay {{ activeFilter === 'user' ? 'pacientes' : 'cuidadores' }} que coincidan con "{{
               searchTerm
@@ -122,103 +142,318 @@
         </p>
       </div>
     } @else {
-      <!-- Tabla de Usuarios -->
-      <div class="bg-transparent/50 rounded-xl overflow-hidden animate-fade-in">
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-blue-600 text-white">
-              <tr>
-                <th class="px-6 py-4 text-left font-semibold">NOMBRE</th>
-                <th class="px-6 py-4 text-left font-semibold">EMAIL</th>
-                <th class="px-6 py-4 text-left font-semibold">ROL</th>
-                <th class="px-6 py-4 text-left font-semibold">ESTADO</th>
+      <!-- Vista de Tarjetas (Móvil) -->
+      <div class="md:hidden space-y-4 animate-fade-in">
+        @for (user of paginatedUsers; track user.email) {
+          <div
+            class="user-card p-5 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer active:scale-[0.98]"
+            (click)="openUserInfoModal(user)"
+          >
+            <!-- Header: Avatar, Nombre y Rol -->
+            <div class="flex items-start gap-4 mb-4">
+              <!-- Avatar -->
+              <div class="flex-shrink-0">
+                @if (user.foto_perfil) {
+                  <img
+                    [src]="user.foto_perfil"
+                    class="w-12 h-12 rounded-full object-cover shadow-sm ring-2 ring-gray-100"
+                  />
+                } @else {
+                  <div
+                    class="w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shadow-sm"
+                    [ngClass]="{
+                      'bg-blue-100 text-blue-600': user.role === 'user',
+                      'bg-green-100 text-green-600': user.role === 'caregiver',
+                      'bg-red-100 text-red-600': user.role === 'admin',
+                    }"
+                  >
+                    {{ user.fullName.charAt(0).toUpperCase() }}
+                  </div>
+                }
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-start">
+                  <h3 class="font-bold text-[var(--text-primary)] text-lg leading-tight truncate">
+                    {{ user.fullName }}
+                  </h3>
+                  <span
+                    class="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase text-white tracking-wide ml-2"
+                    [ngClass]="{
+                      'bg-red-600': user.role === 'admin',
+                      'bg-green-600': user.role === 'caregiver',
+                      'bg-blue-600': user.role === 'user',
+                    }"
+                  >
+                    {{
+                      user.role === 'user'
+                        ? 'PACIENTE'
+                        : user.role === 'caregiver'
+                          ? 'CUIDADOR'
+                          : (user.role | uppercase)
+                    }}
+                  </span>
+                </div>
+                <div class="text-xs text-gray-400 truncate">{{ user.username }}</div>
+              </div>
+            </div>
+
+            <!-- Separador -->
+            <div class="border-t border-[var(--border-color)] my-3"></div>
+
+            <!-- Botones de Acción (Alineados a la derecha) -->
+            <div class="flex justify-end gap-3 mt-3">
+              <!-- Botón Historial -->
+              @if (canViewHistory()) {
+                <button
+                  class="p-2.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+                  (click)="$event.stopPropagation(); openHistoryModal(user)"
+                  title="Ver Historial"
+                >
+                  <i-lucide name="clipboard-list" [size]="20"></i-lucide>
+                </button>
+              }
+
+              @if (isAdmin()) {
+                <!-- Editar -->
+                <button
+                  class="p-2.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200"
+                  (click)="$event.stopPropagation(); openEditModal(user)"
+                  title="Editar"
+                >
+                  <i-lucide name="square-pen" [size]="20"></i-lucide>
+                </button>
+
+                <!-- Asignar Dispositivo -->
+                @if (user.role === 'user') {
+                  <button
+                    class="p-2.5 rounded-xl bg-purple-50 text-purple-600 hover:bg-purple-100 transition-colors duration-200"
+                    (click)="$event.stopPropagation(); openAssignDeviceModalV2(user)"
+                    title="Asignar Dispositivo"
+                  >
+                    <i-lucide name="watch" [size]="20"></i-lucide>
+                  </button>
+                }
+
+                <!-- Eliminar -->
+                <button
+                  class="p-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200"
+                  (click)="$event.stopPropagation(); deleteUser(user)"
+                  title="Eliminar"
+                >
+                  <i-lucide name="trash-2" [size]="20"></i-lucide>
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Tabla de Usuarios (Desktop) -->
+      <div class="users-table-container hidden md:block rounded-xl overflow-hidden">
+        <!-- Desktop Table (Modernized) -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="users-table w-full">
+            <thead>
+              <tr class="border-b border-gray-100">
+                <th
+                  class="px-8 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Usuario
+                </th>
+                <th
+                  class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Contacto
+                </th>
+                <th
+                  class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Rol
+                </th>
+                <th
+                  class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider"
+                >
+                  Estado
+                </th>
 
                 @if (canViewHistory()) {
-                  <th class="px-6 py-4 text-center font-semibold">HISTORIAL</th>
+                  <th
+                    class="px-6 py-4 text-center text-xs font-bold text-gray-400 uppercase tracking-wider"
+                  >
+                    Historial
+                  </th>
                 }
 
                 @if (isAdmin()) {
-                  <th class="px-6 py-4 text-center font-semibold">ACCIONES</th>
+                  <th
+                    class="px-8 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-wider"
+                  >
+                    Acciones
+                  </th>
                 }
               </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-50">
               @for (user of paginatedUsers; track user.email) {
                 <tr
-                  class="hover:bg-transparent transition-colors duration-200"
-                  [ngClass]="{ 'cursor-pointer': user.role === 'user' }"
-                  (click)="user.role === 'user' && openPatientInfoModal(user)"
+                  class="group hover:bg-[var(--bg-primary)]/80 transition-all duration-300 cursor-pointer"
+                  (click)="openUserInfoModal(user)"
                 >
-                  <td class="px-6 py-4">
-                    <div class="flex flex-col">
-                      <span class="text-base-text font-semibold">{{ user.fullName }}</span>
-                      <small class="text-gray-500">{{ user.username || 'N/A' }}</small>
+                  <!-- Name Column -->
+                  <td class="px-8 py-5">
+                    <div class="flex items-center gap-4">
+                      <!-- Avatar with Photo or Initials -->
+                      <div class="relative group-hover:scale-110 transition-transform duration-300">
+                        @if (user.foto_perfil) {
+                          <img
+                            [src]="user.foto_perfil"
+                            class="w-11 h-11 rounded-full object-cover shadow-sm ring-2 ring-white"
+                          />
+                        } @else {
+                          <div
+                            class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold shadow-sm ring-2 ring-white"
+                            [ngClass]="{
+                              'bg-blue-100 text-blue-600': user.role === 'user',
+                              'bg-green-100 text-green-600': user.role === 'caregiver',
+                              'bg-red-100 text-red-600': user.role === 'admin',
+                            }"
+                          >
+                            {{ user.fullName.charAt(0).toUpperCase() }}
+                          </div>
+                        }
+                      </div>
+
+                      <div>
+                        <div
+                          class="font-bold text-[var(--text-primary)] text-base group-hover:text-blue-600 transition-colors"
+                        >
+                          {{ user.fullName }}
+                        </div>
+                        <div class="text-xs text-gray-400 font-medium">
+                          @if (user.role === 'user') {
+                            Repositorio: #{{ user.id }}
+                          }
+                          @if (user.role === 'caregiver') {
+                            Personal Médico
+                          }
+                          @if (user.role === 'admin') {
+                            Sistema
+                          }
+                        </div>
+                      </div>
                     </div>
                   </td>
-                  <td class="px-6 py-4 text-gray-700">{{ user.email }}</td>
-                  <td class="px-6 py-4">
+
+                  <!-- Contact Column -->
+                  <td class="px-6 py-5">
+                    <div class="flex flex-col">
+                      <span class="text-sm text-[var(--text-secondary)] font-medium">{{
+                        user.email
+                      }}</span>
+                      <span class="text-xs text-gray-400">{{ user.username }}</span>
+                    </div>
+                  </td>
+
+                  <!-- Role Column -->
+                  <td class="px-6 py-5">
                     <span
-                      class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase text-white"
+                      class="px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center w-fit gap-1.5 border"
                       [ngClass]="{
-                        'bg-red-600': user.role === 'admin',
-                        'bg-green-600': user.role === 'caregiver',
-                        'bg-blue-600': user.role === 'user',
+                        'bg-blue-50 text-blue-700 border-blue-100': user.role === 'user',
+                        'bg-green-50 text-green-700 border-green-100': user.role === 'caregiver',
+                        'bg-red-50 text-red-700 border-red-100': user.role === 'admin',
                       }"
                     >
+                      <span
+                        class="w-1.5 h-1.5 rounded-full"
+                        [ngClass]="{
+                          'bg-blue-500': user.role === 'user',
+                          'bg-green-500': user.role === 'caregiver',
+                          'bg-red-500': user.role === 'admin',
+                        }"
+                      ></span>
                       {{
                         user.role === 'user'
-                          ? 'PACIENTE'
+                          ? 'Paciente'
                           : user.role === 'caregiver'
-                            ? 'CUIDADOR'
-                            : (user.role | uppercase)
+                            ? 'Cuidador'
+                            : 'Admin'
                       }}
                     </span>
                   </td>
-                  <td class="px-6 py-4">
+
+                  <!-- Status Column -->
+                  <td class="px-6 py-5">
                     <div class="flex items-center gap-2">
+                      <span class="relative flex h-2.5 w-2.5">
+                        @if (user.status === 'active') {
+                          <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"
+                          ></span>
+                          <span
+                            class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"
+                          ></span>
+                        } @else {
+                          <span
+                            class="relative inline-flex rounded-full h-2.5 w-2.5 bg-gray-300"
+                          ></span>
+                        }
+                      </span>
                       <span
-                        class="w-3 h-3 rounded-full"
+                        class="text-xs font-bold uppercase tracking-wider"
                         [ngClass]="
-                          user.status === 'active' ? 'bg-green-500 animate-glow' : 'bg-gray-400'
+                          user.status === 'active'
+                            ? 'text-[var(--text-secondary)]'
+                            : 'text-gray-400'
                         "
-                      ></span>
-                      <span
-                        class="font-medium capitalize text-gray-800"
-                        [ngClass]="user.status === 'active' ? 'text-green-700' : 'text-gray-500'"
                       >
                         {{ user.status === 'active' ? 'Activo' : 'Inactivo' }}
                       </span>
                     </div>
                   </td>
 
+                  <!-- History Column -->
                   @if (canViewHistory()) {
-                    <td class="px-6 py-4 text-center">
+                    <td class="px-6 py-5 text-center" (click)="$event.stopPropagation()">
                       <button
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 hover:shadow-lg flex items-center gap-2 mx-auto"
                         (click)="openHistoryModal(user)"
-                        title="Ver Alertas"
+                        class="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all"
+                        title="Ver Historial"
                       >
-                        <i-lucide name="clipboard-list" [size]="16"></i-lucide> Historial
+                        <i-lucide name="clipboard-list" [size]="20"></i-lucide>
                       </button>
                     </td>
                   }
 
+                  <!-- Actions Column -->
                   @if (isAdmin()) {
-                    <td class="px-6 py-4">
-                      <div class="flex justify-center gap-2">
+                    <td class="px-8 py-5 text-right" (click)="$event.stopPropagation()">
+                      <div class="flex items-center justify-end gap-1">
                         <button
-                          class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 hover:shadow-lg flex items-center gap-1"
-                          (click)="$event.stopPropagation(); openEditModal(user)"
+                          (click)="openEditModal(user)"
+                          class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                           title="Editar Usuario"
                         >
-                          <i-lucide name="square-pen" [size]="16"></i-lucide>
+                          <i-lucide name="square-pen" [size]="18"></i-lucide>
                         </button>
+
+                        @if (user.role === 'user') {
+                          <button
+                            (click)="$event.stopPropagation(); openAssignDeviceModalV2(user)"
+                            class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                            title="Dispositivo IoT"
+                          >
+                            <i-lucide name="watch" [size]="18"></i-lucide>
+                          </button>
+                        }
+
                         <button
-                          class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 hover:shadow-lg flex items-center gap-1"
-                          (click)="deleteUser(user.id)"
+                          (click)="deleteUser(user)"
+                          class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                           title="Eliminar Usuario"
                         >
-                          <i-lucide name="trash-2" [size]="16"></i-lucide>
+                          <i-lucide name="trash-2" [size]="18"></i-lucide>
                         </button>
                       </div>
                     </td>
@@ -228,79 +463,79 @@
             </tbody>
           </table>
         </div>
+      </div>
 
-        <!-- Controles de Paginación Moderna -->
-        @if (filteredUsers.length > pageSize) {
-          <div
-            class="bg-white/80 backdrop-blur-sm px-6 py-5 border-t border-gray-200 flex items-center justify-between"
-          >
-            <!-- Info de páginas -->
-            <div class="text-sm text-gray-700 font-medium">
-              Mostrando
-              <span class="font-bold text-blue-600">{{ (currentPage - 1) * pageSize + 1 }}</span> a
-              <span class="font-bold text-blue-600">{{
-                currentPage * pageSize > filteredUsers.length
-                  ? filteredUsers.length
-                  : currentPage * pageSize
-              }}</span>
-              de
-              <span class="font-bold text-blue-600">{{ filteredUsers.length }}</span>
-              {{ activeFilter === 'user' ? 'pacientes' : 'cuidadores' }}
-              @if (searchTerm.trim()) {
-                <span class="text-gray-500 italic">(filtrados)</span>
+      <!-- Controles de Paginación Moderna (Visible en móvil y desktop) -->
+      @if (filteredUsers.length > pageSize) {
+        <div
+          class="pagination-container-users backdrop-blur-sm px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl mt-4 shadow-sm"
+        >
+          <!-- Info de páginas -->
+          <div class="text-sm text-[var(--text-secondary)] font-medium text-center sm:text-left">
+            Mostrando
+            <span class="font-bold text-blue-600">{{ (currentPage - 1) * pageSize + 1 }}</span> a
+            <span class="font-bold text-blue-600">{{
+              currentPage * pageSize > filteredUsers.length
+                ? filteredUsers.length
+                : currentPage * pageSize
+            }}</span>
+            de
+            <span class="font-bold text-blue-600">{{ filteredUsers.length }}</span>
+            {{ activeFilter === 'user' ? 'pacientes' : 'cuidadores' }}
+            @if (searchTerm.trim()) {
+              <span class="text-[var(--text-secondary)] italic">(filtrados)</span>
+            }
+          </div>
+
+          <!-- Botones de paginación -->
+          <div class="flex items-center gap-2">
+            <button
+              (click)="prevPage()"
+              [disabled]="currentPage === 1"
+              class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              [ngClass]="
+                currentPage === 1
+                  ? 'pagination-btn-disabled-users'
+                  : 'pagination-btn-active-users hover:shadow-lg'
+              "
+            >
+              <i-lucide name="chevron-left" [size]="18"></i-lucide>
+              Anterior
+            </button>
+
+            <!-- Números de página -->
+            <div class="flex gap-1">
+              @for (page of pages; track page) {
+                <button
+                  (click)="changePage(page)"
+                  class="w-10 h-10 rounded-lg font-bold transition-all duration-300"
+                  [ngClass]="
+                    currentPage === page
+                      ? 'pagination-btn-active-users shadow-lg scale-110'
+                      : 'pagination-page-btn-users'
+                  "
+                >
+                  {{ page }}
+                </button>
               }
             </div>
 
-            <!-- Botones de paginación -->
-            <div class="flex items-center gap-2">
-              <button
-                (click)="prevPage()"
-                [disabled]="currentPage === 1"
-                class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                [ngClass]="
-                  currentPage === 1
-                    ? 'bg-gray-200 text-gray-500'
-                    : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
-                "
-              >
-                <i-lucide name="chevron-left" [size]="18"></i-lucide>
-                Anterior
-              </button>
-
-              <!-- Números de página -->
-              <div class="flex gap-1">
-                @for (page of pages; track page) {
-                  <button
-                    (click)="changePage(page)"
-                    class="w-10 h-10 rounded-lg font-bold transition-all duration-300"
-                    [ngClass]="
-                      currentPage === page
-                        ? 'bg-blue-600 text-white shadow-lg scale-110'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    "
-                  >
-                    {{ page }}
-                  </button>
-                }
-              </div>
-
-              <button
-                (click)="nextPage()"
-                [disabled]="currentPage === totalPages"
-                class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                [ngClass]="
-                  currentPage === totalPages
-                    ? 'bg-gray-200 text-gray-500'
-                    : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg'
-                "
-              >
-                Siguiente
-                <i-lucide name="chevron-right" [size]="18"></i-lucide>
-              </button>
-            </div>
+            <button
+              (click)="nextPage()"
+              [disabled]="currentPage === totalPages"
+              class="px-4 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              [ngClass]="
+                currentPage === totalPages
+                  ? 'pagination-btn-disabled-users'
+                  : 'pagination-btn-active-users hover:shadow-lg'
+              "
+            >
+              Siguiente
+              <i-lucide name="chevron-right" [size]="18"></i-lucide>
+            </button>
           </div>
-        }
-      </div>
+        </div>
+      }
     }
   }
 
@@ -311,7 +546,7 @@
       (click)="closeEditModal()"
     >
       <div
-        class="bg-white rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden"
+        class="edit-modal-content rounded-3xl w-full mx-4 animate-slide-down shadow-2xl overflow-hidden"
         (click)="$event.stopPropagation()"
       >
         <!-- Header con Gradiente -->
@@ -320,7 +555,7 @@
         >
           <div class="relative z-10">
             <div class="flex items-center gap-3 mb-2">
-              <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+              <div class="p-3 bg-[var(--bg-secondary)]/20 rounded-xl backdrop-blur-sm">
                 <i-lucide name="user" [size]="28"></i-lucide>
               </div>
               <div>
@@ -331,14 +566,16 @@
           </div>
           <!-- Decoración de fondo -->
           <div
-            class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24"
+            class="absolute top-0 right-0 w-48 h-48 bg-[var(--bg-secondary)]/10 rounded-full -mr-24 -mt-24"
           ></div>
         </div>
 
         <form (ngSubmit)="saveUserChanges()" class="p-8 space-y-6">
           <!-- Campo Nombre -->
           <div>
-            <label class="block text-gray-900 font-bold mb-3 text-sm flex items-center gap-2">
+            <label
+              class="block text-[var(--text-primary)] font-bold mb-3 text-sm flex items-center gap-2"
+            >
               <i-lucide name="user" [size]="16"></i-lucide>
               Nombre Completo
             </label>
@@ -348,13 +585,15 @@
               name="fullName"
               required
               placeholder="Ej: Juan Pérez García"
-              class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-900 bg-gray-50"
+              class="edit-modal-input w-full px-4 py-4 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300"
             />
           </div>
 
           <!-- Campo Email -->
           <div>
-            <label class="block text-gray-900 font-bold mb-3 text-sm flex items-center gap-2">
+            <label
+              class="block text-[var(--text-primary)] font-bold mb-3 text-sm flex items-center gap-2"
+            >
               <i-lucide name="mail" [size]="16"></i-lucide>
               Correo Electrónico
             </label>
@@ -364,13 +603,15 @@
               name="email"
               required
               placeholder="ejemplo@correo.com"
-              class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-900 bg-gray-50"
+              class="edit-modal-input w-full px-4 py-4 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300"
             />
           </div>
 
           <!-- Campo Rol con Cards -->
           <div>
-            <label class="block text-gray-900 font-bold mb-3 text-sm flex items-center gap-2">
+            <label
+              class="block text-[var(--text-primary)] font-bold mb-3 text-sm flex items-center gap-2"
+            >
               <i-lucide name="shield" [size]="16"></i-lucide>
               Rol del Usuario
             </label>
@@ -379,11 +620,17 @@
                 [(ngModel)]="selectedUser.role"
                 name="role"
                 [disabled]="selectedUser.role === 'user'"
-                class="w-full px-4 py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 text-gray-900 font-semibold bg-white appearance-none cursor-pointer disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                class="edit-modal-select w-full px-4 py-4 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 font-semibold appearance-none cursor-pointer"
               >
-                <option value="admin">🔴 Administrador - Control total del sistema</option>
-                <option value="caregiver">🔵 Cuidador - Gestión de pacientes</option>
-                <option value="user">🟢 Paciente - Usuario monitoreado</option>
+                @if (isRoleAvailable('admin')) {
+                  <option value="admin">🔴 Administrador - Control total del sistema</option>
+                }
+                @if (isRoleAvailable('caregiver')) {
+                  <option value="caregiver">🔵 Cuidador - Gestión de pacientes</option>
+                }
+                @if (isRoleAvailable('user')) {
+                  <option value="user">🟢 Paciente - Usuario monitoreado</option>
+                }
               </select>
               <i-lucide
                 name="chevron-down"
@@ -397,13 +644,19 @@
                 El rol de paciente no puede ser modificado.
               </p>
             }
+            @if (selectedUser.role === 'caregiver' || selectedUser.role === 'admin') {
+              <p class="text-xs text-blue-600 mt-2 flex items-center gap-1">
+                <i-lucide name="info" [size]="14"></i-lucide>
+                Los cuidadores y administradores solo pueden cambiar entre estos dos roles.
+              </p>
+            }
           </div>
 
           <!-- Botones de Acción -->
           <div class="flex gap-3 pt-4">
             <button
               type="button"
-              class="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 flex items-center justify-center gap-2"
+              class="flex-1 px-6 py-4 border-2 border-[var(--border-color)] text-[var(--text-secondary)] rounded-xl font-bold hover:bg-gray-100 hover:border-gray-400 transition-all duration-300 flex items-center justify-center gap-2"
               (click)="closeEditModal()"
             >
               <i-lucide name="x" [size]="18"></i-lucide>
@@ -429,7 +682,7 @@
       (click)="closeHistoryModal()"
     >
       <div
-        class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col animate-slide-down"
+        class="history-modal-content rounded-2xl shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col animate-slide-down"
         (click)="$event.stopPropagation()"
       >
         <!-- Header del Modal -->
@@ -441,7 +694,7 @@
             Historial: {{ selectedHistoryUserName }}
           </h3>
           <button
-            class="text-3xl hover:bg-white/20 w-10 h-10 rounded-full transition-all duration-300"
+            class="text-3xl hover:bg-[var(--bg-secondary)]/20 w-10 h-10 rounded-full transition-all duration-300"
             (click)="closeHistoryModal()"
           >
             ✕
@@ -459,7 +712,7 @@
             <div class="space-y-4">
               @for (alert of userHistory; track alert.id) {
                 <div
-                  class="border-l-4 rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in"
+                  class="history-alert-card border-l-4 rounded-lg p-6 shadow-sm hover:shadow-md transition-all duration-300 animate-fade-in"
                   [ngClass]="{
                     'border-red-600 bg-red-50': alert.severity === 'critical',
                     'border-orange-500 bg-orange-50': alert.severity === 'high',
@@ -468,23 +721,25 @@
                   }"
                 >
                   <!-- Timestamp -->
-                  <div class="text-sm text-gray-700 font-medium mb-2">
+                  <div class="text-sm text-[var(--text-secondary)] font-medium mb-2">
                     🕒 {{ alert.timestamp | date: 'dd MMM, HH:mm' }}
                   </div>
 
                   <!-- Mensaje -->
                   <div class="mb-3">
-                    <strong class="text-lg block mb-1 text-gray-900">
+                    <strong class="text-lg block mb-1 text-[var(--text-primary)]">
                       {{ alert.message }}
                     </strong>
 
-                    <div class="text-gray-700 text-sm">📍 {{ alert.location }}</div>
+                    <div class="text-[var(--text-secondary)] text-sm">📍 {{ alert.location }}</div>
                   </div>
 
                   <!-- Notas de Resolución -->
                   @if (alert.resolutionNotes) {
                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-3">
-                      <p class="text-gray-700 italic mb-2">"{{ alert.resolutionNotes }}"</p>
+                      <p class="text-[var(--text-secondary)] italic mb-2">
+                        "{{ alert.resolutionNotes }}"
+                      </p>
                       <div class="text-right text-sm">
                         <span class="text-primary font-semibold">— {{ alert.attendedBy }}</span>
                       </div>
@@ -531,217 +786,415 @@
     </div>
   }
 
-  <!-- Modal de Información del Paciente -->
-  @if (isPatientInfoModalOpen) {
+  <!-- Modal de Información del Usuario (Advanced Premium Design) -->
+  @if (isUserInfoModalOpen) {
     <div
-      class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in"
-      (click)="closePatientInfoModal()"
+      class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in"
+      (click)="closeUserInfoModal()"
     >
       <div
-        class="bg-white rounded-3xl w-full max-w-2xl mx-4 animate-slide-down shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        class="user-info-modal-bg rounded-[2.5rem] w-full max-w-2xl mx-auto shadow-2xl overflow-hidden max-h-[90vh] flex flex-col transform transition-all scale-100 border border-white/20"
         (click)="$event.stopPropagation()"
       >
-        <!-- Header con Gradiente -->
+        <!-- Header Premium Centrado -->
         <div
-          class="bg-gradient-to-br from-blue-600 to-blue-800 text-white px-8 py-6 relative overflow-hidden"
+          class="relative px-8 pt-12 pb-24 text-white text-center"
+          [class]="getModalHeaderClass(selectedUserInfo?.role)"
         >
-          <div class="relative z-10 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <i-lucide name="user-circle" [size]="32"></i-lucide>
-              </div>
-              <div>
-                <h3 class="text-2xl font-black">Información del Paciente</h3>
-                <p class="text-sm text-blue-100 font-medium">Perfil y datos del usuario</p>
-              </div>
+          <!-- Patrón de Fondo -->
+          <div class="absolute inset-0 opacity-10 pattern-grid-lg"></div>
+
+          <!-- Decoración Difusa -->
+          <div
+            class="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-[var(--bg-secondary)]/10 rounded-full blur-3xl pointer-events-none"
+          ></div>
+
+          <div class="relative z-10 flex flex-col items-center">
+            <!-- Icono Grande o Foto con Anillo -->
+            <div class="relative mb-6">
+              @if (selectedUserInfo?.foto_perfil) {
+                <div class="relative group">
+                  <img
+                    [src]="selectedUserInfo.foto_perfil"
+                    class="w-32 h-32 rounded-full object-cover border-4 border-white/30 shadow-2xl ring-4 ring-white/10 transition-transform duration-500 hover:scale-105"
+                  />
+                  <!-- Role badge overlay -->
+                  <div
+                    class="absolute -bottom-1 -right-1 p-2 rounded-full border-2 border-white shadow-lg"
+                    [ngClass]="{
+                      'bg-red-500': selectedUserInfo?.role === 'admin',
+                      'bg-green-500': selectedUserInfo?.role === 'caregiver',
+                      'bg-blue-500': selectedUserInfo?.role === 'user',
+                    }"
+                  >
+                    <i-lucide
+                      [name]="
+                        selectedUserInfo?.role === 'admin'
+                          ? 'shield'
+                          : selectedUserInfo?.role === 'caregiver'
+                            ? 'heart-handshake'
+                            : 'user'
+                      "
+                      [size]="16"
+                      class="text-white"
+                    ></i-lucide>
+                  </div>
+                </div>
+              } @else {
+                <div
+                  class="p-6 bg-[var(--bg-secondary)]/20 backdrop-blur-xl rounded-full border-2 border-white/30 shadow-2xl mb-6 ring-4 ring-white/10 transition-transform duration-500 hover:scale-110"
+                >
+                  @if (selectedUserInfo?.role === 'admin') {
+                    <i-lucide
+                      name="shield"
+                      [size]="48"
+                      class="text-white drop-shadow-lg"
+                    ></i-lucide>
+                  } @else if (selectedUserInfo?.role === 'caregiver') {
+                    <i-lucide
+                      name="heart-handshake"
+                      [size]="48"
+                      class="text-white drop-shadow-lg"
+                    ></i-lucide>
+                  } @else {
+                    <i-lucide name="user" [size]="48" class="text-white drop-shadow-lg"></i-lucide>
+                  }
+                </div>
+              }
             </div>
-            <button
-              class="text-3xl hover:bg-white/20 w-10 h-10 rounded-full transition-all duration-300"
-              (click)="closePatientInfoModal()"
+
+            <div
+              class="inline-flex items-center gap-2 bg-[var(--bg-secondary)]/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/20"
             >
-              ✕
+              <span
+                class="w-2 h-2 rounded-full"
+                [ngClass]="
+                  selectedUserInfo?.status === 'active'
+                    ? 'bg-green-400 animate-pulse'
+                    : 'bg-gray-400'
+                "
+              ></span>
+              <span class="text-sm font-bold tracking-wide uppercase">{{
+                selectedUserInfo?.status === 'active' ? 'Activo' : 'Inactivo'
+              }}</span>
+            </div>
+
+            <button
+              class="absolute top-6 right-6 group bg-[var(--bg-secondary)]/10 hover:bg-[var(--bg-secondary)]/20 p-2.5 rounded-full transition-all duration-300 border border-white/10 hover:border-white/30"
+              (click)="closeUserInfoModal()"
+            >
+              <i-lucide
+                name="x"
+                [size]="20"
+                class="text-white/80 group-hover:text-white transition-colors"
+              ></i-lucide>
             </button>
           </div>
-          <div
-            class="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -mr-24 -mt-24"
-          ></div>
         </div>
 
-        <!-- Contenido Scrollable -->
-        <div class="flex-1 overflow-y-auto p-8">
-          @if (isLoadingPatientInfo) {
-            <div class="flex flex-col items-center justify-center h-64">
-              <div
-                class="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"
-              ></div>
-              <p class="text-gray-600 text-lg">Cargando información...</p>
-            </div>
-          } @else if (selectedPatientInfo) {
-            <div class="space-y-6">
-              <!-- Información Personal -->
-              <div
-                class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200"
-              >
-                <h4 class="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
-                  <i-lucide name="user" [size]="20"></i-lucide>
-                  Datos Personales
-                </h4>
-                <div class="grid grid-cols-2 gap-4">
+        <!-- Contenido Overlap -->
+        <div class="flex-1 overflow-y-auto -mt-12 relative z-20 px-6 pb-6">
+          <div class="user-info-content-card rounded-3xl shadow-xl p-8 space-y-8 min-h-[400px]">
+            @if (isLoadingUserInfo) {
+              <div class="flex flex-col items-center justify-center py-20">
+                <div
+                  class="w-12 h-12 border-4 border-[var(--border-color)] border-t-blue-600 rounded-full animate-spin"
+                ></div>
+                <p class="mt-4 text-gray-400 font-medium">Obteniendo datos...</p>
+              </div>
+            } @else if (selectedUserInfo) {
+              <!-- Quick Stats Grid -->
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 pb-8 border-b border-gray-100">
+                <div
+                  class="user-info-stats-card text-center p-4 rounded-2xl transition-colors cursor-default"
+                >
+                  <p class="user-info-label text-xs uppercase font-bold tracking-wider mb-1">
+                    Usuario desde
+                  </p>
+                  <p class="user-info-value font-bold">
+                    {{ (selectedUserInfo.created_at | date: 'MMM yyyy') || 'N/A' }}
+                  </p>
+                </div>
+                <div
+                  class="user-info-stats-card text-center p-4 rounded-2xl transition-colors cursor-default"
+                >
+                  <p class="user-info-label text-xs uppercase font-bold tracking-wider mb-1">
+                    ID Sistema
+                  </p>
+                  <p class="user-info-value font-mono font-bold">#{{ selectedUserInfo.id }}</p>
+                </div>
+                <div
+                  class="user-info-stats-card text-center p-4 rounded-2xl transition-colors cursor-default col-span-2 sm:col-span-1"
+                >
+                  <p class="user-info-label text-xs uppercase font-bold tracking-wider mb-1">
+                    Última Acc.
+                  </p>
+                  <p class="user-info-value font-bold">
+                    {{ (selectedUserInfo.updated_at | date: 'shortDate') || 'Hoy' }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Información Principal -->
+              <div class="space-y-6">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                    <i-lucide name="id-card" [size]="20"></i-lucide>
+                  </div>
+                  <h4 class="text-lg font-bold text-[var(--text-primary)]">Datos Personales</h4>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
                   <div>
-                    <p class="text-sm text-blue-700 font-semibold mb-1">Nombre Completo</p>
-                    <p class="text-gray-900 font-medium">
-                      {{ selectedPatientInfo.fullName || selectedPatientInfo.nombre || 'N/A' }}
+                    <label
+                      class="user-info-label block text-xs uppercase font-bold tracking-wide mb-1.5"
+                      >Nombre Completo</label
+                    >
+                    <p
+                      class="user-info-value text-lg font-semibold border-l-4 border-blue-500 pl-3 leading-none py-1"
+                    >
+                      {{ selectedUserInfo.fullName }}
                     </p>
                   </div>
                   <div>
-                    <p class="text-sm text-blue-700 font-semibold mb-1">Usuario</p>
-                    <p class="text-gray-900 font-medium">
-                      {{
-                        selectedPatientInfo.username ||
-                          selectedPatientInfo.email?.split('@')[0] ||
-                          'N/A'
-                      }}
+                    <label
+                      class="user-info-label block text-xs uppercase font-bold tracking-wide mb-1.5"
+                      >Email</label
+                    >
+                    <p
+                      class="user-info-value text-base font-medium truncate"
+                      title="{{ selectedUserInfo.email }}"
+                    >
+                      {{ selectedUserInfo.email }}
                     </p>
                   </div>
                   <div>
-                    <p class="text-sm text-blue-700 font-semibold mb-1">Email</p>
-                    <p class="text-gray-900 font-medium">
-                      {{ selectedPatientInfo.email || 'N/A' }}
+                    <label
+                      class="user-info-label block text-xs uppercase font-bold tracking-wide mb-1.5"
+                      >Teléfono</label
+                    >
+                    <p class="user-info-value text-base font-medium font-mono">
+                      {{ selectedUserInfo.telefono || 'Sin registrar' }}
                     </p>
                   </div>
                   <div>
-                    <p class="text-sm text-blue-700 font-semibold mb-1">Teléfono</p>
-                    <p class="text-gray-900 font-medium">
-                      {{ selectedPatientInfo.telefono || 'N/A' }}
+                    <label
+                      class="user-info-label block text-xs uppercase font-bold tracking-wide mb-1.5"
+                      >Usuario</label
+                    >
+                    <p class="user-info-value text-base font-medium">
+                      @{{ selectedUserInfo.username }}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <!-- Información Médica / Adicional -->
-              <div
-                class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200"
-              >
-                <h4 class="text-lg font-bold text-green-900 mb-4 flex items-center gap-2">
-                  <i-lucide name="heart" [size]="20"></i-lucide>
-                  Información Adicional
-                </h4>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <p class="text-sm text-green-700 font-semibold mb-1">Fecha de Nacimiento</p>
-                    <p class="text-gray-900 font-medium">
-                      {{
-                        selectedPatientInfo.fecha_nacimiento
-                          ? (selectedPatientInfo.fecha_nacimiento | date: 'dd/MM/yyyy')
-                          : 'N/A'
-                      }}
-                    </p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-green-700 font-semibold mb-1">Dirección</p>
-                    <p class="text-gray-900 font-medium">
-                      {{ selectedPatientInfo.direccion || 'N/A' }}
-                    </p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-green-700 font-semibold mb-1">Estado</p>
-                    <div class="flex items-center gap-2">
-                      <span
-                        class="w-3 h-3 rounded-full"
-                        [ngClass]="
-                          selectedPatientInfo.status === 'active'
-                            ? 'bg-green-500 animate-glow'
-                            : 'bg-gray-400'
-                        "
-                      ></span>
-                      <span
-                        class="font-semibold capitalize"
-                        [ngClass]="
-                          selectedPatientInfo.status === 'active'
-                            ? 'text-green-700'
-                            : 'text-gray-500'
-                        "
-                      >
-                        {{ selectedPatientInfo.status === 'active' ? 'Activo' : 'Inactivo' }}
-                      </span>
+              <!-- Sección Específica Pacientes -->
+              @if (selectedUserInfo.role === 'user') {
+                <div class="pt-6 border-t border-gray-100 space-y-6 animate-slide-up">
+                  <!-- Info Médica -->
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="user-info-medical-card p-5 rounded-2xl">
+                      <div class="user-info-medical-label flex items-center gap-2 mb-3">
+                        <i-lucide name="calendar" [size]="18"></i-lucide>
+                        <span class="font-bold text-sm uppercase">Nacimiento</span>
+                      </div>
+                      <p class="user-info-medical-value text-2xl font-black">
+                        {{ (selectedUserInfo.fecha_nacimiento | date: 'dd MMM yyyy') || 'N/A' }}
+                      </p>
+                    </div>
+
+                    <div class="user-info-medical-card p-5 rounded-2xl">
+                      <div class="user-info-medical-label flex items-center gap-2 mb-3">
+                        <i-lucide name="map-pin" [size]="18"></i-lucide>
+                        <span class="font-bold text-sm uppercase">Dirección</span>
+                      </div>
+                      <p class="user-info-medical-value text-base font-medium leading-snug">
+                        {{ selectedUserInfo.direccion || 'No registrada' }}
+                      </p>
                     </div>
                   </div>
-                  <div>
-                    <p class="text-sm text-green-700 font-semibold mb-1">Última Sesión</p>
-                    <p class="text-gray-900 font-medium">
-                      {{
-                        selectedPatientInfo.lastLogin || selectedPatientInfo.last_login
-                          ? (selectedPatientInfo.lastLogin || selectedPatientInfo.last_login
-                            | date: 'dd/MM/yyyy HH:mm')
-                          : 'Nunca'
-                      }}
-                    </p>
-                  </div>
-                </div>
-              </div>
 
-              <!-- Información de Dispositivo si existe -->
-              @if (selectedPatientInfo.dispositivo_id) {
-                <div
-                  class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200"
-                >
-                  <h4 class="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
-                    <i-lucide name="watch" [size]="20"></i-lucide>
-                    Dispositivo Asignado
-                  </h4>
-                  <div class="space-y-2">
-                    <div>
-                      <p class="text-sm text-purple-700 font-semibold mb-1">ID del Dispositivo</p>
-                      <p class="text-gray-900 font-mono font-medium">
-                        {{ selectedPatientInfo.dispositivo_id }}
-                      </p>
+                  <!-- Dispositivo IoT -->
+                  <div
+                    class="user-info-device-card text-white rounded-2xl p-6 relative overflow-hidden group"
+                  >
+                    <!-- Decoración -->
+                    <div
+                      class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl -mr-10 -mt-10"
+                    ></div>
+
+                    <div class="relative z-10 flex items-center justify-between">
+                      <div class="flex items-center gap-4">
+                        <div class="p-3 bg-[var(--bg-secondary)]/10 rounded-xl backdrop-blur-md">
+                          <i-lucide name="watch" [size]="24" class="text-blue-400"></i-lucide>
+                        </div>
+                        <div>
+                          <h5 class="font-bold text-lg">Dispositivo IoT</h5>
+                          @if (selectedUserInfo.dispositivo_mac) {
+                            <p class="font-mono text-gray-300 text-sm tracking-wider">
+                              {{ selectedUserInfo.dispositivo_mac }}
+                            </p>
+                          } @else {
+                            <p class="text-gray-400 text-sm">No asignado</p>
+                          }
+                        </div>
+                      </div>
+
+                      @if (selectedUserInfo.dispositivo_mac) {
+                        <div class="text-right">
+                          <div class="flex items-center gap-1.5 text-green-400 font-bold text-xl">
+                            <i-lucide name="battery-medium" [size]="20"></i-lucide>
+                            <span>85%</span>
+                          </div>
+                          <span
+                            class="text-[10px] uppercase tracking-widest text-[var(--text-secondary)] font-bold"
+                            >Batería</span
+                          >
+                        </div>
+                      } @else {
+                        <button
+                          class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded-lg transition-colors"
+                          (click)="
+                            $event.stopPropagation();
+                            selectedUserInfo && openAssignDeviceModalV2(selectedUserInfo);
+                            closeUserInfoModal()
+                          "
+                        >
+                          Asignar
+                        </button>
+                      }
                     </div>
                   </div>
                 </div>
               }
+            }
+          </div>
 
-              <!-- Información de Registro -->
-              <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
-                <h4 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <i-lucide name="calendar" [size]="20"></i-lucide>
-                  Información de Registro
-                </h4>
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <p class="text-sm text-gray-700 font-semibold mb-1">Fecha de Registro</p>
-                    <p class="text-gray-900 font-medium">
-                      {{
-                        selectedPatientInfo.created_at
-                          ? (selectedPatientInfo.created_at | date: 'dd/MM/yyyy HH:mm')
-                          : 'N/A'
-                      }}
-                    </p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-700 font-semibold mb-1">Última Actualización</p>
-                    <p class="text-gray-900 font-medium">
-                      {{
-                        selectedPatientInfo.updated_at
-                          ? (selectedPatientInfo.updated_at | date: 'dd/MM/yyyy HH:mm')
-                          : 'N/A'
-                      }}
-                    </p>
-                  </div>
-                </div>
+          <!-- Footer Simple -->
+          <div class="text-center mt-6 flex justify-center gap-4">
+            <button
+              class="user-info-footer-btn px-8 py-3 rounded-full font-bold transition-all shadow-sm hover:shadow-md border-2"
+              (click)="closeUserInfoModal()"
+            >
+              Cerrar Ventana
+            </button>
+
+            @if (selectedUserInfo?.role === 'user') {
+              <button
+                class="px-8 py-3 bg-emerald-500 text-white rounded-full font-bold hover:bg-emerald-600 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                (click)="exportSingleUserCSV()"
+              >
+                <i-lucide name="download" [size]="18"></i-lucide>
+                Exportar Datos
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal Asignar Dispositivo -->
+  @if (isAssignDeviceModalOpen) {
+    <div
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in"
+      (click)="closeAssignDeviceModal()"
+    >
+      <div
+        class="assign-device-modal-content rounded-3xl w-full max-w-lg mx-4 animate-slide-down shadow-2xl overflow-hidden"
+        (click)="$event.stopPropagation()"
+      >
+        <!-- Header -->
+        <div class="bg-gradient-to-br from-purple-600 to-purple-800 text-white px-8 py-6">
+          <h3 class="text-2xl font-bold flex items-center gap-2">
+            <i-lucide name="watch" [size]="24"></i-lucide>
+            Asignar Dispositivo
+          </h3>
+          <p class="text-purple-100 text-sm mt-1">Asigna un sensor a {{ selectedUser.fullName }}</p>
+        </div>
+
+        <div class="p-8">
+          @if (isLoadingDevices) {
+            <div class="flex justify-center p-8">
+              <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600"></div>
+            </div>
+          } @else {
+            <div class="mb-6">
+              <label class="block text-[var(--text-secondary)] font-bold mb-2"
+                >Seleccionar Dispositivo Disponible</label
+              >
+              <div class="relative">
+                <select
+                  [(ngModel)]="selectedDeviceMac"
+                  class="assign-device-select w-full px-4 py-3 rounded-xl focus:border-purple-500 focus:outline-none focus:ring-4 focus:ring-purple-500/20 appearance-none"
+                >
+                  <option value="" disabled selected>-- Elige un sensor --</option>
+                  @for (device of availableDevices; track device.mac_address) {
+                    <option [value]="device.mac_address">
+                      {{ device.nombre }} ({{ device.mac_address }}) -
+                      {{ device.estado ? 'Online' : 'Offline' }}
+                    </option>
+                  }
+                </select>
+                <i-lucide
+                  name="chevron-down"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                  [size]="20"
+                ></i-lucide>
               </div>
+              @if (availableDevices.length === 0) {
+                <p class="text-red-500 text-sm mt-2">No hay dispositivos disponibles.</p>
+              }
+            </div>
+
+            <div class="flex gap-3">
+              <button
+                class="flex-1 px-6 py-3 border-2 border-[var(--border-color)] text-[var(--text-secondary)] rounded-xl font-bold hover:bg-[var(--bg-primary)] transition-all"
+                (click)="closeAssignDeviceModal()"
+              >
+                Cancelar
+              </button>
+              <button
+                class="flex-1 px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all shadow-lg shadow-purple-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="!selectedDeviceMac"
+                (click)="assignDevice()"
+              >
+                Asignar
+              </button>
             </div>
           }
         </div>
+      </div>
+    </div>
+  }
 
-        <!-- Footer con Botón de Cerrar -->
-        <div class="bg-gray-50 px-8 py-4 border-t border-gray-200 flex justify-end">
-          <button
-            class="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all duration-300 flex items-center gap-2"
-            (click)="closePatientInfoModal()"
-          >
-            <i-lucide name="x" [size]="18"></i-lucide>
-            Cerrar
+  <!-- Modal de Confirmación de Eliminación (NUEVO) -->
+  @if (isDeleteConfirmModalOpen && userToDelete) {
+    <div class="delete-confirm-modal" (click)="closeDeleteConfirmModal()">
+      <div class="delete-confirm-content" (click)="$event.stopPropagation()">
+        <!-- Icono -->
+        <div class="delete-confirm-icon">
+          <i-lucide name="trash-2" [size]="32" class="text-red-600"></i-lucide>
+        </div>
+
+        <!-- Título -->
+        <h3 class="delete-confirm-title">¿Eliminar Usuario?</h3>
+
+        <!-- Mensaje -->
+        <p class="delete-confirm-message">
+          ¿Estás seguro de que deseas eliminar a
+          <span class="delete-confirm-username">{{ userToDelete.fullName }}</span
+          >? <br /><br />
+          Esta acción no se puede deshacer y se perderán todos los datos asociados.
+        </p>
+
+        <!-- Botones -->
+        <div class="delete-confirm-buttons">
+          <button class="delete-confirm-cancel" (click)="closeDeleteConfirmModal()">
+            Cancelar
           </button>
+          <button class="delete-confirm-delete" (click)="confirmDeleteUser()">Sí, Eliminar</button>
         </div>
       </div>
     </div>

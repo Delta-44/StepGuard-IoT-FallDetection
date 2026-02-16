@@ -9,6 +9,7 @@ export interface Cuidador {
   is_admin: boolean;
   fecha_creacion?: Date;
   password_last_changed_at?: Date;
+  foto_perfil?: string;
 }
 
 export const CuidadorModel = {
@@ -153,5 +154,16 @@ export const CuidadorModel = {
   delete: async (id: number): Promise<boolean> => {
     const result = await query('DELETE FROM cuidadores WHERE id = $1', [id]);
     return (result.rowCount ?? 0) > 0;
+  },
+
+  /**
+   * Actualizar foto de perfil
+   */
+  updateProfilePhoto: async (id: number, photoUrl: string): Promise<Cuidador | null> => {
+    const result = await query(
+      'UPDATE cuidadores SET foto_perfil = $1 WHERE id = $2 RETURNING *',
+      [photoUrl, id]
+    );
+    return result.rows[0] || null;
   }
 };

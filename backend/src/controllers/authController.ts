@@ -97,7 +97,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void> 
     if (usuario.password_last_changed_at) {
       const tokenIssuedAt = decoded.iat * 1000; // JWT iat está en segundos, convertir a ms
       const lastPasswordChange = new Date(usuario.password_last_changed_at).getTime();
-      
+
       if (tokenIssuedAt < lastPasswordChange) {
         res.status(400).json({ message: 'Token inválido o expirado' });
         return;

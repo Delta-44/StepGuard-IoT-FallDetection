@@ -17,19 +17,19 @@ const redisConfig: any = {
 
 // TLS automático solo para servicios que lo requieren (puerto 6380 o URLs específicas)
 // Redis Cloud con puertos estándar (no 6380) NO usa TLS
-if (process.env.REDIS_PORT === '6380' || 
-    (process.env.REDIS_HOST?.includes('upstash.io') && process.env.REDIS_PORT === '6380')) {
+if (process.env.REDIS_PORT === '6380' ||
+  (process.env.REDIS_HOST?.includes('upstash.io') && process.env.REDIS_PORT === '6380')) {
   redisConfig.tls = { rejectUnauthorized: false };
 }
 
 const redis = new Redis(redisConfig);
 
 redis.on('connect', () => {
-  console.log('✅ Conectado a Redis');
+  console.log('Conectado a Redis');
 });
 
 redis.on('error', (err) => {
-  console.error('❌ Error en Redis:', err);
+  console.error('Error en Redis:', err);
 });
 
 // Funciones helper para gestionar datos de ESP32
@@ -65,7 +65,7 @@ export const ESP32Cache = {
     const key = `history:${macAddress}`;
     const timestamp = Date.now();
     const entry = JSON.stringify({ ...data, timestamp });
-    
+
     await redis.lpush(key, entry);
     await redis.ltrim(key, 0, maxEntries - 1); // Mantener solo las últimas N entradas
     await redis.expire(key, 86400); // Expira en 24 horas
@@ -138,6 +138,50 @@ export const ESP32Cache = {
       await redis.del(...keys);
     }
     return true;
+  },
+
+  // --- Heartbeat Helpers ---
+
+  /**
+   * Update heartbeat timestamp
+   */
+  updateHeartbeat: async (macAddress: string) => {
+    await redis.zadd('device_heartbeats', Date.now(), macAddress);
+  },
+
+  /**
+   * Get devices that haven't sent heartbeat since before threshold
+   */
+  getExpiredHeartbeats: async (thresholdTimestamp: number) => {
+    return await redis.zrangebyscore('device_heartbeats', '-inf', thresholdTimestamp);
+  },
+
+  /**
+   * Remove device from heartbeat monitoring (e.g. after marking offline)
+   */
+  removeHeartbeat: async (macAddress: string) => {
+    await redis.zrem('device_heartbeats', macAddress);
+  },
+
+  /**
+   * Set maintenance mode for a device
+   * @param macAddress - MAC of the device
+   * @param durationMinutes - Duration in minutes
+   */
+  setMaintenanceMode: async (macAddress: string, durationMinutes: number) => {
+    const key = `maintenance:${macAddress}`;
+    await redis.set(key, 'true', 'EX', durationMinutes * 60);
+    return true;
+  },
+
+  /**
+   * Check if device is in maintenance mode
+   * @param macAddress - MAC of the device
+   */
+  getMaintenanceMode: async (macAddress: string) => {
+    const key = `maintenance:${macAddress}`;
+    const exists = await redis.get(key);
+    return exists === 'true';
   },
 };
 

@@ -1,0 +1,64 @@
+<div class="analytics-page">
+  <div class="analytics-header">
+    <div class="title-block">
+      <i-lucide name="layout-dashboard" [size]="24"></i-lucide>
+      <div>
+        <h1>Analítica en Grafana</h1>
+        <p>{{ scopeLabel() }}</p>
+      </div>
+    </div>
+    <div class="info">
+      <span class="tag">Filtro automático por rol</span>
+      <span class="divider">·</span>
+      <span class="tag">Intervalo: 7 días</span>
+      <span class="divider">·</span>
+      <span class="tag">Tema: dark</span>
+    </div>
+  </div>
+
+  <div class="dashboard-card" *ngIf="dashboardUrl; else missing">
+    <div class="card-icon">
+      <i-lucide name="external-link" [size]="48" [strokeWidth]="1.5"></i-lucide>
+    </div>
+    <div class="card-content">
+      <h2>Dashboard de Grafana Cloud</h2>
+      <p class="description">
+        Por razones de seguridad, Grafana Cloud no permite mostrar dashboards en iframes.
+        Click en el botón para abrir el dashboard en una nueva pestaña.
+      </p>
+      <div class="features">
+        <div class="feature">
+          <i-lucide name="bar-chart-3" [size]="16"></i-lucide>
+          <span>Total de caídas</span>
+        </div>
+        <div class="feature">
+          <i-lucide name="users" [size]="16"></i-lucide>
+          <span>Usuarios activos</span>
+        </div>
+        <div class="feature">
+          <i-lucide name="activity" [size]="16"></i-lucide>
+          <span>Dispositivos activos</span>
+        </div>
+        <div class="feature">
+          <i-lucide name="trending-up" [size]="16"></i-lucide>
+          <span>Tendencias</span>
+        </div>
+      </div>
+      <button class="open-btn" (click)="openDashboard()">
+        <i-lucide name="external-link" [size]="18"></i-lucide>
+        <span>Abrir Dashboard en Grafana</span>
+      </button>
+      <p class="note">
+        <i-lucide name="info" [size]="14"></i-lucide>
+        <span>El dashboard se abrirá en una nueva pestaña</span>
+      </p>
+    </div>
+  </div>
+
+  <ng-template #missing>
+    <div class="empty">
+      <i-lucide name="alert-circle" [size]="22"></i-lucide>
+      <p>No se pudo generar la URL del dashboard de Grafana.</p>
+    </div>
+  </ng-template>
+</div>

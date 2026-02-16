@@ -19,6 +19,7 @@ const char *mqtt_pass = "Stepguard123";
 // Variables globales
 String globalMac;
 String mqtt_topic;
+String status_topic;
 
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
@@ -37,6 +38,7 @@ void setupRed()
     // Una vez conectado, obtenemos la MAC con seguridad
     globalMac = WiFi.macAddress();
     mqtt_topic = "stepguard/" + globalMac;
+    status_topic = "stepguard/status/" + globalMac; // Para heartbeat
 
     Serial.print("Tópico configurado: ");
     Serial.println(mqtt_topic);
@@ -46,6 +48,9 @@ void setupRed()
 
     configTime(3600, 0, "pool.ntp.org");
     client.setServer(mqtt_server, mqtt_port);
+
+    // El broker esperará máximo 10s-15s antes de declarar al dispositivo "muerto"
+    client.setKeepAlive(30);
 }
 
 /// @brief Reconectar al servidor MQTT si la conexión se pierde
@@ -56,9 +61,10 @@ void reconnect()
         Serial.print("Intentando conexión MQTT segura...");
         String clientId = "StepGuard-" + globalMac; // MAC para el ID
 
-        if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass))
+        if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass)) // Último Will para indicar desconexión
         {
             Serial.println("conectado");
+            client.publish(status_topic.c_str(), "online"); // Publicar estado online al conectar
         }
         else
         {
@@ -86,16 +92,20 @@ void loopReconnect()
 /// @param impactos Lista de las magnitudes de los impactos
 void enviarReporteMQTT(bool sos_presionado, bool caida_detectada, const std::vector<float> &impactos)
 {
+    // Si no hay conexión intentamos reconectar una vez
     if (!client.connected())
         reconnect();
 
+    // Si no conecta, cancelamos para evitar bloqueos
+    if (!client.connected())
+        return;
+
     // ! MUY IMPORTANTE: AJUSTAR EL TAMAÑO DEL JSON SEGÚN LOS DATOS QUE SE ESPEREN ENVIAR
-    const size_t SIZE_JSON = 2048; 
+    const size_t SIZE_JSON = 2048;
     DynamicJsonDocument doc(SIZE_JSON);
 
     // Datos para el JSON
     doc["mac"] = globalMac;
-    doc["status"] = true;
     doc["isButtonPressed"] = sos_presionado;
     doc["isFallDetected"] = caida_detectada;
     doc["timestamp"] = obtenerHoraNTP();
@@ -108,7 +118,7 @@ void enviarReporteMQTT(bool sos_presionado, bool caida_detectada, const std::vec
 
     doc["impact_count"] = impactos.size();
 
-    char buffer[SIZE_JSON]; // Reservar espacio en memoria
+    char buffer[SIZE_JSON];     // Reservar espacio en memoria
     serializeJson(doc, buffer); // Convertir JSON a string para enviar
 
     // Publicar en MQTT
@@ -136,5 +146,24 @@ String obtenerHoraNTP()
     }
     char buff[25];
     strftime(buff, sizeof(buff), "%Y-%m-%d %H:%M:%S", &timeinfo); // Formatear la hora
-    return String(buff); // Devolver como String de Arduino
+    return String(buff);                                          // Devolver como String de Arduino
+}
+
+void enviarHeartbeat()
+{
+    static unsigned long ultimoHeartbeat = 0;
+    unsigned long ahora = millis();
+
+    int segundos = 1000;
+
+    // Enviamos el pulso cada 7 segundos
+    if (ahora - ultimoHeartbeat >= segundos)
+    {
+        if (client.connected())
+        {
+            client.publish(status_topic.c_str(), "online");
+            Serial.println("Heartbeat enviado"); // Para debug
+        }
+        ultimoHeartbeat = ahora;
+    }
 }

@@ -1,3 +1,37 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import "tailwindcss";
+
+:root {
+  /* Light Theme - Default */
+  --bg-primary: #f8f9fa;       /* Light gray background */
+  --bg-secondary: #ffffff;     /* White card background */
+  --text-primary: #111827;     /* Gray 900 */
+  --text-secondary: #4b5563;   /* Gray 600 */
+  --border-color: #e5e7eb;     /* Gray 200 */
+  --accent-color: #2563eb;     /* Blue 600 */
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --header-bg: #111827;        /* Gray 900 (Navbar constant in light mode as per current design) */
+  --header-text: #ffffff;
+}
+
+[data-theme="dark"] {
+  /* Dark Theme - Clear Night (Noche Clara) */
+  /* Using Slate palette for deep blue-grey look */
+  --bg-primary: #0f172a;       /* Slate 900 */
+  --bg-secondary: #1e293b;     /* Slate 800 */
+  --text-primary: #f1f5f9;     /* Slate 100 */
+  --text-secondary: #94a3b8;   /* Slate 400 */
+  --border-color: #334155;     /* Slate 700 */
+  --accent-color: #3b82f6;     /* Blue 500 */
+  --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --header-bg: #0f172a;        /* Consistent with dark theme */
+  --header-text: #f1f5f9;
+}
+
+/* Apply variables to body */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

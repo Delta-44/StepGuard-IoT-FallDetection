@@ -8,9 +8,10 @@ export interface Usuario {
   fecha_nacimiento?: Date;
   direccion?: string;
   telefono?: string;
-  dispositivo_mac?: string; // MAC address del dispositivo asignado
+  dispositivo_mac?: string; // Dirección MAC del dispositivo asignado
   fecha_creacion?: Date;
   password_last_changed_at?: Date;
+  foto_perfil?: string;
 }
 
 export const UsuarioModel = {
@@ -24,11 +25,12 @@ export const UsuarioModel = {
     fecha_nacimiento?: Date,
     direccion?: string,
     telefono?: string,
-    dispositivo_mac?: string
+    dispositivo_mac?: string,
+    foto_perfil?: string
   ): Promise<Usuario> => {
     const result = await query(
-      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac]
+      'INSERT INTO usuarios (nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac, foto_perfil) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [nombre, email, password_hash, fecha_nacimiento, direccion, telefono, dispositivo_mac, foto_perfil]
     );
     return result.rows[0];
   },
@@ -118,11 +120,12 @@ export const UsuarioModel = {
     email: string,
     fecha_nacimiento?: Date,
     direccion?: string,
-    telefono?: string
+    telefono?: string,
+    foto_perfil?: string
   ): Promise<Usuario | null> => {
     const result = await query(
-      'UPDATE usuarios SET nombre = $1, email = $2, fecha_nacimiento = $3, direccion = $4, telefono = $5 WHERE id = $6 RETURNING *',
-      [nombre, email, fecha_nacimiento, direccion, telefono, id]
+      'UPDATE usuarios SET nombre = $1, email = $2, fecha_nacimiento = $3, direccion = $4, telefono = $5, foto_perfil = COALESCE($7, foto_perfil) WHERE id = $6 RETURNING *',
+      [nombre, email, fecha_nacimiento, direccion, telefono, id, foto_perfil]
     );
     return result.rows[0] || null;
   },
@@ -149,6 +152,17 @@ export const UsuarioModel = {
   },
 
   /**
+   * Actualizar foto de perfil
+   */
+  updateProfilePhoto: async (id: number, photoUrl: string): Promise<Usuario | null> => {
+    const result = await query(
+      'UPDATE usuarios SET foto_perfil = $1 WHERE id = $2 RETURNING *',
+      [photoUrl, id]
+    );
+    return result.rows[0] || null;
+  },
+
+  /**
    * Buscar usuario por ID con información del dispositivo
    */
   findByIdWithDevice: async (id: number): Promise<any | null> => {
@@ -165,4 +179,32 @@ export const UsuarioModel = {
     );
     return result.rows[0] || null;
   },
+  /**
+   * Listar todos los usuarios con información de dispositivo
+   */
+  findAllWithDevices: async (): Promise<any[]> => {
+    const result = await query(
+      `SELECT u.*,
+              d.mac_address as dispositivo_mac,
+              d.nombre as dispositivo_nombre,
+              d.estado as dispositivo_estado,
+              d.total_impactos as dispositivo_total_impactos
+       FROM usuarios u
+       LEFT JOIN dispositivos d ON u.dispositivo_mac = d.mac_address
+       ORDER BY u.fecha_creacion DESC`
+    );
+    return result.rows;
+  },
+
+  /**
+   * Buscar usuarios por nombre (coincidencia parcial, case-insensitive)
+   */
+  searchByName: async (termino: string): Promise<Usuario[]> => {
+    const result = await query(
+      `SELECT * FROM usuarios WHERE nombre ILIKE $1`,
+      [`%${termino}%`]
+    );
+    return result.rows;
+  },
+
 };

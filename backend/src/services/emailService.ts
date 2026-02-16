@@ -42,11 +42,11 @@ class EmailService {
       console.log('Message sent: %s', info.messageId);
     } catch (error) {
       console.error('Error sending email:', error);
-      // Fallback for development: Log the URL so we can still test
+      // Fallback para desarrollo: Registrar la URL para poder probar
       if (process.env.NODE_ENV !== 'production') {
-        console.log('⚠️  [DEV MODE] Email delivery failed. Here is the reset link:');
+        console.log('[MODO DEV] Falló el envío de correo. Aquí está el enlace de recuperación:');
         console.log(resetUrl);
-        return; // Don't throw, treat as "sent" for dev flow
+        return; // No lanzar error, tratar como "enviado" para flujo de desarrollo
       }
       throw new Error('Error al enviar el correo de recuperación');
     }

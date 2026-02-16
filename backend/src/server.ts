@@ -8,14 +8,17 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
+import { ESP32Service } from './services/esp32Service';
 import authRoutes from './routes/authRoutes';
 import esp32Routes from './routes/esp32Routes';
 import userRoutes from './routes/userRoutes';
 import eventRoutes from './routes/eventRoutes';
+import chatRoutes from './routes/chatRoutes';
 import authMiddleware, { AuthRequest } from './middleware/auth';
 import { connectMQTT } from './config/mqtt';
-import { SchedulerService } from './services/schedulerService';
 import { AlertService } from './services/alertService';
+import { DiscordService } from './services/discordService';
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,13 +39,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/esp32', esp32Routes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/chat', chatRoutes);
 
-// Protected Route Example
+// Ejemplo de Ruta Protegida
 app.get('/api/protected', authMiddleware, (req: AuthRequest, res: Response) => {
   res.json({ message: 'This is a protected route', user: req.user });
 });
 
-// SSE Alert Stream
+// Flujo de Alertas SSE
 app.get('/api/alerts/stream', (req: Request, res: Response) => {
   const token = req.query.token as string;
 
@@ -51,28 +55,52 @@ app.get('/api/alerts/stream', (req: Request, res: Response) => {
     return;
   }
 
+
   try {
-    // Manually verify token since browsers don't send headers for EventSource
-    // Assuming decoded token has structure: { id: number, role: 'usuario' | 'cuidador' | 'admin', ... }
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret');
-    
-    // Pass user info to AlertService
+    // Verificar token manualmente ya que los navegadores no envían encabezados para EventSource
+    const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret';
+
+
+
+    // Asumiendo que el token decodificado tiene la estructura: { id: number, role: 'usuario' | 'cuidador' | 'admin', ... }
+    const decoded: any = jwt.verify(token, jwtSecret);
+
+    // Pasar información del usuario al AlertService
     AlertService.addClient(res, decoded.id, decoded.role);
-    
+
   } catch (error) {
     res.status(401).json({ message: 'Invalid token.' });
   }
-});
+}
+);
 
-// Error handling middleware
+// Middleware de manejo de errores
+import fs from 'fs';
+import path from 'path';
+
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  console.error("Application error:", err.message);
+
+  const logPath = path.join(__dirname, '../server_error.log');
+  const logMessage = `[${new Date().toISOString()}] ${err.message}\nStack: ${err.stack}\n\n`;
+
+  try {
+    fs.appendFileSync(logPath, logMessage);
+  } catch (e) {
+    console.error("Could not write to error log:", e);
+  }
+
+  res.status(500).json({
+    message: 'Something went wrong!',
+    error: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
 });
 
-// Start server
+// Iniciar servidor
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
   connectMQTT();
-  SchedulerService.start();
+  DiscordService.initialize();
+  ESP32Service.startHeartbeatMonitor();
 });

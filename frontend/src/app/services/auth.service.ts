@@ -42,13 +42,14 @@ export class AuthService {
         const userToSave: User = {
           id: backendUser.id,
           username: backendUser.email.split('@')[0],
-          fullName: backendUser.name, // Mapeamos name -> fullName
+          fullName: backendUser.fullName || backendUser.nombre || backendUser.name, 
           email: backendUser.email,
           role: role,
           status: 'active',
           token: res.token,
           telefono: backendUser.telefono,
           is_admin: backendUser.role === 'admin',
+          foto_perfil: backendUser.foto_perfil,
         };
 
         this.saveSession(userToSave, res.token);
@@ -76,6 +77,11 @@ export class AuthService {
     this.currentUser.set(null);
     this.userService.clearState(); // 👈 Limpiar cache de usuarios al salir
     this.router.navigate(['/']);
+  }
+
+  updateCurrentUser(user: any) {
+    this.currentUser.set(user);
+    localStorage.setItem('stepguard_session', JSON.stringify(user)); // Update the stored session
   }
 
   getToken(): string | null {
@@ -124,6 +130,7 @@ export class AuthService {
           token: res.token,
           telefono: backendUser.telefono,
           is_admin: backendUser.role === 'admin',
+          foto_perfil: backendUser.foto_perfil,
         };
 
         this.saveSession(userToSave, res.token);

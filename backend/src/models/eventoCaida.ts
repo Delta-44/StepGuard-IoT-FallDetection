@@ -5,16 +5,24 @@ export interface EventoCaida {
   dispositivo_mac: string;
   usuario_id?: number;
   fecha_hora: Date;
-  acc_x?: number;
-  acc_y?: number;
-  acc_z?: number;
+
+  // Datos del ESP32 (coinciden con init.sql)
+  is_button_pressed?: boolean;
+  is_fall_detected?: boolean;
+  impact_magnitudes?: number[];
+  impact_count?: number;
+
+  // Severidad y estado
   severidad: "low" | "medium" | "high" | "critical";
   estado: "pendiente" | "atendida" | "falsa_alarma" | "ignorada";
-  ubicacion?: string;
+
+  // Información adicional
   notas?: string;
   atendido_por?: number;
+  atendido_por_nombre?: string; // Nuevo campo para el nombre del cuidador
   fecha_atencion?: Date;
   creado_en?: Date;
+  usuario_nombre?: string; // Nombre del usuario siniestrado
 }
 
 export const EventoCaidaModel = {
@@ -24,25 +32,25 @@ export const EventoCaidaModel = {
   create: async (
     dispositivo_mac: string,
     usuario_id: number | undefined,
-    acc_x: number,
-    acc_y: number,
-    acc_z: number,
+    is_button_pressed: boolean = false,
+    is_fall_detected: boolean = false,
+    impact_magnitudes: number[] = [],
+    impact_count: number = 0,
     severidad: "low" | "medium" | "high" | "critical" = "medium",
-    ubicacion?: string,
     notas?: string,
   ): Promise<EventoCaida> => {
     const result = await query(
       `INSERT INTO eventos_caida 
-       (dispositivo_mac, usuario_id, acc_x, acc_y, acc_z, severidad, ubicacion, notas) 
+       (dispositivo_mac, usuario_id, is_button_pressed, is_fall_detected, impact_magnitudes, impact_count, severidad, notas) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [
         dispositivo_mac,
         usuario_id,
-        acc_x,
-        acc_y,
-        acc_z,
+        is_button_pressed,
+        is_fall_detected,
+        impact_magnitudes,
+        impact_count,
         severidad,
-        ubicacion,
         notas,
       ],
     );
@@ -53,9 +61,14 @@ export const EventoCaidaModel = {
    * Buscar evento por ID
    */
   findById: async (id: number): Promise<EventoCaida | null> => {
-    const result = await query("SELECT * FROM eventos_caida WHERE id = $1", [
-      id,
-    ]);
+    const result = await query(
+      `SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre
+       FROM eventos_caida ec
+       LEFT JOIN usuarios u ON ec.usuario_id = u.id
+       LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
+       WHERE ec.id = $1`,
+      [id]
+    );
     return result.rows[0] || null;
   },
 
@@ -69,12 +82,38 @@ export const EventoCaidaModel = {
     const result = await query(
       `UPDATE eventos_caida 
        SET estado = 'atendida', 
-           atendido_por = $1, 
-           fecha_atencion = CURRENT_TIMESTAMP 
+       atendido_por = $1, 
+       fecha_atencion = CURRENT_TIMESTAMP 
        WHERE id = $2 
        RETURNING *`,
       [atendidoPorId, id],
     );
+    console.log(`[DB] markAsResolved result rowCount: ${result.rowCount}`);
+    return result.rows[0] || null;
+  },
+
+  /**
+   * Resolver evento con detalles completos (status, notas, severidad)
+   */
+  resolveWithDetails: async (
+    id: number,
+    atendidoPorId: number,
+    status: 'atendida' | 'falsa_alarma',
+    notes?: string,
+    severity?: string
+  ): Promise<EventoCaida | null> => {
+    const result = await query(
+      `UPDATE eventos_caida 
+       SET estado = $1, 
+       atendido_por = $2, 
+       fecha_atencion = CURRENT_TIMESTAMP,
+       notas = COALESCE($3, notas),
+       severidad = COALESCE($4, severidad)
+       WHERE id = $5 
+       RETURNING *`,
+      [status, atendidoPorId, notes, severity, id],
+    );
+    console.log(`[DB] resolveWithDetails result rowCount: ${result.rowCount}`);
     return result.rows[0] || null;
   },
 
@@ -88,9 +127,12 @@ export const EventoCaidaModel = {
     offset: number = 0,
   ): Promise<EventoCaida[]> => {
     const result = await query(
-      `SELECT * FROM eventos_caida 
-       WHERE usuario_id = $1 
-       ORDER BY fecha_hora DESC 
+      `SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre
+       FROM eventos_caida ec
+       LEFT JOIN usuarios u ON ec.usuario_id = u.id
+       LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
+       WHERE ec.usuario_id = $1 
+       ORDER BY ec.fecha_hora DESC 
        LIMIT $2 OFFSET $3`,
       [usuario_id, limit, offset],
     );
@@ -118,15 +160,21 @@ export const EventoCaidaModel = {
    * Obtener eventos pendientes
    */
   findPendientes: async (): Promise<EventoCaida[]> => {
-    const result = await query(
-      `SELECT ec.*, u.nombre as usuario_nombre, d.mac_address as device_id, ec.ubicacion as dispositivo_ubicacion
+    try {
+      const result = await query(
+        `SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre, d.mac_address as device_id
        FROM eventos_caida ec
        LEFT JOIN usuarios u ON ec.usuario_id = u.id
+       LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
        LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
        WHERE ec.estado = 'pendiente'
        ORDER BY ec.severidad DESC, ec.fecha_hora DESC`,
-    );
-    return result.rows;
+      );
+      return result.rows;
+    } catch (error) {
+      console.error('Error en findPendientes:', error);
+      throw error;
+    }
   },
 
   /**
@@ -138,9 +186,10 @@ export const EventoCaidaModel = {
     usuario_id?: number,
   ): Promise<EventoCaida[]> => {
     let queryText = `
-      SELECT ec.*, u.nombre as usuario_nombre, d.device_id
+      SELECT ec.*, u.nombre as usuario_nombre, uc.nombre as atendido_por_nombre, d.mac_address as device_id
       FROM eventos_caida ec
       LEFT JOIN usuarios u ON ec.usuario_id = u.id
+      LEFT JOIN cuidadores uc ON ec.atendido_por = uc.id
       LEFT JOIN dispositivos d ON ec.dispositivo_mac = d.mac_address
       WHERE ec.fecha_hora BETWEEN $1 AND $2
     `;
@@ -168,9 +217,9 @@ export const EventoCaidaModel = {
     const result = await query(
       `UPDATE eventos_caida 
        SET estado = 'atendida', 
-           atendido_por = $1, 
-           fecha_atencion = CURRENT_TIMESTAMP,
-           notas = COALESCE($2, notas)
+       atendido_por = $1, 
+       fecha_atencion = CURRENT_TIMESTAMP,
+       notas = COALESCE($2, notas)
        WHERE id = $3 
        RETURNING *`,
       [cuidador_id, notas, id],
@@ -189,9 +238,9 @@ export const EventoCaidaModel = {
     const result = await query(
       `UPDATE eventos_caida 
        SET estado = 'falsa_alarma', 
-           atendido_por = $1, 
-           fecha_atencion = CURRENT_TIMESTAMP,
-           notas = COALESCE($2, notas)
+       atendido_por = $1, 
+       fecha_atencion = CURRENT_TIMESTAMP,
+       notas = COALESCE($2, notas)
        WHERE id = $3 
        RETURNING *`,
       [cuidador_id, notas, id],
@@ -250,4 +299,51 @@ export const EventoCaidaModel = {
     const result = await query("DELETE FROM eventos_caida WHERE id = $1", [id]);
     return (result.rowCount ?? 0) > 0;
   },
+
+  // --- MÉTODOS DE ANÁLISIS ---
+
+  /**
+   * Obtener distribución de eventos por hora del día (0-23)
+   */
+  getHourlyTrend: async (usuario_id: number, days: number = 30): Promise<any[]> => {
+    const result = await query(
+      `SELECT EXTRACT(HOUR FROM fecha_hora) as hora, COUNT(*) as cantidad
+       FROM eventos_caida
+       WHERE usuario_id = $1 AND fecha_hora > NOW() - INTERVAL '${days} days'
+       GROUP BY hora 
+       ORDER BY cantidad DESC`,
+      [usuario_id]
+    );
+    return result.rows;
+  },
+
+  /**
+   * Obtener distribución de eventos por día de la semana (0=Domingo, 6=Sábado)
+   */
+  getWeeklyTrend: async (usuario_id: number, days: number = 30): Promise<any[]> => {
+    const result = await query(
+      `SELECT EXTRACT(DOW FROM fecha_hora) as dia_semana, COUNT(*) as cantidad
+       FROM eventos_caida
+       WHERE usuario_id = $1 AND fecha_hora > NOW() - INTERVAL '${days} days'
+       GROUP BY dia_semana 
+       ORDER BY cantidad DESC`,
+      [usuario_id]
+    );
+    return result.rows;
+  },
+
+  /**
+   * Obtener evolución diaria de eventos (últimos N días)
+   */
+  getDailyEvolution: async (usuario_id: number, days: number = 30): Promise<any[]> => {
+    const result = await query(
+      `SELECT date_trunc('day', fecha_hora) as fecha, COUNT(*) as cantidad
+       FROM eventos_caida
+       WHERE usuario_id = $1 AND fecha_hora > NOW() - INTERVAL '${days} days'
+       GROUP BY fecha 
+       ORDER BY fecha ASC`,
+      [usuario_id]
+    );
+    return result.rows;
+  }
 };

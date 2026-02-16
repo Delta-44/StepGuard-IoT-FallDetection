@@ -1,0 +1,346 @@
+/* ================================================
+   MI PERFIL - ARREGLOS FINALES DE ICONOS Y CONTRASTE
+   ================================================ */
+
+/* ================================================
+   FONDO GENERAL - MÁS LIMPIO EN MODO CLARO
+   ================================================ */
+.min-h-screen.bg-gradient-to-br {
+  background: linear-gradient(to bottom right, #ffffff, #f8fafc, #f1f5f9) !important;
+}
+
+html.dark .min-h-screen.bg-gradient-to-br,
+:host-context(.dark) .min-h-screen.bg-gradient-to-br {
+  background: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a) !important;
+}
+
+/* ================================================
+   TÍTULOS DE SECCIÓN - MEJOR CONTRASTE
+   ================================================ */
+section h3.text-gray-900 {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+html.dark section h3.text-gray-900,
+:host-context(.dark) section h3.text-gray-900 {
+  color: #f8fafc !important;
+}
+
+/* ================================================
+   ICONOS DE SECCIÓN (LOS CUADRADITOS)
+   ================================================ */
+
+/* MODO CLARO - Mantener colores originales */
+section .bg-blue-100 {
+  background-color: #dbeafe !important;
+}
+
+section .text-blue-600 {
+  color: #2563eb !important;
+}
+
+section .bg-green-50 {
+  background-color: #f0fdf4 !important;
+}
+
+section .text-green-600 {
+  color: #16a34a !important;
+}
+
+section .bg-purple-50 {
+  background-color: #faf5ff !important;
+}
+
+section .text-purple-600 {
+  color: #9333ea !important;
+}
+
+section .bg-pink-50 {
+  background-color: #fdf2f8 !important;
+}
+
+section .text-pink-600 {
+  color: #db2777 !important;
+}
+
+/* MODO OSCURO - ARREGLO CRÍTICO DE ICONOS */
+/* En lugar de fondos oscuros, usamos fondos brillantes con opacidad */
+
+html.dark section .bg-blue-100,
+:host-context(.dark) section .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.2) !important; /* Azul con transparencia */
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+html.dark section .text-blue-600,
+:host-context(.dark) section .text-blue-600 {
+  color: #60a5fa !important; /* Azul brillante */
+}
+
+html.dark section .bg-green-50,
+:host-context(.dark) section .bg-green-50 {
+  background-color: rgba(34, 197, 94, 0.2) !important; /* Verde con transparencia */
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+html.dark section .text-green-600,
+:host-context(.dark) section .text-green-600 {
+  color: #4ade80 !important; /* Verde brillante */
+}
+
+html.dark section .bg-purple-50,
+:host-context(.dark) section .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.2) !important; /* Púrpura con transparencia */
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+html.dark section .text-purple-600,
+:host-context(.dark) section .text-purple-600 {
+  color: #c084fc !important; /* Púrpura brillante */
+}
+
+html.dark section .bg-pink-50,
+:host-context(.dark) section .bg-pink-50 {
+  background-color: rgba(236, 72, 153, 0.2) !important; /* Rosa con transparencia */
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+html.dark section .text-pink-600,
+:host-context(.dark) section .text-pink-600 {
+  color: #f472b6 !important; /* Rosa brillante */
+}
+
+/* ================================================
+   LABELS DE INFORMACIÓN (EMAIL, TELÉFONO, etc.)
+   ================================================ */
+
+/* Modo claro - más oscuros */
+.text-xs.font-semibold.text-gray-500.uppercase {
+  color: #6b7280 !important;
+  font-weight: 700 !important;
+}
+
+/* Modo oscuro - más brillantes */
+html.dark .text-xs.font-semibold.text-gray-500.uppercase,
+:host-context(.dark) .text-xs.font-semibold.text-gray-500.uppercase {
+  color: #94a3b8 !important;
+  font-weight: 700 !important;
+}
+
+/* ================================================
+   VALORES DE INFORMACIÓN (Los datos del usuario)
+   ================================================ */
+
+/* Modo claro */
+.text-sm.font-semibold.text-gray-900 {
+  color: #111827 !important;
+  font-weight: 700 !important;
+}
+
+/* Modo oscuro */
+html.dark .text-sm.font-semibold.text-gray-900,
+:host-context(.dark) .text-sm.font-semibold.text-gray-900 {
+  color: #f1f5f9 !important;
+}
+
+/* ================================================
+   SECCIÓN "MI DISPOSITIVO" - TÍTULO
+   ================================================ */
+
+/* Icono del dispositivo */
+section .bg-blue-100:has(i-lucide[name="smartphone"]) {
+  background-color: #dbeafe !important;
+}
+
+html.dark section .bg-blue-100:has(i-lucide[name="smartphone"]),
+:host-context(.dark) section .bg-blue-100:has(i-lucide[name="smartphone"]) {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+/* ================================================
+   CALENDARIO - ICONO
+   ================================================ */
+
+.bg-indigo-100 {
+  background-color: #e0e7ff !important;
+}
+
+html.dark .bg-indigo-100,
+:host-context(.dark) .bg-indigo-100 {
+  background-color: rgba(99, 102, 241, 0.2) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.text-indigo-600 {
+  color: #4f46e5 !important;
+}
+
+html.dark .text-indigo-600,
+:host-context(.dark) .text-indigo-600 {
+  color: #a5b4fc !important;
+}
+
+/* ================================================
+   BORDES DE SECCIONES
+   ================================================ */
+
+/* Modo claro - bordes más suaves */
+.border-gray-200 {
+  border-color: #e5e7eb !important;
+}
+
+/* Modo oscuro - bordes más visibles */
+html.dark .border-gray-200,
+:host-context(.dark) .border-gray-200 {
+  border-color: #334155 !important;
+}
+
+/* Líneas divisorias internas */
+.border-b-2.border-gray-100 {
+  border-color: #f3f4f6 !important;
+}
+
+html.dark .border-b-2.border-gray-100,
+:host-context(.dark) .border-b-2.border-gray-100 {
+  border-color: #334155 !important;
+}
+
+/* ================================================
+   BOXES DE DATOS (p-3 bg-gray-50)
+   ================================================ */
+
+.bg-gray-50.rounded-lg {
+  background-color: #f9fafb !important;
+  border-color: #e5e7eb !important;
+}
+
+html.dark .bg-gray-50.rounded-lg,
+:host-context(.dark) .bg-gray-50.rounded-lg {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+/* ================================================
+   CALENDARIO - DÍAS DE LA SEMANA
+   ================================================ */
+
+.text-gray-600 {
+  color: #4b5563 !important;
+}
+
+html.dark .text-gray-600,
+:host-context(.dark) .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+/* ================================================
+   ESTADO DEL DISPOSITIVO - "EN LÍNEA"
+   ================================================ */
+
+.from-green-50.to-emerald-50 {
+  background: linear-gradient(to right, #f0fdf4, #d1fae5) !important;
+  border-color: #86efac !important;
+}
+
+html.dark .from-green-50.to-emerald-50,
+:host-context(.dark) .from-green-50.to-emerald-50 {
+  background: linear-gradient(to right, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2)) !important;
+  border-color: #22c55e !important;
+}
+
+.text-green-700 {
+  color: #15803d !important;
+  font-weight: 700 !important;
+}
+
+html.dark .text-green-700,
+:host-context(.dark) .text-green-700 {
+  color: #4ade80 !important;
+}
+
+/* ================================================
+   DÍAS DEL CALENDARIO - HOVER
+   ================================================ */
+
+/* Modo claro */
+.hover\:bg-gray-200:hover {
+  background-color: #e5e7eb !important;
+}
+
+/* Modo oscuro */
+html.dark .hover\:bg-gray-200:hover,
+:host-context(.dark) .hover\:bg-gray-200:hover {
+  background-color: #334155 !important;
+}
+
+/* ================================================
+   NOMBRE DEL MES EN CALENDARIO
+   ================================================ */
+
+.from-indigo-50.to-purple-50 {
+  background: linear-gradient(to bottom right, #eef2ff, #faf5ff) !important;
+  border-color: #c7d2fe !important;
+}
+
+html.dark .from-indigo-50.to-purple-50,
+:host-context(.dark) .from-indigo-50.to-purple-50 {
+  background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+/* Texto del mes */
+.from-indigo-50.to-purple-50 .text-indigo-600 {
+  color: #4f46e5 !important;
+}
+
+html.dark .from-indigo-50.to-purple-50 .text-indigo-600,
+:host-context(.dark) .from-indigo-50.to-purple-50 .text-indigo-600 {
+  color: #a5b4fc !important;
+}
+
+/* Número del día grande */
+.from-indigo-50.to-purple-50 .text-gray-900 {
+  color: #0f172a !important;
+}
+
+html.dark .from-indigo-50.to-purple-50 .text-gray-900,
+:host-context(.dark) .from-indigo-50.to-purple-50 .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+/* Año y día de la semana */
+.from-indigo-50.to-purple-50 .text-gray-600 {
+  color: #475569 !important;
+}
+
+html.dark .from-indigo-50.to-purple-50 .text-gray-600,
+:host-context(.dark) .from-indigo-50.to-purple-50 .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+.from-indigo-50.to-purple-50 .text-gray-500 {
+  color: #64748b !important;
+}
+
+html.dark .from-indigo-50.to-purple-50 .text-gray-500,
+:host-context(.dark) .from-indigo-50.to-purple-50 .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+/* ================================================
+   AJUSTES FINALES DE CONTRASTE
+   ================================================ */
+
+/* Asegurar que todos los textos sean legibles */
+html.dark *,
+:host-context(.dark) * {
+  border-color: inherit;
+}
+
+/* Iconos lucide en general */
+html.dark i-lucide,
+:host-context(.dark) i-lucide {
+  opacity: 1;
+}

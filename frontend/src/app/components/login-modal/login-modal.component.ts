@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { AlertService } from '../../services/alert.service';
 import { NotificationService } from '../../services/notification.service';
 
 // Declaramos la variable de Google para que TypeScript no se queje
@@ -17,6 +18,7 @@ declare var google: any;
 })
 export class LoginModalComponent implements AfterViewInit {
   private authService = inject(AuthService);
+  private alertService = inject(AlertService);
   private router = inject(Router);
   private ngZone = inject(NgZone); // 👈 Necesario para volver a Angular desde Google
   private cdr = inject(ChangeDetectorRef);
@@ -47,52 +49,34 @@ export class LoginModalComponent implements AfterViewInit {
   }
 
   // --- 👇 LÓGICA DE RESPUESTA DE GOOGLE ---
+  // --- 👇 LÓGICA DE RESPUESTA DE GOOGLE ---
+  // --- 👇 LÓGICA DE RESPUESTA DE GOOGLE ---
   handleGoogleLogin(response: any) {
-    // Google nos devuelve un 'credential' (el token)
     if (response.credential) {
-      // Usamos ngZone.run porque esto viene de fuera de Angular
       this.ngZone.run(() => {
         this.isLoading = true;
         
-        // Llamamos a tu servicio que hace el POST al backend
         this.authService.loginWithGoogle(response.credential).subscribe({
           next: (res) => {
-            // Si es un usuario nuevo, mostrar selector de rol
             if (res.isNewUser) {
               console.log('⚠️ Usuario nuevo detectado:', res.email);
               this.isLoading = false;
-              const role = prompt(`Usuario ${res.email} no registrado.\n\n¿Qué tipo de cuenta deseas?\n1. Usuario (persona mayor)\n2. Cuidador\n\nEscribe "usuario" o "cuidador":`);
               
-              if (role === 'usuario' || role === 'cuidador') {
-                this.isLoading = true;
-                // Reenviar con el rol seleccionado
-                this.authService.loginWithGoogle(response.credential, role).subscribe({
-                  next: (res) => {
-                    console.log('✅ Google registro exitoso con rol:', role);
-                    this.isLoading = false;
-                    this.close.emit();
-                    const redirectPath = role === 'usuario' ? '/profile' : '/dashboard';
-                    this.router.navigate([redirectPath]);
-                  },
-                  error: (err) => {
-                    console.error('❌ Error registrando con Google:', err);
-                    this.isLoading = false;
-                    this.notificationService.error('Error de Registro', 'No se pudo completar el registro con Google');
-                  }
+              // 🟢 MOSTRAR MODAL DE SELECCIÓN (DIFERIDO)
+              // Usamos setTimeout para salir del contexto de ejecución del iframe de Google
+              // y evitar el error "Cross-Origin-Opener-Policy".
+              setTimeout(() => {
+                this.ngZone.run(() => {
+                  this.tempGoogleCredential = response.credential;
+                  this.showRoleSelectionModal = true;
+                  this.cdr.detectChanges();
                 });
-              } else {
-                this.isLoading = false;
-                this.notificationService.warning('Rol Inválido', 'Por favor, selecciona un rol válido');
-              }
+              }, 100);
               return;
             }
 
-            console.log('✅ Google Login exitoso');
-            this.isLoading = false;
-            this.close.emit();
-            const userRole = this.authService.currentUser()?.role;
-            const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';
-            this.router.navigate([redirectPath]);
+            console.log('✅ Usuario existente, completando login directament');
+            this.completeGoogleLogin();
           },
           error: (err) => {
             console.error('❌ Error Google:', err);
@@ -101,8 +85,52 @@ export class LoginModalComponent implements AfterViewInit {
           }
         });
       });
+    } else {
+        console.error('❌ No credential in Google response');
     }
   }
+
+  // Nueva variable para guardar el token mientras selecciona rol
+  tempGoogleCredential = '';
+  showRoleSelectionModal = false;
+
+  selectRole(role: 'admin' | 'caregiver' | 'user') {
+    this.showRoleSelectionModal = false;
+    this.isLoading = true;
+
+    // Convertir a lo que espera el backend ('usuario', 'cuidador')
+    const backendRole = role === 'user' ? 'usuario' : 'cuidador';
+
+    this.authService.loginWithGoogle(this.tempGoogleCredential, backendRole).subscribe({
+      next: (res) => {
+        console.log('✅ Google registro exitoso con rol:', backendRole);
+        this.completeGoogleLogin();
+      },
+      error: (err) => {
+        console.error('❌ Error registrando con Google:', err);
+        this.isLoading = false;
+        this.notificationService.error('Error de Registro', 'No se pudo completar el registro con Google');
+      }
+    });
+  }
+
+  cancelRoleSelection() {
+    this.showRoleSelectionModal = false;
+    this.tempGoogleCredential = '';
+    this.isLoading = false;
+  }
+
+  private completeGoogleLogin() {
+    console.log('✅ Google Login exitoso');
+    this.isLoading = false;
+    this.alertService.initialize();
+    this.close.emit();
+    const userRole = this.authService.currentUser()?.role;
+    const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';
+    this.router.navigate([redirectPath]);
+  }
+
+
 
   // --- LÓGICA DE EMAIL / PASS (Estaba perfecta, solo añadí logs) ---
   onSubmit() {
@@ -112,6 +140,7 @@ export class LoginModalComponent implements AfterViewInit {
         console.log('✅ Login con usuario admin de prueba');
         this.authService.loginTestAdmin();
         this.isLoading = false;
+        this.alertService.initialize(); // Inicializar AlertService después del login
         this.close.emit();
         this.router.navigate(['/dashboard']);
         return;
@@ -123,6 +152,7 @@ export class LoginModalComponent implements AfterViewInit {
         next: () => {
           console.log('✅ Login exitoso');
           this.isLoading = false;
+          this.alertService.initialize(); // Inicializar AlertService después del login
           this.close.emit();
           const userRole = this.authService.currentUser()?.role;
           const redirectPath = userRole === 'user' ? '/profile' : '/dashboard';

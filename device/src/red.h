@@ -8,5 +8,6 @@ void setupRed();
 void loopReconnect(); 
 void enviarReporteMQTT(bool sos_presionado, bool caida_detectada, const std::vector<float>& impactos);
 String obtenerHoraNTP();
+void enviarHeartbeat();
 
 #endif

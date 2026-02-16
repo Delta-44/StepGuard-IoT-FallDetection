@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, map } from 'rxjs';
 import { User } from '../models/user.model';
 import { environment } from '../../environments/environment';
 
@@ -46,6 +46,11 @@ export class UserService {
           telefono: u.telefono,
           direccion: u.direccion,
           fecha_nacimiento: u.fecha_nacimiento,
+          dispositivo_mac: u.dispositivo_mac,
+          dispositivo_nombre: u.dispositivo_nombre,
+          foto_perfil: u.foto_perfil,
+          created_at: u.fecha_creacion, // 👈 Mapeamos fecha de creación
+          updated_at: u.fecha_actualizacion // 👈 Si existe, sino undefined
         }));
         this.usersSubject.next(mappedUsers);
         this.loaded = true;
@@ -63,7 +68,24 @@ export class UserService {
   }
 
   getUserById(id: string | number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/users/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/users/${id}`).pipe(
+      map((u) => ({
+        id: u.id,
+        username: u.username || u.email.split('@')[0],
+        fullName: u.fullName || u.nombre,
+        email: u.email,
+        role: u.role || 'user', // Asegurar rol
+        status: u.status || 'active',
+        telefono: u.telefono,
+        direccion: u.direccion,
+        fecha_nacimiento: u.fecha_nacimiento,
+        dispositivo_mac: u.dispositivo?.mac_address || u.dispositivo_mac,
+        foto_perfil: u.foto_perfil,
+        lastLogin: u.lastLogin || u.last_login,
+        created_at: u.createdAt || u.created_at || u.fecha_creacion,
+        updated_at: u.updatedAt || u.updated_at || u.fecha_actualizacion,
+      }))
+    );
   }
 
   createUser(user: User): Observable<boolean> {
@@ -76,15 +98,28 @@ export class UserService {
   }
 
   updateUser(id: string | number, updatedUser: Partial<User>): Observable<any> {
+    // Si se está actualizando el rol, usar el endpoint de admin
+    if (updatedUser.role) {
+      return this.http.put(`${this.apiUrl}/users/${id}/admin`, {
+        name: updatedUser.fullName,
+        email: updatedUser.email,
+        role: updatedUser.role
+      });
+    }
     return this.http.put(`${this.apiUrl}/users/${id}`, updatedUser);
   }
 
-  deleteUser(id: string | number): Observable<boolean> {
-    // TODO: Implementar DELETE al backend cuando esté disponible
-    console.log('Eliminar usuario aún no implementado en el backend');
-    return new Observable((obs) => {
-      obs.next(false);
-      obs.complete();
-    });
+  deleteUser(id: string | number, role: string = 'user'): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/users/${id}?role=${role}`);
+  }
+
+  assignDevice(userId: number, deviceMac: string): Observable<any> {
+    console.log(`[UserService] Assigning device ${deviceMac} to user ${userId}`);
+    return this.http.post(`${this.apiUrl}/users/${userId}/device`, { macAddress: deviceMac });
+  }
+
+  exportUsersCSV(scope?: 'me'): Observable<Blob> {
+    const url = scope ? `${this.apiUrl}/users/export/csv?scope=${scope}` : `${this.apiUrl}/users/export/csv`;
+    return this.http.get(url, { responseType: 'blob' });
   }
 }

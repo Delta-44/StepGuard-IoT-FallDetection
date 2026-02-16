@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, timer, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, timer, of, firstValueFrom } from 'rxjs';
+import { map, switchMap, catchError } from 'rxjs/operators';
 import { Alert } from '../models/alert.model';
 import { Device } from '../models/device';
 import { environment } from '../../environments/environment';
@@ -18,433 +18,134 @@ export class ApiService {
   // Ahora coinciden con la estructura de tu nueva Base de Datos
   // ============================================================
 
-  private mockAlerts: Alert[] = [
-    // 🌪️ MODO CAOS: Puedes comentar/descomentar esto para probar
-    {
-      id: 'alert-1',
-      macAddress: 'AA:BB:CC:DD:EE:02',
-      timestamp: new Date(),
-      severity: 'critical',
-      message: '🚨 Caída detectada (Impacto fuerte)',
-      resolved: false,
-      status: 'pendiente',
-    },
-    {
-      id: 'alert-2',
-      macAddress: 'AA:BB:CC:DD:EE:03',
-      timestamp: new Date(Date.now() - 5000),
-      severity: 'critical',
-      message: '🔥 Temperatura crítica (>60ºC) detectada',
-      resolved: false,
-      status: 'pendiente',
-    },
-    {
-      id: 'alert-3',
-      macAddress: 'AA:BB:CC:DD:EE:01',
-      timestamp: new Date(Date.now() - 3600000),
-      severity: 'warning',
-      message: '⚠️ Batería baja (15%)',
-      resolved: false,
-      status: 'pendiente',
-    },
-  ];
+  private mockAlerts: Alert[] = []; // Ya no se usan mocks de alertas, llegan del backend
 
   // 🆕 AHORA LOS DISPOSITIVOS SON PERSISTENTES EN MEMORIA
   // Coinciden con la estructura actualizada del backend
-  private mockDevices: Device[] = [
-    // 🔴 DISPOSITIVO ESP32 REAL DEL USUARIO
-    // La MAC se configura en environment.ts
-    {
-      mac_address: environment.realESP32Mac,
-      nombre: '🌟 ESP32-StepGuard-REAL',
-      estado: false, // Offline por defecto
-      total_impactos: 0,
-      ultima_magnitud: 0,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(Date.now() - 86400000), // Hace 24 horas
-      esp32Data: {
-        macAddress: environment.realESP32Mac,
-        name: 'ESP32-StepGuard-REAL',
-        impact_count: 0,
-        impact_magnitude: 0,
-        timestamp: new Date(Date.now() - 86400000),
-        status: false,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-      assignedUser: 'Usuario Real',
-    },
-    // DISPOSITIVOS MOCK PARA TESTING
-    {
-      mac_address: 'AA:BB:CC:DD:EE:01',
-      nombre: 'ESP32-Sala',
-      estado: true,
-      total_impactos: 5,
-      ultima_magnitud: 2.5,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:01',
-        name: 'ESP32-Sala',
-        impact_count: 5,
-        impact_magnitude: 2.5,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-      assignedUser: 'Ana García',
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:02',
-      nombre: 'ESP32-Baño',
-      estado: false,
-      total_impactos: 12,
-      ultima_magnitud: 8.5,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(Date.now() - 3600000),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:02',
-        name: 'ESP32-Baño',
-        impact_count: 12,
-        impact_magnitude: 8.5,
-        timestamp: new Date(Date.now() - 3600000),
-        status: false,
-        isFallDetected: true,
-        isButtonPressed: false,
-      },
-      assignedUser: 'Juan Pérez',
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:03',
-      nombre: 'ESP32-Cocina',
-      estado: true,
-      total_impactos: 3,
-      ultima_magnitud: 1.2,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:03',
-        name: 'ESP32-Cocina',
-        impact_count: 3,
-        impact_magnitude: 1.2,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:04',
-      nombre: 'ESP32-Dormitorio-Principal',
-      estado: true,
-      total_impactos: 1,
-      ultima_magnitud: 0.8,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:04',
-        name: 'ESP32-Dormitorio-Principal',
-        impact_count: 1,
-        impact_magnitude: 0.8,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-      assignedUser: 'María López',
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:05',
-      nombre: 'ESP32-Pasillo',
-      estado: false,
-      total_impactos: 7,
-      ultima_magnitud: 3.2,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(Date.now() - 7200000),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:05',
-        name: 'ESP32-Pasillo',
-        impact_count: 7,
-        impact_magnitude: 3.2,
-        timestamp: new Date(Date.now() - 7200000),
-        status: false,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:06',
-      nombre: 'ESP32-Comedor',
-      estado: true,
-      total_impactos: 4,
-      ultima_magnitud: 1.9,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:06',
-        name: 'ESP32-Comedor',
-        impact_count: 4,
-        impact_magnitude: 1.9,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-      assignedUser: 'Pedro Martínez',
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:07',
-      nombre: 'ESP32-Terraza',
-      estado: true,
-      total_impactos: 2,
-      ultima_magnitud: 1.5,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:07',
-        name: 'ESP32-Terraza',
-        impact_count: 2,
-        impact_magnitude: 1.5,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:08',
-      nombre: 'ESP32-Garaje',
-      estado: false,
-      total_impactos: 15,
-      ultima_magnitud: 6.7,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(Date.now() - 10800000),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:08',
-        name: 'ESP32-Garaje',
-        impact_count: 15,
-        impact_magnitude: 6.7,
-        timestamp: new Date(Date.now() - 10800000),
-        status: false,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-      assignedUser: 'Carmen Ruiz',
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:09',
-      nombre: 'ESP32-Estudio',
-      estado: true,
-      total_impactos: 6,
-      ultima_magnitud: 2.3,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:09',
-        name: 'ESP32-Estudio',
-        impact_count: 6,
-        impact_magnitude: 2.3,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:10',
-      nombre: 'ESP32-Jardín',
-      estado: true,
-      total_impactos: 8,
-      ultima_magnitud: 2.8,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:10',
-        name: 'ESP32-Jardín',
-        impact_count: 8,
-        impact_magnitude: 2.8,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-      assignedUser: 'Luis Fernández',
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:11',
-      nombre: 'ESP32-Habitación-Invitados',
-      estado: false,
-      total_impactos: 0,
-      ultima_magnitud: 0,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(Date.now() - 14400000),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:11',
-        name: 'ESP32-Habitación-Invitados',
-        impact_count: 0,
-        impact_magnitude: 0,
-        timestamp: new Date(Date.now() - 14400000),
-        status: false,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:12',
-      nombre: 'ESP32-Lavandería',
-      estado: true,
-      total_impactos: 9,
-      ultima_magnitud: 3.1,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:12',
-        name: 'ESP32-Lavandería',
-        impact_count: 9,
-        impact_magnitude: 3.1,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-      assignedUser: 'Sofía Hernández',
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:13',
-      nombre: 'ESP32-Biblioteca',
-      estado: true,
-      total_impactos: 2,
-      ultima_magnitud: 1.1,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:13',
-        name: 'ESP32-Biblioteca',
-        impact_count: 2,
-        impact_magnitude: 1.1,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:14',
-      nombre: 'ESP32-Gimnasio',
-      estado: false,
-      total_impactos: 20,
-      ultima_magnitud: 9.2,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(Date.now() - 5400000),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:14',
-        name: 'ESP32-Gimnasio',
-        impact_count: 20,
-        impact_magnitude: 9.2,
-        timestamp: new Date(Date.now() - 5400000),
-        status: false,
-        isFallDetected: true,
-        isButtonPressed: false,
-      },
-      assignedUser: 'Roberto Sánchez',
-    },
-    {
-      mac_address: 'AA:BB:CC:DD:EE:15',
-      nombre: 'ESP32-Recibidor',
-      estado: true,
-      total_impactos: 3,
-      ultima_magnitud: 1.7,
-      fecha_registro: new Date(),
-      ultima_conexion: new Date(),
-      esp32Data: {
-        macAddress: 'AA:BB:CC:DD:EE:15',
-        name: 'ESP32-Recibidor',
-        impact_count: 3,
-        impact_magnitude: 1.7,
-        timestamp: new Date(),
-        status: true,
-        isFallDetected: false,
-        isButtonPressed: false,
-      },
-    },
-  ];
+  private mockDevices: Device[] = [];
 
   constructor() {}
+
+  // ==========================================
+  // 📸 PERFIL DE USUARIO
+  // ==========================================
+
+  uploadProfilePhoto(userId: number | string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    return this.http.post(`${this.apiUrl}/users/${userId}/photo`, formData);
+  }
 
   // ==========================================
   // 🚨 LÓGICA DE ALERTAS
   // ==========================================
 
   getAlertsStream(): Observable<Alert[]> {
-    return timer(0, 2000).pipe(
-      map(() => {
-        // Devolvemos las alertas ordenadas: No resueltas primero
-        return [...this.mockAlerts].sort((a, b) =>
-          a.resolved === b.resolved ? 0 : a.resolved ? 1 : -1,
-        );
+    // Polling cada 3 segundos para obtener alertas reales
+    // Usamos un rango de fecha amplio (ej. 7 días) para obtener tanto pendientes como historial reciente para estadísticas
+    return timer(0, 3000).pipe(
+      switchMap(() => {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - 7); // Últimos 7 días
+
+        const params = {
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString()
+        };
+        
+        return this.http.get<any[]>(`${this.apiUrl}/events`, { params });
       }),
+      map((realEvents) => {
+        console.log('🔥 Raw Events from Backend:', realEvents);
+        return realEvents.map((e) => ({
+          id: String(e.id),
+          macAddress: e.dispositivo_mac,
+          userId: e.usuario_id,
+          severity: e.severidad,
+          status: e.estado, // 'pendiente', 'atendida', 'falsa_alarma'
+          message: e.notas || (e.severidad === 'critical' ? 'Caída Detectada' : 'Alerta de Sensor'),
+          location: e.ubicacion || 'Desconocida',
+          timestamp: new Date(e.fecha_hora),
+          attendedBy: e.atendido_por_nombre || e.atendido_por,
+          caregiverName: e.atendido_por_nombre,
+          resolutionNotes: e.notas,
+          resolved: e.estado === 'atendida' || e.estado === 'falsa_alarma',
+
+          // 🛡️ Fallbacks para asegurar que mostramos la MAC o ID
+          deviceName: e.dispositivo_mac || e.device_id || e.dispositivo_id || 'ID Desconocido'
+        }));
+      }),
+      // Si falla la petición, devolver array vacío para no romper el stream
+      catchError((err) => {
+        console.error('Error polling alerts:', err);
+        return of([]);
+      })
     );
   }
 
-  markAsResolved(alertId: string, who: string): Observable<boolean> {
-    const alert = this.mockAlerts.find((a) => a.id === alertId);
-    if (alert) {
-      alert.resolved = true;
-      alert.assignedTo = who;
-      console.log(`✅ Alerta ${alertId} atendida por ${who}`);
-    }
-    return of(true);
+  markAsResolved(
+    alertId: string, 
+    who: string, 
+    status: 'atendida' | 'falsa_alarma', 
+    notes?: string, 
+    severity?: string
+  ): Observable<boolean> {
+    const payload = {
+      status,
+      notes,
+      severity,
+      attendedBy: who
+    };
+    return this.http.put<any>(`${this.apiUrl}/events/${alertId}/resolve`, payload).pipe(
+      map(() => {
+        console.log(`✅ Alerta ${alertId} resuelta como ${status} en backend`);
+        return true;
+      }),
+      catchError((err) => {
+        console.error('Error resolving alert:', err);
+        return of(false);
+      })
+    );
   }
 
-  // ==========================================
-  // 📡 LÓGICA DE DISPOSITIVOS
-  // ==========================================
+  // ============================================================
+  // 2. GESTIÓN DE DISPOSITIVOS (REAL - DATABASE)
+  // ============================================================
 
   getDevices(): Observable<Device[]> {
-    // Devolver los dispositivos mock y enriquecerlos con datos reales del backend
-    return of(this.mockDevices).pipe(
-      map((devices) => {
-        // Para cada dispositivo, intentar obtener datos actualizados del backend
-        devices.forEach((device) => {
-          // Hacer una llamada asíncrona para obtener datos reales del ESP32
-          this.http.get<any>(`${this.apiUrl}/esp32/data/${device.mac_address}`).subscribe({
-            next: (realData) => {
-              // Actualizar el dispositivo con datos reales del backend
-              if (realData) {
-                device.esp32Data = {
-                  macAddress: device.mac_address,
-                  name: device.nombre,
-                  impact_count: realData.impact_count || device.total_impactos,
-                  impact_magnitude: realData.impact_magnitude || device.ultima_magnitud,
-                  timestamp: realData.timestamp ? new Date(realData.timestamp) : new Date(),
-                  status: realData.status !== undefined ? realData.status : device.estado,
-                  isFallDetected: realData.isFallDetected || false,
-                  isButtonPressed: realData.isButtonPressed || false,
-                };
-
-                // Actualizar también los campos principales
-                device.estado = realData.status !== undefined ? realData.status : device.estado;
-                device.total_impactos = realData.impact_count || device.total_impactos;
-                device.ultima_magnitud = realData.impact_magnitude || device.ultima_magnitud;
-                device.ultima_conexion = realData.timestamp
-                  ? new Date(realData.timestamp)
-                  : device.ultima_conexion;
-
-                console.log(`✅ Datos reales obtenidos para ${device.mac_address}:`, realData);
-              }
-            },
-            error: (err) => {
-              console.warn(
-                `⚠️ No se pudieron obtener datos reales para ${device.mac_address}, usando datos mock`,
-              );
-              // Si falla, mantener los datos mock
-            },
-          });
+    return this.http.get<any[]>(`${this.apiUrl}/esp32/all`).pipe(
+      map((backendDevices) => {
+        return backendDevices.map((d) => {
+          return {
+            mac_address: d.mac_address,
+            nombre: d.nombre,
+            estado: d.estado,
+            total_impactos: d.total_impactos,
+            ultima_magnitud: d.ultima_magnitud || 0,
+            fecha_registro: new Date(d.fecha_registro),
+            ultima_conexion: d.ultima_conexion ? new Date(d.ultima_conexion) : undefined,
+            assignedUser: d.assignedUser || d.assigneduser, 
+            
+            // Reconstruct esp32Data for frontend compatibility
+            esp32Data: {
+              macAddress: d.mac_address,
+              name: d.nombre,
+              impact_count: d.total_impactos,
+              impact_magnitude: d.ultima_magnitud || 0,
+              timestamp: d.ultima_conexion ? new Date(d.ultima_conexion) : new Date(d.fecha_registro),
+              status: d.estado,
+              isFallDetected: false, 
+              isButtonPressed: false
+            }
+          } as Device;
         });
-
-        return devices;
       }),
+      catchError((error) => {
+        console.error('Error fetching devices from backend:', error);
+        return of([]);
+      })
     );
   }
 
@@ -464,14 +165,31 @@ export class ApiService {
     return of(true);
   }
 
+  updateDevice(macAddress: string, data: { nombre: string }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/esp32/${macAddress}`, data);
+  }
+
   // 🆕 Obtener historial de alertas (Real + Mock)
   async getEvents(userId?: string): Promise<Alert[]> {
     try {
-      // 1. Obtener alertas reales del backend
-      let url = `${this.apiUrl}/events`;
-      if (userId) url += `?userId=${userId}`;
+      // 1. Obtener alertas reales del backend (Últimos 7 días por defecto para ver historial)
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(endDate.getDate() - 7);
 
-      const realEvents: any[] = (await this.http.get<any[]>(url).toPromise()) || [];
+      let url = `${this.apiUrl}/events`;
+      
+      const params: any = {
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      };
+
+      if (userId) {
+        params.userId = userId;
+      }
+
+      // Usar firstValueFrom en lugar de toPromise() para mejor compatibilidad con interceptores
+      const realEvents: any[] = await firstValueFrom(this.http.get<any[]>(url, { params }));
 
       const mappedEvents = realEvents.map((e) => ({
         id: String(e.id),
@@ -482,14 +200,26 @@ export class ApiService {
         message: e.notas || (e.severidad === 'critical' ? 'Caída Detectada' : 'Alerta de Sensor'),
         location: e.ubicacion || 'Desconocida',
         timestamp: new Date(e.fecha_hora),
-        attendedBy: e.atendido_por,
+        attendedBy: e.atendido_por_nombre || e.atendido_por,
+        caregiverName: e.atendido_por_nombre,
         resolutionNotes: e.notas,
         resolved: e.estado === 'atendida' || e.estado === 'falsa_alarma',
+        // Mapeo de nuevos campos
+        acc_x: e.acc_x,
+        acc_y: e.acc_y,
+        acc_z: e.acc_z,
+        userName: e.usuario_nombre,
       })) as Alert[];
 
+      console.log(`✅ Successfully fetched ${mappedEvents.length} real events from backend`);
       return mappedEvents;
-    } catch (error) {
-      console.error('Error fetching real events, falling back to mocks:', error);
+    } catch (error: any) {
+      console.error('❌ Error fetching real events from backend:', error);
+      if (error.status) {
+        console.error(`HTTP Error ${error.status}: ${error.statusText}`);
+        console.error('URL:', error.url);
+      }
+      console.log('Falling back to empty array (no mock data)');
       return [];
     }
   }
@@ -498,14 +228,14 @@ export class ApiService {
   async getDeviceByMac(macAddress: string): Promise<Device | null> {
     try {
       // 1. Intentar endpoint de telemetría primero
-      const telemetry = await this.http
-        .get<any>(`${this.apiUrl}/esp32/data/${macAddress}`)
-        .toPromise();
+      const telemetry = await firstValueFrom(
+        this.http.get<any>(`${this.apiUrl}/esp32/data/${macAddress}`)
+      );
 
       if (telemetry) {
         return {
           mac_address: macAddress,
-          nombre: `ESP32-${macAddress.slice(-4)}`, // Nombre fallback
+          nombre: telemetry.name || `ESP32-${macAddress.slice(-4)}`,
           estado: telemetry.status !== undefined ? telemetry.status : false,
           total_impactos: telemetry.impact_count || 0,
           ultima_magnitud: telemetry.impact_magnitude || 0,
@@ -513,7 +243,7 @@ export class ApiService {
           ultima_conexion: telemetry.timestamp ? new Date(telemetry.timestamp) : new Date(),
           esp32Data: {
             macAddress: macAddress,
-            name: `ESP32-${macAddress.slice(-4)}`,
+            name: telemetry.name || `ESP32-${macAddress.slice(-4)}`,
             impact_count: telemetry.impact_count || 0,
             impact_magnitude: telemetry.impact_magnitude || 0,
             timestamp: telemetry.timestamp ? new Date(telemetry.timestamp) : new Date(),
@@ -523,19 +253,29 @@ export class ApiService {
           },
         };
       }
-    } catch (error) {
-      // Silent fail to fallback
+    } catch (error: any) {
+      console.warn(`📡 Telemetry not found for ${macAddress}, falling back to registry...`);
     }
 
-    // 2. Fallback a mocks si no se encuentra (para demo)
-    const mock = this.mockDevices.find((d) => d.mac_address === macAddress);
-    return mock || null;
+    // 2. Fallback: Buscar en la lista general de dispositivos si no hay telemetría (dispositivos nuevos)
+    try {
+      const allDevices = await firstValueFrom(this.getDevices());
+      const device = allDevices.find(d => d.mac_address === macAddress);
+      if (device) return device;
+    } catch (e) {
+      console.error('❌ Error fetching devices list as fallback:', e);
+    }
+
+    return null;
   }
 
   // 🆕 Obtener usuario por ID desde el backend
   async getUserById(userId: string): Promise<any> {
     try {
-      const response = await this.http.get<any>(`${this.apiUrl}/users/${userId}`).toPromise();
+      const response = await firstValueFrom(
+        this.http.get<any>(`${this.apiUrl}/users/${userId}`)
+      );
+      console.log('📦 getUserById RAW response:', response);
 
       // Mapear la respuesta del backend al formato esperado por el frontend
       return {
@@ -548,22 +288,13 @@ export class ApiService {
         edad: response.edad,
         genero: response.genero,
         dispositivo_mac: response.dispositivo?.mac_address || null,
-        role: 'user',
+        created_at: response.createdAt || response.created_at, // 👈 Mapeamos fechas
+        updated_at: response.updatedAt || response.updated_at, // 👈 Mapeamos fechas
+        role: response.role || 'user', // Asegurar que el rol venga del backend o default a user
       };
     } catch (error) {
       console.error('Error obteniendo usuario del backend:', error);
-      // Fallback a datos mock si falla
-      return {
-        id: userId,
-        fullName: 'Usuario',
-        email: 'usuario@ejemplo.com',
-        telefono: 'N/A',
-        direccion: 'N/A',
-        edad: null,
-        genero: null,
-        dispositivo_mac: null,
-        role: 'user',
-      };
+      throw error;
     }
   }
 }

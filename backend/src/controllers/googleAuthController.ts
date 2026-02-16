@@ -25,66 +25,66 @@ export const googleAuthRedirect = (req: Request, res: Response) => {
 };
 
 export const googleAuthCallback = async (req: Request, res: Response) => {
-    try {
-        const { code } = req.query;
-        if (!code) {
-           return res.status(400).send('No code provided');
-        }
-
-        const { tokens } = await client.getToken(code as string);
-        client.setCredentials(tokens);
-
-        const ticket = await client.verifyIdToken({
-            idToken: tokens.id_token!,
-            audience: process.env.GOOGLE_CLIENT_ID,
-        });
-
-        const payload = ticket.getPayload();
-        if (!payload || !payload.email) {
-             return res.status(400).send('Invalid Google token payload');
-        }
-
-        const { email, name } = payload;
-        
-        // 1. Find or create user logic (Shared with googleLogin)
-        // For simplicity, I'll copy the finding logic here or refactor. 
-        // Given constraint of single file edits, I will duplicate logic for now for safety.
-        
-        let user = await UsuarioModel.findByEmail(email);
-        let role = 'usuario';
-        let dbUser: any = user;
-
-        if (!user) {
-            const caregiver = await CuidadorModel.findByEmail(email);
-            if (caregiver) {
-                dbUser = caregiver;
-                role = 'cuidador';
-            }
-        }
-
-        if (!dbUser) {
-            const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-            const salt = await bcrypt.genSalt(10);
-            const passwordHash = await bcrypt.hash(randomPassword, salt);
-
-            dbUser = await UsuarioModel.create(
-                name || 'Google User',
-                email,
-                passwordHash,
-                undefined, undefined, undefined, undefined
-            );
-            role = 'usuario';
-        }
-
-        const jwtToken = jwt.sign({ id: dbUser.id, email: dbUser.email, role }, JWT_SECRET, { expiresIn: '1h' });
-
-        // Redirect back to frontend with token
-        res.redirect(`http://localhost:4200/login?token=${jwtToken}`);
-
-    } catch (error) {
-        console.error('Error in Google callback', error);
-        res.status(500).send('Authentication failed');
+  try {
+    const { code } = req.query;
+    if (!code) {
+      return res.status(400).send('No code provided');
     }
+
+    const { tokens } = await client.getToken(code as string);
+    client.setCredentials(tokens);
+
+    const ticket = await client.verifyIdToken({
+      idToken: tokens.id_token!,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) {
+      return res.status(400).send('Invalid Google token payload');
+    }
+
+    const { email, name } = payload;
+
+    // 1. Lógica para encontrar o crear usuario (Compartida con googleLogin)
+    // Por simplicidad, copiaré la lógica de búsqueda aquí o refactorizaré.
+    // Dada la restricción de ediciones de un solo archivo, duplicaré la lógica por seguridad por ahora.
+
+    let user = await UsuarioModel.findByEmail(email);
+    let role = 'usuario';
+    let dbUser: any = user;
+
+    if (!user) {
+      const caregiver = await CuidadorModel.findByEmail(email);
+      if (caregiver) {
+        dbUser = caregiver;
+        role = 'cuidador';
+      }
+    }
+
+    if (!dbUser) {
+      const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      const salt = await bcrypt.genSalt(10);
+      const passwordHash = await bcrypt.hash(randomPassword, salt);
+
+      dbUser = await UsuarioModel.create(
+        name || 'Google User',
+        email,
+        passwordHash,
+        undefined, undefined, undefined, undefined
+      );
+      role = 'usuario';
+    }
+
+    const jwtToken = jwt.sign({ id: dbUser.id, email: dbUser.email, role }, JWT_SECRET, { expiresIn: '1h' });
+
+    // Redirigir de vuelta al frontend con el token
+    res.redirect(`http://localhost:4200/login?token=${jwtToken}`);
+
+  } catch (error) {
+    console.error('Error in Google callback', error);
+    res.status(500).send('Authentication failed');
+  }
 };
 
 export const googleLogin = async (req: Request, res: Response) => {
@@ -101,79 +101,79 @@ export const googleLogin = async (req: Request, res: Response) => {
     });
 
     const payload = ticket.getPayload();
-    
+
     if (!payload || !payload.email) {
       return res.status(400).json({ message: 'Invalid Google token payload' });
     }
 
     const { email, name, sub: googleId } = payload;
 
-    // 1. Try to find user
+    // 1. Intentar encontrar usuario
     const user = await UsuarioModel.findByEmail(email);
-    
+
     if (user) {
-        const jwtToken = jwt.sign({ id: user.id, email: user.email, role: 'usuario' }, JWT_SECRET, { expiresIn: '1h' });
-        return res.json({
-            message: 'Google login successful',
-            token: jwtToken,
-            user: { id: user.id, email: user.email, name: user.nombre, role: 'usuario' }
-        });
+      const jwtToken = jwt.sign({ id: user.id, email: user.email, role: 'usuario' }, JWT_SECRET, { expiresIn: '1h' });
+      return res.json({
+        message: 'Google login successful',
+        token: jwtToken,
+        user: { id: user.id, email: user.email, name: user.nombre, role: 'usuario' }
+      });
     }
 
-    // 2. If not user, try to find caregiver
+    // 2. Si no es usuario, intentar encontrar cuidador
     const caregiver = await CuidadorModel.findByEmail(email);
     if (caregiver) {
-        const jwtToken = jwt.sign({ id: caregiver.id, email: caregiver.email, role: 'cuidador' }, JWT_SECRET, { expiresIn: '1h' });
-        return res.json({
-            message: 'Google login successful',
-            token: jwtToken,
-            user: { id: caregiver.id, email: caregiver.email, name: caregiver.nombre, role: 'cuidador' }
-        });
+      const jwtToken = jwt.sign({ id: caregiver.id, email: caregiver.email, role: 'cuidador' }, JWT_SECRET, { expiresIn: '1h' });
+      return res.json({
+        message: 'Google login successful',
+        token: jwtToken,
+        user: { id: caregiver.id, email: caregiver.email, name: caregiver.nombre, role: 'cuidador' }
+      });
     }
 
-    // 3. If user/caregiver doesn't exist, check if role is provided
+    // 3. Si usuario/cuidador no existe, verificar si se proporcionó un rol
     if (!requestedRole) {
-        // Return 200/202 with isNewUser flag to prompt frontend
-        return res.status(200).json({
-            isNewUser: true,
-            email,
-            name,
-            googleToken: token, // Return token so frontend can send it back with role
-            message: 'User not registered. Please select a role.'
-        });
+      // Return 200/202 with isNewUser flag to prompt frontend
+      return res.status(200).json({
+        isNewUser: true,
+        email,
+        name,
+        googleToken: token, // Devolver token para que el frontend pueda enviarlo de nuevo con el rol
+        message: 'User not registered. Please select a role.'
+      });
     }
 
-    // 4. Create new account based on requestedRole
+    // 4. Crear nueva cuenta basada en el rol solicitado
     let newUser: any;
     let finalRole = '';
 
-    // Generate a random password since they login with Google
+    // Generar una contraseña aleatoria ya que inician sesión con Google
     const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(randomPassword, salt);
 
     if (requestedRole === 'usuario') {
-        newUser = await UsuarioModel.create(
-            name || 'Google User',
-            email,
-            passwordHash,
-            undefined, // fecha_nacimiento
-            undefined, // direccion
-            undefined, // telefono
-            undefined  // dispositivo_mac
-        );
-        finalRole = 'usuario';
+      newUser = await UsuarioModel.create(
+        name || 'Google User',
+        email,
+        passwordHash,
+        undefined, // fecha_nacimiento
+        undefined, // direccion
+        undefined, // telefono
+        undefined  // dispositivo_mac
+      );
+      finalRole = 'usuario';
     } else if (requestedRole === 'cuidador') {
-        newUser = await CuidadorModel.create(
-            name || 'Google Caregiver',
-            email,
-            passwordHash,
-            undefined, // phone
-            false // is_admin
-        );
-        finalRole = 'cuidador';
+      newUser = await CuidadorModel.create(
+        name || 'Google Caregiver',
+        email,
+        passwordHash,
+        undefined, // phone
+        false // is_admin
+      );
+      finalRole = 'cuidador';
     } else {
-        return res.status(400).json({ message: 'Invalid role selected. Must be "usuario" or "cuidador".' });
+      return res.status(400).json({ message: 'Invalid role selected. Must be "usuario" or "cuidador".' });
     }
 
     const jwtToken = jwt.sign({ id: newUser.id, email: newUser.email, role: finalRole }, JWT_SECRET, { expiresIn: '1h' });
