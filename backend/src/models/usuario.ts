@@ -196,4 +196,15 @@ export const UsuarioModel = {
     return result.rows;
   },
 
+  /**
+   * Buscar usuarios por nombre (coincidencia parcial, case-insensitive)
+   */
+  searchByName: async (termino: string): Promise<Usuario[]> => {
+    const result = await query(
+      `SELECT * FROM usuarios WHERE nombre ILIKE $1`,
+      [`%${termino}%`]
+    );
+    return result.rows;
+  },
+
 };

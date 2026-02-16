@@ -146,19 +146,26 @@ const main = async () => {
       requesterId: z.number().describe("ID del usuario que realiza la consulta"),
       role: z.enum(["admin", "user", "family"]).describe("Rol del usuario que realiza la consulta"),
       targetUserId: z.number().optional().describe("ID del usuario objetivo (opcional, solo admin puede ver otros)"),
+      targetUserName: z.string().optional().describe("Nombre del usuario objetivo (opcional)"),
       days: z.number().optional().default(30).describe("Días de historial a consultar")
     },
-    async ({ requesterId, role, targetUserId, days = 30 }) => {
+    async ({ requesterId, role, targetUserId, targetUserName, days = 30 }) => {
       try {
+        // Resolver ID del target sies necesario
         let effectiveTargetUserId: number | undefined = targetUserId;
+
+        if (targetUserName && !effectiveTargetUserId) {
+          const user = await resolveUser(undefined, targetUserName);
+          if (user) effectiveTargetUserId = user.id;
+        }
 
         if (role !== 'admin') {
           // Usuario normal: solo puede ver su propia historia
-          if (targetUserId && targetUserId !== requesterId) {
+          if (effectiveTargetUserId && effectiveTargetUserId !== requesterId) {
             return { isError: true, content: [{ type: "text", text: "Unauthorized: You can only view your own history." }] };
           }
           // Si no especifica, asumimos que quiere ver lo suyo
-          effectiveTargetUserId = requesterId;
+          if (!effectiveTargetUserId) effectiveTargetUserId = requesterId;
         }
 
         const endDate = new Date();
@@ -378,15 +385,21 @@ const main = async () => {
   server.tool(
     "get_user_personal_info",
     {
-      targetUserId: z.number().describe("ID del usuario (paciente) a consultar"),
+      targetUserId: z.number().optional().describe("ID del usuario (paciente) a consultar"),
+      targetUserName: z.string().optional().describe("Nombre del usuario (paciente) a consultar"),
       requesterId: z.number().describe("ID del usuario que solicita la información"),
       role: z.enum(["admin", "cuidador", "usuario", "familiar"]).describe("Rol del usuario solicitante")
     },
-    async ({ targetUserId, requesterId, role }) => {
+    async ({ targetUserId, targetUserName, requesterId, role }) => {
       try {
         // Importar modelos dinámicamente para evitar dependencias circulares si las hubiera
         const { UsuarioModel } = await import("./models/usuario");
         const { CuidadorModel } = await import("./models/cuidador");
+
+        // Resolver Usuario Objetivo
+        const targetUser = await resolveUser(targetUserId, targetUserName);
+        if (!targetUser) return { isError: true, content: [{ type: "text", text: "Usuario objetivo no encontrado." }] };
+        const effectiveTargetId = targetUser.id;
 
         // 1. Verificar Permisos
         let isAuthorized = false;
@@ -394,13 +407,13 @@ const main = async () => {
         if (role === 'admin') {
           isAuthorized = true;
         } else if (role === 'usuario') {
-          if (targetUserId === requesterId) {
+          if (effectiveTargetId === requesterId) {
             isAuthorized = true;
           }
         } else if (role === 'cuidador' || role === 'familiar') {
           // Verificar si el cuidador tiene asignado al paciente
           const assignedUsers = await CuidadorModel.getUsuariosAsignados(requesterId);
-          const isAssigned = assignedUsers.some(u => u.id === targetUserId);
+          const isAssigned = assignedUsers.some(u => u.id === effectiveTargetId);
 
           if (isAssigned) {
             isAuthorized = true;
@@ -412,9 +425,9 @@ const main = async () => {
         }
 
         // 2. Obtener Datos
-        const user = await UsuarioModel.findByIdWithDevice(targetUserId);
+        const user = await UsuarioModel.findByIdWithDevice(effectiveTargetId);
         if (!user) {
-          return { isError: true, content: [{ type: "text", text: "Usuario no encontrado" }] };
+          return { isError: true, content: [{ type: "text", text: "Usuario no encontrado en BDD" }] };
         }
 
         // 3. Obtener Historial de Caídas (Resumen)
@@ -422,7 +435,7 @@ const main = async () => {
         const startDate = new Date();
         startDate.setMonth(endDate.getMonth() - 1); // Último mes
 
-        const events = await EventoCaidaModel.findByFechas(startDate, endDate, targetUserId);
+        const events = await EventoCaidaModel.findByFechas(startDate, endDate, effectiveTargetId);
 
         return {
           content: [{
@@ -523,15 +536,21 @@ const main = async () => {
   server.tool(
     "generate_weekly_report",
     {
-      userId: z.number().describe("ID del usuario (paciente)"),
+      userId: z.number().optional().describe("ID del usuario (paciente)"),
+      userName: z.string().optional().describe("Nombre del usuario (paciente)"),
     },
-    async ({ userId }) => {
+    async ({ userId, userName }) => {
       try {
         const { UsuarioModel } = await import("./models/usuario");
 
+        // Resolver Usuario
+        const targetUser = await resolveUser(userId, userName);
+        if (!targetUser) return { isError: true, content: [{ type: "text", text: "Usuario no encontrado." }] };
+        const effectiveUserId = targetUser.id;
+
         // 1. Get User Info & Device
-        const user = await UsuarioModel.findByIdWithDevice(userId);
-        if (!user) return { isError: true, content: [{ type: "text", text: "Usuario no encontrado" }] };
+        const user = await UsuarioModel.findByIdWithDevice(effectiveUserId);
+        if (!user) return { isError: true, content: [{ type: "text", text: "Usuario no encontrado (DB)." }] };
         if (!user.dispositivo_mac) return { isError: true, content: [{ type: "text", text: "El usuario no tiene dispositivo asignado." }] };
 
         // 2. Get Events (Last 7 days)
@@ -539,7 +558,7 @@ const main = async () => {
         const startDate = new Date();
         startDate.setDate(endDate.getDate() - 7);
 
-        const events = await EventoCaidaModel.findByFechas(startDate, endDate, userId);
+        const events = await EventoCaidaModel.findByFechas(startDate, endDate, effectiveUserId);
 
         const fallCount = events.filter(e => e.is_fall_detected).length;
         const sosCount = events.filter(e => e.is_button_pressed).length;
@@ -603,20 +622,51 @@ ${events.length > 0 ? '## Detalle de Eventos Recientes\n' + events.slice(0, 3).m
     }
   );
 
+  // Helper para resolver usuario por ID o Nombre
+  const resolveUser = async (userId?: number, userName?: string): Promise<{ id: number, name: string } | null> => {
+    const { UsuarioModel } = await import("./models/usuario");
+
+    if (userId) {
+      const user = await UsuarioModel.findById(userId);
+      return user ? { id: user.id, name: user.nombre } : null;
+    }
+
+    if (userName) {
+      const users = await UsuarioModel.searchByName(userName);
+      if (users.length === 0) throw new Error(`No se encontró ningún usuario con el nombre "${userName}".`);
+      if (users.length > 1) {
+        const names = users.map(u => u.nombre).join(", ");
+        throw new Error(`Búsqueda ambigua: "${userName}" coincide con varios usuarios (${names}). Por favor, sé más específico.`);
+      }
+      return { id: users[0].id, name: users[0].nombre };
+    }
+
+    throw new Error("Debes proporcionar userId o userName.");
+  };
+
   // 15. Analizar tendencias y patrones (AI Insights)
   server.tool(
     "analyze_trends",
     {
-      userId: z.number().describe("ID del usuario a analizar"),
+      userId: z.number().optional().describe("ID del usuario a analizar"),
+      userName: z.string().optional().describe("Nombre (o parte) del usuario a analizar"),
       days: z.number().optional().default(30).describe("Días de historial a analizar (default 30)")
     },
-    async ({ userId, days }) => {
+    async ({ userId, userName, days }) => {
       try {
+        const user = await resolveUser(userId, userName);
+        if (!user) return { isError: true, content: [{ type: "text", text: "Usuario no encontrado." }] };
+
         const { AnalysisService } = await import("./services/analysisService");
-        const result = await AnalysisService.analyzeUserTrends(userId, days);
+        const result = await AnalysisService.analyzeUserTrends(user.id, days);
 
         return {
-          content: [{ type: "text", text: JSON.stringify(result, null, 2) }]
+          content: [{
+            type: "text", text: JSON.stringify({
+              user: user.name,
+              ...result
+            }, null, 2)
+          }]
         };
       } catch (error: any) {
         return { isError: true, content: [{ type: "text", text: error.message }] };
