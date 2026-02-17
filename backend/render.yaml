@@ -1,0 +1,113 @@
+# ================================================
+# Render Blueprint - StepGuard Backend
+# ================================================
+# Este archivo permite desplegar el backend automáticamente en Render
+# https://render.com
+
+services:
+  # Backend API (Node.js + Express + TypeScript)
+  - type: web
+    name: stepguard-backend
+    runtime: node
+    region: frankfurt  # Región europea (más cercana a Neon EU)
+    plan: free
+    
+    # Repositorio
+    branch: develop  # o 'main' según tu rama principal
+    
+    # Build
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    
+    # Node version
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      
+      # Puerto (Render lo asigna automáticamente)
+      - key: PORT
+        value: 3000
+      
+      # Environment
+      - key: NODE_ENV
+        value: production
+      
+      # PostgreSQL (Neon)
+      - key: DB_HOST
+        sync: false  # Configurar manualmente en Render Dashboard
+      - key: DB_PORT
+        value: 5432
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      
+      # Redis (Upstash o Redis Cloud)
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      
+      # JWT
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 24h
+      
+      # CORS (URL del frontend en Vercel)
+      - key: CORS_ORIGIN
+        value: https://stepguard.vercel.app  # Actualizar con tu dominio real
+      
+      # SMTP (Gmail)
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_SECURE
+        value: false
+      
+      # MQTT (HiveMQ)
+      - key: MQTT_BROKER_URL
+        sync: false
+      - key: MQTT_USERNAME
+        sync: false
+      - key: MQTT_PASSWORD
+        sync: false
+      
+      # Google OAuth
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_SECRET
+        sync: false
+      
+      # Cloudinary
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      
+      # Discord Bot
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: DISCORD_TARGET_USER_ID
+        sync: false
+      
+      # OpenRouter (AI)
+      - key: MCP_API_KEY
+        sync: false
+    
+    # Health check
+    healthCheckPath: /
+    
+    # Auto-deploy en push
+    autoDeploy: true
