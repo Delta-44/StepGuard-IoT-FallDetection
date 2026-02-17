@@ -148,7 +148,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Abrir Grafana Dashboard en nueva pestaña
   openGrafanaDashboard() {
-    const snapshotUrl = 'https://delta44.grafana.net/dashboard/snapshot/GmA9TpUGTdSe1JVDUNpZ2efyuVLgGvb8';
+    const snapshotUrl = 'https://delta44.grafana.net/dashboard/snapshot/XZNr2la0Fln0prRY6y9769ajsZLSUyUj';
     const params = new URLSearchParams();
     params.set('theme', 'dark');
     params.set('from', 'now-7d');

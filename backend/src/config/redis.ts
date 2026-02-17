@@ -12,14 +12,27 @@ const redisConfig: any = {
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
-  maxRetriesPerRequest: 3,
+  maxRetriesPerRequest: null, // Sin límite para operaciones de larga duración
+  enableReadyCheck: false,
+  enableOfflineQueue: true,
+  reconnectOnError: (err: Error) => {
+    const targetError = 'READONLY';
+    if (err.message.includes(targetError)) {
+      return true; // Reconectar solo para este error
+    }
+    return false;
+  },
+  lazyConnect: false,
+  keepAlive: 30000, // Keep-alive cada 30s
 };
 
-// TLS automático solo para servicios que lo requieren (puerto 6380 o URLs específicas)
-// Redis Cloud con puertos estándar (no 6380) NO usa TLS
-if (process.env.REDIS_PORT === '6380' ||
-  (process.env.REDIS_HOST?.includes('upstash.io') && process.env.REDIS_PORT === '6380')) {
-  redisConfig.tls = { rejectUnauthorized: false };
+// TLS automático para Upstash y servicios que lo requieren
+// Upstash SIEMPRE requiere TLS (incluso en puerto 6379)
+if (process.env.REDIS_HOST?.includes('upstash.io') || process.env.REDIS_PORT === '6380') {
+  redisConfig.tls = { 
+    rejectUnauthorized: false,
+    checkServerIdentity: () => undefined // Deshabilitar verificación del servidor
+  };
 }
 
 const redis = new Redis(redisConfig);
