@@ -16,7 +16,7 @@ services:
     branch: develop  # o 'main' según tu rama principal
     
     # Build
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --production=false && npm run build
     startCommand: NODE_ENV=production node dist/server.js
     
     # Node version
