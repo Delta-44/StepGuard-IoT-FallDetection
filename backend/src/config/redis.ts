@@ -15,10 +15,9 @@ const redisConfig: any = {
   maxRetriesPerRequest: 3,
 };
 
-// TLS automático solo para servicios que lo requieren (puerto 6380 o URLs específicas)
-// Redis Cloud con puertos estándar (no 6380) NO usa TLS
-if (process.env.REDIS_PORT === '6380' ||
-  (process.env.REDIS_HOST?.includes('upstash.io') && process.env.REDIS_PORT === '6380')) {
+// TLS automático para Upstash y servicios que lo requieren
+// Upstash SIEMPRE requiere TLS (incluso en puerto 6379)
+if (process.env.REDIS_HOST?.includes('upstash.io') || process.env.REDIS_PORT === '6380') {
   redisConfig.tls = { rejectUnauthorized: false };
 }
 
