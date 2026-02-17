@@ -17,7 +17,7 @@ services:
     
     # Build
     buildCommand: npm install && npm run build
-    startCommand: npm start
+    startCommand: node dist/server.js
     
     # Node version
     envVars:
