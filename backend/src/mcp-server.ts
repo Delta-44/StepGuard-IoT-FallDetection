@@ -1,3 +1,8 @@
+// Redirigir console.log a console.error INMEDIATAMENTE para evitar interferencias con el protocolo stdio de MCP
+// Esto es crucial para que ninguna librería (como dotenv) escriba en stdout durante la carga
+const originalConsoleLog = console.log;
+console.log = console.error;
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -10,10 +15,11 @@ import redis from "./config/redis";
 import { DiscordService } from "./services/discordService";
 import * as dotenv from "dotenv";
 
-dotenv.config();
+// Configurar dotenv silenciosamente
+dotenv.config({ quiet: true } as any);
 
-// Redirigir console.log a console.error para evitar interferencias con el protocolo stdio de MCP
-console.log = console.error;
+// Restaurar console.log solo si es necesario, pero para MCP server mejor dejarlo en stderr
+// console.log = originalConsoleLog; 
 
 
 const main = async () => {
