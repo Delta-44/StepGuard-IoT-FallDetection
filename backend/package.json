@@ -1,14 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "src/server.js",
+  "main": "dist/server.js",
   "scripts": {
-    "clean": "npm cache clean --force",
-    "prestart": "npm run clean",
-    "predev": "npm run clean",
-    "start": "ts-node src/server.ts",
+    "start": "node dist/server.js",
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
+    "clean": "npm cache clean --force",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -18,7 +16,8 @@
     "db:seed": "ts-node src/seed-db.ts",
     "redis:seed": "ts-node src/seed-redis.ts",
     "redis:view": "ts-node src/view-redis.ts",
-    "mcp": "ts-node src/mcp-server.ts"
+    "mcp": "ts-node src/mcp-server.ts",
+    "grafana:check": "node scripts/check-grafana.js"
   },
   "keywords": [],
   "author": "",
