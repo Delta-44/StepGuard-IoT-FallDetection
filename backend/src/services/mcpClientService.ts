@@ -28,13 +28,25 @@ export class McpClientService {
         try {
             console.log("[McpClientService] Connecting to MCP Server...");
 
-            // Ruta al script del servidor MCP
-            const serverScriptPath = path.resolve(__dirname, "../mcp-server.ts");
+            // Detectar entorno: Si estamos en producción (ejecutando .js o NODE_ENV=production)
+            const isProduction = process.env.NODE_ENV === 'production' || __filename.endsWith('.js');
+
+            // Ajustar ruta y argumentos según el entorno
+            const serverScriptPath = isProduction
+                ? path.resolve(__dirname, "../mcp-server.js") // dist/mcp-server.js
+                : path.resolve(__dirname, "../mcp-server.ts"); // src/mcp-server.ts
+
+            const args = isProduction
+                ? [serverScriptPath]
+                : ["-r", "ts-node/register", serverScriptPath];
+
+            console.log(`[McpClientService] Environment detected: ${isProduction ? 'Production' : 'Development'}`);
+            console.log(`[McpClientService] Server script path: ${serverScriptPath}`);
 
             // Iniciar el proceso del servidor MCP usando node directamente para mejor rendimiento/confiabilidad
             this.transport = new StdioClientTransport({
                 command: process.execPath, // Ejecutable Node.js
-                args: ["-r", "ts-node/register", serverScriptPath],
+                args: args,
                 env: {
                     ...process.env,
                     PATH: process.env.PATH || "", // Asegurar que PATH se herede
