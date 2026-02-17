@@ -35,7 +35,7 @@ export class AnalyticsComponent implements OnInit {
     // GRAFANA CLOUD - DASHBOARD SNAPSHOT
     // ====================================================
     // Dashboard snapshot configurado en: https://delta44.grafana.net
-    // ID del snapshot: GmA9TpUGTdSe1JVDUNpZ2efyuVLgGvb8
+    // ID del snapshot: XZNr2la0Fln0prRY6y9769ajsZLSUyUj
     // 
     // NOTA: Los snapshots son capturas estáticas del dashboard con los datos
     // actuales. No se actualizan en tiempo real ni aceptan variables dinámicas.
@@ -46,7 +46,7 @@ export class AnalyticsComponent implements OnInit {
     // IMPORTANTE: Grafana Cloud bloquea iframes con X-Frame-Options: deny
     // Por eso abrimos el dashboard en una nueva pestaña.
     
-    const snapshotUrl = 'https://delta44.grafana.net/dashboard/snapshot/GmA9TpUGTdSe1JVDUNpZ2efyuVLgGvb8';
+    const snapshotUrl = 'https://delta44.grafana.net/dashboard/snapshot/XZNr2la0Fln0prRY6y9769ajsZLSUyUj';
 
     const params = new URLSearchParams();
     params.set('theme', 'dark');
