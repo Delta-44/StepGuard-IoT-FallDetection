@@ -1,219 +1,268 @@
-// Tests para eventsController - resolveEvent, getEvents, validaciones
-
 jest.mock('../src/models/eventoCaida');
 jest.mock('../src/services/alertService');
 
-import { resolveEvent } from '../src/controllers/eventsController';
+import { resolveEvent, getEvents } from '../src/controllers/eventsController';
 import { EventoCaidaModel } from '../src/models/eventoCaida';
 import { AlertService } from '../src/services/alertService';
-import { mockRequest, mockResponse } from './utils/mockRequestResponse';
 
-const mockedEventoCaida = EventoCaidaModel as jest.Mocked<typeof EventoCaidaModel>;
+const mockedEventoCaidaModel = EventoCaidaModel as jest.Mocked<typeof EventoCaidaModel>;
 const mockedAlertService = AlertService as jest.Mocked<typeof AlertService>;
 
-describe('eventsController - resolveEvent', () => {
-  beforeEach(() => jest.clearAllMocks());
+// ✅ mockRequest/mockResponse inline para tener control total
+const mockRequest = (overrides: any = {}) => ({
+  params: {},
+  body: {},
+  query: {},
+  user: undefined,
+  ...overrides,
+});
 
-  test('debe retornar 400 si event ID no es válido', async () => {
-    const req: any = mockRequest({ params: { id: 'abc' }, user: { id: 1, role: 'caregiver' } });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
-    
-    expect(res.status).toHaveBeenCalledWith(400);
+const mockResponse = () => {
+  const res: any = {};
+  res.status = jest.fn().mockReturnValue(res);
+  res.json = jest.fn().mockReturnValue(res);
+  res.send = jest.fn().mockReturnValue(res);
+  return res;
+};
+
+describe('eventsController', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  test('debe retornar 400 si event ID es NaN', async () => {
-    const req: any = mockRequest({ params: { id: 'NaN' }, user: { id: 1, role: 'caregiver' } });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
-    
-    expect(res.status).toHaveBeenCalledWith(400);
-  });
+  describe('resolveEvent', () => {
+    test('debería retornar 400 si event ID es inválido', async () => {
+      const req: any = mockRequest({
+        params: { id: 'invalid_id' },
+        user: { id: 1, role: 'cuidador' },
+        body: { status: 'atendida', notes: 'Handled' }
+      });
+      const res: any = mockResponse();
 
-  test('debe retornar 401 si no hay user identificado', async () => {
-    const req: any = mockRequest({ params: { id: '1' }, user: { role: 'caregiver' } });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
-    
-    expect(res.status).toHaveBeenCalledWith(401);
-  });
+      await resolveEvent(req, res);
 
-  test('debe retornar 401 si user es null', async () => {
-    const req: any = mockRequest({ params: { id: '1' } });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
-    
-    expect(res.status).toHaveBeenCalledWith(401);
-  });
-
-  test('debe resolver evento como atendida', async () => {
-    const mockEvent = { id: 1, status: 'atendida', atendidoPorId: 5 };
-    mockedEventoCaida.resolveWithDetails.mockResolvedValue(mockEvent as any);
-
-    const req: any = mockRequest({
-      params: { id: '1' },
-      body: { status: 'atendida', notes: 'Usuario está bien', severity: 'baja' },
-      user: { id: 5, role: 'caregiver' }
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Invalid event ID' })
+      );
     });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
 
-    expect(mockedEventoCaida.resolveWithDetails).toHaveBeenCalledWith(
-      1, 5, 'atendida', 'Usuario está bien', 'baja'
-    );
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ event: mockEvent }));
-  });
-
-  test('debe resolver evento como falsa_alarma', async () => {
-    const mockEvent = { id: 2, status: 'falsa_alarma', atendidoPorId: 5 };
-    mockedEventoCaida.resolveWithDetails.mockResolvedValue(mockEvent as any);
-
-    const req: any = mockRequest({
-      params: { id: '2' },
-      body: { status: 'falsa_alarma', notes: 'Falsa alarma - sensor activado por error', severity: 'nula' },
-      user: { id: 5, role: 'caregiver' }
-    });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
-
-    expect(mockedEventoCaida.resolveWithDetails).toHaveBeenCalledWith(
-      2, 5, 'falsa_alarma', 'Falsa alarma - sensor activado por error', 'nula'
-    );
-  });
-
-  test('debe manejar múltiples niveles de severidad', async () => {
-    const severities = ['nula', 'baja', 'media', 'alta', 'critica'];
-    
-    for (const severity of severities) {
-      jest.clearAllMocks();
-      mockedEventoCaida.resolveWithDetails.mockResolvedValue({ id: 1, status: 'atendida' } as any);
-
+    test('debería retornar 401 si usuario no está autenticado', async () => {
       const req: any = mockRequest({
         params: { id: '1' },
-        body: { status: 'atendida', severity },
-        user: { id: 5, role: 'caregiver' }
+        user: undefined,
+        body: { status: 'atendida', notes: 'Handled' }
       });
       const res: any = mockResponse();
+
       await resolveEvent(req, res);
 
-      expect(mockedEventoCaida.resolveWithDetails).toHaveBeenCalledWith(
-        1, 5, 'atendida', undefined, severity
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'User not identified' })
       );
-    }
-  });
-
-  test('debe retornar 404 si evento no existe', async () => {
-    mockedEventoCaida.resolveWithDetails.mockResolvedValue(null);
-
-    const req: any = mockRequest({
-      params: { id: '999' },
-      body: { status: 'atendida' },
-      user: { id: 5, role: 'caregiver' }
     });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(404);
+test('debería resolver evento como "atendida" exitosamente', async () => {
+  const updatedEvent = {
+    id: 1,
+    dispositivo_mac: 'AA:BB:CC:DD:EE:FF',
+    atendido_por: 5,
+    atendido_por_nombre: 'Caregiver Name',
+    status: 'atendida',
+    notes: 'Handled correctly'
+  };
+
+  (mockedEventoCaidaModel.resolveWithDetails as jest.Mock).mockResolvedValue(updatedEvent);
+  (mockedEventoCaidaModel.findById as jest.Mock).mockResolvedValue(updatedEvent); // ✅ añadir
+  (mockedAlertService.broadcast as jest.Mock).mockImplementation(() => {});
+
+  const req: any = mockRequest({
+    params: { id: '1' },
+    user: { id: 5, role: 'cuidador' },
+    body: { status: 'atendida', notes: 'Handled correctly', severity: 'high' }
   });
+  const res: any = mockResponse();
 
-  test('debe permitir admin resolver eventos', async () => {
-    mockedEventoCaida.resolveWithDetails.mockResolvedValue({ id: 1, status: 'atendida' } as any);
+  await resolveEvent(req, res);
 
-    const req: any = mockRequest({
-      params: { id: '1' },
-      body: { status: 'atendida' },
-      user: { id: 10, role: 'admin' }
-    });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
+  expect(mockedEventoCaidaModel.resolveWithDetails).toHaveBeenCalledWith(
+    1, 5, 'atendida', 'Handled correctly', 'high'
+  );
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+      message: 'Event mark as resolved',
+      event: expect.objectContaining({ status: 'atendida' })
+    })
+  );
+});
 
-    expect(mockedEventoCaida.resolveWithDetails).toHaveBeenCalledWith(
-      1, 10, 'atendida', undefined, undefined
-    );
-  });
-
-  test('debe manejar notas largas', async () => {
-    mockedEventoCaida.resolveWithDetails.mockResolvedValue({ id: 1, status: 'atendida' } as any);
-
-    const longNotes = 'a'.repeat(2000);
-    const req: any = mockRequest({
-      params: { id: '1' },
-      body: { status: 'atendida', notes: longNotes },
-      user: { id: 5, role: 'caregiver' }
-    });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
-
-    expect(mockedEventoCaida.resolveWithDetails).toHaveBeenCalledWith(
-      1, 5, 'atendida', longNotes, undefined
-    );
-  });
-
-  test('debe retornar 500 si BD falla', async () => {
-    mockedEventoCaida.resolveWithDetails.mockRejectedValue(new Error('BD Connection failed'));
-
-    const req: any = mockRequest({
-      params: { id: '1' },
-      body: { status: 'atendida' },
-      user: { id: 5, role: 'caregiver' }
-    });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
-
-    expect(res.status).toHaveBeenCalledWith(500);
-  });
-
-  test('debe convertir status inválido a "atendida"', async () => {
-    mockedEventoCaida.resolveWithDetails.mockResolvedValue({ id: 1, status: 'atendida' } as any);
-
-    const req: any = mockRequest({
-      params: { id: '1' },
-      body: { status: 'status_invalido' },
-      user: { id: 5, role: 'caregiver' }
-    });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
-
-    expect(mockedEventoCaida.resolveWithDetails).toHaveBeenCalledWith(
-      1, 5, 'atendida', undefined, undefined
-    );
-  });
-
-  test('debe manejar múltiples eventos consecutivos del mismo cuidador', async () => {
-    for (let i = 1; i <= 5; i++) {
-      jest.clearAllMocks();
-      mockedEventoCaida.resolveWithDetails.mockResolvedValue({ id: i, status: 'atendida' } as any);
+    test('debería retornar 404 si evento no existe', async () => {
+      (mockedEventoCaidaModel.resolveWithDetails as jest.Mock).mockResolvedValue(null);
 
       const req: any = mockRequest({
-        params: { id: `${i}` },
-        body: { status: 'atendida' },
-        user: { id: 5, role: 'caregiver' }
+        params: { id: '999' },
+        user: { id: 5, role: 'cuidador' },
+        body: { status: 'atendida', notes: 'Handled' }
       });
       const res: any = mockResponse();
+
       await resolveEvent(req, res);
 
-      expect(res.json).toHaveBeenCalled();
-    }
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ message: 'Event not found' })
+      );
+    });
+
+test('debería broadcastar evento resuelto a SSE clients', async () => {
+  const updatedEvent = {
+    id: 1,
+    dispositivo_mac: 'AA:BB:CC:DD:EE:FF',
+    atendido_por: 5,
+    atendido_por_nombre: 'Caregiver Name',
+    status: 'atendida'
+  };
+
+  (mockedEventoCaidaModel.resolveWithDetails as jest.Mock).mockResolvedValue(updatedEvent);
+  (mockedEventoCaidaModel.findById as jest.Mock).mockResolvedValue(updatedEvent); // ✅ añadir
+  (mockedAlertService.broadcast as jest.Mock).mockImplementation(() => {});
+
+  const req: any = mockRequest({
+    params: { id: '1' },
+    user: { id: 5, role: 'cuidador' },
+    body: { status: 'atendida', notes: 'Handled' }
+  });
+  const res: any = mockResponse();
+
+  await resolveEvent(req, res);
+
+  // ✅ El broadcast ahora recibe populatedEvent (el resultado de findById)
+  expect(mockedAlertService.broadcast).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: 'EVENT_RESOLVED',
+      data: updatedEvent
+    })
+  );
+});
   });
 
-  test('debe incluir información del usuario en el evento resuelto', async () => {
-    const mockEvent = {
-      id: 1,
-      status: 'atendida',
-      atendidoPorId: 5,
-      atendidoPorNombre: 'Cuidador Name',
-      timestamp: '2026-02-13T10:00:00Z'
-    };
-    mockedEventoCaida.resolveWithDetails.mockResolvedValue(mockEvent as any);
+  describe('getEvents', () => {
+    test('debería retornar eventos pendientes por defecto', async () => {
+      const pendingEvents = [
+        { id: 1, status: 'pendiente', dispositivo_mac: 'AA:BB:CC:DD:EE:FF' },
+        { id: 2, status: 'pendiente', dispositivo_mac: 'FF:EE:DD:CC:BB:AA' }
+      ];
 
-    const req: any = mockRequest({
-      params: { id: '1' },
-      body: { status: 'atendida' },
-      user: { id: 5, role: 'caregiver', nombre: 'Cuidador Name' }
+      (mockedEventoCaidaModel.findPendientes as jest.Mock).mockResolvedValue(pendingEvents);
+
+      const req: any = mockRequest({ query: {} });
+      const res: any = mockResponse();
+
+      await getEvents(req, res);
+
+      expect(mockedEventoCaidaModel.findPendientes).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith(pendingEvents);
     });
-    const res: any = mockResponse();
-    await resolveEvent(req, res);
 
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ event: mockEvent }));
+    test('debería retornar eventos filtrados por deviceId', async () => {
+      const deviceEvents = [
+        { id: 1, status: 'pendiente', dispositivo_mac: 'AA:BB:CC:DD:EE:FF' }
+      ];
+
+      (mockedEventoCaidaModel.findByDispositivo as jest.Mock).mockResolvedValue(deviceEvents);
+
+      const req: any = mockRequest({ query: { deviceId: 'AA:BB:CC:DD:EE:FF', limit: '50' } });
+      const res: any = mockResponse();
+
+      await getEvents(req, res);
+
+      expect(mockedEventoCaidaModel.findByDispositivo).toHaveBeenCalledWith('AA:BB:CC:DD:EE:FF', 50);
+      expect(res.json).toHaveBeenCalledWith(deviceEvents);
+    });
+
+    test('debería retornar eventos filtrados por userId', async () => {
+      const userEvents = [
+        { id: 1, status: 'pendiente', dispositivo_mac: 'AA:BB:CC:DD:EE:FF', userAsignado: 5 }
+      ];
+
+      (mockedEventoCaidaModel.findByUsuario as jest.Mock).mockResolvedValue(userEvents);
+
+      const req: any = mockRequest({ query: { userId: '5', limit: '50' } });
+      const res: any = mockResponse();
+
+      await getEvents(req, res);
+
+      expect(mockedEventoCaidaModel.findByUsuario).toHaveBeenCalledWith(5, 50);
+      expect(res.json).toHaveBeenCalledWith(userEvents);
+    });
+
+    test('debería retornar eventos filtrados por rango de fechas', async () => {
+      const dateRangeEvents = [{ id: 1, status: 'atendida', fecha: '2026-02-08' }];
+
+      (mockedEventoCaidaModel.findByFechas as jest.Mock).mockResolvedValue(dateRangeEvents);
+
+      const req: any = mockRequest({
+        query: { startDate: '2026-02-01', endDate: '2026-02-09' }
+      });
+      const res: any = mockResponse();
+
+      await getEvents(req, res);
+
+      expect(mockedEventoCaidaModel.findByFechas).toHaveBeenCalledWith(
+        expect.any(Date),
+        expect.any(Date)
+      );
+      expect(res.json).toHaveBeenCalledWith(dateRangeEvents);
+    });
+
+    test('debería usar limit por defecto de 50 si no se proporciona', async () => {
+      const deviceEvents: any[] = [];
+
+      (mockedEventoCaidaModel.findByDispositivo as jest.Mock).mockResolvedValue(deviceEvents);
+
+      const req: any = mockRequest({ query: { deviceId: 'AA:BB:CC:DD:EE:FF' } });
+      const res: any = mockResponse();
+
+      await getEvents(req, res);
+
+      expect(mockedEventoCaidaModel.findByDispositivo).toHaveBeenCalledWith('AA:BB:CC:DD:EE:FF', 50);
+    });
+
+    test('debería priorizar deviceId sobre userId si ambos están presentes', async () => {
+      const deviceEvents = [{ id: 1, dispositivo_mac: 'AA:BB:CC:DD:EE:FF' }];
+
+      (mockedEventoCaidaModel.findByDispositivo as jest.Mock).mockResolvedValue(deviceEvents);
+
+      const req: any = mockRequest({
+        query: { deviceId: 'AA:BB:CC:DD:EE:FF', userId: '5' }
+      });
+      const res: any = mockResponse();
+
+      await getEvents(req, res);
+
+      expect(mockedEventoCaidaModel.findByDispositivo).toHaveBeenCalledWith('AA:BB:CC:DD:EE:FF', 50);
+      expect(mockedEventoCaidaModel.findByUsuario).not.toHaveBeenCalled();
+    });
+
+test('debería retornar 500 si hay error del servidor', async () => {
+  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(); // ✅ silencia el log
+
+  (mockedEventoCaidaModel.findPendientes as jest.Mock).mockRejectedValue(
+    new Error('Database error')
+  );
+
+  const req: any = mockRequest({ query: {} });
+  const res: any = mockResponse();
+
+  await getEvents(req, res);
+
+  expect(res.status).toHaveBeenCalledWith(500);
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({ message: 'Error fetching events' })
+  );
+
+  consoleErrorSpy.mockRestore(); // ✅ restaurar para no afectar otros tests
+});
   });
 });

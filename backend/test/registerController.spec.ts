@@ -1,9 +1,13 @@
 // Tests unitarios para registerController - MEJORADOS
 
+// ✅ Todos los mocks PRIMERO, antes de cualquier import
 jest.mock('../src/models/usuario');
-jest.mock('../src/models/cuidador');
+jest.mock('../src/models/cuidador');       // ✅ Faltaba mockear cuidador
 jest.mock('../src/models/dispositivo');
-jest.mock('jsonwebtoken');
+jest.mock('jsonwebtoken');                 // ✅ Faltaba este mock
+jest.mock('../src/config/database', () => ({
+  query: jest.fn()
+}));
 
 import { registerUsuario, registerCuidador } from '../src/controllers/registerController';
 import { UsuarioModel } from '../src/models/usuario';
@@ -12,6 +16,7 @@ import { DispositivoModel } from '../src/models/dispositivo';
 import jwt from 'jsonwebtoken';
 import { mockRequest, mockResponse } from './utils/mockRequestResponse';
 
+// ✅ Estos casts ahora funcionan porque los módulos SÍ están mockeados
 const mockedUsuario = UsuarioModel as jest.Mocked<typeof UsuarioModel>;
 const mockedCuidador = CuidadorModel as jest.Mocked<typeof CuidadorModel>;
 const mockedDispositivo = DispositivoModel as jest.Mocked<typeof DispositivoModel>;

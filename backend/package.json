@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "src/server.js",
+  "main": "dist/server.js",
   "scripts": {
     "clean": "npm cache clean --force",
     "build": "tsc",
@@ -14,9 +14,11 @@
     "db:test": "ts-node src/test-connection.ts",
     "db:diagnose": "ts-node src/diagnose-connection.ts",
     "db:seed": "ts-node src/seed-db.ts",
+    "db:create-admin": "ts-node src/scripts/create-admin.ts",
     "redis:seed": "ts-node src/seed-redis.ts",
     "redis:view": "ts-node src/view-redis.ts",
-    "mcp": "ts-node src/mcp-server.ts"
+    "mcp": "ts-node src/mcp-server.ts",
+    "grafana:check": "node scripts/check-grafana.js"
   },
   "keywords": [],
   "author": "",
