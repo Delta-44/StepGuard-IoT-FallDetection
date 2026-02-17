@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api', // Backend local
+  apiUrl: 'https://stepguard-backend.onrender.com/api', // Backend en Render
   grafanaUrl: 'https://delta44.grafana.net', // Grafana Cloud
   
   // 🔴 CONFIGURACIÓN DE TU ESP32 REAL

@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
+    // apiUrl: 'http://localhost:3000/api', // La base de tus endpoints (NO USAR localhost en producción)
   apiUrl: 'https://stepguard-backend.onrender.com/api', // ⚠️ Actualizar con tu URL real de Render
   grafanaUrl: 'https://delta44.grafana.net', // Grafana Cloud
   
