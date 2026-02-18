@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'dart:io'; // Para detectar el sistema operativo
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 import '../models/device_model.dart';
-import '../services/api_service.dart';
-import '../services/auth_service.dart';
 import '../widgets/device_card.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -14,87 +16,140 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   Map<int, Device> devices = {};
-  String connectionStatus = "Iniciando...";
-  Timer? pollingTimer;
+  String connectionStatus = "Conectando a MQTT...";
+  MqttServerClient? client;
 
   @override
   void initState() {
     super.initState();
-    _initApp();
+    _initMqtt();
   }
 
-  Future<void> _initApp() async {
-    setState(() => connectionStatus = "Autenticando...");
-    bool loginOk = await AuthService.login();
-    
-    if (loginOk) {
-      await _refreshData();
-      // Polling cada 1 segundo
-      pollingTimer = Timer.periodic(const Duration(seconds: 1), (_) => _refreshData());
-    } else {
-      setState(() => connectionStatus = "Error de Login");
+  // Reemplaza tu función _initMqtt por esta:
+
+  Future<void> _initMqtt() async {
+    final String server = dotenv.get('MQTT_SERVER').trim();
+    final int port = int.parse(dotenv.get('MQTT_PORT').trim());
+    final String user = dotenv.get('MQTT_USER').trim();
+    final String pass = dotenv.get('MQTT_PASS').trim();
+    final String clientId =
+        'stepguard_admin_${DateTime.now().millisecondsSinceEpoch}';
+
+    client = MqttServerClient.withPort(server, clientId, port);
+    client!.secure = true;
+    client!.onBadCertificate = (dynamic cert) => true;
+    client!.logging(on: false); // Puedes ponerlo en false ahora que ya conectó
+    client!.keepAlivePeriod = 20;
+
+    final connMessage = MqttConnectMessage()
+        .withClientIdentifier(clientId)
+        .withProtocolName('MQTT')
+        .withProtocolVersion(4)
+        .startClean();
+
+    client!.connectionMessage = connMessage;
+
+    try {
+      print('>>> [MQTT] Intentando conectar...');
+      setState(() => connectionStatus = "Conectando...");
+
+      await client!.connect(user, pass);
+
+      if (client!.connectionStatus!.state == MqttConnectionState.connected) {
+        print('>>> [MQTT] ¡CONECTADO EXITOSAMENTE!');
+        setState(() => connectionStatus = "Online");
+
+        // 1. SUSCRIBIRSE (Usamos # para oír todo lo de stepguard)
+        client!.subscribe("stepguard/#", MqttQos.atLeastOnce);
+
+        client!.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+          final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
+          final String payload = MqttPublishPayload.bytesToStringAsString(
+            recMess.payload.message,
+          );
+          final String topic = c[0]
+              .topic; // <--- Obtenemos el tema (ej: stepguard/status/EC:E3...)
+
+          print(">>> [MQTT] Recibido: $payload en tema: $topic");
+
+          // Pasamos ambos datos a la función procesadora
+          _processDeviceMessage(topic, payload);
+        });
+      }
+    } catch (e) {
+      print('>>> [MQTT] Error: $e');
+      client!.disconnect();
+      setState(() => connectionStatus = "Error de conexión");
     }
   }
 
-Future<void> _refreshData() async {
-  if (!mounted) return;
+void _processDeviceMessage(String topic, String payload) {
+  try {
+    // 1. Extraer la MAC desde el tema (stepguard/status/EC:E3:34:DA:1C:08)
+    // Dividimos el texto por las barras "/"
+    List<String> parts = topic.split('/');
+    if (parts.length < 3) return; // Si el tema no tiene la MAC, ignoramos
+    
+    String mac = parts[2]; // La MAC es la tercera parte del tema
+    
+    // 2. Determinar el estado (limpiamos espacios y pasamos a minúsculas)
+    String statusText = payload.trim().toLowerCase();
+    bool isOnline = (statusText == "online");
 
-  final espStatuses = await ApiService.fetchEspStatuses();
-
-  setState(() {
-    connectionStatus =
-        "Actualizado: ${DateTime.now().hour}:${DateTime.now().minute}:${DateTime.now().second}";
-
-    for (var esp in espStatuses) {
-      int id = esp['id'] ?? 0;
-      String mac = esp['mac_address'];
-      String nombre = esp['assigneduser'] ?? esp['nombre'];
-      bool online = esp['estado'] == true;
+    setState(() {
+      // Usamos el código hash de la MAC como ID numérico para el mapa
+      int id = mac.hashCode;
 
       devices[id] = Device(
         id: id,
         mac: mac,
-        alias: nombre,
-        status: online ? "online" : "offline",
+        alias: "ESP32 ($mac)", // Puedes cambiar esto después
+        status: isOnline ? "online" : "offline",
         lastSeen: DateTime.now(),
       );
-    }
-  });
-}
+    });
+    
+    print(">>> [APP] Dispositivo $mac actualizado a: ${isOnline ? 'ONLINE' : 'OFFLINE'}");
 
+  } catch (e) {
+    print(">>> [ERROR] Fallo al procesar mensaje: $e");
+  }
+}
 
   @override
   Widget build(BuildContext context) {
-    // LÓGICA DE DISEÑO: Si es Windows 5 columnas, si es móvil 2.
     int columnas = Platform.isWindows ? 5 : 2;
-    double padding = Platform.isWindows ? 10.0 : 16.0;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("StepGuard Admin Panel"),
         centerTitle: true,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(20),
-          child: Text(connectionStatus, style: const TextStyle(color: Colors.blue, fontSize: 11)),
+          preferredSize: const Size.fromHeight(30),
+          child: Column(
+            children: [
+              Text(
+                connectionStatus,
+                style: const TextStyle(color: Colors.green, fontSize: 12),
+              ),
+              const SizedBox(height: 5),
+            ],
+          ),
         ),
       ),
       body: devices.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: Text("Esperando mensajes de dispositivos..."))
           : GridView.builder(
-              padding: EdgeInsets.all(padding),
+              padding: const EdgeInsets.all(10),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: columnas, // Dinámico: 5 o 2
-                crossAxisSpacing: padding,
-                mainAxisSpacing: padding,
-                childAspectRatio: 1.0, // Cuadrados perfectos
+                crossAxisCount: columnas,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
               ),
               itemCount: devices.length,
               itemBuilder: (ctx, i) {
                 final id = devices.keys.elementAt(i);
-                return DeviceCard(
-                  device: devices[id]!,
-                  onTap: () {}, // Desactivamos rename para el panel admin si quieres
-                );
+                return DeviceCard(device: devices[id]!, onTap: () {});
               },
             ),
     );
@@ -102,7 +157,7 @@ Future<void> _refreshData() async {
 
   @override
   void dispose() {
-    pollingTimer?.cancel();
+    client?.disconnect();
     super.dispose();
   }
 }
