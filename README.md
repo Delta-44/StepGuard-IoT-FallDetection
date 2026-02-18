@@ -75,6 +75,10 @@ fall-detection-system/
 │   │
 │   └── 👥 Responsables: Juan Carlos, Javier Sio
 │       Stack: Angular, TypeScript, Tailwind CSS, Material Design
+├── 📱 app/                             # Aplicacion de móvil y de escritorio
+│   ├── android_app/                     # .APK para Android
+│   └── windows_app/                     # .EXE para Windows
+│       👤 Responsable: Diego Argüelles | Flutter
 └── 📚 docs/                            # Documentation Layer
     ├── diagrams/
     │   ├── arquitectura.md             # Arquitectura del sistema
