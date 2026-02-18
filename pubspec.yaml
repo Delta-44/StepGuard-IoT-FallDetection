@@ -1,0 +1,28 @@
+name: stepguard
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  mqtt_client: ^10.11.9
+  shared_preferences: ^2.5.4
+  http: ^1.6.0
+  flutter_dotenv: ^6.0.0 # <--- AÑADIR ESTA LÍNEA
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # <--- AÑADIR ESTA SECCIÓN DE ASSETS
+  assets:
+    - .env
