@@ -1,6 +1,8 @@
 VScode con la extension PlatformIO
 Esta extension requiere platformio.ini para que algunas dependencias funcionen bien
 
+!! Importante tener el secrets.h para la conexion
+
 Librerias: Adafruit MPU6050 o la de Electronic Cats.
 
 El boton debe tener en diagonal los pines
