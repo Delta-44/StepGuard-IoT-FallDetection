@@ -1,9 +1,10 @@
 /* ================================================
-   MI PERFIL - ARREGLOS FINALES DE ICONOS Y CONTRASTE
+   MI PERFIL - DARK MODE FIX COMPLETO
+   Reemplaza o añade al final de tu CSS actual
    ================================================ */
 
 /* ================================================
-   FONDO GENERAL - MÁS LIMPIO EN MODO CLARO
+   FONDO GENERAL
    ================================================ */
 .min-h-screen.bg-gradient-to-br {
   background: linear-gradient(to bottom right, #ffffff, #f8fafc, #f1f5f9) !important;
@@ -15,219 +16,34 @@ html.dark .min-h-screen.bg-gradient-to-br,
 }
 
 /* ================================================
-   TÍTULOS DE SECCIÓN - MEJOR CONTRASTE
+   TARJETA PRINCIPAL DEL PERFIL (bg-white rounded-3xl)
    ================================================ */
-section h3.text-gray-900 {
-  color: #0f172a !important;
-  font-weight: 800 !important;
-}
-
-html.dark section h3.text-gray-900,
-:host-context(.dark) section h3.text-gray-900 {
-  color: #f8fafc !important;
+html.dark .bg-white,
+:host-context(.dark) .bg-white {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
 }
 
 /* ================================================
-   ICONOS DE SECCIÓN (LOS CUADRADITOS)
+   SECCIONES (las cards de Contacto, Dispositivo, Calendario)
    ================================================ */
-
-/* MODO CLARO - Mantener colores originales */
-section .bg-blue-100 {
-  background-color: #dbeafe !important;
-}
-
-section .text-blue-600 {
-  color: #2563eb !important;
-}
-
-section .bg-green-50 {
-  background-color: #f0fdf4 !important;
-}
-
-section .text-green-600 {
-  color: #16a34a !important;
-}
-
-section .bg-purple-50 {
-  background-color: #faf5ff !important;
-}
-
-section .text-purple-600 {
-  color: #9333ea !important;
-}
-
-section .bg-pink-50 {
-  background-color: #fdf2f8 !important;
-}
-
-section .text-pink-600 {
-  color: #db2777 !important;
-}
-
-/* MODO OSCURO - ARREGLO CRÍTICO DE ICONOS */
-/* En lugar de fondos oscuros, usamos fondos brillantes con opacidad */
-
-html.dark section .bg-blue-100,
-:host-context(.dark) section .bg-blue-100 {
-  background-color: rgba(59, 130, 246, 0.2) !important; /* Azul con transparencia */
-  border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-html.dark section .text-blue-600,
-:host-context(.dark) section .text-blue-600 {
-  color: #60a5fa !important; /* Azul brillante */
-}
-
-html.dark section .bg-green-50,
-:host-context(.dark) section .bg-green-50 {
-  background-color: rgba(34, 197, 94, 0.2) !important; /* Verde con transparencia */
-  border: 1px solid rgba(34, 197, 94, 0.3);
-}
-
-html.dark section .text-green-600,
-:host-context(.dark) section .text-green-600 {
-  color: #4ade80 !important; /* Verde brillante */
-}
-
-html.dark section .bg-purple-50,
-:host-context(.dark) section .bg-purple-50 {
-  background-color: rgba(168, 85, 247, 0.2) !important; /* Púrpura con transparencia */
-  border: 1px solid rgba(168, 85, 247, 0.3);
-}
-
-html.dark section .text-purple-600,
-:host-context(.dark) section .text-purple-600 {
-  color: #c084fc !important; /* Púrpura brillante */
-}
-
-html.dark section .bg-pink-50,
-:host-context(.dark) section .bg-pink-50 {
-  background-color: rgba(236, 72, 153, 0.2) !important; /* Rosa con transparencia */
-  border: 1px solid rgba(236, 72, 153, 0.3);
-}
-
-html.dark section .text-pink-600,
-:host-context(.dark) section .text-pink-600 {
-  color: #f472b6 !important; /* Rosa brillante */
+html.dark section.bg-white,
+:host-context(.dark) section.bg-white {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
 }
 
 /* ================================================
-   LABELS DE INFORMACIÓN (EMAIL, TELÉFONO, etc.)
+   TEXTOS PRINCIPALES
    ================================================ */
-
-/* Modo claro - más oscuros */
-.text-xs.font-semibold.text-gray-500.uppercase {
-  color: #6b7280 !important;
-  font-weight: 700 !important;
-}
-
-/* Modo oscuro - más brillantes */
-html.dark .text-xs.font-semibold.text-gray-500.uppercase,
-:host-context(.dark) .text-xs.font-semibold.text-gray-500.uppercase {
-  color: #94a3b8 !important;
-  font-weight: 700 !important;
-}
-
-/* ================================================
-   VALORES DE INFORMACIÓN (Los datos del usuario)
-   ================================================ */
-
-/* Modo claro */
-.text-sm.font-semibold.text-gray-900 {
-  color: #111827 !important;
-  font-weight: 700 !important;
-}
-
-/* Modo oscuro */
-html.dark .text-sm.font-semibold.text-gray-900,
-:host-context(.dark) .text-sm.font-semibold.text-gray-900 {
+html.dark .text-gray-900,
+:host-context(.dark) .text-gray-900 {
   color: #f1f5f9 !important;
 }
 
-/* ================================================
-   SECCIÓN "MI DISPOSITIVO" - TÍTULO
-   ================================================ */
-
-/* Icono del dispositivo */
-section .bg-blue-100:has(i-lucide[name="smartphone"]) {
-  background-color: #dbeafe !important;
-}
-
-html.dark section .bg-blue-100:has(i-lucide[name="smartphone"]),
-:host-context(.dark) section .bg-blue-100:has(i-lucide[name="smartphone"]) {
-  background-color: rgba(59, 130, 246, 0.2) !important;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-/* ================================================
-   CALENDARIO - ICONO
-   ================================================ */
-
-.bg-indigo-100 {
-  background-color: #e0e7ff !important;
-}
-
-html.dark .bg-indigo-100,
-:host-context(.dark) .bg-indigo-100 {
-  background-color: rgba(99, 102, 241, 0.2) !important;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-}
-
-.text-indigo-600 {
-  color: #4f46e5 !important;
-}
-
-html.dark .text-indigo-600,
-:host-context(.dark) .text-indigo-600 {
-  color: #a5b4fc !important;
-}
-
-/* ================================================
-   BORDES DE SECCIONES
-   ================================================ */
-
-/* Modo claro - bordes más suaves */
-.border-gray-200 {
-  border-color: #e5e7eb !important;
-}
-
-/* Modo oscuro - bordes más visibles */
-html.dark .border-gray-200,
-:host-context(.dark) .border-gray-200 {
-  border-color: #334155 !important;
-}
-
-/* Líneas divisorias internas */
-.border-b-2.border-gray-100 {
-  border-color: #f3f4f6 !important;
-}
-
-html.dark .border-b-2.border-gray-100,
-:host-context(.dark) .border-b-2.border-gray-100 {
-  border-color: #334155 !important;
-}
-
-/* ================================================
-   BOXES DE DATOS (p-3 bg-gray-50)
-   ================================================ */
-
-.bg-gray-50.rounded-lg {
-  background-color: #f9fafb !important;
-  border-color: #e5e7eb !important;
-}
-
-html.dark .bg-gray-50.rounded-lg,
-:host-context(.dark) .bg-gray-50.rounded-lg {
-  background-color: #0f172a !important;
-  border-color: #334155 !important;
-}
-
-/* ================================================
-   CALENDARIO - DÍAS DE LA SEMANA
-   ================================================ */
-
-.text-gray-600 {
-  color: #4b5563 !important;
+html.dark .text-gray-700,
+:host-context(.dark) .text-gray-700 {
+  color: #cbd5e1 !important;
 }
 
 html.dark .text-gray-600,
@@ -235,111 +51,275 @@ html.dark .text-gray-600,
   color: #94a3b8 !important;
 }
 
+html.dark .text-gray-500,
+:host-context(.dark) .text-gray-500 {
+  color: #64748b !important;
+}
+
+html.dark .text-gray-400,
+:host-context(.dark) .text-gray-400 {
+  color: #475569 !important;
+}
+
 /* ================================================
-   ESTADO DEL DISPOSITIVO - "EN LÍNEA"
+   TÍTULO DEL USUARIO
+   ================================================ */
+html.dark h1.text-gray-900,
+:host-context(.dark) h1.text-gray-900 {
+  color: #f8fafc !important;
+}
+
+html.dark section h3.text-gray-900,
+:host-context(.dark) section h3.text-gray-900 {
+  color: #f8fafc !important;
+  font-weight: 800 !important;
+}
+
+/* ================================================
+   BADGE DE ROL (Paciente)
+   ================================================ */
+html.dark .bg-blue-100,
+:host-context(.dark) .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+html.dark .text-blue-700,
+:host-context(.dark) .text-blue-700 {
+  color: #60a5fa !important;
+}
+
+html.dark .text-blue-600,
+:host-context(.dark) .text-blue-600 {
+  color: #60a5fa !important;
+}
+
+/* ================================================
+   STATS CARDS (Alertas, Críticas, Este Mes, Resueltas)
    ================================================ */
 
-.from-green-50.to-emerald-50 {
-  background: linear-gradient(to right, #f0fdf4, #d1fae5) !important;
-  border-color: #86efac !important;
+/* Alertas - Azul */
+html.dark .from-blue-50.to-blue-100,
+:host-context(.dark) .from-blue-50.to-blue-100 {
+  background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.25)) !important;
 }
 
+html.dark .border-blue-200,
+:host-context(.dark) .border-blue-200 {
+  border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+html.dark .text-blue-600,
+:host-context(.dark) .text-blue-600 {
+  color: #60a5fa !important;
+}
+
+/* Críticas - Rojo */
+html.dark .from-red-50.to-red-100,
+:host-context(.dark) .from-red-50.to-red-100 {
+  background: linear-gradient(to bottom right, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.25)) !important;
+}
+
+html.dark .border-red-200,
+:host-context(.dark) .border-red-200 {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+html.dark .text-red-600,
+:host-context(.dark) .text-red-600 {
+  color: #f87171 !important;
+}
+
+html.dark .text-red-700,
+:host-context(.dark) .text-red-700 {
+  color: #fca5a5 !important;
+}
+
+/* Este Mes - Naranja */
+html.dark .from-orange-50.to-orange-100,
+:host-context(.dark) .from-orange-50.to-orange-100 {
+  background: linear-gradient(to bottom right, rgba(249, 115, 22, 0.15), rgba(249, 115, 22, 0.25)) !important;
+}
+
+html.dark .border-orange-200,
+:host-context(.dark) .border-orange-200 {
+  border-color: rgba(249, 115, 22, 0.4) !important;
+}
+
+html.dark .text-orange-600,
+:host-context(.dark) .text-orange-600 {
+  color: #fb923c !important;
+}
+
+html.dark .text-orange-700,
+:host-context(.dark) .text-orange-700 {
+  color: #fdba74 !important;
+}
+
+/* Resueltas - Verde */
+html.dark .from-green-50.to-green-100,
+:host-context(.dark) .from-green-50.to-green-100 {
+  background: linear-gradient(to bottom right, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.25)) !important;
+}
+
+html.dark .border-green-200,
+:host-context(.dark) .border-green-200 {
+  border-color: rgba(34, 197, 94, 0.4) !important;
+}
+
+html.dark .text-green-600,
+:host-context(.dark) .text-green-600 {
+  color: #4ade80 !important;
+}
+
+/* ================================================
+   LÍNEAS DIVISORIAS INTERNAS
+   ================================================ */
+html.dark .border-b-2.border-gray-100,
+:host-context(.dark) .border-b-2.border-gray-100 {
+  border-color: #334155 !important;
+}
+
+html.dark .border-gray-200,
+:host-context(.dark) .border-gray-200 {
+  border-color: #334155 !important;
+}
+
+html.dark .border-gray-100,
+:host-context(.dark) .border-gray-100 {
+  border-color: #1e293b !important;
+}
+
+/* ================================================
+   BOXES DE DATOS (p-3 bg-gray-50 dentro de secciones)
+   ================================================ */
+html.dark .bg-gray-50,
+:host-context(.dark) .bg-gray-50 {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+/* ================================================
+   ICONOS DE CONTACTO (cuadraditos de colores)
+   ================================================ */
+html.dark section .bg-green-50,
+:host-context(.dark) section .bg-green-50 {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+html.dark section .bg-purple-50,
+:host-context(.dark) section .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.15) !important;
+  border: 1px solid rgba(168, 85, 247, 0.3) !important;
+}
+
+html.dark section .text-purple-600,
+:host-context(.dark) section .text-purple-600 {
+  color: #c084fc !important;
+}
+
+html.dark section .bg-pink-50,
+:host-context(.dark) section .bg-pink-50 {
+  background-color: rgba(236, 72, 153, 0.15) !important;
+  border: 1px solid rgba(236, 72, 153, 0.3) !important;
+}
+
+html.dark section .text-pink-600,
+:host-context(.dark) section .text-pink-600 {
+  color: #f472b6 !important;
+}
+
+/* ================================================
+   ESTADO DISPOSITIVO - "EN LÍNEA"
+   ================================================ */
 html.dark .from-green-50.to-emerald-50,
 :host-context(.dark) .from-green-50.to-emerald-50 {
-  background: linear-gradient(to right, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2)) !important;
-  border-color: #22c55e !important;
-}
-
-.text-green-700 {
-  color: #15803d !important;
-  font-weight: 700 !important;
+  background: linear-gradient(to right, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.15)) !important;
+  border-color: rgba(34, 197, 94, 0.4) !important;
 }
 
 html.dark .text-green-700,
 :host-context(.dark) .text-green-700 {
   color: #4ade80 !important;
+  font-weight: 700 !important;
 }
 
 /* ================================================
-   DÍAS DEL CALENDARIO - HOVER
+   MAC ADDRESS (código mono)
    ================================================ */
-
-/* Modo claro */
-.hover\:bg-gray-200:hover {
-  background-color: #e5e7eb !important;
+html.dark .bg-gray-200,
+:host-context(.dark) .bg-gray-200 {
+  background-color: #334155 !important;
 }
 
-/* Modo oscuro */
+html.dark .text-gray-700,
+:host-context(.dark) .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+/* ================================================
+   CALENDARIO - Fondo superior de fecha
+   ================================================ */
+html.dark .from-indigo-50.to-purple-50,
+:host-context(.dark) .from-indigo-50.to-purple-50 {
+  background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+html.dark .bg-indigo-100,
+:host-context(.dark) .bg-indigo-100 {
+  background-color: rgba(99, 102, 241, 0.2) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+}
+
+html.dark .text-indigo-600,
+:host-context(.dark) .text-indigo-600 {
+  color: #a5b4fc !important;
+}
+
+/* Grilla del calendario */
+html.dark .bg-gray-50.rounded-lg,
+:host-context(.dark) .bg-gray-50.rounded-lg {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
 html.dark .hover\:bg-gray-200:hover,
 :host-context(.dark) .hover\:bg-gray-200:hover {
   background-color: #334155 !important;
 }
 
+/* Día seleccionado del calendario (ya funciona con indigo-600) */
+html.dark .bg-indigo-600,
+:host-context(.dark) .bg-indigo-600 {
+  background-color: #4f46e5 !important;
+}
+
 /* ================================================
-   NOMBRE DEL MES EN CALENDARIO
+   BADGE EDAD / GÉNERO
    ================================================ */
-
-.from-indigo-50.to-purple-50 {
-  background: linear-gradient(to bottom right, #eef2ff, #faf5ff) !important;
-  border-color: #c7d2fe !important;
+html.dark .bg-gray-100,
+:host-context(.dark) .bg-gray-100 {
+  background-color: #334155 !important;
 }
 
-html.dark .from-indigo-50.to-purple-50,
-:host-context(.dark) .from-indigo-50.to-purple-50 {
-  background: linear-gradient(to bottom right, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)) !important;
-  border-color: rgba(99, 102, 241, 0.4) !important;
-}
-
-/* Texto del mes */
-.from-indigo-50.to-purple-50 .text-indigo-600 {
-  color: #4f46e5 !important;
-}
-
-html.dark .from-indigo-50.to-purple-50 .text-indigo-600,
-:host-context(.dark) .from-indigo-50.to-purple-50 .text-indigo-600 {
-  color: #a5b4fc !important;
-}
-
-/* Número del día grande */
-.from-indigo-50.to-purple-50 .text-gray-900 {
-  color: #0f172a !important;
-}
-
-html.dark .from-indigo-50.to-purple-50 .text-gray-900,
-:host-context(.dark) .from-indigo-50.to-purple-50 .text-gray-900 {
-  color: #f8fafc !important;
-}
-
-/* Año y día de la semana */
-.from-indigo-50.to-purple-50 .text-gray-600 {
+/* ================================================
+   ICONO DE SMARTPHONE SIN DISPOSITIVO
+   ================================================ */
+html.dark .text-gray-300,
+:host-context(.dark) .text-gray-300 {
   color: #475569 !important;
 }
 
-html.dark .from-indigo-50.to-purple-50 .text-gray-600,
-:host-context(.dark) .from-indigo-50.to-purple-50 .text-gray-600 {
-  color: #cbd5e1 !important;
-}
-
-.from-indigo-50.to-purple-50 .text-gray-500 {
+html.dark .text-gray-500,
+:host-context(.dark) .text-gray-500 {
   color: #64748b !important;
 }
 
-html.dark .from-indigo-50.to-purple-50 .text-gray-500,
-:host-context(.dark) .from-indigo-50.to-purple-50 .text-gray-500 {
-  color: #94a3b8 !important;
-}
-
 /* ================================================
-   AJUSTES FINALES DE CONTRASTE
+   ICONOS LUCIDE
    ================================================ */
-
-/* Asegurar que todos los textos sean legibles */
-html.dark *,
-:host-context(.dark) * {
-  border-color: inherit;
-}
-
-/* Iconos lucide en general */
 html.dark i-lucide,
 :host-context(.dark) i-lucide {
   opacity: 1;

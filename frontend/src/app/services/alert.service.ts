@@ -45,7 +45,7 @@ export class AlertService {
     const token = this.authService.getToken();
     
     if (token) {
-      console.log('✅ Usuario autenticado detectado, inicializando AlertService...');
+      // console.log('✅ Usuario autenticado detectado, inicializando AlertService...');
       
       // 1. Cargar historial inicial (Real + Mock)
       this.loadInitialHistory();
@@ -56,7 +56,7 @@ export class AlertService {
       // 3. Mantener simulación (Hybrid Mode)
       // setTimeout(() => this.startSimulation(), 5000);
     } else {
-      console.log('ℹ️ No hay usuario autenticado, AlertService en espera...');
+      // console.log('ℹ️ No hay usuario autenticado, AlertService en espera...');
     }
   }
 
@@ -69,7 +69,7 @@ export class AlertService {
       return;
     }
 
-    console.log('🔄 Inicializando AlertService después del login...');
+    // console.log('🔄 Inicializando AlertService después del login...');
     
     // Cargar historial
     this.loadInitialHistory();
@@ -82,7 +82,7 @@ export class AlertService {
   }
 
   private async loadInitialHistory() {
-    console.log('🔄 Loading alert history...');
+    // console.log('🔄 Loading alert history...');
     try {
       const realHistory = await this.apiService.getEvents(); // Fetch real events
 
@@ -113,7 +113,7 @@ export class AlertService {
       return;
     }
 
-    console.log('🔐 Token validated, connecting to SSE with token:', token.substring(0, 20) + '...');
+    // console.log('🔐 Token validated, connecting to SSE with token:', token.substring(0, 20) + '...');
 
     // Close existing connection if any
     if (this.eventSource) {
@@ -121,14 +121,14 @@ export class AlertService {
     }
 
     const streamUrl = `${environment.apiUrl}/alerts/stream?token=${token}`;
-    console.log('📡 Connecting to SSE:', streamUrl.replace(token, 'TOKEN_HIDDEN'));
+    // console.log('📡 Connecting to SSE:', streamUrl.replace(token, 'TOKEN_HIDDEN'));
 
     this.eventSource = new EventSource(streamUrl);
 
     this.eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log('⚡ Real-time alert received:', data);
+        // console.log('⚡ Real-time alert received:', data);
 
         if (data.type === 'FALL_DETECTED' || data.type === 'sos_button') {
           this.handleRealAlert(data.data);
@@ -146,7 +146,7 @@ export class AlertService {
       
       // ReadyState: 0 = CONNECTING, 1 = OPEN, 2 = CLOSED
       if (this.eventSource?.readyState === 2) {
-        console.log('SSE connection closed.');
+        // console.log('SSE connection closed.');
         console.warn('⚠️ Si ves error 401, tu token expiró. Cierra sesión y vuelve a iniciar sesión.');
       }
       
@@ -164,7 +164,7 @@ export class AlertService {
     };
 
     this.eventSource.onopen = () => {
-      console.log('✅ SSE connection established successfully');
+      // console.log('✅ SSE connection established successfully');
     };
   }
 
@@ -257,7 +257,7 @@ export class AlertService {
     // 👇 DISPARAR LA NOTIFICACIÓN
     this.alertNotification$.next(newAlert);
 
-    console.log('🤖 Simulación: Nueva alerta generada', newAlert.message);
+    // console.log('🤖 Simulación: Nueva alerta generada', newAlert.message);
   }
 
   // --- MÉTODOS PÚBLICOS ---
@@ -342,7 +342,7 @@ export class AlertService {
 
   // 👇 Detener servicio al cerrar sesión
   public stopService() {
-    console.log('🛑 Deteniendo AlertService...');
+    // console.log('🛑 Deteniendo AlertService...');
     
     // 1. Cerrar SSE
     if (this.eventSource) {

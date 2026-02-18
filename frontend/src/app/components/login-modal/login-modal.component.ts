@@ -59,7 +59,7 @@ export class LoginModalComponent implements AfterViewInit {
         this.authService.loginWithGoogle(response.credential).subscribe({
           next: (res) => {
             if (res.isNewUser) {
-              console.log('⚠️ Usuario nuevo detectado:', res.email);
+              // console.log('⚠️ Usuario nuevo detectado:', res.email);
               this.isLoading = false;
               
               // 🟢 MOSTRAR MODAL DE SELECCIÓN (DIFERIDO)
@@ -75,7 +75,7 @@ export class LoginModalComponent implements AfterViewInit {
               return;
             }
 
-            console.log('✅ Usuario existente, completando login directament');
+            // console.log('✅ Usuario existente, completando login directament');
             this.completeGoogleLogin();
           },
           error: (err) => {
@@ -103,7 +103,7 @@ export class LoginModalComponent implements AfterViewInit {
 
     this.authService.loginWithGoogle(this.tempGoogleCredential, backendRole).subscribe({
       next: (res) => {
-        console.log('✅ Google registro exitoso con rol:', backendRole);
+        // console.log('✅ Google registro exitoso con rol:', backendRole);
         this.completeGoogleLogin();
       },
       error: (err) => {
@@ -121,7 +121,7 @@ export class LoginModalComponent implements AfterViewInit {
   }
 
   private completeGoogleLogin() {
-    console.log('✅ Google Login exitoso');
+    // console.log('✅ Google Login exitoso');
     this.isLoading = false;
     this.alertService.initialize();
     this.close.emit();
@@ -137,7 +137,7 @@ export class LoginModalComponent implements AfterViewInit {
     if (this.loginData.email && this.loginData.password) {
       // Usuario admin de prueba (solo en frontend)
       if (this.loginData.email === 'admin@test.com' && this.loginData.password === '123456') {
-        console.log('✅ Login con usuario admin de prueba');
+        // console.log('✅ Login con usuario admin de prueba');
         this.authService.loginTestAdmin();
         this.isLoading = false;
         this.alertService.initialize(); // Inicializar AlertService después del login
@@ -150,7 +150,7 @@ export class LoginModalComponent implements AfterViewInit {
 
       this.authService.login(this.loginData.email, this.loginData.password).subscribe({
         next: () => {
-          console.log('✅ Login exitoso');
+          // console.log('✅ Login exitoso');
           this.isLoading = false;
           this.alertService.initialize(); // Inicializar AlertService después del login
           this.close.emit();
@@ -178,7 +178,7 @@ export class LoginModalComponent implements AfterViewInit {
     this.isLoading = true;
     this.authService.forgotPassword(this.loginData.email).subscribe({
       next: (res) => {
-        console.log('✅ Solicitud de recuperación enviada:', res);
+        // console.log('✅ Solicitud de recuperación enviada:', res);
         this.isLoading = false;
         this.showSuccessModal = true;
         this.modalEmail = this.loginData.email;

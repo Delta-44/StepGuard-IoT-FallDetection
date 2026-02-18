@@ -47,14 +47,14 @@ export class ChatbotComponent {
   }
 
   private loadChatForUser(userId: string | number): void {
-    console.log('[Chatbot] Loading chat for user:', userId);
+    // console.log('[Chatbot] Loading chat for user:', userId);
     const history = this.chatService.loadHistory(userId);
     
     if (history.length > 0) {
-      console.log('[Chatbot] Restoring history:', history.length);
+      // console.log('[Chatbot] Restoring history:', history.length);
       this.messages.set(history);
     } else {
-      console.log('[Chatbot] No history, showing welcome.');
+      // console.log('[Chatbot] No history, showing welcome.');
       this.addWelcomeMessage();
     }
     

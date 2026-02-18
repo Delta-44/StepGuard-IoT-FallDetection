@@ -58,7 +58,7 @@ export class ApiService {
         return this.http.get<any[]>(`${this.apiUrl}/events`, { params });
       }),
       map((realEvents) => {
-        console.log('🔥 Raw Events from Backend:', realEvents);
+        // console.log('🔥 Raw Events from Backend:', realEvents);
         return realEvents.map((e) => ({
           id: String(e.id),
           macAddress: e.dispositivo_mac,
@@ -100,7 +100,7 @@ export class ApiService {
     };
     return this.http.put<any>(`${this.apiUrl}/events/${alertId}/resolve`, payload).pipe(
       map(() => {
-        console.log(`✅ Alerta ${alertId} resuelta como ${status} en backend`);
+        // console.log(`✅ Alerta ${alertId} resuelta como ${status} en backend`);
         return true;
       }),
       catchError((err) => {
@@ -153,7 +153,7 @@ export class ApiService {
   toggleDevice(macAddress: string): Observable<boolean> {
     const device = this.mockDevices.find((d) => d.mac_address === macAddress);
     if (device) {
-      console.log(`🔌 Reiniciando dispositivo ${macAddress}...`);
+      // console.log(`🔌 Reiniciando dispositivo ${macAddress}...`);
       // Simulamos que se reinicia y vuelve a estar online/offline
       device.estado = !device.estado;
       device.ultima_conexion = new Date();
@@ -211,7 +211,7 @@ export class ApiService {
         userName: e.usuario_nombre,
       })) as Alert[];
 
-      console.log(`✅ Successfully fetched ${mappedEvents.length} real events from backend`);
+      // console.log(`✅ Successfully fetched ${mappedEvents.length} real events from backend`);
       return mappedEvents;
     } catch (error: any) {
       console.error('❌ Error fetching real events from backend:', error);
@@ -219,7 +219,7 @@ export class ApiService {
         console.error(`HTTP Error ${error.status}: ${error.statusText}`);
         console.error('URL:', error.url);
       }
-      console.log('Falling back to empty array (no mock data)');
+      // console.log('Falling back to empty array (no mock data)');
       return [];
     }
   }
@@ -275,7 +275,7 @@ export class ApiService {
       const response = await firstValueFrom(
         this.http.get<any>(`${this.apiUrl}/users/${userId}`)
       );
-      console.log('📦 getUserById RAW response:', response);
+      // console.log('📦 getUserById RAW response:', response);
 
       // Mapear la respuesta del backend al formato esperado por el frontend
       return {
