@@ -5,16 +5,16 @@
 #include <vector>
 #include "time.h"
 #include "red.h"
+#include "secrets.h"
 
-// WiFi
-const char *ssid = "Argulles";
-const char *password = "sexoenelsaxo";
+//Ocultas
+const char *ssid = WIFI_SSID;
+const char *password = WIFI_PASS;
 
-// Configuración MQTT HiveMQ Cloud !!!NO TOCAR!!!
-const char *mqtt_server = "a54daced88d04e29b3ea4910a02d45ba.s1.eu.hivemq.cloud";
-const int mqtt_port = 8883;
-const char *mqtt_user = "stepguard";
-const char *mqtt_pass = "Stepguard123";
+const char *mqtt_server = MQTT_SERVER;
+const int mqtt_port = MQTT_PORT;
+const char *mqtt_user = MQTT_USER;
+const char *mqtt_pass = MQTT_PASS;
 
 // Variables globales
 String globalMac;
