@@ -6,22 +6,23 @@ Documentación de los tests unitarios que cubren todas las funcionalidades del b
 
 Los tests se encuentran en `backend/test/` y están organizados por componentes:
 
-### Controladores (7 archivos, 60 tests)
+### Controladores (8 archivos)
 
-- **authController.spec.ts** (8 tests): Recuperación y reseteo de contraseña
-- **registerController.spec.ts** (5 tests): Registro de usuarios y cuidadores
-- **userController.spec.ts** (3 tests): Obtención de datos de usuarios
-- **loginController.spec.ts** (10 tests): Autenticación de usuarios, cuidadores y admins
-- **googleAuthController.spec.ts** (10 tests): Autenticación con Google OAuth2
-- **esp32Controller.spec.ts** (11 tests): Recepción y gestión de datos IoT
-- **eventsController.spec.ts** (13 tests): Gestión de eventos de caída
+- **authController.spec.ts**: Recuperación y reseteo de contraseña
+- **registerController.spec.ts**: Registro de usuarios y cuidadores
+- **userController.spec.ts**: Obtención de datos de usuarios
+- **loginController.spec.ts**: Autenticación de usuarios, cuidadores y admins
+- **googleAuthController.spec.ts**: Autenticación con Google OAuth2
+- **esp32Controller.spec.ts**: Recepción y gestión de datos IoT
+- **eventsController.spec.ts**: Gestión de eventos de caída
+- **chatController.spec.ts**: Mensajería y gestión de chat
 
-### Servicios (4 archivos, 47 tests)
+### Servicios (2 archivos)
 
-- **alertService.spec.ts** (9 tests): Sistema de alertas en tiempo real (SSE)
-- **esp32Service.spec.ts** (14 tests): Procesamiento de telemetría del ESP32
-- **emailService.spec.ts** (11 tests): Envío de emails de recuperación
-- **discordService.spec.ts** (13 tests): Notificaciones por Discord - [Documentación detallada](./DISCORD_SERVICE_TESTING.md)
+- **alertService.spec.ts**: Sistema de alertas en tiempo real (SSE)
+- **emailService.spec.ts**: Envío de emails de recuperación
+
+**Total: 161 tests distribuidos en 10 archivos (100% passing ✅)**
 
 ### Utilidades
 
@@ -49,7 +50,7 @@ Verifica que estas dependencias estén en `devDependencies`:
 npm test
 ```
 
-Resultado esperado: 107 tests pasando en 5-8 segundos
+Resultado esperado: **161 tests pasando** en 10 suites (5-8 segundos)
 
 ### Tests específicos
 
