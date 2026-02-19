@@ -156,7 +156,7 @@ Para probar el sistema localmente (conectado a BD Neon de producción):
 
 | Rol          | Email                        | Password      |
 | ------------ | ---------------------------- | ------------- |
-| **Admin**    | `admin@stepguard.com`        | `admin123`    |
+| **Admin**    | `angelgonzalez@gmail.com`    | `123456`      |
 | **Cuidador** | `ana.martinez@stepguard.com` | `cuidador123` |
 | **Usuario**  | `juan@stepguard.com`         | `user123`     |
 

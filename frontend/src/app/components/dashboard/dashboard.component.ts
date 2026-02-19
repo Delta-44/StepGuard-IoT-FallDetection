@@ -34,6 +34,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // Guardamos la suscripción para limpiarla al salir
   private alertSub: Subscription | null = null;
+  private focusAlertSub: Subscription | null = null;
   private userSub: Subscription | null = null;
   private deviceSub: Subscription | null = null; // 🆕
 
@@ -151,11 +152,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.openResolutionModal(this.alertService.currentActiveAlert);
       this.alertService.currentActiveAlert = null;
     }
+
+    this.focusAlertSub = this.alertService.focusAlertRequest$.subscribe((alert) => {
+      if (!this.canAttend) return;
+      this.openResolutionModal(alert);
+      this.alertService.currentActiveAlert = null;
+      this.cdr.markForCheck();
+    });
   }
 
   ngOnDestroy() {
     // Evitar fugas de memoria
     if (this.alertSub) this.alertSub.unsubscribe();
+    if (this.focusAlertSub) this.focusAlertSub.unsubscribe();
     if (this.userSub) this.userSub.unsubscribe();
     if (this.deviceSub) this.deviceSub.unsubscribe(); // 🆕
   }

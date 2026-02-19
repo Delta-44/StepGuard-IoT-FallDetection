@@ -129,8 +129,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Ir al dashboard desde la Alerta Roja
   goToDashboard() {
-    if (this.criticalAlert()) {
-      this.alertService.currentActiveAlert = this.criticalAlert();
+    const alert = this.criticalAlert();
+    if (alert) {
+      this.alertService.currentActiveAlert = alert;
+      this.alertService.requestFocusAlert(alert);
       this.criticalAlert.set(null);
       this.router.navigate(['/dashboard']);
     }
@@ -141,6 +143,7 @@ export class AppComponent implements OnInit, OnDestroy {
     const alert = this.miniAlert();
     if (alert) {
       this.alertService.currentActiveAlert = alert;
+      this.alertService.requestFocusAlert(alert);
       this.miniAlert.set(null);
       this.router.navigate(['/dashboard']);
     }
