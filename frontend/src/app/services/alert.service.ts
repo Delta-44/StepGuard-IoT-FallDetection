@@ -9,6 +9,8 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class AlertService {
+  private readonly useMockAlerts = environment.useMockAlerts; // en enviroments.ts cambiar useMockAlerts para activar o dessactivar los mocks
+
   // MOCK DATA INICIAL
   private mockAlerts: Alert[] = [
     {
@@ -28,11 +30,12 @@ export class AlertService {
   ];
 
   // ESTRUCTURA REACTIVA
-  private alertsSubject = new BehaviorSubject<Alert[]>(this.mockAlerts);
+  private alertsSubject = new BehaviorSubject<Alert[]>(this.useMockAlerts ? this.mockAlerts : []);
   alerts$ = this.alertsSubject.asObservable();
 
   // 👇 NUEVO: Canal de Notificaciones para el Toast
   public alertNotification$ = new Subject<Alert>();
+  public focusAlertRequest$ = new Subject<Alert>();
 
   public currentActiveAlert: Alert | null = null;
   private apiService = inject(ApiService);
@@ -87,12 +90,25 @@ export class AlertService {
       const realHistory = await this.apiService.getEvents(); // Fetch real events
 
       // Merge with mocks (optional: prioritize real)
-      const merged = [...realHistory, ...this.mockAlerts];
+      const merged = this.useMockAlerts ? [...realHistory, ...this.mockAlerts] : [...realHistory];
 
       // Sort by date desc
       merged.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
       this.alertsSubject.next(merged);
+
+      if (this.useMockAlerts) {
+        const initialCriticalMock = merged.find(
+          (alert) =>
+            alert.id.startsWith('mock') &&
+            alert.severity === 'critical' &&
+            alert.status === 'pendiente',
+        );
+
+        if (initialCriticalMock) {
+          this.alertNotification$.next(initialCriticalMock);
+        }
+      }
     } catch (e) {
       console.error('Failed to load history', e);
     }
@@ -213,6 +229,10 @@ export class AlertService {
 
   // Genera una alerta aleatoria cada 30 segundos (optimización de rendimiento)
   private startSimulation() {
+    if (!this.useMockAlerts) {
+      return;
+    }
+
     // this.simulationInterval = setInterval(() => {
     //   this.generateRandomAlert();
     // }, 30000);
@@ -281,6 +301,10 @@ export class AlertService {
         a.attendedBy === caregiverName && (a.status === 'atendida' || a.status === 'falsa_alarma'),
     );
     return new Observable((obs) => obs.next(filtered));
+  }
+
+  requestFocusAlert(alert: Alert) {
+    this.focusAlertRequest$.next(alert);
   }
 
   resolveAlert(

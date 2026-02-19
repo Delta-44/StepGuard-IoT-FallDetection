@@ -18,7 +18,53 @@ export class ApiService {
   // Ahora coinciden con la estructura de tu nueva Base de Datos
   // ============================================================
 
-  private mockAlerts: Alert[] = []; // Ya no se usan mocks de alertas, llegan del backend
+  private mockAlerts: Alert[] = [
+    {
+      id: 'mock-api-001',
+      severity: 'critical',
+      status: 'pendiente',
+      message: 'Caída detectada (mock API)',
+      location: 'Dormitorio',
+      macAddress: 'AA:BB:CC:DD:EE:01',
+      userId: 1,
+      timestamp: new Date(Date.now() - 2 * 60 * 1000),
+      acc_x: 2.4,
+      acc_y: -0.2,
+      acc_z: 0.6,
+      resolved: false,
+      deviceName: 'AA:BB:CC:DD:EE:01',
+    },
+    {
+      id: 'mock-api-002',
+      severity: 'high',
+      status: 'atendida',
+      message: 'Impacto fuerte detectado (mock API)',
+      location: 'Sala',
+      macAddress: 'AA:BB:CC:DD:EE:02',
+      userId: 2,
+      timestamp: new Date(Date.now() - 35 * 60 * 1000),
+      resolved: true,
+      attendedBy: 'Cuidador Demo',
+      caregiverName: 'Cuidador Demo',
+      resolutionNotes: 'Paciente estable, sin lesiones.',
+      deviceName: 'AA:BB:CC:DD:EE:02',
+    },
+    {
+      id: 'mock-api-003',
+      severity: 'medium',
+      status: 'falsa_alarma',
+      message: 'Movimiento brusco sin caída (mock API)',
+      location: 'Cocina',
+      macAddress: 'AA:BB:CC:DD:EE:03',
+      userId: 3,
+      timestamp: new Date(Date.now() - 90 * 60 * 1000),
+      resolved: true,
+      attendedBy: 'Sistema',
+      caregiverName: 'Sistema',
+      resolutionNotes: 'Evento descartado por revisión manual.',
+      deviceName: 'AA:BB:CC:DD:EE:03',
+    },
+  ];
 
   // 🆕 AHORA LOS DISPOSITIVOS SON PERSISTENTES EN MEMORIA
   // Coinciden con la estructura actualizada del backend
@@ -59,7 +105,7 @@ export class ApiService {
       }),
       map((realEvents) => {
         // console.log('🔥 Raw Events from Backend:', realEvents);
-        return realEvents.map((e) => ({
+        const mappedEvents = realEvents.map((e) => ({
           id: String(e.id),
           macAddress: e.dispositivo_mac,
           userId: e.usuario_id,
@@ -76,11 +122,13 @@ export class ApiService {
           // 🛡️ Fallbacks para asegurar que mostramos la MAC o ID
           deviceName: e.dispositivo_mac || e.device_id || e.dispositivo_id || 'ID Desconocido'
         }));
+
+        return mappedEvents.length > 0 ? mappedEvents : this.getMockAlertsSnapshot();
       }),
-      // Si falla la petición, devolver array vacío para no romper el stream
+      // Si falla la petición, usar mocks para mantener funcional la UI
       catchError((err) => {
         console.error('Error polling alerts:', err);
-        return of([]);
+        return of(this.getMockAlertsSnapshot());
       })
     );
   }
@@ -211,17 +259,34 @@ export class ApiService {
         userName: e.usuario_nombre,
       })) as Alert[];
 
-      // console.log(`✅ Successfully fetched ${mappedEvents.length} real events from backend`);
-      return mappedEvents;
+      const filteredEvents = userId
+        ? mappedEvents.filter((event) => String(event.userId) === String(userId))
+        : mappedEvents;
+
+      // console.log(`✅ Successfully fetched ${filteredEvents.length} real events from backend`);
+      return filteredEvents.length > 0
+        ? filteredEvents
+        : this.getMockAlertsSnapshot(userId);
     } catch (error: any) {
       console.error('❌ Error fetching real events from backend:', error);
       if (error.status) {
         console.error(`HTTP Error ${error.status}: ${error.statusText}`);
         console.error('URL:', error.url);
       }
-      // console.log('Falling back to empty array (no mock data)');
-      return [];
+      // console.log('Falling back to mock alerts');
+      return this.getMockAlertsSnapshot(userId);
     }
+  }
+
+  private getMockAlertsSnapshot(userId?: string): Alert[] {
+    const alerts = userId
+      ? this.mockAlerts.filter((alert) => String(alert.userId) === String(userId))
+      : this.mockAlerts;
+
+    return alerts.map((alert) => ({
+      ...alert,
+      timestamp: new Date(alert.timestamp),
+    }));
   }
 
   // 🆕 Obtener dispositivo por MAC address con datos en tiempo real

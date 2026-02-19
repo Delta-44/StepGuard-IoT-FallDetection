@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000/api', // Backend API local
+  useMockAlerts: false,
   
   // ====================================================
   // GRAFANA CLOUD - Configuración
