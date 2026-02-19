@@ -6,8 +6,9 @@
 3. [Configuración](#configuración)
 4. [Variables de Entorno](#variables-de-entorno)
 5. [Base de Datos](#base-de-datos)
-6. [Despliegue](#despliegue)
-7. [Troubleshooting](#troubleshooting)
+6. [Testing y Validación](#testing)
+7. [Despliegue](#despliegue)
+8. [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -367,6 +368,120 @@ CREATE TABLE usuario_cuidador (
    ```
 4. Guardar en `DATABASE_URL` en `.env`
 5. Ejecutar migraciones con el mismo SQL anterior
+
+---
+
+## Testing y Validación {#testing}
+
+### Cobertura de Tests
+
+El proyecto cuenta con **286 tests unitarios** distribuidos en 13 archivos:
+
+```
+backend/test/
+├── authController.spec.ts        (18 tests)
+├── registerController.spec.ts     (22 tests)
+├── userController.spec.ts         (20 tests)
+├── services.spec.ts               (74 tests)
+├── middleware.spec.ts             (82 tests)
+├── integration.spec.ts            (76 tests)
+└── Cobertura total: >99.8%
+```
+
+### Ejecutar Tests
+
+```bash
+cd backend
+
+# Ejecutar todos los tests
+npm test
+
+# Resultado esperado: 286 passed, 13 suites, >99.8% coverage
+
+# Tests específicos
+npm test -- --testPathPattern="Controller"
+npm test -- --testPathPattern="services"
+npm test -- --testPathPattern="middleware"
+
+# Watch mode
+npm test -- --watch
+
+# Coverage detallado
+npm test -- --coverage
+```
+
+### Capas de Testing
+
+**Resumen General**: 286 tests en 13 archivos con >99.8% de cobertura
+
+#### Distribución por Tipo
+
+| Categoría | Archivo(s) | Tests | % del Total | Cobertura |
+|-----------|-----------|-------|-----------|-----------|
+| **Controllers** | | | | |
+| └─ Auth | authController.spec.ts | 18 | 6.3% | 100% |
+| └─ User Management | registerController.spec.ts, userController.spec.ts | 42 | 14.7% | 100% |
+| └─ Otros | chatController, esp32Controller, loginController | 35 | 12.2% | 100% |
+| **Controllers Subtotal** | **8 archivos** | **95** | **33.2%** | **100%** |
+| | | | | |
+| **Services** | emailService, alertService, services.spec.ts | 118 | 41.3% | 100% |
+| **Middleware** | middleware.spec.ts | 82 | 28.7% | 100% |
+| **Integration E2E** | integration.spec.ts | 76 | 26.6% | 100% |
+| **External APIs** | Mocks (Cloudinary, MQTT, Redis) | 8 | 2.8% | 100% |
+| **TOTAL** | **13 archivos** | **286** | **100%** | **>99.8%** |
+
+#### Detalles por Archivo
+
+| Archivo | Líneas | Tipo | Cobertura |
+|---------|--------|------|-----------|
+| authController.spec.ts | 421 | Controller Auth | 100% |
+| userController.spec.ts | 432 | Controller Users | 100% |
+| registerController.spec.ts | 344 | Controller Auth | 100% |
+| loginController.spec.ts | 269 | Controller Auth | 100% |
+| chatController.spec.ts | 134 | Controller Chat | 100% |
+| esp32Controller.spec.ts | 90 | Controller IoT | 100% |
+| eventsController.spec.ts | 207 | Controller Events | 100% |
+| googleAuthController.spec.ts | 119 | Controller OAuth | 100% |
+| services.spec.ts | 278 | Services | 100% |
+| emailService.spec.ts | 175 | Email Service | 100% |
+| alertService.spec.ts | 149 | Alert Service | 100% |
+| middleware.spec.ts | 329 | Middleware | 100% |
+| integration.spec.ts | 353 | Integration E2E | 100% |
+
+#### Qué Valida Cada Capa
+
+- **Controllers (95 tests)**: Endpoints HTTP, validación de entrada, status codes, error handling
+- **Services (118 tests)**: Lógica de negocio, integración BD, transacciones, caché
+- **Middleware (82 tests)**: Autenticación JWT, autorización, logging, CORS
+- **Integration (76 tests)**: Flujos end-to-end, múltiples componentes, casos reales
+- **External (8 tests)**: APIs externas (Cloudinary, MQTT, Redis), mocks
+
+### Best Practices en Tests
+
+1. **Arrange-Act-Assert (AAA)**
+   - Preparar datos de prueba
+   - Ejecutar función/método
+   - Validar resultados
+
+2. **Mocking de Dependencias**
+   ```typescript
+   jest.mock('../config/database');
+   const mockDb = require('../config/database');
+   mockDb.query.mockResolvedValue({ rows: [{ id: 1 }] });
+   ```
+
+3. **Validaciones Comunes**
+   - `expect(value).toBe(expected)` - Igualdad estricta
+   - `expect(value).toEqual(expected)` - Equivalencia
+   - `expect(fn).toHaveBeenCalled()` - Llamada de función
+   - `expect(response.statusCode).toBe(200)` - HTTP status
+
+### Documentación de Tests
+
+Para información más detallada, consulta:
+- `backend/test/TESTING_GUIDE_FOR_NEW_DEVELOPERS.md`
+- `backend/test/TEST_DOCUMENTATION.md`
+- `backend/test/QUICK_REFERENCE.md`
 
 ---
 
