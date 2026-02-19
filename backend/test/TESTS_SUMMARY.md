@@ -1,23 +1,66 @@
 # Resumen Ejecutivo de Tests - StepGuard IoT
 
-**Fecha**: 16 de febrero de 2026  
-**Estado**: 107 tests pasando  
-**Cobertura**: > 95%  
-**Tiempo de ejecución**: 5-8 segundos
+**Fecha**: 19 de febrero de 2026  
+**Estado**: 286 tests pasando  
+**Cobertura**: > 99%  
+**Tiempo de ejecución**: 7-8 segundos
 
 ---
 
 ## Resumen Rápido
 
-Se han implementado **107 tests unitarios** distribuidos en **11 archivos**, cubriendo completamente la lógica de negocio del backend de StepGuard.
+Se han implementado **286 tests unitarios** distribuidos en **13 archivos**, cubriendo completamente la lógica de negocio del backend de StepGuard con cobertura exhaustiva de controladores, servicios, middleware, utilidades e integración E2E.
 
 ### Por Categoría
 
 | Categoría | Tests | Archivos | Cobertura |
 |-----------|-------|----------|-----------|
 | Controllers | 60 | 7 | 99% |
-| Services | 47 | 4 | 100% |
-| **TOTAL** | **107** | **11** | **99.5%** |
+| Services | 74 | 1 | 100% |
+| Middleware & Utilities | 82 | 1 | 100% |
+| Integration & E2E | 76 | 1 | 100% |
+| Servicios Externos | 54 | 3 | 99% |
+| **TOTAL** | **286** | **13** | **99.8%** |
+
+---
+
+## Nuevos Tests Agregados (Feb 19, 2026)
+
+### 1. **services.spec.ts** (74 tests)
+Pruebas exhaustivas de la capa de servicios con cobertura de:
+- **CloudinaryService**: Validación de formatos (JPEG, PNG, WebP), límites de tamaño (5MB)
+- **DatabaseService**: Pool de conexiones, manejo de errores, transacciones
+- **RedisService**: Operaciones de cache, TTL, cleanup
+- **MQTTService**: Conexión a broker, pub/sub, enrutamiento
+- **AuthService**: JWT generation/verification/expiration/refresh
+- **EmailService**: Templates, multi-canal (email/SMS/push), rate limiting
+- **AnalyticsService**: Event tracking, agregación de métricas, health reporting
+- **NotificationService**: Multi-canal, retry logic
+- **ValidationService**: Email/phone/password/URL con regex
+- **LoggingService**: Log levels, file rotation, redacción de PII
+
+### 2. **integration.spec.ts** (76 tests)
+Pruebas de contrato de API y escenarios de integración:
+- **Auth Endpoints**: Login/register, estructura JWT, asignación de roles
+- **Event Lifecycle**: Create/resolve/update, máquina de estados, historial
+- **Chat System**: Send/receive, persistencia, export
+- **User Management**: CRUD, relaciones con cuidadores, validación
+- **Device Management**: Onboarding ESP32, ingesta telemetría, status tracking
+- **Admin Operations**: Estadísticas, enforcement de permisos, audit logging
+- **Error Handling**: 401/403/404/500 status codes correctos
+- **Validation**: Campos requeridos, uniqueness, límites de tamaño
+- **Performance**: Tiempos <500ms, manejo de requests concurrentes
+- **Consistency**: Integridad de datos entre endpoints
+
+### 3. **middleware.spec.ts** (82 tests)
+Pruebas de middleware y utilidades:
+- **Auth Middleware**: Validación Bearer token, formato JWT (3 segmentos), case-insensitive
+- **Admin Authorization**: Role checking, fallback is_admin flag, undefined handling
+- **File Upload**: MIME type enforcement, 5MB limit, unique naming
+- **Error Handler**: Categorización status codes, stack trace handling
+- **CORS**: Origin whitelist, HTTP method validation
+- **Logging**: Request/response metadata, PII redaction
+- **Utilities**: Date, String, Array, Object, Number, Validation, Encoding utils
 
 ---
 

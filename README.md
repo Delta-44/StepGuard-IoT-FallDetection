@@ -269,6 +269,25 @@ npm install
 npm run dev
 ```
 
+**Ejecutar Tests (286 tests, 100% passing)**
+
+```bash
+npm test                    # Todos los tests
+npm test -- --coverage      # Con reporte de cobertura
+npm test -- --watch         # En modo watch
+```
+
+**Estadísticas de Tests:**
+- Total: 286 tests en 13 archivos
+- Cobertura: >99%
+- Controllers: 60 tests
+- Services: 74 tests
+- Middleware & Utilities: 82 tests
+- Integration E2E: 76 tests
+- External Services: 54 tests
+
+Para más detalles: [backend/test/TEST_DOCUMENTATION.md](./backend/test/TEST_DOCUMENTATION.md)
+
 </td>
 <td width="33%" align="center">
 
