@@ -303,6 +303,6 @@ ng serve
 ---
 
 **Desarrollado con dedicación por el equipo Fall Detection System**  
-*Tecnología al servicio de la seguridad y el cuidado*
+*[Link a la web](https://step-guard-front.vercel.app/)*
 
 </div>
